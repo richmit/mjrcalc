@@ -6,7 +6,7 @@
 ;; @brief     Utilities.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-util.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,2004,2010,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -39,7 +39,7 @@
            #:mjr_util_read-file #:mjr_util_write-file
            #:mjr_util_max-print-width
            #:mjr_util_get-all-elements-or-args
-           #:mjr_util_get-kwarg-vals #:mjr_util_strip-kwarg 
+           #:mjr_util_get-kwarg-supplied #:mjr_util_get-kwarg-vals #:mjr_util_strip-kwarg #:mjr_util_strip-nil-val-kwarg
            #:mjr_util_partition-list-if
            #:mjr_util_split-seq-if #:mjr_util_split-seq-on-elt
            #:mjr_util_super-concatenate
@@ -98,6 +98,23 @@ If both :STRIP-LIST & :KEEP-LIST are nil, then KW-ARG is returned."
             append (list s v))
       kw-arg))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_util_strip-nil-val-kwarg (kw-arg)
+  "Given a list of KW arguments, strip off the pairs with a NIL value"
+  (if (oddp (length kw-arg))
+      (error "mjr_util_strip-nil-val-kwarg: KW-ARG of odd length -- impossible for key-word/value pairs!"))
+  (loop for (s v) in (mapcar 'list (loop for a in kw-arg by #'cddr collect a) (loop for b in (cdr kw-arg) by #'cddr collect b))
+        when (not (symbolp s))
+        do (error "mjr_util_strip-nil-val-kwarg: KW-ARG contained a non-keyword argument!")
+        when v
+        append (list s v)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_util_get-kwarg-supplied (args-to-find kw-args)
+"Like mjr_util_get-kwarg-vals, but instead of returning the value returns 't or NIL depending on if the keyword argument was supplied in the list."
+  (values-list (mapcar (lambda (x) (and (member x kw-args) 't)) args-to-find)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_get-kwarg-vals (args-to-return kw-args &optional (error-on-extra-kw-args-with-non-nil-values nil))
   "Given a list of KW arguments, return the values for the arguments named by the rest of the parameters.
@@ -153,7 +170,7 @@ Useful for multiple value bind'n argument values."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_read-csv-file (file-name &key
-                                         (header-lines-to-skip 1) (max-lines nil) (max-data-lines nil) 
+                                         (header-lines-to-skip 1) (max-lines nil) (max-data-lines nil)
                                          (return-as-array nil) (check-field-count 't) (filter-func nil)
                                          (delimiter-char #\,))
   "Read the given CSV file into a list of lists.
@@ -181,7 +198,7 @@ Optional keyword arguments:
                                  collect (let* ((tmp-list (mjr_string_split line delimiter-char))
                                                 (list-len (length tmp-list)))
                                            (if (and check-field-count fields-per-line (not (= list-len fields-per-line)))
-                                               (error "mjr_util_read-csv-file: Line ~d has ~d fields, but previous lines had ~d fields!" 
+                                               (error "mjr_util_read-csv-file: Line ~d has ~d fields, but previous lines had ~d fields!"
                                                       line-number list-len fields-per-line)
                                                (setq fields-per-line list-len))
                                            (if filter-func
@@ -212,7 +229,7 @@ Optional keyword arguments:
            (fields-per-line (if dat-is-matrix (array-dimension data 1) (length (elt data 0)))))
       (dotimes (j dat-lines)
         (if (and (not dat-is-matrix) check-field-count (not (= fields-per-line (length (elt data j)))))
-            (error "mjr_util_write-csv-file: Element ~d has ~d fields, but a previous element had ~d fields!" 
+            (error "mjr_util_write-csv-file: Element ~d has ~d fields, but a previous element had ~d fields!"
                    j (length (elt data j)) fields-per-line))
         (dotimes (i fields-per-line)
           (format stream "~a~a"
@@ -221,7 +238,7 @@ Optional keyword arguments:
         (format stream "~%")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_util_super-concatenate (output-type-spec &rest x) 
+(defun mjr_util_super-concatenate (output-type-spec &rest x)
   "Assemble a group of sequences (lists and vectors), and other objects into one big list.  Arrays are flattened.
 Example: (mjr_util_super-concatenate 'list 1 '(2) #(3) #2a((5 6)(7 8)) 9) => '(1 2 3 5 6 7 8 9)"
   (apply #'concatenate output-type-spec (mapcar (lambda (y) (typecase y

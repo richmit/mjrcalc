@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-intg.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -58,7 +58,7 @@
 (defvar ti5 "atan(10*x)")            (defun tf5  (x) (atan (* 10 x)))                                            (defvar ta5 -3)     (defvar tb5        4) (defvar tv5  1.5420119327)
 (defvar ti6 "1/(x^2)")               (defun tf6  (x) (/ (* x x)))                                                (defvar ta6  1)     (defvar tb6        2) (defvar tv5  1.5420119327) (defun ti6 (x) (- 1 (/ x)))
 ;; HARD ONES
-                                   (defun tf7  (x) (* (EXPT X 3) (LOG (ABS (* (- (* X X) 1) (- (* X X) 2)))))) (defvar ta7  0.0d0) (defvar tb7        3) (defvar tv7  52.7408) 
+                                   (defun tf7  (x) (* (EXPT X 3) (LOG (ABS (* (- (* X X) 1) (- (* X X) 2)))))) (defvar ta7  0.0d0) (defvar tb7        3) (defvar tv7  52.7408)
                                    (defun tf8  (x) (/ (LOG X) (SQRT X)))                                       (defvar ta8  0.0d0) (defvar tb8        1) (defvar tv8  -4)
                                    (defun tf8  (x) (* (LOG X) (SQRT X)))                                       (defvar ta8  0.0d0) (defvar tb8        1) (defvar tv8  -4/9)
                                    (defun tf10 (x) (* (LOG X) (SIN (* (* 10 PI) X))))                          (defvar ta9  0.0d0) (defvar tb9        1) (defvar tv9  -0.128137)
@@ -92,7 +92,7 @@ References:
   (assert-equality (mjr_eps_make-fixed= .001) tv2 (mjr_intg_loc-adp-dnc-simpson       #'tf2 :start ta2 :end tb2 :min-width 1/100))
   (assert-equality (mjr_eps_make-fixed= .001) tv3 (mjr_intg_loc-adp-dnc-simpson       #'tf3 :start ta3 :end tb3 :min-width 1/100))
   (assert-equality (mjr_eps_make-fixed= .001) tv4 (mjr_intg_loc-adp-dnc-simpson       #'tf4 :start ta4 :end tb4 :min-width 1/100))
-  (assert-equality (mjr_eps_make-fixed= .001) tv5 (mjr_intg_loc-adp-dnc-simpson       #'tf5 :start ta5 :end tb5 :min-width 1/100))  
+  (assert-equality (mjr_eps_make-fixed= .001) tv5 (mjr_intg_loc-adp-dnc-simpson       #'tf5 :start ta5 :end tb5 :min-width 1/100))
   (assert-equality (mjr_eps_make-fixed= .001) tv1 (mjr_intg_loc-adp-dnc-simpson         ti1 :start ta1 :end tb1 :min-width 1/100))
   (assert-equality (mjr_eps_make-fixed= .001) tv2 (mjr_intg_loc-adp-dnc-simpson         ti2 :start ta2 :end tb2 :min-width 1/100))
   (assert-equality (mjr_eps_make-fixed= .001) tv3 (mjr_intg_loc-adp-dnc-simpson         ti3 :start ta3 :end tb3 :min-width 1/100))
@@ -210,7 +210,7 @@ References:
   ;; Exact case
   (assert-equal (values 1398101/1048576 2048) (mjr_intg_glb-adp-composite-trapezoidal #'tf3             :start ta3  :end tb3))
   (assert-equal (values 1398101/1048576 2048) (mjr_intg_glb-adp-composite-trapezoidal   ti3             :start ta3  :end tb3))
-  ;; Errors                                                                                                   
+  ;; Errors
   (assert-error 'error                   (mjr_intg_glb-adp-composite-trapezoidal #'identity                             :start 1   :end -1))
   (assert-error 'error                   (mjr_intg_glb-adp-composite-trapezoidal #'identity                             :start 't  :end 1))
   (assert-error 'error                   (mjr_intg_glb-adp-composite-trapezoidal #'identity                             :start 0   :end 't))
@@ -245,7 +245,7 @@ References:
         do (assert-equality (mjr_eps_make-fixed= 1.0d-6) tv2 (mjr_intg_simple-gauss-kronrod               ti2 :start ta2 :end tb2 :order ord) 2 ord)
         do (assert-equality (mjr_eps_make-fixed= 1.0d-6) tv3 (mjr_intg_simple-gauss-kronrod               ti3 :start ta3 :end tb3 :order ord) 3 ord)
         do (assert-equality (mjr_eps_make-fixed= 1.0d-6) tv4 (mjr_intg_simple-gauss-kronrod               ti4 :start ta4 :end tb4 :order ord) 4 ord))
-  ;; Errors                                                                                                   
+  ;; Errors
   (assert-error 'error                   (mjr_intg_simple-gauss-kronrod #'identity                             :start 1   :end -1))
   (assert-error 'error                   (mjr_intg_simple-gauss-kronrod #'identity                             :start 't  :end 1))
   (assert-error 'error                   (mjr_intg_simple-gauss-kronrod #'identity                             :start 0   :end 't))
@@ -282,7 +282,7 @@ References:
   ;; Exact case
   (assert-equal (values 4/3 16)          (mjr_intg_glb-adp-composite-romberg #'tf3                                  :start ta3  :end tb3))
   (assert-equal (values 4/3 16)          (mjr_intg_glb-adp-composite-romberg   ti3                                  :start ta3  :end tb3))
-  ;; Errors                                                                                                   
+  ;; Errors
   (assert-error 'error                   (mjr_intg_glb-adp-composite-romberg #'identity                             :start 1   :end -1))
   (assert-error 'error                   (mjr_intg_glb-adp-composite-romberg #'identity                             :start 't  :end 1))
   (assert-error 'error                   (mjr_intg_glb-adp-composite-romberg #'identity                             :start 0   :end 't))
@@ -307,7 +307,7 @@ References:
     (let ((u (mjr_prng_float-co 2 20)))
       (assert-equality (mjr_eps_make-fixed= .001) (ti1 u) (mjr_intg_loc-adp-dnc-trapezoidal #'tf1 (list :start ta1 :end u)))
       (assert-equality (mjr_eps_make-fixed= .001) (ti6 u) (mjr_intg_loc-adp-dnc-trapezoidal #'tf6 (list :start ta6 :end u)))))
-  ;; A few hand picked examples                                                                               
+  ;; A few hand picked examples
   (assert-equality (mjr_eps_make-fixed= .001) tv1 (mjr_intg_loc-adp-dnc-trapezoidal             #'tf1 (list :start ta1 :end tb1)))
   (assert-equality (mjr_eps_make-fixed= .001) tv2 (mjr_intg_loc-adp-dnc-trapezoidal             #'tf2 (list :start ta2 :end tb2)))
   (assert-equality (mjr_eps_make-fixed= .001) tv3 (mjr_intg_loc-adp-dnc-trapezoidal             #'tf3 (list :start ta3 :end tb3)))
@@ -321,7 +321,7 @@ References:
   ;; Exact Case
   (assert-equal (values 349525/262144 1537) (mjr_intg_loc-adp-dnc-trapezoidal #'tf3             (list :start ta3  :end tb3)))
   (assert-equal (values 349525/262144 1537) (mjr_intg_loc-adp-dnc-trapezoidal   ti3             (list :start ta3  :end tb3)))
-  ;; Errors                                                                                                   
+  ;; Errors
   (assert-error 'error                   (mjr_intg_loc-adp-dnc-trapezoidal #'identity                             (list :start 't  :end 1)))
   (assert-error 'error                   (mjr_intg_loc-adp-dnc-trapezoidal #'identity                             (list :start 0   :end 't)))
   (assert-error 'error                   (mjr_intg_loc-adp-dnc-trapezoidal #'identity                             (list :start 0   :end 1       :max-evals 0)))
@@ -534,7 +534,7 @@ References:
                  for u = (mjr_prng_float-co 2 20)
                  for numi = (+ 500 (truncate (* 50 u)))
                  do (assert-equality (mjr_eps_make-fixed= .0001) (ti1 u) (mjr_intg_divide-and-conquer #'tf1
-                                                                                                      (lambda (fun &key start end) 
+                                                                                                      (lambda (fun &key start end)
                                                                                                         (mjr_intg_simple-newton-cotes fun :start start :end end :order o :closed 't))
                                                                                                       (list :start ta1 :end u :len 100)))
                  do (assert-equality (mjr_eps_make-fixed= .0001) (ti6 u) (mjr_intg_divide-and-conquer #'tf6
@@ -543,7 +543,7 @@ References:
                                                                                                       (list :start ta6 :end u :len 100)))
                  when (> o 4)
                  do (assert-equality (mjr_eps_make-fixed= .001) (ti1 u) (mjr_intg_divide-and-conquer #'tf1
-                                                                                                     (lambda (fun &key start end) 
+                                                                                                     (lambda (fun &key start end)
                                                                                                        (mjr_intg_simple-newton-cotes fun :start start :end end :order o :closed nil))
                                                                                                      (list :start ta1 :end u :len 100)))
                  when (> o 4)
@@ -573,4 +573,3 @@ References:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests
  )
-

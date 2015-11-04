@@ -6,7 +6,7 @@
 ;; @brief     Statistics: Averages, histograms, sub-samples, simple linear regression.@EOF
 ;; @std       Common Lisp
 ;; @see       tst-stats.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1996,1997,1998,2004,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -39,7 +39,7 @@
   (:DOCUMENTATION "Brief: Statistics: Averages, histograms, sub-samples, simple linear regression.;")
   (:EXPORT #:mjr_stats_help
            #:mjr_stats_avg #:mjr_stats_subtotal
-           #:mjr_stats_summary #:mjr_stats_fmt-summary 
+           #:mjr_stats_summary #:mjr_stats_fmt-summary
            #:mjr_stats_linear-regression
            #:mjr_stats_subsample
            #:mjr_stats_hist #:mjr_stats_fmt-hist
@@ -56,15 +56,15 @@ statistical tool like R."
   (documentation 'mjr_stats_help 'function))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_stats_avg (&rest x) 
+(defun mjr_stats_avg (&rest x)
   "Compute the arithmetic mean of the input arguments (a group of sequences and/or numbers).
 For complex inputs, the average of the real and complex parts are independently computed."
   (cond ((null x)                                  (error "mjr_stats_avg: Empty list!"))
         ((and (= 1 (length x)) (listp (first x)))  (/ (reduce '+ (first x)) (length (first x))))
-        ('t                                        (mjr_stats_avg (apply #'mjr_util_super-concatenate 'list x)))))         
+        ('t                                        (mjr_stats_avg (apply #'mjr_util_super-concatenate 'list x)))))
 
-;;---------------------------------------------------------------------------------------------------------------------------------- 
-(defun mjr_stats_subtotal (&rest x) 
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_stats_subtotal (&rest x)
   "Compute the running sum of the input arguments (a group of sequences and/or numbers)."
   (cond ((null x)                                  (error "mjr_stats_avg: Empty list!"))
         ((and (= 1 (length x)) (listp (first x)))  (loop for y in (first x) for psum = y then (+ y psum) collect psum))
@@ -120,8 +120,8 @@ Statistics returned (in an associative array) are:
       with the-mode       = (cons nil 0)
       with mode-candidate = (cons nil 0)
       with the-nmodes     = 0
-      sum      (* x x)                 into the-sumsq 
-      sum      (abs x)                 into the-sumabs 
+      sum      (* x x)                 into the-sumsq
+      sum      (abs x)                 into the-sumabs
       sum      x                       into the-sum
       sum      (if (> x 0) (log x) 0)  into the-suml
       minimize x                       into the-min
@@ -142,7 +142,7 @@ Statistics returned (in an associative array) are:
                                          mode-candidate (cons nil 0)))
                                (if (= (cdr mode-candidate) (cdr the-mode))
                                    (setq the-nmodes (+ the-nmodes 1)))))));; Compute the mode
-      finally (return (if (< 0 the-n) 
+      finally (return (if (< 0 the-n)
                           (progn
                             (setq out-filter (cond ((eq out-filter :if)  (lambda (y) (if (integerp y) y (float y))))
                                                    ((eq out-filter :f)   'float)
@@ -194,7 +194,7 @@ Statistics returned (in an associative array) are:
                                           (let ((the-modef (cdr the-mode)))
                                             (nconc the-ret-tags (list :modef))
                                             (nconc the-ret-vals (list the-modef)))))
-                                    (let ((the-median (if (oddp the-n) 
+                                    (let ((the-median (if (oddp the-n)
                                                           (nth (- (ceiling (/ the-n 2)) 1) the-flist)
                                                         (/ (+ (nth (- (/ the-n 2) 1) the-flist) (nth (/ the-n 2) the-flist)) 2))))
                                       (nconc the-ret-tags (list :median    :unique))
@@ -215,7 +215,7 @@ Statistics returned (in an associative array) are:
                                                  (:SPREAD . (:min :max :sd :var :sdp :varp))
                                                  (:CENTER . (:mean :mode :bmode :smode :modef :nmodes :median :gmean :lgmean)))
         when (or (not the-cats) (member cat-symbol (if (listp the-cats) the-cats (list the-cats))))
-        do (progn 
+        do (progn
              (setq the-stats-str (concatenate 'string the-stats-str (format nil "~8a " (format nil "~s>" cat-symbol))))
              (loop for stat in cat-contents
                do (if (assoc stat the-stats)
@@ -224,7 +224,7 @@ Statistics returned (in an associative array) are:
              ))
       the-stats-str)))
 
-;;---------------------------------------------------------------------------------------------------------------------------------- 
+;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_stats_linear-regression (list-x list-y &key (x-tform #'identity) (y-tform #'identity))
   "Compute the linear regression between the two lists -- yes they must be lists, not sequences.
 
@@ -253,7 +253,7 @@ Use :x-tform and :y-tform to transform the data as required.  Some transforms yi
            (fs (mjr_stats_summary (mapcar (lambda (x y) (- (+ b (* m x)) y)) list-x list-y))))
       (values m b fs))))
 
-;;---------------------------------------------------------------------------------------------------------------------------------- 
+;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_stats_subsample (data-vector sample-size &key (with-replacement 't))
   "Select, with replacement, SAMPLE-SIZE from the DATA-VECTOR.
 This implementation uses the built in RANDOM function."
@@ -271,13 +271,13 @@ This implementation uses the built in RANDOM function."
                     0 sample-size)
             (let ((sel-map  (make-array dat-len :element-type 'bit :initial-element 0))) ;; Small sample
               (dotimes (i sample-size new-data)
-                (setf (aref new-data i) 
+                (setf (aref new-data i)
                       (aref data-vector (loop for j = (random dat-len)
                                               when (= 0 (aref sel-map j))
                                               do (progn (setf (aref sel-map j) 1)
                                                         (return j)))))))))))
 
-;;---------------------------------------------------------------------------------------------------------------------------------- 
+;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_stats_hist (data &key (density nil)
                        (interval-type :interval-type-left-closed)
                        breaks)
@@ -288,9 +288,9 @@ if :density is non-NIL, then the output will be normalized to area 1.
 The DATA argument should be a vector for performance reasons, but lists are accepted too."
 
   (let* ((data       (if (vectorp data) data (concatenate 'vector data)))
-         (breaks     (mjr_vvec_gen-0sim 'vector (or breaks (list :start (reduce #'min data)
-                                                                 :end   (reduce #'max data)
-                                                                 :len   20))))
+         (breaks     (mjr_vvec_to-vec (or breaks (list :start (reduce #'min data)
+                                                       :end   (reduce #'max data)
+                                                       :len   20))))
          (nbrk       (1- (length breaks)))
          (low-count  0)
          (high-count 0)
@@ -338,4 +338,3 @@ The first argument is assumed to be in the format returned by MJR_STATS_HIST."
             do (loop for k from 1 upto max-width
                      do (format str-out (if (<= k (truncate h scale)) "#" " "))
                      finally (format str-out " :~%"))))))
-

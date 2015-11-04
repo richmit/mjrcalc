@@ -6,7 +6,7 @@
 ;; @brief     Data sets on SIMPlicial complexes.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-dsimp.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1995, 2013, 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -460,7 +460,7 @@ Arguments:
                                    |  Bottom Left   |   Bottom Right  |   direction of increasing x
                                    ------------------------------------   values for :x & :d, and
                                    |  SURFACE-TLBR  |   SURFACE-TLBR  |   increasing y values for :y
-                                   |       NIL      |        'T       |   
+                                   |       NIL      |        'T       |
                                    ------------------------------------"
 
   (cond ((and surface-normals (not surface-poly)) (error "mjr_dsimp_make-from-dquad: non-NIL SURFACE-NORMALS requires non-NIL SURFACE-POLY"))
@@ -468,10 +468,10 @@ Arguments:
 
   (let* ((dom (mapcar (lambda (x) (mjr_dquad_get-axis-vector dquad x))
                       (or (mjr_util_non-list-then-list domain)
-                          (concatenate 'list (mjr_vvec_to-vec-maybe (mjr_dquad_axis-count dquad))))))
+                          (concatenate 'list (mjr_vvec_to-vec (mjr_dquad_axis-count dquad))))))
          (rng  (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x))
                        (or (mjr_util_non-list-then-list range)
-                           (concatenate 'list (mjr_vvec_to-vec-maybe (mjr_dquad_data-count dquad))))))
+                           (concatenate 'list (mjr_vvec_to-vec (mjr_dquad_data-count dquad))))))
          (dom0  (first  dom))
          (dom1  (second dom))
          (rng0  (first  rng))
@@ -482,7 +482,7 @@ Arguments:
                   (string    (list data))
                   (list      data)
                   (otherwise (let ((dciq  (mjr_dquad_data-count dquad)))
-                               (if (not (zerop dciq)) (concatenate 'list (mjr_vvec_to-vec-maybe dciq))))))))
+                               (if (not (zerop dciq)) (concatenate 'list (mjr_vvec_to-vec dciq))))))))
 
     ;; Step 1: Create functions that will spit out u/v data as required.
     (destructuring-bind (u u-len v v-len dom-dim)
@@ -662,4 +662,3 @@ Arguments:
                     ;; Add range data
                     (apply #'mjr_dsimp_convert-points-do-data new-dsimp range-data-names)
                     new-dsimp)))))))))
-

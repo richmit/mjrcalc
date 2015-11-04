@@ -6,7 +6,7 @@
 ;; @brief     ODE (Ordinary Differential Equation) IVP (Initial Value Problem) solvers.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-ode.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2010, 2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -146,9 +146,9 @@ Some vocabulary:
    * ERK      Explicit Runge-Kutta
                The matrix $[a_{i,}]$ is lower triangular.
    * EERK     Embedded Explicit Runge-Kutta
-               The $\\mathbf{\\hat{b}}$ vector is defined.  
+               The $\\mathbf{\\hat{b}}$ vector is defined.
    * EERKLE   Embedded Explicit Runge-Kutta with Local Extrapolation
-               The $\\mathbf{\\check{b}}$ method has is higher order than the $\\mathbf{\\hat{b}}$ method 
+               The $\\mathbf{\\check{b}}$ method has is higher order than the $\\mathbf{\\hat{b}}$ method
    * ODE      Ordinary Differential Equation
    * IVP      Initial Value Problem
 
@@ -253,7 +253,7 @@ Arguments:
                                       (expt (/ err) (/ (+ 1 p1)))
                                       1))
                               y-rat))))
-            
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-euler-1 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 1.
@@ -302,7 +302,7 @@ Corresponds to the mid-point rule."
 (defun mjr_ode_erk-step-runge-kutta-4 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 4.
 References:
-  Kutta (1901); Beitrag zur n\"herungsweisen Integration totaler Differentialgleichungen; Z. Math. Phys. 46; p435-453. 
+  Kutta (1901); Beitrag zur n\"herungsweisen Integration totaler Differentialgleichungen; Z. Math. Phys. 46; p435-453.
   Hairer, Norsett & Wanner (2009). Solving Ordinary Differential Equations. I: Nonstiff Problems. p138
 In the literature, this method is frequently called 'RK4'.  It is considered by many to be 'the' Runge-Kutta method."
   (mjr_ode_erk-step-kernel eq x y xdelta
@@ -320,7 +320,7 @@ In the literature, this method is frequently called 'RK4'.  It is considered by 
 (defun mjr_ode_erk-step-kutta-three-eight-4 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 4.  More precise than RK4.  Sometimes called the '3/8-rule'.
 References:
-  Kutta (1901), Beitrag zur n\"herungsweisen Integration totaler Differentialgleichungen; Z. Math. Phys. 46; p435-453. 
+  Kutta (1901), Beitrag zur n\"herungsweisen Integration totaler Differentialgleichungen; Z. Math. Phys. 46; p435-453.
   Hairer, Norsett & Wanner (2009). Solving Ordinary Differential Equations. I: Nonstiff Problems. p138"
   (mjr_ode_erk-step-kernel eq x y xdelta
                            #2a(( 0   0 0 0)
@@ -553,7 +553,7 @@ $$\Delta\mathbf{\vec{y}}=\Delta{x}\cdot\vec{\mathbf{f}}(x, \vec{\mathbf{y}})$$"
 
 $$\Delta\mathbf{\vec{y}}=
 \frac{\Delta{x}}{2}[\vec{\mathbf{f}}(x, \vec{\mathbf{y}}) +
-\vec{\mathbf{f}}(x+\Delta{x}, \vec{\mathbf{y}} + 
+\vec{\mathbf{f}}(x+\Delta{x}, \vec{\mathbf{y}} +
 \Delta{x}\cdot\vec{\mathbf{f}}(x, \vec{\mathbf{y}}))]$$"
   (declare (ignore y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 ;;  (if (or y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
@@ -782,7 +782,7 @@ The return value will be a 2D array with a row for each mesh point, and a column
 
    Arguments:
     Specifying the mesh (See: MJR_VVEC_KW-NORMALIZE):
-       *  POINTS, START, END, STEP, LEN 
+       *  POINTS, START, END, STEP, LEN
     Equations and initial values (See: MJR_ODE_SLV-IVP-ERK-INTERVAL):
        *  EQ & IVY
     Miscellaneous:
@@ -792,7 +792,7 @@ The return value will be a 2D array with a row for each mesh point, and a column
        The rest of the keyword arguments are for MJR_ODE_SLV-IVP-ERK-INTERVAL, but some will be suppressed:
          *  :RETURN-ALL-STEPS
          *  :OUT-Y-CANONICAL"
-  (let* ((points (mjr_vvec_gen-0sim 'vector mesh)) ;; TODO: Instead of materializing the vector, we could get a forward iterator...
+  (let* ((points (mjr_vvec_to-vec mesh)) ;; TODO: Instead of materializing the vector, we could get a forward iterator...
          (len    (length points))
          (kwa    (mjr_util_strip-kwarg rest :strip-list (list :return-all-steps :out-y-canonical)))
          (sol    (loop for i from 0 to (1- len)

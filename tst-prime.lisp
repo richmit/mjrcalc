@@ -6,7 +6,7 @@
 ;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-prime.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1992,1994,1997,1998,2004,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -163,7 +163,7 @@ References:
   (assert-equal nil (mjr_prime_nth-small-prime -1))
   (assert-equal 2   (mjr_prime_nth-small-prime  0))
   ; Good indexes
-  ;; OEIS A000040	
+  ;; OEIS A000040
   (loop with lst = '(2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103 107 109 113 127 131 137 139 149
                      151 157 163 167 173 179 181 191 193 197 199 211 223 227 229 233 239 241 251 257 263 269 271)
         for i from 0 upto (length lst)
@@ -482,7 +482,7 @@ References:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_prime_pi-func
-  ;; OEIS A006880 		Number of primes < 10^n.
+  ;; OEIS A006880       Number of primes < 10^n.
   (loop with lst = '( 0 4 25 168 1229 9592 78498 664579 5761455 50847534 455052511 4118054813 37607912018 346065536839 3204941750802
                      29844570422669 279238341033925 2623557157654233 24739954287740860 234057667276344607 2220819602560918840)
         for i from 0 upto (length lst)
@@ -538,6 +538,6 @@ References:
 ;;       when (mjr_prime_probable-primep-bpsw i)
 ;;       collect i)
 
-;; ;; A000043 Mersenne exponents: primes p such that 2^p - 1 is prime. 
+;; ;; A000043 Mersenne exponents: primes p such that 2^p - 1 is prime.
 ;; '(2 3 5 7 13 17 19 31 61 89 107 127 521 607 1279 2203 2281 3217 4253 4423 9689 9941 11213 19937 21701 23209 44497 86243 110503
 ;;   132049 216091 756839 859433 1257787 1398269 2976221 3021377 6972593 13466917 20996011 24036583 25964951)

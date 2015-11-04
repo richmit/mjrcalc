@@ -6,7 +6,7 @@
 ;; @brief     Array utilities.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-arr.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,2004,2010,2012,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -124,8 +124,8 @@ This package contains array functionality that is useful for other packages."
   "Create a new array (possibly with different dimensions), and copy the contents of old-array in row major order.
 
 The number of dimensions of the arrays need not be the same (a matrix may be reflowed into a vector for example).  The arrays need not even contain the same
-number of elements -- if old-array is bigger, then some data will simply not be copied; if old-array is smaller, then some array elements in the new array
-will not be initialized."
+number of elements.  If old-array is bigger, then some data will simply not be copied. If old-array is smaller, then some array elements in the new array will
+be NIL."
   (cond ((some #'zerop new-dims)              (error "mjr_arr_reflow: No dimension may be zero!"))
         ((some (lambda (x) (< x 0)) new-dims) (error "mjr_arr_reflow: No dimension may be negative!"))
         ((zerop (reduce #'* new-dims))        (error "mjr_arr_reflow: New array is of zero size")))
@@ -133,7 +133,9 @@ will not be initialized."
          (new-nelt   (apply #'* new-dims)))
     (cond ((< new-nelt old-nelt) (warn  "mjr_arr_reflow: WARNING: New array is too small!"))
           ((> new-nelt old-nelt) (warn  "mjr_arr_reflow: WARNING: New array is too big!")))
-    (let ((new-array (make-array new-dims)))
+    (let ((new-array (if (> new-nelt old-nelt)
+                         (make-array new-dims :initial-element nil)
+                         (make-array new-dims))))
       (loop with old-array-i  = (make-array old-nelt :displaced-to old-array)
             with new-array-i  = (make-array new-nelt :displaced-to new-array)
             for i from 0 upto (1- (min new-nelt old-nelt))
@@ -547,7 +549,7 @@ Examples:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_arr_get-cols (an-array &optional the-cols)
-  "Return a list of the cols (as vectors) of a 2D array.  
+  "Return a list of the cols (as vectors) of a 2D array.
 
 The value for THE-COLS the column number, a list of column numbers, or NIL (all columns)"
   (if the-cols
@@ -567,9 +569,13 @@ If one argument is provided and it is a list, then it is assumed that it is a li
   (let ((first-a   (first arrays)))
     (if (and arrays (listp first-a) (null (cdr arrays)))
         (apply #'mjr_arr_cbind first-a)
-        (let* ((cols-l    (mapcar (lambda (a) (if (vectorp a) 1 (array-dimension a 1))) arrays))
-               (rows      (if (vectorp first-a) (length first-a) (array-dimension first-a 0)))
+        (let* ((cols-l    (mapcar (lambda (a) (if (vectorp a)          1 (array-dimension a 1))) arrays))
+               (rows-l    (mapcar (lambda (a) (if (vectorp a) (length a) (array-dimension a 0))) arrays))
+               (dims-l    (mapcar (lambda (a) (array-rank a)) arrays))
+               (rows      (car rows-l))
                (new-array (make-array (list rows (apply #'+ cols-l)))))
+          (cond ((some (lambda (a) (not (= a rows))) rows-l)     (error "mjr_arr_cbind: All arrays must have the same number of rows!"))
+                ((some (lambda (a) (or (< a 1) (> a 2))) dims-l) (error "mjr_arr_cbind: All arrays must be rank 1 or two!")))
           (loop with tcol = 0
                 for cols in cols-l
                 for sarr in arrays
@@ -592,9 +598,13 @@ If one argument is provided and it is a list, then it is assumed that it is a li
   (let ((first-a   (first arrays)))
     (if (and arrays (listp first-a) (null (cdr arrays)))
         (apply #'mjr_arr_rbind first-a)
-        (let* ((rows-l    (mapcar (lambda (a) (if (vectorp a) 1 (array-dimension a 0))) arrays))
-               (cols      (if (vectorp first-a) (length first-a) (array-dimension first-a 1)))
+        (let* ((cols-l    (mapcar (lambda (a) (if (vectorp a) (length a) (array-dimension a 1))) arrays))
+               (rows-l    (mapcar (lambda (a) (if (vectorp a) 1          (array-dimension a 0))) arrays))
+               (cols      (car cols-l))
+               (dims-l    (mapcar (lambda (a) (array-rank a)) arrays))
                (new-array (make-array (list (apply #'+ rows-l) cols))))
+          (cond ((some (lambda (a) (not (= a cols))) cols-l)     (error "mjr_arr_cbind: All arrays must have the same number of cols!"))
+                ((some (lambda (a) (or (< a 1) (> a 2))) dims-l) (error "mjr_arr_cbind: All arrays must be rank 1 or two!")))
           (loop with trow = 0
                 for rows in rows-l
                 for sarr in arrays

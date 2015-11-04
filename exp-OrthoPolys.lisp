@@ -63,7 +63,7 @@
 (mjr_gnupl_send-command "set term pdfcairo")
 (mjr_gnupl_send-command "set output \"exp-OrthoPolys-OUT-lagrange.pdf\"")
 (mjr_gnupl_dquad (mjr_fsamp_dq-poly-r1 (loop for i from 0 upto 5
-                                             collect (mjr_poly_make-lagrange (mjr_vvec_gen-0sim 'vector (list :start -1 :end 1 :len 6)) i))
+                                             collect (mjr_poly_make-lagrange (mjr_vvec_to-vec (list :start -1 :end 1 :len 6)) i))
                                        :xdat '(:start -1 :end 1 :len 250))
                  :main "Lagrange Polynomials (degree 1 upto 6)"
                  :title '(nil)

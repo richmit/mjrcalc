@@ -88,7 +88,7 @@ The returned dquad list will contain the following (in this order today, but use
 
 Example:
   * (mjr_gnupl_dquad (mjr_fsamp_dq-func-c1-c1 #'sin
-                                              :rdat '(:start -1.5d0 :end 1.5d0 :len 50) 
+                                              :rdat '(:start -1.5d0 :end 1.5d0 :len 50)
                                               :idat '(:start -1.5d0 :end 1.5d0 :len 50))
                      :data \"f_abs\" :type :f)"
   (let* (;;(c-func  (mjr_mxp_string-or-func-to-lambda c-func "Z"))
@@ -115,9 +115,9 @@ Examples:
   * (mjr_gnupl_dquad (mjr_fsamp_dq-poly-c1 #(1 0 0 1) :rdat '(:start -1.5d0 :end 1.5d0 :len 50) :idat '(:start -1.5d0 :end 1.5d0 :len 50))
                      :data \"f_abs\" :type :f)
   * Lehmer's polynomial:
-    (mjr_gnupl_dquad (mjr_fsamp_dq-poly-c1 #(1 0 -1 1 0 -1 0 1 -1 0 1) 
-                                           :rdat '(:start -1.5d0 :end 1.5d0 :len 150) 
-                                           :idat '(:start -1.5d0 :end 1.5d0 :len 150) 
+    (mjr_gnupl_dquad (mjr_fsamp_dq-poly-c1 #(1 0 -1 1 0 -1 0 1 -1 0 1)
+                                           :rdat '(:start -1.5d0 :end 1.5d0 :len 150)
+                                           :idat '(:start -1.5d0 :end 1.5d0 :len 150)
                                            :do-log 't)
                      :data \"f_abs\"
                      :type :f)"
@@ -158,7 +158,7 @@ Examples:
                           (otherwise (error "mjr_fsamp_dq-poly-r1: The ylab parameter must be a string or list of strings")))))
     (cond ((not (= (length list-of-poly) (length list-of-order))) (error "mjr_fsamp_dq-poly-r1: poly-olos order length mismatch"))
           ((not (= (length list-of-poly) (length list-of-ylab)))  (error "mjr_fsamp_dq-poly-r1: poly-olos ylab length mismatch")))
-    (let* ((xdat      (mjr_vvec_to-vec-maybe xdat))
+    (let* ((xdat      (mjr_vvec_to-vec xdat))
            (new-dquad (mjr_dquad_make-from-axis xlab xdat)))
       (loop for i from 1 upto num-polys
             for order in list-of-order
@@ -328,8 +328,8 @@ Examples:
                                                                                          (if c-as (list :auto-scale   c-as))
                                                                                          (if c-mc (list :max-color    c-mc))))))
         (if list-of-f-color-meths
-            (let ((data-idxs (concatenate 'list (mjr_vvec_to-vec-maybe (length list-of-funcs)))))
-              
+            (let ((data-idxs (concatenate 'list (mjr_vvec_to-vec (length list-of-funcs)))))
+
               (loop for i from 0
                     for c-cm  in list-of-f-color-meths
                     for c-lab in list-of-f-color-labs
@@ -340,7 +340,7 @@ Examples:
                                                                                                   (if c-as (list :auto-scale   c-as))
                                                                                                   (if c-mc (list :max-color    c-mc)))))))
         (if list-of-all-color-meths
-            (let ((data-idxs (concatenate 'list (mjr_vvec_to-vec-maybe (length list-of-funcs)))))
+            (let ((data-idxs (concatenate 'list (mjr_vvec_to-vec (length list-of-funcs)))))
               (loop for i from 0
                     for c-cm  in list-of-all-color-meths
                     for c-lab in list-of-all-color-labs

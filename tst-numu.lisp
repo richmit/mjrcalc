@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-numu.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -36,12 +36,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_numu_hypot
-  (assert-equal 5   (mjr_numu_hypot 3       4))
-  (assert-equal 5   (mjr_numu_hypot 3       4))
-  (assert-equal 5   (mjr_numu_hypot #C(3 0) 4))
-  (assert-equal 5   (mjr_numu_hypot #C(3 0) #C(4 0)))
-  (assert-equal 5.0 (mjr_numu_hypot #C(3 0) #C(0 4)))
-  (assert-equal 5.0 (mjr_numu_hypot #C(0 3) #C(0 4)))
+  (assert-equal 5   (mjr_numu_hypot 3        4))
+  (assert-equal 5   (mjr_numu_hypot 3        4))
+  (assert-equal 5   (mjr_numu_hypot #C(3 0)  4))
+  (assert-equal 5   (mjr_numu_hypot #C(3 0)  #C(4 0)))
+  (assert-equal 5   (mjr_numu_hypot #C(3 0)  #C(0 4)))
+  (assert-equal 5   (mjr_numu_hypot #C(0 3)  #C(0 4)))
+  (assert-equal 5   (mjr_numu_hypot 0        #C(3 4)))
+  (assert-equal 5   (mjr_numu_hypot #C(3 4)  0))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -305,7 +307,7 @@
   (loop for x from -20.5 upto 20.5 by 1.0
         do (loop for y from -20.5 upto 20.5 by 1.0
                  for z = (complex x y)
-                 do (assert-equality (mjr_eps_make-fixed= 0.000001) (conjugate (mjr_numu_gamma-lanczos z)) (mjr_numu_gamma-lanczos (conjugate z)) z))) 
+                 do (assert-equality (mjr_eps_make-fixed= 0.000001) (conjugate (mjr_numu_gamma-lanczos z)) (mjr_numu_gamma-lanczos (conjugate z)) z)))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -364,7 +366,7 @@
   (assert-equal  2 (mjr_numu_abs-max  2))
   (assert-equal -2 (mjr_numu_abs-max -2))
   (assert-equal  0 (mjr_numu_abs-max  0))
-  
+
   (assert-equal -2 (mjr_numu_abs-max -2  2)) ;; Stable -- find FIRST biggest one
   (assert-equal  2 (mjr_numu_abs-max  2 -2))
 
@@ -389,7 +391,7 @@
   (assert-equal  2 (mjr_numu_abs-min  2))
   (assert-equal -2 (mjr_numu_abs-min -2))
   (assert-equal  0 (mjr_numu_abs-min  0))
-  
+
   (assert-equal -2 (mjr_numu_abs-min -2  2)) ;; Stable -- find FIRST biggest one
   (assert-equal  2 (mjr_numu_abs-min  2 -2))
 
@@ -408,11 +410,9 @@
   (assert-equal -1 (mjr_numu_abs-min  6 5 4 -1 3 2))
   (assert-equal -1 (mjr_numu_abs-min  -1 2 3 4 5 6))
   (assert-equal -1 (mjr_numu_abs-min  -1 6 5 4 3 2))
-  
+
  )
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(run-tests
- ;'(mjr_numu_abs-min mjr_numu_abs-max)
- )
+(run-tests)

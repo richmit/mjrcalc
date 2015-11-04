@@ -6,7 +6,7 @@
 ;; @brief     Very basic computer algebra on :MJR_MXP objects.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-cas.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1996,2010,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -55,7 +55,7 @@
            #:mjr_cas_canonize #:mjr_cas_trig-expand #:mjr_cas_alg-expand #:mjr_cas_alg-collect #:mjr_cas_do-till-noop #:mjr_cas_diff
            #:mjr_cas_diff-list
            ;; Automatically Simplified Expression (ASE) Manipulation
-           #:mjr_cas_isolate 
+           #:mjr_cas_isolate
            ;; Hard stuff I will probably never do:
            ;; TODO: #:mjr_cas_ratsimp              ;; Simplify and canonize rational expressions
            ;; TODO: #:mjr_cas_trigsimp             ;; Simplify and canonize trigonometric
@@ -279,7 +279,7 @@ Rules:
                                             (newa (if args
                                                       (loop for fst = (pop args)
                                                             for (fst-n fst-a) = (bnp fst)
-                                                            while fst 
+                                                            while fst
                                                             do (setq args (loop for cur in args
                                                                                 for (cur-n cur-a) = (bnp cur)
                                                                                 if (and (numberp cur-n) (mjr_mxp_expr= fst-a cur-a))

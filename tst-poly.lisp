@@ -6,7 +6,7 @@
 ;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-poly.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1998,2003,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -180,7 +180,7 @@ The roots may be given as individual arguments, or as a single list."
 
   (assert-false (mjr_poly_onep  #(0 2 1)))
   (assert-false (mjr_poly_onep  #(0 2 1.0)))
-  
+
   (assert-false (mjr_poly_onep  #(1 0 0)))
   (assert-false (mjr_poly_onep  #(0 1 0)))
   (assert-false (mjr_poly_onep  #(1.0 0 0)))
@@ -1161,17 +1161,17 @@ The roots may be given as individual arguments, or as a single list."
 (define-test mjr_poly_mahler-measure
   ;; Some integer polynomials with small Mahler measure from http://www.cecm.sfu.ca/~mjm/Lehmer/search/
   ;;
-  ;;    Measure 	    P
-  ;;    1.1762808182 	x^10+x^9-x^7-x^6-x^5-x^4-x^3+x+1                               
-  ;;    1.1883681475 	x^18+x^17+x^16+x^15-x^12-x^11-x^10-x^9-x^8-x^7-x^6+x^3+x^2+x+1 
-  ;;    1.2163916611 	x^10-x^6+x^5-x^4+1
-  ;;    1.2277855586 	x^12+x^11+x^10-x^8-x^7-x^6-x^5-x^4+x^2+x+1
-  ;;    1.2303914344 	x^10+x^7+x^5+x^3+1
-  ;;    1.2612309611 	x^10-x^8+x^5-x^2+1
-  ;;    1.2672338594 	x^10+x^8+x^7+x^5+x^3+x^2+1
-  ;;    1.2835823606 	x^10+x^9-x^5+x+1
-  ;;    1.2934859531 	x^10-x^8+x^7-x^5+x^3-x^2+1
-  ;;    1.2806381562 	x^8+x^5-x^4+x^3+1                                              
+  ;;    Measure         P
+  ;;    1.1762808182    x^10+x^9-x^7-x^6-x^5-x^4-x^3+x+1
+  ;;    1.1883681475    x^18+x^17+x^16+x^15-x^12-x^11-x^10-x^9-x^8-x^7-x^6+x^3+x^2+x+1
+  ;;    1.2163916611    x^10-x^6+x^5-x^4+1
+  ;;    1.2277855586    x^12+x^11+x^10-x^8-x^7-x^6-x^5-x^4+x^2+x+1
+  ;;    1.2303914344    x^10+x^7+x^5+x^3+1
+  ;;    1.2612309611    x^10-x^8+x^5-x^2+1
+  ;;    1.2672338594    x^10+x^8+x^7+x^5+x^3+x^2+1
+  ;;    1.2835823606    x^10+x^9-x^5+x+1
+  ;;    1.2934859531    x^10-x^8+x^7-x^5+x^3-x^2+1
+  ;;    1.2806381562    x^8+x^5-x^4+x^3+1
   ;;
   ;;    Lehmer's polynomial is the first on the list.  It is from his 1933 paper:
   ;;    Lehmer, D.H. (1933). "Factorization of certain cyclotomic functions". Ann. Math. (2) 34: 461-479. doi:10.2307/1968172. ISSN 0003-486X. Zbl 0007.19904.
@@ -1200,7 +1200,7 @@ The roots may be given as individual arguments, or as a single list."
   ;;        [1,0,1,1,0,1,0,1,1,0,1],
   ;;        [1,1,0,0,0,-1,0,0,0,1,1],
   ;;        [1,0,-1,1,0,-1,0,1,-1,0,1],
-  ;;        [1,0,0,1,-1,1,0,0,1]]                                    
+  ;;        [1,0,0,1,-1,1,0,0,1]]
   ;;
   ;; Some test cases
   ;;
@@ -1222,7 +1222,7 @@ The roots may be given as individual arguments, or as a single list."
   ;; For Lehmer's polynomial:
   ;;  (i) expand(xreduce("*", map(lambda([y],max(1,rhs(abs(y)))), allroots(x^10+x^9-x^7-x^6-x^5-x^4-x^3+x+1=0))));
   ;;  (o) 1.176280818259936
-  
+
   (loop for m in '(1.1762808182 1.1883681475 1.2163916611 1.2277855586 1.2303914344
                    1.2612309611 1.2672338594 1.2806381562 1.2835823606
                    1.2934859531)

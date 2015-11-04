@@ -6,7 +6,7 @@
 ;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-a.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,2006,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -35,8 +35,8 @@
 (in-package :MJR_A-TESTS)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_a_d2dms-naive (df) 
-  "Return degrees, minutes, and seconds from fractional degrees.  
+(defun mjr_a_d2dms-naive (df)
+  "Return degrees, minutes, and seconds from fractional degrees.
 If the input is rational, then the outputs will be too.
 If the input is a float, then the fractional outputs (seconds) will be DOUBLE-FLOAT."
   (cond  ((complexp df)      (error "mjr_a_dms2d: Input must not be complex!"))
@@ -178,7 +178,7 @@ If the input is a float, then the fractional outputs (seconds) will be DOUBLE-FL
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_a_xxx_r2d+d2r
-  ;; make sure (r2d (d2r x)) and  (d2r (r2d x)) are idempotent 
+  ;; make sure (r2d (d2r x)) and  (d2r (r2d x)) are idempotent
   (dotimes (i 1000)
     (let ((d (mjr_prng_int-cc -10000 10000))
           (r (/ (mjr_prng_int-cc -10000 10000) (mjr_prng_int-cc 1 10000)))

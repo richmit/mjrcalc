@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Plotting dquads with GNUPlot.@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright 1997,1998,2004,2008,2013,2015 by Mitch Richling.  All rights reserved.
 ;;
@@ -71,7 +71,7 @@ This package provides a simple interface for quickly plotting dquad lists via GN
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar *mjr_gnupl_gnuplot-fifo*
   (namestring (merge-pathnames (user-homedir-pathname) ".mjrcalc-mjr_gunpl-fifo"))
-  "Set this to a FIFO file connected to a running gnuplot process.  
+  "Set this to a FIFO file connected to a running gnuplot process.
 
 See the gnuplotGO.sh script for one way to make sure that a gnuplot process is always running and listening to the FIFO.")
 
@@ -125,7 +125,7 @@ See the gnuplotGO.sh script for one way to make sure that a gnuplot process is a
 
 If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppress titles entirely, set :TITLE to '(NIL) -- a list containing a NIL."
   (let* ((data-idxs   (or (mjr_util_non-list-then-list data)
-                                  (concatenate 'list (mjr_vvec_to-vec-maybe (mjr_dquad_data-count dquad)))))
+                                  (concatenate 'list (mjr_vvec_to-vec (mjr_dquad_data-count dquad)))))
          (data (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x       )) data-idxs))
          (data-types  (mapcar (lambda (x) (mjr_dquad_get-data-ano dquad x :ano-typ)) data-idxs))
          (data-names  (mapcar (lambda (x) (mjr_dquad_get-data-ano dquad x :ano-nam)) data-idxs))
@@ -143,7 +143,7 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
                                              ((mjr_annot_typ-colorp dtyp)            1))
                             collect (or dim (error "mjr_gnupl_dquad: Unsupported range data type (~a)" dtyp))))
          (axes        (mapcar (lambda (x) (mjr_dquad_get-axis-vector dquad x))
-                              (concatenate 'list (mjr_vvec_to-vec-maybe (mjr_dquad_axis-count dquad)))))
+                              (concatenate 'list (mjr_vvec_to-vec (mjr_dquad_axis-count dquad)))))
          (col         (mjr_util_non-list-then-list col))
          (num-plt     (length data))
          (dat3d       (or (< 1 (length axes))
@@ -163,8 +163,8 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
     (if ylim (mjr_gnupl_send-command (format nil "set yrange [~f:~f]" (first ylim) (second ylim)) alternate-gnuplot-stream))
     (if zlim (mjr_gnupl_send-command (format nil "set zrange [~f:~f]" (first zlim) (second zlim)) alternate-gnuplot-stream))
     (if (and dat3d pal)
-        (progn (mjr_gnupl_send-command 
-                (concatenate 'string 
+        (progn (mjr_gnupl_send-command
+                (concatenate 'string
                              "set palette rgbformulae "
                              (or (cdr (assoc pal '(("default"   . "7,5,15")   ("ocean"   . "23,28,3")  ("hot"  . "21,22,23")
                                                    ("printable" . "30,31,32") ("rainbow" . "33,13,10") ("afm"  . "34,35,36")
@@ -175,11 +175,11 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
                ;;(mjr_gnupl_send-command "set pm3d depthorder")
                (mjr_gnupl_send-command "set style fill solid 1.00" alternate-gnuplot-stream)))
       ;; The plot command
-      (mjr_gnupl_send-command  
+      (mjr_gnupl_send-command
        (with-output-to-string (ss)
          (format ss (if plt3d "splot " "plot "))
          (dotimes (plt-idx num-plt)
-           (format ss "'-' using ~a ~a with ~a ~a ~a" 
+           (format ss "'-' using ~a ~a with ~a ~a ~a"
                    (cond ((string-equal (mjr_util_elt-mod type plt-idx) :rgb) "1:2:3:4:5")
                          (dat3d                    "1:2:3")
                          ('t                       "1:2" ))

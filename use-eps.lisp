@@ -6,7 +6,7 @@
 ;; @brief     Floating point comparison: within EPSilon.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-eps.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1996,1997,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -75,7 +75,7 @@ If EPS is:
         ((> eps 0)                        eps)
         ((< eps 0)                        (max 1d-15
                                                (* (/ (abs eps) 100.0d0)
-                                                  (reduce (lambda (a &optional b) 
+                                                  (reduce (lambda (a &optional b)
                                                             (if b
                                                                 (min (abs a) (abs b))
                                                                 (abs a)))
@@ -87,7 +87,7 @@ If EPS is:
 (defun mjr_eps_= (a b &optional eps)
   "Return true if number are within EPS of zero.
 
-Works with numbers, lists, vectors, multidimensional arrays, and nested combinations of lists, vectors, and arrays.  
+Works with numbers, lists, vectors, multidimensional arrays, and nested combinations of lists, vectors, and arrays.
 A and B should be structurally identical -- i.e. (mjr_eps_= '(1 2 3) '(1 (2) 3)) is not valid."
   (if (and (integerp eps) (zerop eps))
       (= a b)

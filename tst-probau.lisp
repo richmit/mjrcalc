@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-probau.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2010,2011,2012,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -37,7 +37,7 @@
 ;;
 ;;    Suspect (Basic computation tested in :mjr_prob-tests, just need sanity checks here)
 ;;
-;;      mjr_probau_bernoulli-pdf mjr_probau_binomial-pdf mjr_probau_geometric-pdf 
+;;      mjr_probau_bernoulli-pdf mjr_probau_binomial-pdf mjr_probau_geometric-pdf
 ;;
 ;;    Suspect:
 ;;

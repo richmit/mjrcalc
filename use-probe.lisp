@@ -6,7 +6,7 @@
 ;; @brief     Empirical probability distriubtions.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-probe.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1995,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -107,7 +107,7 @@ all $i,j\\in\\mathbb{Z}_n$ with $i\\le j$, then we say $\\overline{D}$ is \\emph
 
 It is frequently the case that we start with $\\overline{D}$, compute an \\texttt{EFREQ} $\\overline{F}$ from it, and then assume $\\mathbf{X}$ to be DEFINED
 by $\\overline{F}$ -- i.e. we use the histogram from real data to approximate the theoretical distribution from which the data were drawn.  We can also go the
-other way, i.e. construct $\\overline{D}$ given $\\overline{F}$.  Using the statistical package R, one might use something like: 
+other way, i.e. construct $\\overline{D}$ given $\\overline{F}$.  Using the statistical package R, one might use something like:
 \\verb+rep(1:length(F)-1,F)+.
 
 Functions provided:

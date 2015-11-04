@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-intrp.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -40,7 +40,7 @@
 
 NOTE: This is a raw algorithmic function intended for internal use by other functions -- not interactively.  Not Exported.
 
-Implementation notes: 
+Implementation notes:
   Based directly on the Lagrange polynomial definition.  Very slow, but O(0) on storage.
 "
  (let ((len (length y-data)))
@@ -58,7 +58,7 @@ Implementation notes:
 
 NOTE: This is a raw algorithmic function intended for internal use by other functions -- not interactively.  Not Exported.
 
-Implementation notes: 
+Implementation notes:
   Directly compute the interpolating polynomial via polynomial arithmetic and the Lagrange formula.  Quite slow, but it always works -- and is memory
   efficient."
   (let ((len-1 (1- (length y-data))))
@@ -76,10 +76,10 @@ Implementation notes:
 
 NOTE: This is a raw algorithmic function intended for internal use by other functions -- not interactively.  Not Exported.
 
-Implementation notes: 
+Implementation notes:
   Compute the interpolating polynomial via the Vandermonde matrix.  Uses a bit more memory than one would like, and is not terribly efficient -- but it works.
   always works -- and is memory efficient.  Things work fastest if the input sequences are vectors."
-  (let ((poly (reverse (mjr_mat_solve-sys-sge (mjr_mat_make-from-func (lambda (i j) (expt (aref x-data i) j)) :rows (length y-data)) 
+  (let ((poly (reverse (mjr_mat_solve-sys-sge (mjr_mat_make-from-func (lambda (i j) (expt (aref x-data i) j)) :rows (length y-data))
                                               y-data))))
     (subseq poly (or (position-if #'mjr_cmp_!=0 poly) 0))))
 
@@ -121,18 +121,18 @@ Implementation notes:
   (assert-equalp 27342639853/2579890176   (mjr_intrp_poly-val 31  x6-pts   y6-pts))
   (assert-equalp 14                       (mjr_intrp_poly-val 144 x6-pts   y6-pts))
   (assert-equalp 222731658379/2579890176  (mjr_intrp_poly-val 145 x6-pts   y6-pts))
-  ;; Normal cases with points=2                                            
+  ;; Normal cases with points=2
   (assert-equalp 115/12                   (mjr_intrp_poly-val -1  x6-pts   y6-pts    2))
   (assert-equalp 10                       (mjr_intrp_poly-val 0   x6-pts   y6-pts    2))
   (assert-equalp 29/2                     (mjr_intrp_poly-val 30  x6-pts   y6-pts    2))
   (assert-equalp 163/12                   (mjr_intrp_poly-val 31  x6-pts   y6-pts    2))
   (assert-equalp 14                       (mjr_intrp_poly-val 144 x6-pts   y6-pts    2))
   (assert-equalp 125/9                    (mjr_intrp_poly-val 145 x6-pts   y6-pts    2))
-  ; Make sure things work with vectors too                                           
+  ; Make sure things work with vectors too
   (assert-equalp 125/9                    (mjr_intrp_poly-val 145 x6-vec   y6-pts    2))
   (assert-equalp 125/9                    (mjr_intrp_poly-val 145 x6-pts   y6-vec    2))
   (assert-equalp 125/9                    (mjr_intrp_poly-val 145 x6-vec   y6-vec    2))
-  ;; One data point means a constant function.                             
+  ;; One data point means a constant function.
   (assert-equalp 0                        (mjr_intrp_poly-val 1.5 '(0)     '(0)))
   (assert-equalp 10                       (mjr_intrp_poly-val 1.5 '(10)    '(10)))
   (assert-equalp 14                       (mjr_intrp_poly-val 145 x6-pts   y6-vec    1))
@@ -161,7 +161,7 @@ Implementation notes:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intrp_poly
-  (assert-true (mjr_eps_= #(-0.1256879165858069d0 -5.551115123125783d-17 
+  (assert-true (mjr_eps_= #(-0.1256879165858069d0 -5.551115123125783d-17
                             0.9648255669881362d0 -1.1102230246251565d-16)                      (mjr_intrp_poly x1-pts y1-pts)))
   (assert-equalp #(1 2 3)                                                                      (mjr_intrp_poly #(1 2 3 4 5 6 7 8) #(6 11 18 27 38 51 66 83)))
   (assert-equalp #(1/20 -17/40 23/20)                                                          (mjr_intrp_poly x2-pts y2-pts))

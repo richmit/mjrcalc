@@ -6,7 +6,7 @@
 ;; @brief     Color theory (color space conversions and computations).@EOL
 ;; @std       Common Lisp
 ;; @see       tst-color.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1996,1997,2008,2010,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -280,7 +280,7 @@ This library provides functionality broken up into several basic categories:
   "Return a function that will convert from IN-COLOR-SPACE to OUT-COLOR-SPACE.
 
 Supported conversions:
-    
+
     |----------+----------+----------+---------+---------+---------+---------+---------|
     | in\out   | :cs-trua | :cs-rgba | :cs-bit | :cs-tru | :cs-rgb | :cs-hsl | :cs-hsv |
     |----------+----------+----------+---------+---------+---------+---------+---------|

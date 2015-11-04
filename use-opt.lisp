@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Univariate function optimization.@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -71,7 +71,7 @@ References:
 ;; Def: \\ Given an element of $R^3$ denoted by $(x_0, x_m, x_1)$, we call this vector admissible with respect to a function
 ;; $f:R\to R$ if and only if $x_0<x_m<x_1$ and $f(x_0), f(x_1)\ge f(x_m)$.
 ;;
-;; Thm: 
+;; Thm:
 ;; \begin{description}
 ;;   \item[$x_p\in(x_0,x_m)$ ::]
 ;;      If $f(x_p)<f(x_m)$, then $(x_0, x_p, x_m)$ is admissible, otherwise $(x_p, x_m, x_1)$ is admissible.

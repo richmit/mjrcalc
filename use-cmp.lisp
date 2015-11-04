@@ -6,7 +6,7 @@
 ;; @brief     Floating point comparison: best guess.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-cmp.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1996,1997,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -34,7 +34,7 @@
   (:USE :COMMON-LISP)
   (:DOCUMENTATION "Brief: Floating point comparison: best guess.;")
   (:EXPORT #:mjr_cmp_help #:mjr_cmp_< #:mjr_cmp_> #:mjr_cmp_= #:mjr_cmp_<= #:mjr_cmp_>= #:mjr_cmp_=0 #:mjr_cmp_=1 #:mjr_cmp_=onep
-           #:mjr_cmp_!= #:mjr_cmp_zerop #:mjr_cmp_!=0 #:mjr_cmp_not-zerop #:mjr_cmp_abs< #:mjr_cmp_abs> #:mjr_cmp_abs<= 
+           #:mjr_cmp_!= #:mjr_cmp_zerop #:mjr_cmp_!=0 #:mjr_cmp_not-zerop #:mjr_cmp_abs< #:mjr_cmp_abs> #:mjr_cmp_abs<=
            #:mjr_cmp_abs>= :mjr_cmp_min #:mjr_cmp_max #:mjr_cmp_abs-min #:mjr_cmp_abs-max #:*mjr_cmp_eps* #:mjr_cmp_eps-for-data
            #:mjr_cmp_signum :mjr_cmp_integerp #:mjr_cmp_evenp #:mjr_cmp_oddp #:mjr_cmp_negativep #:mjr_cmp_positivep
            ))
@@ -140,7 +140,7 @@ assertions that are used to avoid algorithm failure (i.e. checks for zero before
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_cmp_eps-for-data (x &optional y)
-  "Guess the epsilon for the given X and Y.  
+  "Guess the epsilon for the given X and Y.
 If necessary, the epsilon returned will error on the large side."
   (if y
       (max (mjr_cmp_eps-for-data x)
@@ -163,4 +163,3 @@ precisely zero."
         ((mjr_cmp_< a 0 eps)  (values -1 nil))
         ((zerop a)            (values 0  nil))
         ('t                   (values 0  't))))
-  

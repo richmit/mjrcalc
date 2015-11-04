@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     DFT and inverse DFT.@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1996,1997,2008,2010,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -43,7 +43,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dft_help ()
-  "Compute DFT and Inverse DFT of arrays" 
+  "Compute DFT and Inverse DFT of arrays"
   (documentation 'mjr_dft_help 'function))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -77,7 +77,7 @@ References:
             (let ((edft (mjr_dft_transform x ttype offset            (* 2 stride) (/ mo 2)))      ;;;; Recursive Split odd/even
                   (odft (mjr_dft_transform x ttype (+ offset stride) (* 2 stride) (/ mo 2)))
                   (mo/2  (/ mo 2)))
-              (loop for kl from 0 upto (1- mo/2)                                                  ;;;;;; construct DFT from 
+              (loop for kl from 0 upto (1- mo/2)                                                  ;;;;;; construct DFT from
                     for ku from mo/2                                                              ;;;;;; odd and even parts
                     for lhs = (aref edft kl)
                     for rhs = (* (exp (* prdp kl)) (aref odft kl))

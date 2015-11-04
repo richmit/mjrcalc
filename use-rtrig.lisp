@@ -6,7 +6,7 @@
 ;; @brief     Rational Approximations For Irrational Functions.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-rtrig.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1992, 1996, 2008, 2013, 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -61,7 +61,7 @@ means that the following are true ($\widetilde{\sin}$ is the approximation):
 
         $\widetilde{\sin}(\mathbb{Q})\subset\mathbb{Q}$.
 
-        Mirror symmetry across any vertical line intersecting a local extrema -- i.e. 
+        Mirror symmetry across any vertical line intersecting a local extrema -- i.e.
         $\widetilde{\sin}\left(pn+\frac{p}{2}-y\right)=\widetilde{\sin}\left(pn+\frac{p}{2}+y\right)$ for all $n\in\mathbb{Z}$ and $y\in\mathbb{R}$.
 
         $\widetilde{\sin}$ is odd and periodic with period $2p\in\mathbb{Q}$ -- i.e. $-\widetilde{\sin}\left(x\right)=\widetilde{\sin}(-x)$,
@@ -167,7 +167,7 @@ Uses the polynomial approximations implemented in MJR_RTRIG_SIN-F and MJR_RTRIG_
   "Rational 4th degree polynomial approximation of the sin function with maximal absolute error of $0.0007$ on $\left[\frac{\pi|{2}, \frac{\pi|{2}\right]$.
 
 When RAT is non-NIL we can think of this approximation as a rational, sin-like function with $\pi$ replaced by $p=\frac{22}{7}$.  For details regarding what
-we mean by the term sin-like, see the function MJR_RTRIG_HELP.  
+we mean by the term sin-like, see the function MJR_RTRIG_HELP.
 
 WARNING: When RAT is non-NIL, $f$ is a quite poor numerical approximation of sin outside of $\left[\frac{\pi|{2}, \frac{\pi|{2}\right]$ as the absolute error
 will grow, periodically, as high as 2!  Set RAT non-NIL, then the period is PI and this absolute error is held to $0.0007$$ on the entire real line."
@@ -192,7 +192,7 @@ will grow, periodically, as high as 2!  Set RAT non-NIL, then the period is PI a
   "Rational approximation of the cos function with maximal absolute error of $0.001$ on $\left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$.
 
 When RAT is non-NIL we can think of this approximation as a rational, cos-like function with $\pi$ replaced by $p=\frac{22}{7}$.  For details regarding what
-we mean by the term cos-like, see the function MJR_RTRIG_HELP.  
+we mean by the term cos-like, see the function MJR_RTRIG_HELP.
 
 WARNING: When RAT is non-NIL, $f$ is a quite poor numerical approximation of cos outside of $\left[\frac{\pi|{2}, \frac{\pi|{2}\right]$ as the absolute error
 will grow, periodically, as high as 2!  Set RAT non-NIL, then the period is PI and this absolute error is held to $0.0007$$ on the entire real line."

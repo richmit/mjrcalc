@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Write VTK files.@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,2008,2010,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -112,14 +112,14 @@ index, data name, or a list of same.  When missing, DATA defaults to every point
 integers, specifying which sets of simplices should be put in the file -- ex: 2 means put the 2-simplices (triangles) in the file.  This argument has no
 default behavour when NIL."
   (let* ((data (sort (or (mjr_util_non-list-then-list data) ;; Some apps (like VisIT) need colors first, scalars next, vectors last
-                                (concatenate 'list (mjr_vvec_to-vec-maybe (mjr_dquad_data-count dquad))))
+                                (concatenate 'list (mjr_vvec_to-vec (mjr_dquad_data-count dquad))))
                             (lambda (x y)
                               (mjr_annot_ano-typ< (mjr_dquad_get-data-ano dquad x :ano-typ)
                                                    (mjr_dquad_get-data-ano dquad y :ano-typ)))))
          (axes        (subseq (concatenate 'list
                                            (mapcar (lambda (x) (mjr_dquad_get-axis-vector dquad x))
                                                    (or (mjr_util_non-list-then-list axes)
-                                                       (concatenate 'list (mjr_vvec_to-vec-maybe (mjr_dquad_axis-count dquad)))))
+                                                       (concatenate 'list (mjr_vvec_to-vec (mjr_dquad_axis-count dquad)))))
                                            '(#(0) #(0) #(0)))
                               0 3))
          (axes-len    (mapcar #'length axes))
@@ -160,7 +160,7 @@ Arguments:
   (let* ((point-data (sort (or (mjr_util_non-list-then-list point-data) ;; Some apps (like VisIT) need colors first, scalars next, vectors last
                                (let ((n (mjr_dsimp_data-count dsimp 0)))
                                  (if (> n 0)
-                                     (concatenate 'list (mjr_vvec_to-vec-maybe n)))))
+                                     (concatenate 'list (mjr_vvec_to-vec n)))))
                            (lambda (x y)
                              (mjr_annot_ano-typ< (mjr_dsimp_get-data-ano dsimp x :ano-typ 0)
                                                  (mjr_dsimp_get-data-ano dsimp y :ano-typ 0)))))

@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-pov.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2012,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -38,7 +38,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_pov_make-from-dsimp
 
-  ;; ;; R1->R1 coordinate curve plot: y=x^2  
+  ;; ;; R1->R1 coordinate curve plot: y=x^2
   ;; (let ((p (probe-file "tst-pov-OUT-g11.pov"))) (if p (delete-file p)))
   ;; (mjr_pov_make-from-func-r12-r13 "tst-pov-OUT-g11.pov"
   ;;                                 (lambda (u) (* u u))
@@ -75,7 +75,7 @@
   ;;                                 :arg-mode :arg-number)
   ;; (assert-equal (mjr_util_read-file "tst-pov-OUT-p23.pov")
   ;;               (mjr_util_read-file "tst-pov-REG-p23.pov"))
-    
+
   )
 
 

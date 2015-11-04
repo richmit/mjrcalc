@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests..@EOL
 ;; @std       Common Lisp
 ;; @see       use-vec.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2008-2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -54,13 +54,15 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_vec_rationalize
-  (assert-equalp #(1 0 0)                 (mjr_vec_rationalize #(1   0 0)))
-  (assert-equalp #(11/10 0 0)             (mjr_vec_rationalize #(1.1 0 0)))
-  (assert-equalp #(11/10 0 0)             (mjr_vec_rationalize #(11/10 0 0)))
-
-  (assert-equalp #(1 2 3)                 (mjr_vec_rationalize #(1   2 3)))
-  (assert-equalp #(11/10 54/10 23/10)     (mjr_vec_rationalize #(1.1 5.4 2.3)))
-  (assert-equalp #(11/10 3/4 9/3)         (mjr_vec_rationalize #(11/10 3/4 9/3)))
+  ;; rationalize routines seem to come in two flavors: 1) Samrt and 2) Naive combined with IEEE floats. :)
+                          (assert-equalp #(1 0 0)                                                (mjr_vec_rationalize #(1   0 0)))
+#+(not (or ECL ABCL))     (assert-equalp #(11/10 0 0)                                            (mjr_vec_rationalize #(1.1 0 0)))
+#+(or ECL ABCL)           (assert-equalp #(9227469/8388608 0 0)                                  (mjr_vec_rationalize #(1.1 0 0)))
+                          (assert-equalp #(11/10 0 0)                                            (mjr_vec_rationalize #(11/10 0 0)))
+                          (assert-equalp #(1 2 3)                                                (mjr_vec_rationalize #(1   2 3)))
+#+(not (or ECL ABCL))     (assert-equalp #(11/10 54/10 23/10)                                    (mjr_vec_rationalize #(1.1 5.4 2.3)))
+#+(or ECL ABCL)           (assert-equalp #(9227469/8388608 11324621/2097152 9646899/4194304)     (mjr_vec_rationalize #(1.1 5.4 2.3)))
+                          (assert-equalp #(11/10 3/4 9/3)                                        (mjr_vec_rationalize #(11/10 3/4 9/3)))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

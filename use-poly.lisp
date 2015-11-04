@@ -6,7 +6,7 @@
 ;; @brief     Polynomials over complex, real, rational, and integers.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-poly.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1994,1997,1998,2004,2008,2012,2013,2014,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -43,19 +43,19 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_POLY
-  (:USE :COMMON-LISP 
-        :MJR_NLEQ 
-        :MJR_NUMU 
-        :MJR_CMP 
-        :MJR_CHK 
-        :MJR_PRIME 
-        :MJR_VEC 
-        :MJR_PRNG 
-        :MJR_COMBE 
-        :MJR_INTRP 
-        :MJR_COMBC 
-        :MJR_VVEC 
-        :MJR_GPOLY 
+  (:USE :COMMON-LISP
+        :MJR_NLEQ
+        :MJR_NUMU
+        :MJR_CMP
+        :MJR_CHK
+        :MJR_PRIME
+        :MJR_VEC
+        :MJR_PRNG
+        :MJR_COMBE
+        :MJR_INTRP
+        :MJR_COMBC
+        :MJR_VVEC
+        :MJR_GPOLY
         :MJR_EPS)
   (:DOCUMENTATION "Brief: Univariate Polynomials over R or C.;")
   (:EXPORT #:mjr_poly_help
@@ -181,7 +181,7 @@ replacing 'mjr_poly_' with 'MP_'.
   ** Counting distinct roots
   *** MP_root-count-distinct-real MP_root-count-distinct-interval MP_root-count-distinct-positive
   * Construct sequences of polynomials
-  ** MP_seq-make-fourier MP_seq-make-sturm-canonical MP_seq-make-chebyshev MP_seq-make-legendre MP_seq-make-lagrange 
+  ** MP_seq-make-fourier MP_seq-make-sturm-canonical MP_seq-make-chebyshev MP_seq-make-legendre MP_seq-make-lagrange
      MP_seq-make-bernstein MP_seq-make-hermite MP_seq-make-laguerre
   * Construct polynomials
   ** MP_make-chebyshev MP_make-legendre MP_make-lagrange MP_make-bernstein MP_make-hermite MP_make-laguerre
@@ -189,12 +189,12 @@ replacing 'mjr_poly_' with 'MP_'.
   ** Sign change based
   *** MP_scount-descartes MP_scount-sturm MP_scount-fourier MP_scount-budan
   ** Other
-  *** MP_height MP_length MP_density(G) MP_index(G) MP_degree(G) MP_discriminant-low-degree 
+  *** MP_height MP_length MP_density(G) MP_index(G) MP_degree(G) MP_discriminant-low-degree
       MP_discriminant-high-degree MP_discriminant MP_content MP_mahler-measure
   * Other Stuff
   ** mjr_poly_resultant
   * Polynomial xforms
-  ** MP_deflate MP_shift MP_reflect MP_diff(G) MP_intg MP_subst(G) MP_zap-zero-roots MP_2square-free MP_2primitive 
+  ** MP_deflate MP_shift MP_reflect MP_diff(G) MP_intg MP_subst(G) MP_zap-zero-roots MP_2square-free MP_2primitive
      MP_simplify(G) MP_scale(G) MP_rationalize
   ** MP_cubic-depress mjr_poly_tschirnhaus-3-2"
   (documentation 'mjr_poly_help 'function))
@@ -1375,7 +1375,7 @@ References:
                                  (if (not (= 1 ipolyf)) (list (vector (/ ipolyf)))))
           for degree = 2 then (if gotfac 2 (1+ degree))
           for gotfac = nil
-          for sample-points = (mjr_vvec_gen-0sim 'list (list :vvec-type :vvt-aseq :start (floor (- (truncate degree 2))) :step 1 :len (+ degree 1)))
+          for sample-points = (mjr_vvec_to-list (list :vvec-type :vvt-aseq :start (floor (- (truncate degree 2))) :step 1 :len (+ degree 1)))
           for pleftlen = (length pleft)
           finally (return (append factors (if (or (< 1 pleftlen) (not (= (aref pleft 0) 1))) (list pleft))))
           do (if show-progress (format 't "factoring(~d) ~a~%" degree pleft))
@@ -1648,7 +1648,7 @@ If $p(x)=ax^3+bx^2+cx+d$, then substitute $t=\frac{b}{3a}$."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_factor-square-free (poly)
-  "Return the square-free factorization of POLY as an assoc array with (poly . power).   
+  "Return the square-free factorization of POLY as an assoc array with (poly . power).
 
 Any factors equal to $1$ are not in the returned list.
 
@@ -1674,7 +1674,7 @@ References:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_factor-irreducible (poly &key show-progress)
-  "Return the irreducible factorization of POLY as an assoc array with (poly . power).   
+  "Return the irreducible factorization of POLY as an assoc array with (poly . power).
 
 VERY SLOW.  Uses kronecker's method."
   ;; MJR TODO NOTE mjr_poly_factor-irreducible: Implement a modern method, and use this for regression tests.
@@ -1713,13 +1713,13 @@ The optional arguments to determine how the computation is preformed:
 Definition
 
   Let $p\\in\\mathbb{C}[z]$ with $\\mathrm{deg}(p)=d$.  For definiteness, we express  $p$ like so:
-  
+
   $$p(z)=\\sum_{j=0}^d a_jx^j = a_d\\prod_{j=1}^d (z-\\alpha_j)$$
 
   We then define the Mahler measure to be:
 
-  $$M(p) = 
-    \\vert a_d\\vert\\prod_{\\vert\\alpha_j\\vert\\geq1} \\vert\\alpha_j\\vert = 
+  $$M(p) =
+    \\vert a_d\\vert\\prod_{\\vert\\alpha_j\\vert\\geq1} \\vert\\alpha_j\\vert =
     \\exp\\left(\\frac{1}{2\\pi}\\int_0^{2\\pi}\\ln(\\vert p(e^{i\\theta})\\vert)\\,\\mathrm{d}\\theta\\right)$$
 
 Examples:

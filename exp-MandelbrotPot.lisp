@@ -37,8 +37,8 @@
 (declaim (optimize (speed 3) (safety 0) ( debug 0) (compilation-speed 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(time (let ((numx (expt 2 8))          ;; Set to 10 for image based geometry, and 8 for triangular geometry (GNUplot, VTK, Povray), and 1536 for
-            (numy (expt 2 8)))
+(time (let ((numx (expt 2 11))          ;; Set to 10 for image based geometry, and 8 for triangular geometry (GNUplot, VTK, Povray), and 1536 for
+            (numy (expt 2 11)))
         (flet ((pot-fun (x y)
                  (multiple-value-bind
                        (the-zx the-zy the-count) (loop with cmax = 500
@@ -55,9 +55,9 @@
                                                   "y" (list :start -1.5 :end 1.5 :len numy))))
             (print "Compute dquad...")
             (mjr_dquad_add-data-from-map daData #'pot-fun :axes 't :ano-nam "Mandelbrot-Pot" :ano-typ :ano-typ-real)
-            (print "Add image to dquad...")
+            (print "Add image to dquad (POV)...")
             (mjr_dquad_colorize daData :data 0 :color-method #'mjr_colorized_povray :max-color #xFFFF :auto-scale 't :ano-nam "Mandelbrot-Pot-POV" :ano-typ :ano-typ-truvec)
-            (print "Add image to dquad...")
+            (print "Add image to dquad (RGB)...")
             (mjr_dquad_colorize daData :data 0 :color-method "RGB" :auto-scale 't :ano-nam "Mandelbrot-Pot-RGB" :ano-typ :ano-typ-truvec)
             (if (> 500 (max numx numy))
                 (progn (print "gnuplot surface")
@@ -74,4 +74,8 @@
                        (mjr_vtk_from-dquad "exp-MandelbrotPot-OUT.vtk" daData  :data '("Mandelbrot-Pot" "Mandelbrot-Pot-RGB"))
                        )
                 (progn (print "povray TGA")
-                       (mjr_tga_from-dquad "exp-MandelbrotPot-OUT.tga" daData :data 1)))))))
+                       (mjr_tga_from-dquad "exp-MandelbrotPot-OUT-POV.tga" daData :data "Mandelbrot-Pot-POV")
+                       (mjr_tga_from-dquad "exp-MandelbrotPot-OUT-RGB.tga" daData :data "Mandelbrot-Pot-RGB")
+                       (print "Add image to dquad (RBO)...")
+                       (mjr_dquad_colorize daData :data 0 :color-method "010101010101R" :auto-scale 't :ano-nam "Mandelbrot-Pot-RBO" :ano-typ :ano-typ-truvec)
+                       (mjr_tga_from-dquad "exp-MandelbrotPot-OUT-RBO.tga" daData :data "Mandelbrot-Pot-RBO")))))))

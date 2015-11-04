@@ -6,7 +6,7 @@
 ;; @brief     Non-linear equation root finding.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-nleq.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -46,7 +46,7 @@
   (:DOCUMENTATION "Brief: Non-linear equation root finding.;")
   (:EXPORT #:mjr_nleq_help
 
-           #:mjr_nleq_root-bsect 
+           #:mjr_nleq_root-bsect
            #:mjr_nleq_root-newton
            #:mjr_nleq_root-laguerre
 
@@ -75,7 +75,7 @@ determine if they are acceptable."
 If THE-STRING is not a string, then THE-STRING is returned as is.
 If THE-STRING contains the sub-string 'values(', it is assumed that the expression returns the required derivatives.  Otherwise
 it is assumed to be F only, and symbolic derivatives are taken before the lambda is constructed."
-  (if (stringp the-string)  
+  (if (stringp the-string)
       (if (search "values(" the-string)
           (mjr_mxp_tree-to-lambda (mjr_mxp_infix-to-tree the-string) var)
           (mjr_mxp_trees-to-values-lambda (mjr_cas_diff-list (mjr_mxp_infix-to-tree the-string) var num-diff) (list var)))
@@ -144,7 +144,7 @@ See mjr_nleq_help for a description of the three value return from this function
                (if (mjr_eps_=0 y-cur yeps)                                      (return (values x-cur y-cur nil)))
                (if (mjr_eps_=0 df yeps)                                         (return (values x-cur y-cur "dy=0")))
                (if (mjr_chk_!=0 df)
-                   (progn 
+                   (progn
                      (if (and x-old (mjr_eps_= x-cur x-old xeps))               (return (values x-cur y-cur "X-DELTA=0")))
                      (if show-progress
                          (format 't "~5d ~60@s ~60@s ~%" i-cur x-cur y-cur))
@@ -187,7 +187,7 @@ See mjr_nleq_help for a description of the three value return from this function
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_nleq_fixed-point-itr (f x0 &key (xeps 0.0001) (yeps 0.0001) (max-itr 1000) (show-progress nil))
-  "Use fixed point iteration to localize a a fixed point (a root of f(x)-x) near (hopefully anyhow) X0.  
+  "Use fixed point iteration to localize a a fixed point (a root of f(x)-x) near (hopefully anyhow) X0.
 
 See mjr_nleq_help for a description of the three value return from this function."
   (let ((f (mjr_nleq_infix-string-to-diff-lambda f "x" 0)))

@@ -6,7 +6,7 @@
 ;; @brief     Matrix math library.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-mat.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1995-2010,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -41,10 +41,10 @@
 ;; @todo      Krylov subspace methods: Biconjugate gradient method (BiCG).@EOL@EOL
 ;; @todo      Eigenvalues & vectors.@EOL@EOL
 ;; @todo      Condition number.@EOL@EOL
-;; @todo      Currently this code uses a system of "special matrix" symbols for 
+;; @todo      Currently this code uses a system of "special matrix" symbols for
 ;;               1) generate special matrices,
-;;               2) computing determinants of special (test) matrices, and 
-;;               3) testing matrix properties.  
+;;               2) computing determinants of special (test) matrices, and
+;;               3) testing matrix properties.
 ;;             Extend this system to general matrix computation routines so that they may
 ;;             exploit special structure or properties for increased efficiently.  Examples: determinants and inverse for
 ;;             upper triangular matrices, determinants for tridiagonal matrices, or inverses for orthogonal matrices..@EOL@EOL
@@ -81,7 +81,7 @@
            #:mjr_mat_every-idx #:mjr_mat_test-property-struct
            #:mjr_mat_fill-stats
            #:mjr_mat_float #:mjr_mat_rationalize
-           #:mjr_mat_diag 
+           #:mjr_mat_diag
            #:mjr_mat_minor
            #:mjr_mat_trace #:mjr_mat_diag-prod
            #:mjr_mat_rowop-swap #:mjr_mat_rowop-mult #:mjr_mat_rowop-div #:mjr_mat_rowop-mult-add
@@ -152,6 +152,8 @@ If VEC-IS-A-MAT, then non-nil will be returned for 1D arrays too."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mat_make-const (rows cols &optional (constant 0))
   "Create a constant matrix.  If missing, constant=0."
+  (cond ((minusp rows) (error "mjr_mat_make-const: ROWS must not be negative"))
+        ((minusp cols) (error "mjr_mat_make-const: COLS must not be negative")))
   (make-array (list rows cols) :initial-element constant))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -210,8 +212,10 @@ Typical examples (defun ftgr (i j) (sin (+ (* i i) (* j j)))):
   * (mjr_mat_make-from-func #'ftgr :rlen 100 :rstart  1 :rend 8 :clen 100  :cstart 1  :cend 8 :rfunc #'log :cfunc #'log)"
   (let* ((rlen (or (and (mjr_mat_matp (or rlen len rows cols)) (mjr_mat_rows (or rlen len rows cols))) (or rlen len rows cols)))
          (clen (or (and (mjr_mat_matp (or clen len cols rows)) (mjr_mat_cols (or clen len cols rows))) (or clen len cols rows)))
-         (rvec (mjr_vvec_gen-0sim 'vector (list :points (or rpoints points) :start (or rstart start) :end (or rend end) :step (or rstep step) :len rlen)))
-         (cvec (mjr_vvec_gen-0sim 'vector (list :points (or cpoints points) :start (or cstart start) :end (or cend end) :step (or cstep step) :len clen))))
+         (rvec (mjr_vvec_to-vec (mjr_util_strip-nil-val-kwarg
+                                 (list :points (or rpoints points) :start (or rstart start) :end (or rend end) :step (or rstep step) :len rlen))))
+         (cvec (mjr_vvec_to-vec (mjr_util_strip-nil-val-kwarg
+                                 (list :points (or cpoints points) :start (or cstart start) :end (or cend end) :step (or cstep step) :len clen)))))
     (let ((rlen (length rvec))
           (clen (length cvec)))
       (let ((newmat (mjr_mat_make-zero rlen clen)))
@@ -335,11 +339,11 @@ most slowly."
            (len       (a2l len))                                                                               ;; Convert to list
            (n         (max (or n 1) (length points) (length start) (length end) (length step) (length len)))   ;; Compute n (num vars FUNC takes)
            (seqs      (loop for i from 0 upto (1- n)                                                           ;; Compute sequences
-                            collect (mjr_vvec_gen-0sim 'vector (list :points (mnth i points) 
-                                                                     :start (mnth i start)
-                                                                     :end (mnth i end)
-                                                                     :step (mnth i step)
-                                                                     :len (mnth i len)))))
+                            collect (mjr_vvec_to-vec (mjr_util_strip-nil-val-kwarg (list :points (mnth i points)
+                                                                                         :start  (mnth i start)
+                                                                                         :end    (mnth i end)
+                                                                                         :step   (mnth i step)
+                                                                                         :len    (mnth i len))))))
            (slen      (map 'list #'length seqs))                                                               ;; Length of sequences
            (r         (reduce #'* slen))                                                                       ;; Number of tuples we will generate
            (x         (map 'vector (lambda (ts) (aref ts 0)) seqs)))                                           ;; First X
@@ -373,7 +377,7 @@ most slowly."
     (let* ((rows   (mjr_mat_rows matrix))
            (cols   (mjr_mat_cols matrix))
            (rows-1 (1- rows))
-           (cols-1 (1- cols)) 
+           (cols-1 (1- cols))
            (bams  (case lang            ;;    0           1    2  3  4      5    6   7
                     ((:lang-matlab
                       :lang-scilab
@@ -458,7 +462,7 @@ most slowly."
 Very fast.  NO ERROR CHECKING"
   (let* ((m (length vec))
          (n (array-dimension mat 1))
-         (v (make-array m)))
+         (v (make-array m :initial-element 0)))
     (dotimes (r m v)
       (dotimes (c n v)
         (incf (aref v r) (* (aref mat r c) (aref vec c)))))))
@@ -909,7 +913,7 @@ NOTE: NOT EXPORTED!!!!"
           do (setf (aref u i) (if p                                                 ;; Set according to pivot mode
                                   (* 1d0
                                      (if (= i p)                                    ;; Pivot mode case
-                                         (let ((yp (* mag-x 
+                                         (let ((yp (* mag-x
                                                       (mjr_numu_signum-pos xi))))
                                            (mjr_cmp_abs-max (- xi yp) (+ xi yp)))   ;; if on pivot, then set to magnitude
                                          xi))                                       ;; else just xi
@@ -1307,7 +1311,7 @@ controlled by the :SORT-ECHELON argument:
 
 Misc options:
 
-  :MAX-COLS           Maximum number of columns to eliminate.  If not provided, then the number of columns to eliminate is determined by 
+  :MAX-COLS           Maximum number of columns to eliminate.  If not provided, then the number of columns to eliminate is determined by
                       the size of the matrix or the :PIVOT-COL/:PIVOT-ROW options.
 
   :SHOW-PROGRESS      Set to 't for progress reports printed during the computation.
@@ -1386,7 +1390,7 @@ This function uses MJR_CMP_ functions."
                                                         for j from 0 upto (1- rows)                                      ; We used this construct instead
                                                         when (aref rows-left j)                                          ; of using the previous one
                                                         do (loop for i from 0 upto (1- cols)                             ; because this option corresponds
-                                                        for eltv = (aref newmat j i)                                     ; to 'full pivot' when used with 
+                                                        for eltv = (aref newmat j i)                                     ; to 'full pivot' when used with
                                                         when (and (aref cols-left i) (mjr_cmp_!=0 eltv)                  ; :max-non-zero for :pivot-row.
                                                                   (or (null maxv) (mjr_cmp_abs> eltv maxv)))             ; It needs to be fast.
                                                         do (progn (format 't "~a ~a~%" i eltv) (setq cpividx i
@@ -1426,7 +1430,7 @@ This function uses MJR_CMP_ functions."
                        (setf top-row
                              (case sort-echelon
                                (:pivot-diag (and (< cpividx rows)                                               ;; Sort to diag position
-                                                 (aref rows-left cpividx) 
+                                                 (aref rows-left cpividx)
                                                  cpividx))
                                (:pivot-up   (position-if #'identity rows-left))                                 ;; Sort up as much as possible
                                (:pivot-down (position-if #'identity rows-left                                   ;; Sort to down as much as possible
@@ -1434,8 +1438,8 @@ This function uses MJR_CMP_ functions."
                   (if (not (= rpividx top-row))                                                                 ;; If the sort location!=current location
                       (progn
                         (setf xfrm-det (- xfrm-det))                                                            ;; Gauss type two changes det
-                        (mjr_mat_apply-gauss-1!!             newmat  rpividx top-row)                           ;; apply the xform               
-                        (if atfrm (mjr_mat_apply-gauss-1!!   atfrm   rpividx top-row))                          ;; apply the xform to atfrm      
+                        (mjr_mat_apply-gauss-1!!             newmat  rpividx top-row)                           ;; apply the xform
+                        (if atfrm (mjr_mat_apply-gauss-1!!   atfrm   rpividx top-row))                          ;; apply the xform to atfrm
                         (if amatrix (mjr_mat_apply-gauss-1!! anewmat rpividx top-row))                          ;; apply the xform to amatrix too
                         (setf rpividx top-row))))
               (setf (aref rows-left rpividx) nil                                                                ;; Mark the row as used (so we don't reuse it later)
@@ -1472,8 +1476,8 @@ This function uses MJR_CMP_ functions."
               (if unitize-pivot
                   (let ((fac  (/ (aref newmat rpividx cpividx))))                                               ;; Gauss type two factor
                         (setf xfrm-det (* xfrm-det fac))                                                        ;; Gauss type two changes det
-                        (mjr_mat_apply-gauss-2!!             newmat  fac (aref row-perm cpividx))               ;; apply the xform               
-                        (if atfrm (mjr_mat_apply-gauss-2!!   atfrm   fac (aref row-perm cpividx)))              ;; apply the xform to atfrm      
+                        (mjr_mat_apply-gauss-2!!             newmat  fac (aref row-perm cpividx))               ;; apply the xform
+                        (if atfrm (mjr_mat_apply-gauss-2!!   atfrm   fac (aref row-perm cpividx)))              ;; apply the xform to atfrm
                         (if amatrix (mjr_mat_apply-gauss-2!! anewmat fac (aref row-perm cpividx)))))))          ;; apply the xform to amatrix too
         (if (and show-progress (< rows 50)) (mjr_mat_print newmat :filter-func :zp))))
     (values newmat row-perm (if (vectorp augment) (mjr_mat_m2cv anewmat) anewmat) atfrm xfrm-det)))
@@ -1885,5 +1889,5 @@ References:
                    (mjr_mat_apply-householder-many!! xform  gamma u)
                    (mjr_mat_apply-householder-many!! newmat gamma u)
                    (mjr_mat_apply-householder-many!! newmat gamma u 't))
-              do (if show-progress (mjr_mat_print newmat :filter-func :zp)))        
+              do (if show-progress (mjr_mat_print newmat :filter-func :zp)))
         (values newmat xform))))

@@ -6,7 +6,7 @@
 ;; @brief     Computational Geometry.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-geom.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1994,1995,1997,1998,2004,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -27,7 +27,7 @@
 ;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 ;;  DAMAGE.
 ;;  @endparblock
-;; @todo      
+;; @todo
 ;; @todo      BOOLEAN: simplex (point/segment/triangle/tetrahedron) intersect simplex (point/segment/triangle/tetrahedron).@EOL@EOL
 ;; @todo      point:   ray-ray intersection.@EOL@EOL
 ;; @todo      BOOLEAN: does ray intersect simplex (point/segment/triangle/tetrahedron).@EOL@EOL
@@ -47,7 +47,7 @@
         :MJR_NUMU)
   (:DOCUMENTATION "Brief: Computational Geometry.;")
   (:EXPORT #:mjr_geom_help
-           #:mjr_geom_simplex-area 
+           #:mjr_geom_simplex-area
            #:mjr_geom_simplex-degeneratep
            #:mjr_geom_triangle-normal
            #:mjr_geom_point-inside-simplex?
@@ -82,7 +82,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geom_simplex-area (&rest vertexes)
-  "Return area of simplex.  
+  "Return area of simplex.
 
       |----------------------------------------------------------------------------|
       |           Cases for which this function works (returns non-NIL)            |
@@ -97,7 +97,7 @@
     (let ((num-vert  (length vertexes))
           (space-dim (length v1)))
       (case num-vert
-        (3         (case space-dim 
+        (3         (case space-dim
                      (3 (destructuring-bind (v2 v3) rest-verts
                           (* 1/2 (mjr_numu_sqrt (+ (expt (- (* (- (svref v2 1) (svref v1 1)) (- (svref v1 2) (svref v3 2)))
                                                             (* (- (svref v2 2) (svref v1 2)) (- (svref v1 1) (svref v3 1)))) 2)

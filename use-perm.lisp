@@ -6,7 +6,7 @@
 ;; @brief     Permutation group computation.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-perm.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -37,7 +37,7 @@
            #:mjr_perm_swapping-number #:mjr_perm_evenp #:mjr_perm_oddp #:mjr_perm_sgn
            #:mjr_perm_order
            #:mjr_perm_check-perm
-           #:mjr_perm_* #:mjr_perm_/ 
+           #:mjr_perm_* #:mjr_perm_/
            #:mjr_perm_eval
            #:mjr_perm_apply-to-array2d #:mjr_perm_apply-to-sequence
            #:mjr_perm_cycle-structure-list #:mjr_perm_cycle-structure-lengths
@@ -91,7 +91,7 @@ contains duplicate integers."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_perm_eval (perm x &key (index-base 0))
-  "Evaluate a permutation at x. 
+  "Evaluate a permutation at x.
 
 This function performs no error checking -- use MJR_PERM_CHECK-PERM first if PERM might be invalid."
   (aref perm (- x index-base)))
@@ -206,4 +206,3 @@ This function performs no error checking -- use MJR_PERM_CHECK-PERM first if PER
                                    for i from 0 upto (1- len)
                                    collect (nth (mjr_perm_eval perm i) the-seq)))
         ('t                  (error "mjr_perm_apply-to-sequence: Unsupported type (need list or vector)!"))))
-

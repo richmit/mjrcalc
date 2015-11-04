@@ -43,9 +43,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (flet ((ifn (x) (/ (1+ (* x x)))))
   (let* ((n   7)
-         (xm  (mjr_vvec_gen-0sim 'vector (list :vvec-type :vvt-mitch1 :start -5 :end 5 :len n)))
-         (xc  (mjr_vvec_gen-0sim 'vector (list :vvec-type :vvt-cheb   :start -5 :end 5 :len n)))
-         (xu  (mjr_vvec_gen-0sim 'vector (list                        :start -5 :end 5 :len n)))
+         (xm  (mjr_vvec_to-vec (list :vvec-type :vvt-mitch1 :start -5 :end 5 :len n)))
+         (xc  (mjr_vvec_to-vec (list :vvec-type :vvt-cheb   :start -5 :end 5 :len n)))
+         (xu  (mjr_vvec_to-vec (list                        :start -5 :end 5 :len n)))
          (pm  (mjr_intrp::mjr_intrp_poly-newton  xm (map 'vector #'ifn xm)))
          (pu  (mjr_intrp::mjr_intrp_poly-newton  xu (map 'vector #'ifn xu)))
          (pc  (mjr_intrp::mjr_intrp_poly-newton  xc (map 'vector #'ifn xc)))

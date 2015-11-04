@@ -6,7 +6,7 @@
 ;; @brief     Interactive GF(p) library -- modular arithmatic.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-gfp.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2010,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -176,4 +176,3 @@ References:
   "Compute (X*N mod P) -- for GF(p) this is easy, for other rings it must be implemented as repeated addition.."
   (cond ((not (integerp n))  (error "mjr_gfp_imul: n must be an integer!")))
   (mjr_gfp_* p x n))
-

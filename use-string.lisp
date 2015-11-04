@@ -6,7 +6,7 @@
 ;; @brief     String utilities.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-string.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1998,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -27,7 +27,7 @@
 ;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 ;;  DAMAGE.
 ;;  @endparblock
-;; @todo      
+;; @todo
 ;; @todo      mjr_string_match-integer: Add :START and :END.@EOL@EOL
 ;; @todo      mjr_string_match-float: Add :START and :END.@EOL@EOL
 ;; @todo      mjr_string_match-rational: Add :START and :END.@EOL@EOL
@@ -45,7 +45,7 @@
 
            #:mjr_string_match-integer #:mjr_string_match-float #:mjr_string_match-rational
 
-           #:mjr_string_ltrim #:mjr_string_rtrim #:mjr_string_trim          
+           #:mjr_string_ltrim #:mjr_string_rtrim #:mjr_string_trim
 
            #:mjr_string_parse-number #:mjr_string_parse-c-identifier
 

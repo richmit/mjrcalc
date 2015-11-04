@@ -6,7 +6,7 @@
 ;; @brief     Unit conversion tool.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-units.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -38,12 +38,12 @@
         :MJR_STRING)
   (:DOCUMENTATION "Brief: Physical UNIT conversions and data.;")
   (:EXPORT #:mjr_units_help
-           #:mjr_units_find-unit  
-           #:mjr_units_canonization            
-           #:mjr_units_substitute               
+           #:mjr_units_find-unit
+           #:mjr_units_canonization
+           #:mjr_units_substitute
            #:mjr_units_to-si-fundamental
-           #:mjr_units_convert                     
-           #:mjr_units_compatible                  
+           #:mjr_units_convert
+           #:mjr_units_compatible
            ))
 
 (in-package :MJR_UNITS)
@@ -226,7 +226,7 @@ Options:
                                  when (or (mjr_string_starts-with (first  x) unit-to-find :case-sensitive case-sensitive)
                                           (mjr_string_starts-with (second x) unit-to-find :case-sensitive case-sensitive))
                                  collect x))
-                  (result  (delete-duplicates 
+                  (result  (delete-duplicates
                             (loop for a-prefix-list in (append (list (list "" "" 1)) g-prfxs)
                                   for a-prefix-name = (first a-prefix-list)
                                   for a-prefix-abrv = (second a-prefix-list)
@@ -248,7 +248,7 @@ Options:
                                                                      collect a-unit-cononical-data))))
                             :test (lambda (x y) (string= (first x) (first y))))))
              (if (and print-ambiguous-warnings (> (length result) 1))
-                 (format 't "WARNING: Ambiguous ~a unit specification: ~s => ~s~%" 
+                 (format 't "WARNING: Ambiguous ~a unit specification: ~s => ~s~%"
                          (if case-sensitive "case sensitive" "case insensitive") unit-to-find (mapcar #'first result)))
              (if (and error-on-bad-lookup (null result))
                  (error "mjr_units_find-unit: Unknown unit symbol or string: ~s" unit-to-find))
@@ -279,9 +279,9 @@ Unit Representations
                                 same as having a 1 on the left -- i.e.  everything on the right is on the bottom of the fraction. parentheses are
                                 ignored. Examples:
 
-                                    * Frequency    =  1/s*s    = /s*s     = /s^2    
+                                    * Frequency    =  1/s*s    = /s*s     = /s^2
                                     * Area         =  m*m      = m*m/     = m^2   = m^2/
-                                    * Acceleration =  m/s*s    = m/s^2    
+                                    * Acceleration =  m/s*s    = m/s^2
                                     * Force        =  kg*m/s*s = kg*m/s^2
 
  * Unit name                   LISP string representing a unit name
@@ -291,10 +291,11 @@ Unit Representations
  * Unit symbol                 LISP Symbol representing a unit abbreviation
 
  * String number               Convert to a number"
+  ;(format 't "CALL: ~a ~a~%" number-or-unit-thingy nil-or-unit-thingy )
   (let ((unit-thingy (or nil-or-unit-thingy number-or-unit-thingy))
         (multiplyer  (if nil-or-unit-thingy number-or-unit-thingy 1)))
     (if (or (numberp unit-thingy) (stringp unit-thingy) (and (not (listp unit-thingy)) (symbolp unit-thingy)))
-        (mjr_units_canonization  
+        (mjr_units_canonization
          multiplyer
          (if (or (symbolp unit-thingy)
                  (numberp unit-thingy)
@@ -362,7 +363,7 @@ Unit Representations
                                        ('t                                          ;; '(/ (/ e1 e2 ...)) => (/ e1) e2 ...
                                         (append (list (list '/ (second (second e))))
                                                 (cddr (second e))))))))
-              ;;(format 't "~s~%" new-exp)
+              ;(format 't "2nd: ~s~%" new-exp)
               (if (tree-equal unit-thingy new-exp)
                   ;; Simply result before return: a/a == 1
                   (let ((unit-powr (make-hash-table :test 'equal))
@@ -374,20 +375,21 @@ Unit Representations
                           do (let* ((info-s      (mjr_units_find-unit s))
                                     (canonized-s (if (numberp info-s) info-s (first info-s))))
                                (if (numberp canonized-s)
-                                   (setf multiplyer (* multiplyer (cond ((> p 0) canonized-s)
-                                                                        ((= p 0) 1)
-                                                                        ((< p 0) (/ canonized-s))
-                                                                        ('t      0)))) ;; Quiet compiler
+                                   (setf multiplyer (* multiplyer (cond ((plusp  p) canonized-s)
+                                                                        ((zerop  p) 1)
+                                                                        ((minusp p) (/ canonized-s))
+                                                                        ('t         0)))) ;; Quiet compiler
                                    (progn (setf (gethash canonized-s unit-info) info-s)
                                           (if (gethash canonized-s unit-powr)
                                               (incf (gethash canonized-s unit-powr) p)
                                               (setf (gethash canonized-s unit-powr) p))))))
                     (values (append '(*)
                                     (if (not (equal multiplyer 1)) (list multiplyer))
-                                    (loop for s being the hash-keys of unit-powr using (hash-value p)
-                                          append (loop for i from 1 upto (abs p)
-                                                       collect (cond ((> p 0) s)
-                                                                     ((< p 0) (list '/ s))))))
+                                    (loop for s in (sort (loop for s being the hash-keys of unit-powr collect s) #'string-lessp)
+                                                 for p = (gethash s unit-powr)
+                                                 append (loop for i from 1 upto (abs p)
+                                                              collect (cond ((plusp  p) s)
+                                                                            ((minusp p) (list '/ s))))))
                             (loop for x being the hash-values of unit-info
                                   collect x)))
                   ;; Do it again
@@ -416,7 +418,7 @@ Unit Representations
   "convert into base SI units"
   (multiple-value-bind (unit-expr unit-info) (mjr_units_canonization  number-or-unit-thingy nil-or-unit-thingy)
     (apply #'mjr_units_substitute
-           unit-expr 
+           unit-expr
            (loop for (s s-info) in unit-info
                  for s-class = (eighth s-info)
                  when (or (not (member s-class '(:si-fundamental))) (not (= 1 (first s-info))))
@@ -461,6 +463,6 @@ value returned will ALWAYS be EQUAL to the original quantity."
   (let ((foo (mjr_units_canonization  (list '/
                                                (mjr_units_to-si-fundamental unit-thingy-1)
                                                (mjr_units_to-si-fundamental unit-thingy-2)))))
-    (and (listp foo) 
+    (and (listp foo)
          (or (and (= 2 (length foo)) (equal '* (first foo)) (numberp (second foo)))
              (and (= 1 (length foo)) (equal '* (first foo)))))))

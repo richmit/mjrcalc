@@ -6,7 +6,7 @@
 ;; @brief     Multiple Non-linear EQuation root location.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-nleqm.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1995-2010,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -59,7 +59,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_nleqm_root-newton (fdf x0 &key (df-is-inverse nil) (xeps 0.0001) (yeps 0.0001) (max-itr 1000) arg-mode (show-progress nil))
-  "Use newton's method to localize a root of f near (hopefully anyhow) X0.  
+  "Use newton's method to localize a root of f near (hopefully anyhow) X0.
 The first return of FDF is the value of f, and the second return depends upon DF-IS-INVERSE:
   * DF-IS-INVERSE is NIL:      df/dx
   * DF-IS-INVERSE is non-NIL:  (df/dx)^(-1) (or NIL if df/dx is singular)
@@ -71,7 +71,7 @@ WHY-STRING is a string description of why the function returned."
         with y-old = nil
         with x-del = nil
         for i-cur from 0
-        do (multiple-value-bind (y-cur df) 
+        do (multiple-value-bind (y-cur df)
                (mjr_util_fun-adapt-eval-v fdf x-cur arg-mode)
              (if (mjr_eps_=0 y-cur yeps)                                           (return (values     x-cur y-cur i-cur "Y=0")))
              (if (and x-old (mjr_eps_= x-cur x-old xeps))                          (return (values nil x-cur y-cur i-cur "X-DELTA=0")))

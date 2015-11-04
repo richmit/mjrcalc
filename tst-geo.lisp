@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-geo.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,2006,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -36,7 +36,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_geo_geod-distance
-  (assert-equality (mjr_eps_make-fixed= -0.01) 
+  (assert-equality (mjr_eps_make-fixed= -0.01)
                    4164074.239
                    (mjr_geo_geod-distance (mjr_a_dms2d 42 15)  (mjr_a_dms2d 71 7) (mjr_a_dms2d 45  31) (mjr_a_dms2d 123 41)))
 

@@ -6,7 +6,7 @@
 ;; @brief     Data sets on QUADrilateral (rectilinear) grids.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-dquad.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1995,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -32,7 +32,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defpackage :MJR_DQUAD 
+(defpackage :MJR_DQUAD
   (:USE :COMMON-LISP
         :MJR_VVEC
         :MJR_COMBC
@@ -111,7 +111,7 @@ meta/axis pairs.  6) The last thing on the list are the meta/data pairs.  Essent
 the first element (after the axis count and before the first axis meta item).  Note that this has ZERO impact to code outside of
 this package as code outside the package should use the GET-THINGY functions!!!
 
-The axis-meta & data-meta objects are alists as described by MJR_ANNOT_HELP.  Each axis-vector MUST sorted. 
+The axis-meta & data-meta objects are alists as described by MJR_ANNOT_HELP.  Each axis-vector MUST sorted.
 
 Note that an axis-meta and data-meta alists MUST contain both the :ano-nam and :ano-typ keys, and :ano-nam values should be unique.
 
@@ -143,7 +143,7 @@ will be placed into the returned dquad list as is -- the contents are not valida
                 else
                 collect (if (vectorp thingy)
                             (copy-seq thingy)
-                            (mjr_vvec_to-vec-maybe thingy)))))
+                            (mjr_vvec_to-vec thingy)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dquad_axis-count (dquad)
@@ -253,7 +253,7 @@ This function makes the assumption that axis-meta/axis-vector pairs start on ind
     (if ano-key
         (mjr_annot_get-value ano-key anno-alist)
         anno-alist)))
-        
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_dquad_fast_map101 (fn am axis-vectors data-arrays)
   "Return an array produced by evaluating FN on the elements of the cross product of the given vectors.  am is the argument mode."
@@ -338,7 +338,7 @@ Supported combinations of axes, idxes, and data arguments:
                        (integer   (list data))
                        (string    (list data))
                        (list      data)
-                       (otherwise (if (not (zerop data-count)) (concatenate 'list (mjr_vvec_to-vec-maybe data-count)))))))
+                       (otherwise (if (not (zerop data-count)) (concatenate 'list (mjr_vvec_to-vec data-count)))))))
     (cond ((not (or axes idxes data)) (error "mjr_dquad_map: At least one of AXES, DATA, IDXES must be non-NIL"))
           ((and idxes data)           (error "mjr_dquad_map: non-NIL DATA may not be combined with non-NIL IDXES")))
     (if (null data)
@@ -347,7 +347,7 @@ Supported combinations of axes, idxes, and data arguments:
             (if (null idxes)
                 (mjr_combc_gen-all-cross-product (mjr_dquad_get-all-axis dquad)                   :collect-value f :result-type :array :arg-mode arg-mode);; 1 0 0
                 (eval (macroexpand `(mjr_dquad_fast_map110 ,f ,arg-mode ,@(mjr_dquad_get-all-axis dquad))))))                                             ;; 1 1 0
-        (let ((da-dats (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x)) data)))          
+        (let ((da-dats (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x)) data)))
           (if (null axes)
               (apply #'mjr_arr_map (mjr_util_fun-adapt-x2x f arg-mode :arg-number) da-dats)                                                               ;; 0 ? 1
               (eval (macroexpand `(mjr_dquad_fast_map101 ,f ,arg-mode (,@(mjr_dquad_get-all-axis dquad)) (,@da-dats)))))))))                              ;; 1 0 1
@@ -368,7 +368,7 @@ on the list. When non-NIL, none of the other :ANO-* arguments may be provided.  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dquad_add-multi-data (dquad multi-data-array &key ano-nam-olos ano-typ ano-units)
-  "Add N data-arrays to dquad when multi-data-array contains vectors or lists of length N. 
+  "Add N data-arrays to dquad when multi-data-array contains vectors or lists of length N.
 
 If :ano-nam-olos is a string, then then :ano-name for each data-array will be ano-nam-olos_idx.
 If :ano-nam-olos is a list, then each element of the list will be used in turn for the :ano-name."
@@ -399,7 +399,7 @@ If :ano-nam-olos is a list, then each element of the list will be used in turn f
 (defun mjr_dquad_colorize (dquad &key axes idxes data color-method max-color data-range (auto-scale 't) ano-nam (ano-typ :ano-typ-truint))
   "This is a helper function to create a colorization function and then apply it to DQUAD via MJR_DQUAD_MAP.
 
-Note that :ano-typ-truint will result in a packed image format, while all other image formats will be vector based (and slower).  
+Note that :ano-typ-truint will result in a packed image format, while all other image formats will be vector based (and slower).
 
 Arguments:
   - axes, idxes, data ................................... Same as in mjr_dquad_map
@@ -413,7 +413,7 @@ Arguments:
                        (string    (list data))
                        (integer   (list data))
                        (list      data)
-                       (otherwise (if (not (zerop data-count)) (concatenate 'list (mjr_vvec_to-vec-maybe data-count))))))
+                       (otherwise (if (not (zerop data-count)) (concatenate 'list (mjr_vvec_to-vec data-count))))))
          (colorpack    (mjr_annot_get-colorpacking ano-typ))
          (colorspace   (mjr_annot_get-colorspace ano-typ))
          (data-range (or data-range
@@ -506,4 +506,3 @@ Note that all data-array elements in the new dquad list are new, but meta data a
                   (integer thingy)
                   (list (copy-tree thingy))
                   (array (mjr_arr_copy thingy)))))
-

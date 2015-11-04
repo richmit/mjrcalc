@@ -6,7 +6,7 @@
 ;; @brief     Augments and supports :mjr_probau.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-prob.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2010,2011,2012,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -43,8 +43,8 @@
         :MJR_PROBU)
   (:DOCUMENTATION "Brief: Augments and supports :MJR_PROBAU.;")
   (:EXPORT #:mjr_prob_help
-           #:mjr_prob_exponential-pdf        #:mjr_prob_exponential-cdf        #:mjr_prob_exponential-ccdf       #:mjr_prob_exponential-icdf #:mjr_prob_exponential-prng             
-           #:mjr_prob_std-normal-pdf         #:mjr_prob_std-normal-cdf         #:mjr_prob_std-normal-ccdf        #:mjr_prob_std-normal-icdf  #:mjr_prob_std-normal-prng              
+           #:mjr_prob_exponential-pdf        #:mjr_prob_exponential-cdf        #:mjr_prob_exponential-ccdf       #:mjr_prob_exponential-icdf #:mjr_prob_exponential-prng
+           #:mjr_prob_std-normal-pdf         #:mjr_prob_std-normal-cdf         #:mjr_prob_std-normal-ccdf        #:mjr_prob_std-normal-icdf  #:mjr_prob_std-normal-prng
            #:mjr_prob_normal-pdf             #:mjr_prob_normal-cdf             #:mjr_prob_normal-ccdf                                        #:mjr_prob_normal-prng
            #:mjr_prob_poisson-pdf            #:mjr_prob_poisson-cdf            #:mjr_prob_poisson-ccdf                                       #:mjr_prob_poisson-prng
            #:mjr_prob_bernoulli-pdf          #:mjr_prob_bernoulli-cdf          #:mjr_prob_bernoulli-ccdf                                     #:mjr_prob_bernoulli-prng
@@ -199,7 +199,7 @@ References:
                 (b4 2.1213794301586595867d+4)
                 (b5 3.9307895800092710610d+4)
                 (b6 2.8729085735721942674d+4)
-                (b7 5.2264952788528545610d+3))            
+                (b7 5.2264952788528545610d+3))
             (/ (* q (+ (* (+ (* (+ (* (+ (* (+ (* (+ (* (+ (* a7 r) a6) r) a5) r) a4) r) a3) r) a2) r) a1) r) a0))
                (+ (* (+ (* (+ (* (+ (* (+ (* (+ (* (+ (* b7 r) b6) r) b5) r) b4) r) b3) r) b2) r) b1) r) b0)))
           (let ((t2 (if (< q 0) p (- 1 p))))
@@ -429,7 +429,7 @@ Classical formula:
         ((< mu 0)                       (error "mjr_prob_poisson-prng: MU must be non-negative!"))
         ((not (equal algorithm :knuth)) (error "mjr_prob_poisson-prng: Unknown algorithm")))
   (loop with l = (exp (- mu))
-        for k from 1 
+        for k from 1
         for u = (random 1.0)
         for p = 1 then (* p u)
         finally (return (- k 1))
@@ -691,7 +691,7 @@ Note that:
   (loop with red  = 0
         with blue = 0
         for i from 1
-        finally (return blue)                                                  
+        finally (return blue)
         do (if (<= (random 1.0) p)
                (incf red)
                (incf blue))

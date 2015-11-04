@@ -6,7 +6,7 @@
 ;; @brief     Balls And Urns probability distributions.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-probau.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2010,2011,2012,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -41,12 +41,12 @@
   (:EXPORT #:mjr_probau_help
            ;; In :#:MJR_PROBAU and :#:MJR_PROB (with alternate parametrization)
            #:mjr_probau_bernoulli-pdf               #:mjr_probau_bernoulli-cdf               #:mjr_probau_bernoulli-ccdf                #:mjr_probau_bernoulli-prng
-           #:mjr_probau_binomial-pdf                #:mjr_probau_binomial-cdf                #:mjr_probau_binomial-ccdf                 #:mjr_probau_binomial-prng 
+           #:mjr_probau_binomial-pdf                #:mjr_probau_binomial-cdf                #:mjr_probau_binomial-ccdf                 #:mjr_probau_binomial-prng
            #:mjr_probau_geometric-pdf               #:mjr_probau_geometric-cdf               #:mjr_probau_geometric-ccdf                #:mjr_probau_geometric-prng
            ;; In :#:MJR_PROBAU only!
            #:mjr_probau_negative-binomial-pdf       #:mjr_probau_negative-binomial-cdf       #:mjr_probau_negative-binomial-ccdf        #:mjr_probau_negative-binomial-prng
            #:mjr_probau_hypergeometric-pdf          #:mjr_probau_hypergeometric-cdf          #:mjr_probau_hypergeometric-ccdf           #:mjr_probau_hypergeometric-prng
-           #:mjr_probau_negative-hypergeometric-pdf #:mjr_probau_negative-hypergeometric-cdf #:mjr_probau_negative-hypergeometric-ccdf  #:mjr_probau_negative-hypergeometric-prng 
+           #:mjr_probau_negative-hypergeometric-pdf #:mjr_probau_negative-hypergeometric-cdf #:mjr_probau_negative-hypergeometric-ccdf  #:mjr_probau_negative-hypergeometric-prng
            #:mjr_probau_multi-hypergeometric-pdf
            #:mjr_probau_multinomial-pdf
            ))
@@ -180,9 +180,9 @@ Classical formula:
         ((not (integerp n))                (error "mjr_probau_geometric-cdf: N must be an integer!"))
         ((< n 0)                           (error "mjr_probau_geometric-cdf: N must be non-negative!"))
         ((and (= m 0) (= n 0))             (error "mjr_probau_geometric-cdf: M and/or N must be non-zero!"))
-        ((not (integerp k))                (error "mjr_probau_geometric-cdf: K must be an integer!"))   
-        ((< k 0)                           (error "mjr_probau_geometric-cdf: K must be non-negative!")) 
-        ((not (equal algorithm :pdf2cdf))  (error "mjr_probau_geometric-cdf: Unknown algorithm!")))     
+        ((not (integerp k))                (error "mjr_probau_geometric-cdf: K must be an integer!"))
+        ((< k 0)                           (error "mjr_probau_geometric-cdf: K must be non-negative!"))
+        ((not (equal algorithm :pdf2cdf))  (error "mjr_probau_geometric-cdf: Unknown algorithm!")))
   (mjr_probu_pdf2cdf k 0 nil #'mjr_probau_geometric-pdf 't n m :algorithm pdf-algorithm))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -192,9 +192,9 @@ Classical formula:
         ((not (integerp n))                (error "mjr_probau_geometric-ccdf: N must be an integer!"))
         ((< n 0)                           (error "mjr_probau_geometric-ccdf: N must be non-negative!"))
         ((and (= m 0) (= n 0))             (error "mjr_probau_geometric-ccdf: M and/or N must be non-zero!"))
-        ((not (integerp k))                (error "mjr_probau_geometric-ccdf: K must be an integer!"))   
-        ((< k 0)                           (error "mjr_probau_geometric-ccdf: K must be non-negative!")) 
-        ((not (equal algorithm :pdf2ccdf)) (error "mjr_probau_geometric-ccdf: Unknown algorithm!")))     
+        ((not (integerp k))                (error "mjr_probau_geometric-ccdf: K must be an integer!"))
+        ((< k 0)                           (error "mjr_probau_geometric-ccdf: K must be non-negative!"))
+        ((not (equal algorithm :pdf2ccdf)) (error "mjr_probau_geometric-ccdf: Unknown algorithm!")))
   (mjr_probu_pdf2ccdf k 0 nil #'mjr_probau_geometric-pdf 't n m :algorithm pdf-algorithm))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -325,7 +325,7 @@ Value of :ALGORITHM is as in mjr_prob_negative-binomial-pdf"
   (loop with red  = 0
         with blue = 0
         for i from 1
-        finally (return blue)                                                  
+        finally (return blue)
         do (if (< (random (+ n m)) n)
                (incf red)
                (incf blue))
@@ -477,7 +477,7 @@ Classical formula:
     (:bau           (loop with red = 0
                           with blue = 0
                           for i from 1 upto s
-                          finally (return red)                                                  
+                          finally (return red)
                           do (if (< (random (+ (- n red) (- m blue))) (- n red))
                                  (incf red)
                                  (incf blue))))

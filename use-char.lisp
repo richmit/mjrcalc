@@ -6,7 +6,7 @@
 ;; @brief     Character (ASCII & EBCIDIC) tools.@EOL@EOL
 ;; @std       Common Lisp
 ;; @see       tst-char.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1998,2008,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -30,7 +30,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defpackage :MJR_CHAR 
+(defpackage :MJR_CHAR
   (:USE :COMMON-LISP)
   (:DOCUMENTATION "Brief: Character (ASCII & EBCIDIC) tools.;")
   (:EXPORT #:mjr_char_help
@@ -84,7 +84,7 @@ The focus of this package is on characters (think ASCII):
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_char_int2ch (n &key (char-set :cs-ascii) (result-type 'string))
-  "Convert an integer into a character string in the given character set.  
+  "Convert an integer into a character string in the given character set.
 
 If a character code maps to a non-printable character, then the returned string is a typical representation of the value -- DEL for the delete character for
 example (ASCII 127). The return is nil if the integer can not be converted.
@@ -102,7 +102,7 @@ The :char-set may be :cs-ascii or :cs-ebcdic.  For :cs-ebcdic only characters wi
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_char_ch2int (char &key (char-set :cs-ascii))
-  "Convert a character into an integer in the given character set.  
+  "Convert a character into an integer in the given character set.
 
 Note CHAR may be a character string representing a non-printable character like DEL (ASCII 127). The return is nil if the integer can not be converted.
 
@@ -158,7 +158,7 @@ Note this function will be vacuously true for any empty string."
            (find the-string-or-char class-string))
       (and (stringp the-string-or-char)
            (every (lambda (char) (find char class-string)) the-string-or-char))))
-  
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_char_digitsp (the-string-or-char)
   "non-nil iff the-string-or-char is a digit or a string containing only digits.
@@ -188,4 +188,3 @@ Note this function will be vacuously true for any empty string."
   "non-nil iff the-string-or-char is whitespace character or string containing only whitespace characters.
 Note this function will be vacuously true for any empty string."
   (mjr_char_in-class the-string-or-char #( #\  #\Tab #\Newline #\Return )))
-
