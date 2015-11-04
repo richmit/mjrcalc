@@ -1,7 +1,7 @@
 (defsystem
  "mjrcalc"
  :description "META package depending on every *MJRCALC*.package -- load this to load them all!"
- :version "1443425154"
+ :version "1444004667"
  :author "Mitch Richling <http://www.mitchr.me/>"
  :licence "See the BSD-style license in LICENSE.TXT"
  :defsystem-depends-on (:MJR_A :MJR_ARR :MJR_CAS :MJR_CHAR :MJR_CHEM :MJR_CHK :MJR_CMP :MJR_COLOR :MJR_COLORIZE :MJR_COLORIZED :MJR_COLORIZER :MJR_COMBC :MJR_COMBE

@@ -56,6 +56,7 @@
         :MJR_VVEC
         :MJR_CHK
         :MJR_VEC
+        :MJR_DQUAD
         :MJR_UTIL)
   (:DOCUMENTATION "Brief: ODE (Ordinary Differential Equation) IVP (Initial Value Problem) solvers.;")
   (:EXPORT #:mjr_ode_help
@@ -596,10 +597,11 @@ $$\Delta\mathbf{\vec{y}}=\frac{\vec{\mathbf{k}}_1+2\vec{\mathbf{k}}_2+2\vec{\mat
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_slv-ivp-erk-interval (eq ivy x-min x-max &key
-                                         max-itr x-delta-min x-delta-max x-delta-init x-delta-fac-max x-delta-fac-min
-                                         y-delta-abs-max y-delta-rel-max y-err-abs-max y-err-rel-max x-delta-fac-fuz
-                                         suppress-warnings x-delta-min-rej-err show-progress algorithm return-all-steps
-                                         out-y-canonical)
+                                                          (x-ano-nam "x") (y-ano-nam "y") 
+                                                          max-itr x-delta-min x-delta-max x-delta-init x-delta-fac-max x-delta-fac-min
+                                                          y-delta-abs-max y-delta-rel-max y-err-abs-max y-err-rel-max x-delta-fac-fuz
+                                                          suppress-warnings x-delta-min-rej-err show-progress algorithm return-all-steps
+                                                          out-y-canonical)
   "Solve one or more systems ODEs in EQ at point X-MAX given initial values X-MIN & IVY using an adaptive Runge-Kutta method.
 
    Arguments:
@@ -735,39 +737,44 @@ $$\Delta\mathbf{\vec{y}}=\frac{\vec{\mathbf{k}}_1+2\vec{\mathbf{k}}_2+2\vec{\mat
            (x-delta         (or x-delta-init (nil-max x-delta-min (nil-min x-delta-max x-range))))
            (y               (copy-tree ivy))
            (x               x-min)
-           (step-data       (loop for itr from 0
-                                  initially (if show-progress (format 't "INFO(mjr_ode_slv-ivp-erk-interval): ~5@a ~20@a ~20@a ~%" "itr" "x" "x-delta"))
-                                  when (not (zerop itr))
-                                  do (loop for (y-delta x-delta-raw-fac) = (multiple-value-list (funcall algorithm eq x y x-delta
-                                                                                                         y-err-abs-max y-err-rel-max
-                                                                                                         y-delta-abs-max y-delta-rel-max))
-                                           for x-delta-fac = (min x-delta-fac-max
-                                                                  (max x-delta-fac-min
-                                                                       (if (and x-delta-raw-fac (> (abs (- 1 x-delta-raw-fac)) x-delta-fac-fuz))
-                                                                           x-delta-raw-fac
-                                                                           1)))
-                                           for y-bad? = (< x-delta-fac 1)
-                                           for x-at-min = (and x-delta-min (<= x-delta x-delta-min))
-                                           when (or x-at-min (not y-bad?))
-                                           return (progn (if (and y-bad? x-at-min (not suppress-warnings))
-                                                             (warn "mjr_ode_slv-ivp-erk-interval: Violated Y-ERR-ABS-MAX or Y-DELTA-ABS-MAX constraint!"))
-                                                         (if (and y-bad? x-at-min x-delta-min-rej-err)
-                                                             (error "mjr_ode_slv-ivp-erk-interval: Violated Y-ERR-ABS-MAX or Y-DELTA-ABS-MAX constraint!"))
-                                                         (setf y      (mapcar (lambda (cur-y cur-y-delta) (mjr_vec_+ cur-y cur-y-delta)) y y-delta)
-                                                               x      (+ x x-delta)
-                                                               x-delta (min (- x-max x) (nil-min x-delta-max (nil-max x-delta-min (* x-delta x-delta-fac))))))
-                                           when show-progress
-                                           do (format 't "INFO(mjr_ode_slv-ivp-erk-interval): ~5d ~20f ~20f ~%" itr x x-delta)
-                                           do (setf x-delta (nil-min x-delta-max (nil-max x-delta-min (* x-delta x-delta-fac))))
-                                           when (and max-itr (> itr max-itr))
-                                           return (error "mjr_ode_slv-ivp-erk-interval: Violated MAX-ITR constraint!"))
-                                  when return-all-steps
-                                  collect (apply #'concatenate 'list (list x) y)
-                                  when show-progress
-                                  do (format 't "INFO(mjr_ode_slv-ivp-erk-interval): ~5d ~20f ~20f ***~%" itr x x-delta)
-                                  until (> x-delta-min (- x-max x)))))
+           (x-sol           nil)
+           (y-sol           nil))
+      (loop for itr from 0
+            initially (if show-progress (format 't "INFO(mjr_ode_slv-ivp-erk-interval): ~5@a ~20@a ~20@a ~%" "itr" "x" "x-delta"))
+            when (not (zerop itr))
+            do (loop for (y-delta x-delta-raw-fac) = (multiple-value-list (funcall algorithm eq x y x-delta
+                                                                                   y-err-abs-max y-err-rel-max
+                                                                                   y-delta-abs-max y-delta-rel-max))
+                     for x-delta-fac = (min x-delta-fac-max
+                                            (max x-delta-fac-min
+                                                 (if (and x-delta-raw-fac (> (abs (- 1 x-delta-raw-fac)) x-delta-fac-fuz))
+                                                     x-delta-raw-fac
+                                                     1)))
+                     for y-bad? = (< x-delta-fac 1)
+                     for x-at-min = (and x-delta-min (<= x-delta x-delta-min))
+                     when (or x-at-min (not y-bad?))
+                     return (progn (if (and y-bad? x-at-min (not suppress-warnings))
+                                       (warn "mjr_ode_slv-ivp-erk-interval: Violated Y-ERR-ABS-MAX or Y-DELTA-ABS-MAX constraint!"))
+                                   (if (and y-bad? x-at-min x-delta-min-rej-err)
+                                       (error "mjr_ode_slv-ivp-erk-interval: Violated Y-ERR-ABS-MAX or Y-DELTA-ABS-MAX constraint!"))
+                                   (setf y      (mapcar (lambda (cur-y cur-y-delta) (mjr_vec_+ cur-y cur-y-delta)) y y-delta)
+                                         x      (+ x x-delta)
+                                         x-delta (min (- x-max x) (nil-min x-delta-max (nil-max x-delta-min (* x-delta x-delta-fac))))))
+                     when show-progress
+                     do (format 't "INFO(mjr_ode_slv-ivp-erk-interval): ~5d ~20f ~20f ~%" itr x x-delta)
+                     do (setf x-delta (nil-min x-delta-max (nil-max x-delta-min (* x-delta x-delta-fac))))
+                     when (and max-itr (> itr max-itr))
+                     return (error "mjr_ode_slv-ivp-erk-interval: Violated MAX-ITR constraint!"))
+            when return-all-steps
+            do (push x                               x-sol)
+            do (push (apply #'concatenate 'vector y) y-sol)
+            when show-progress
+            do (format 't "INFO(mjr_ode_slv-ivp-erk-interval): ~5d ~20f ~20f ***~%" itr x x-delta)
+            until (> x-delta-min (- x-max x)))
       (if return-all-steps
-          (make-array (list (length step-data) (length (first step-data))) :initial-contents step-data)
+          (let ((sol (mjr_dquad_make-from-axis x-ano-nam (nreverse x-sol))))
+            (mjr_dquad_add-multi-data sol (make-array (length y-sol) :initial-contents (nreverse y-sol)) :ano-nam-olos y-ano-nam)
+            sol)
           (if out-y-canonical
               y
               (cond (y-are-lst y)
@@ -775,14 +782,14 @@ $$\Delta\mathbf{\vec{y}}=\frac{\vec{\mathbf{k}}_1+2\vec{\mathbf{k}}_2+2\vec{\mat
                     (y-are-num (aref (first y) 0))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_ode_slv-ivp-erk-mesh (eq ivy mesh &rest rest &key show-progress &allow-other-keys)
+(defun mjr_ode_slv-ivp-erk-mesh (eq ivy mesh &rest rest &key (x-ano-nam "x") (y-ano-nam "y") show-progress &allow-other-keys)
   "Approximate solutions to one or more systems of ODEs initial value problems across a mesh of points.
 
 The return value will be a 2D array with a row for each mesh point, and a column for x and all the requested variables.
 
    Arguments:
-    Specifying the mesh (See: MJR_VVEC_KW-NORMALIZE):
-       *  POINTS, START, END, STEP, LEN
+    Specifying the mesh:
+       *  MESH is a VVEC.  See MJR_VVEC_HELP and MJR_VVEC_TO-VEC.
     Equations and initial values (See: MJR_ODE_SLV-IVP-ERK-INTERVAL):
        *  EQ & IVY
     Miscellaneous:
@@ -794,14 +801,19 @@ The return value will be a 2D array with a row for each mesh point, and a column
          *  :OUT-Y-CANONICAL"
   (let* ((points (mjr_vvec_to-vec mesh)) ;; TODO: Instead of materializing the vector, we could get a forward iterator...
          (len    (length points))
-         (kwa    (mjr_util_strip-kwarg rest :strip-list (list :return-all-steps :out-y-canonical)))
-         (sol    (loop for i from 0 to (1- len)
-                       for xi   = nil then xi+1
-                       for xi+1 = (aref points i)
-                       for y    = ivy then (apply #'mjr_ode_slv-ivp-erk-interval eq y xi xi+1 :out-y-canonical nil :return-all-steps nil kwa)
-                       collect (cond ((numberp y) (list xi+1 y))
-                                     ((vectorp y) (concatenate 'list (list xi+1) y))
-                                     ('t          (apply #'concatenate 'list (list xi+1) (mapcar (lambda (cy) (if (numberp cy) (list cy) cy)) y))))
-                       when show-progress
-                       do (format 't "INFO(mjr_ode_slv-ivp-erk-mesh):     ~5d ~20f~%" i xi+1))))
-    (make-array (list (length sol) (length (first sol))) :initial-contents sol)))
+         (kwa    (mjr_util_strip-kwarg rest :strip-list (list :x-ano-nam :y-ano-nam :return-all-steps :out-y-canonical)))
+         (x-sol  (make-array len))
+         (y-sol  (make-array len)))
+    (loop for i from 0 to (1- len)
+          for xi   = nil then xi+1
+          for xi+1 = (aref points i)
+          for y    = ivy then (apply #'mjr_ode_slv-ivp-erk-interval eq y xi xi+1 :out-y-canonical nil :return-all-steps nil kwa)
+          do (setf (aref x-sol i) xi+1
+                   (aref y-sol i) (cond ((numberp y) (vector y))
+                                        ((vectorp y) y)
+                                        ('t          (apply #'concatenate 'vector (mapcar (lambda (cy) (if (numberp cy) (list cy) cy)) y)))))
+          when show-progress
+          do (format 't "INFO(mjr_ode_slv-ivp-erk-mesh):     ~5d ~20f~%" i xi+1))
+    (let ((sol (mjr_dquad_make-from-axis x-ano-nam x-sol)))
+      (mjr_dquad_add-multi-data sol y-sol :ano-nam-olos y-ano-nam)
+      sol)))

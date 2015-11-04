@@ -63,7 +63,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(time (let ((ar (mjr_ode:mjr_ode_slv-ivp-erk-mesh (list (lambda (tim y)
+(time (let ((sol (mjr_ode:mjr_ode_slv-ivp-erk-mesh (list (lambda (tim y)
                                                           (declare (ignore tim))
                                                           (let ((g 9.80665))
                                                             (vector (aref y 2) ;; px
@@ -76,6 +76,15 @@
                                                   :y-err-abs-max 1d-3
                                                   :suppress-warnings 't
                                                   :show-progress nil)))
-        (mjr_vtk_from-dsimp  "exp-ODEcannon-OUT.vtk"
-                             (mjr_dsimp_make-from-points ar :connect-points 't :point-columns '(1 2) :data-columns 0 :data-column-names "time")
+        ;; Add a vector component for the position of the cannon ball
+        (mjr_dquad_add-data-from-map sol #'vector :data '("y_0" "y_1") :ano-nam "path"     :ano-typ :ano-typ-rvec)
+        ;; Add a vector component for the velocity of the cannon ball
+        (mjr_dquad_add-data-from-map sol #'vector :data '("y_2" "y_3") :ano-nam "velocity" :ano-typ :ano-typ-rvec)
+        ;; Draw the cannon ball's path with GNUplot
+        (mjr_gnupl_dquad sol :data "path")
+        ;; Dump out a VTK file with gridded data -- not very usefull in some tools.
+        (mjr_vtk_from-dquad "exp-ODEcannon-OUT-grd.vtk" sol)
+        ;; Dump out a VTK file with geometry for the curve, and associated data values (speed, velocity, etc...)
+        (mjr_vtk_from-dsimp  "exp-ODEcannon-OUT-crv.vtk"
+                             (mjr_dsimp_make-from-dquad sol 0 "path" :domain-data-names "time" :data "velocity")
                              :simplices 1)))

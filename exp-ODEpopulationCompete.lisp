@@ -28,16 +28,16 @@
 ;;  @endparblock
 ;; @filedetails
 ;;
-;;  Stable point at (.5,.5)
+;;  Stable point at (.5,.5).  Direction field.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(mjr_vtk_from-dquad "exp-ODEpopulationCompete-OUT.vtk"
-                    (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" '(:start 0 :end 1 :len 60)
-                                                                           "y" '(:start 0 :end 1 :len 60))
-                                                 (lambda (x y) (vector (* y (- 3 (* 5 x) y))
-                                                                       (* x (- 1 x y))))
-                                                 :axes 't
-                                                 :ano-nam "Population"
-                                                 :ano-typ :ano-typ-rvec))
+(let ((dq (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" '(:start 0 :end 1 :len 60)
+                                                                 "y" '(:start 0 :end 1 :len 60))
+                                       (lambda (x y) (vector (* y (- 3 (* 5 x) y))
+                                                             (* x (- 1 x y))))
+                                       :axes 't
+                                       :ano-nam "Populations"
+                                       :ano-typ :ano-typ-rvec)))
+  (mjr_vtk_from-dquad "exp-ODEpopulationCompete-OUT.vtk" dq))

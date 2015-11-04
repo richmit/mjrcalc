@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<Object name="VisIt">
+    <Field name="Version" type="string">2.9.2</Field>
+    <Object name="GUI">
+        <Object name="FileServerList">
+            <Field name="path" type="string">/Users/richmit/world/my_prog/lispStuff/lispy</Field>
+            <Field name="filter" type="string">*.vtk</Field>
+            <Field name="useCurrentDir" type="bool">true</Field>
+            <Field name="automaticFileGrouping" type="bool">false</Field>
+            <Field name="smartFileGrouping" type="bool">false</Field>
+            <Field name="showDotFiles" type="bool">false</Field>
+            <Object name="recentpaths">
+                <Field name="localhost" type="stringVector">"/Users/richmit" "/Users/richmit/world/my_prog/lispStuff/lispy" </Field>
+            </Object>
+        </Object>
+        <Object name="AppearanceAttributes">
+            <Field name="useSystemDefault" type="bool">true</Field>
+            <Field name="background" type="string">#c0c0c0</Field>
+            <Field name="foreground" type="string">#000000</Field>
+            <Field name="fontName" type="string">Helvetica,12,-1,5,50,0,0,0,0,0</Field>
+            <Field name="style" type="string">macintosh</Field>
+            <Field name="orientation" type="int">0</Field>
+            <Field name="defaultForeground" type="string">#000000</Field>
+            <Field name="defaultBackground" type="string">#ececec</Field>
+            <Field name="defaultFontName" type="string">".Helvetica Neue DeskInterface,13,-1,5,50,0,0,0,0,0"</Field>
+            <Field name="defaultStyle" type="string">macintosh</Field>
+            <Field name="defaultOrientation" type="int">0</Field>
+        </Object>
+        <Field name="postWhenShown" type="bool">false</Field>
+        <Object name="File open">
+            <Field name="x" type="int">0</Field>
+            <Field name="y" type="int">140</Field>
+            <Field name="width" type="int">640</Field>
+            <Field name="height" type="int">479</Field>
+            <Field name="visible" type="bool">false</Field>
+        </Object>
+        <Object name="Information">
+            <Field name="x" type="int">0</Field>
+            <Field name="y" type="int">227</Field>
+            <Field name="width" type="int">483</Field>
+            <Field name="height" type="int">304</Field>
+            <Field name="visible" type="bool">false</Field>
+        </Object>
+        <Object name="Rendering options">
+            <Field name="x" type="int">0</Field>
+            <Field name="y" type="int">168</Field>
+            <Field name="width" type="int">451</Field>
+            <Field name="height" type="int">423</Field>
+            <Field name="visible" type="bool">false</Field>
+            <Field name="posted" type="bool">false</Field>
+        </Object>
+        <Object name="MainWin">
+            <Field name="x" type="int">0</Field>
+            <Field name="y" type="int">0</Field>
+            <Field name="width" type="int">393</Field>
+            <Field name="height" type="int">739</Field>
+            <Field name="SPLITTER_VALUES_V2" type="floatVector">0 1 </Field>
+        </Object>
+        <Object name="Mesh plot attributes">
+            <Field name="x" type="int">0</Field>
+            <Field name="y" type="int">105</Field>
+            <Field name="width" type="int">407</Field>
+            <Field name="height" type="int">548</Field>
+            <Field name="visible" type="bool">false</Field>
+            <Field name="posted" type="bool">false</Field>
+        </Object>
+        <Object name="Pseudocolor plot attributes">
+            <Field name="x" type="int">596</Field>
+            <Field name="y" type="int">78</Field>
+            <Field name="width" type="int">484</Field>
+            <Field name="height" type="int">465</Field>
+            <Field name="visible" type="bool">false</Field>
+            <Field name="posted" type="bool">false</Field>
+        </Object>
+        <Field name="plotDatabases" type="stringVector">"localhost:/Users/richmit/world/my_prog/lispStuff/lispy/exp-ODEthreeBody-OUT-THREELOBE-FEHLBERG.vtk" "localhost:/Users/richmit/world/my_prog/lispStuff/lispy/exp-ODEthreeBody-OUT-THREELOBE-EULER.vtk" "localhost:/Users/richmit/world/my_prog/lispStuff/lispy/exp-ODEthreeBody-OUT-THREELOBE-RK4.vtk" </Field>
+        <Object name="TimeFormat">
+            <Field name="displayMode" type="string">Cycles</Field>
+            <Field name="precision" type="int">5</Field>
+        </Object>
+        <Field name="showSelectedFiles" type="bool">false</Field>
+        <Field name="allowFileSelectionChange" type="bool">true</Field>
+        <Field name="enableWarningMessagePopups" type="bool">true</Field>
+    </Object>
+</Object>

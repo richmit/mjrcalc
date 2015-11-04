@@ -253,12 +253,14 @@ passed to FUN as a 3 element vector."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_add-data (dsimp data-array simplex-dimension &key ano-nam ano-typ ano-units)
-  ""
+  "Add the data-array to the dsimp list.
+
+ANO-TYP defaults to :ANO-TYP-REAL if NIL."
   (cond ((mjr_dsimp_get-data-array dsimp ano-nam) (error "mjr_dsimp_add-data: Duplicate :ano-nam!"))
         ((> 0 simplex-dimension)                  (error "mjr_dsimp_add-data: simplex-dimension must be positive!"))
         ((< 4 simplex-dimension)                  (error "mjr_dsimp_add-data: simplex-dimension must be less than 4!")))
   (let ((idx (+ 2 (* 2 (1- (mjr_dsimp_data-count dsimp simplex-dimension))) (nth simplex-dimension (mjr_dsimp_simplex-indexes dsimp))))
-        (met (mjr_annot_make-alist ano-nam ano-typ ano-units)))
+        (met (mjr_annot_make-alist ano-nam (or ano-typ :ano-typ-real) ano-units)))
     (push met        (cdr (nthcdr idx      dsimp)))
     (push data-array (cdr (nthcdr (1+ idx) dsimp))))
   (incf (nth simplex-dimension (nth 0 dsimp)))
@@ -357,13 +359,12 @@ When CONNECT-POINTS is non-NIL, CONNECT-CLOSED is passed to MJR_DSIMP_CONNECT-PO
                       (array     (case (array-rank points)
                                    (0         (error "mjr_dsimp_make-from-points: If an array, POINTS must have non-zero rank!"))
                                    (1         (copy-seq points))
-                                   (2         (let ((new-points    (make-array (array-dimension points 0)))
-                                                    (point-columns (loop with pc = (mjr_util_non-list-then-list point-columns)
-                                                                         for i from 0 upto 2
-                                                                         collect (nth i pc))))
-                                                (dotimes (i (array-dimension points 0))
-                                                  (setf (aref new-points i) (map 'vector (lambda (x) (if x (aref points i x) 0)) point-columns)))
-                                                new-points))
+                                   (2         (let* ((inrows        (array-dimension points 0))
+                                                     (new-points    (make-array inrows))
+                                                     (point-columns (subseq (append (mjr_util_non-list-then-list point-columns) (list -1 -1 -1)) 0 3)))
+                                                (dotimes (i inrows new-points)
+                                                  (setf (aref new-points i)
+                                                        (map 'vector (lambda (j) (if (array-in-bounds-p points i j) (aref points i j) 0)) point-columns)))))
                                    (otherwise (error "mjr_dsimp_make-from-points: If an array, POINTS must be of rank 1 or 2!"))))
                       (otherwise (error "mjr_dsimp_make-from-points: POINTS must be a list or array!"))))
         (new-dsimp  (list (list 0 0 0 0)
@@ -371,6 +372,8 @@ When CONNECT-POINTS is non-NIL, CONNECT-CLOSED is passed to MJR_DSIMP_CONNECT-PO
                           nil
                           nil
                           nil)))
+    (if (zerop (length new-points))
+        (error "mjr_dsimp_make-from-points: POINTS was empty!"))
     (if connect-points
         (mjr_dsimp_connect-points new-dsimp :connect-closed connect-closed))
     (if data-columns
@@ -466,12 +469,12 @@ Arguments:
   (cond ((and surface-normals (not surface-poly)) (error "mjr_dsimp_make-from-dquad: non-NIL SURFACE-NORMALS requires non-NIL SURFACE-POLY"))
         )
 
-  (let* ((dom (mapcar (lambda (x) (mjr_dquad_get-axis-vector dquad x))
-                      (or (mjr_util_non-list-then-list domain)
-                          (concatenate 'list (mjr_vvec_to-vec (mjr_dquad_axis-count dquad))))))
-         (rng  (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x))
-                       (or (mjr_util_non-list-then-list range)
-                           (concatenate 'list (mjr_vvec_to-vec (mjr_dquad_data-count dquad))))))
+  (let* ((dom   (mapcar (lambda (x) (mjr_dquad_get-axis-vector dquad x))
+                        (or (mjr_util_non-list-then-list domain)
+                            (concatenate 'list (mjr_vvec_to-vec (mjr_dquad_axis-count dquad))))))
+         (rng   (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x))
+                        (or (mjr_util_non-list-then-list range)
+                            (concatenate 'list (mjr_vvec_to-vec (mjr_dquad_data-count dquad))))))
          (dom0  (first  dom))
          (dom1  (second dom))
          (rng0  (first  rng))
@@ -482,7 +485,9 @@ Arguments:
                   (string    (list data))
                   (list      data)
                   (otherwise (let ((dciq  (mjr_dquad_data-count dquad)))
-                               (if (not (zerop dciq)) (concatenate 'list (mjr_vvec_to-vec dciq))))))))
+                               (if (not (zerop dciq)) (concatenate 'list (mjr_vvec_to-vec dciq)))))))
+         (ddnam (mjr_util_non-list-then-list domain-data-names))
+         (rdnam (mjr_util_non-list-then-list range-data-names)))
 
     ;; Step 1: Create functions that will spit out u/v data as required.
     (destructuring-bind (u u-len v v-len dom-dim)
@@ -521,7 +526,7 @@ Arguments:
             (otherwise (error "mjr_dsimp_make-from-dquad: Domain must be 1 or 2 dimensional")))
 
         (declare (ignore rng-dim))
-      ;; Step 3: Create the new dsimp list
+        ;; Step 3: Create the new dsimp list
         (case dom-dim
           (1  (let ((points (make-array u-len))
                     (u-data (make-array u-len)))
@@ -532,8 +537,8 @@ Arguments:
                 ;; Create our new dsimp list
                 (let ((new-dsimp (mjr_dsimp_make-from-points points)))
                   ;; Add the u-data
-                  (if (first domain-data-names)
-                      (mjr_dsimp_add-data new-dsimp u-data 0 :ANO-NAM (first domain-data-names) :ano-typ :ano-typ-real))
+                  (if (first ddnam)
+                      (mjr_dsimp_add-data new-dsimp u-data 0 :ANO-NAM (first ddnam) :ano-typ :ano-typ-real))
                   ;; Add the lines for curve
                   (if curve-line
                       (let ((new-lines (make-array (if u-close u-len (1- u-len)))))
@@ -549,7 +554,7 @@ Arguments:
                                         :ano-nam        (mjr_dquad_get-data-ano dquad cur-dat :ano-nam)
                                         :ano-typ        (mjr_dquad_get-data-ano dquad cur-dat :ano-typ)))
                   ;; Add range data
-                  (apply #'mjr_dsimp_convert-points-do-data new-dsimp range-data-names)
+                  (apply #'mjr_dsimp_convert-points-do-data new-dsimp rdnam)
                   new-dsimp)))
           (2  (let* ((plen   (* u-len v-len))
                      (points (make-array plen))
@@ -565,10 +570,10 @@ Arguments:
                 ;; Create our new dsimp list
                 (let ((new-dsimp (mjr_dsimp_make-from-points points)))
                   ;; Add domain-data
-                  (if (first domain-data-names)
-                      (mjr_dsimp_add-data new-dsimp u-data 0 :ANO-NAM (first domain-data-names) :ano-typ :ano-typ-real))
-                  (if (second domain-data-names)
-                      (mjr_dsimp_add-data new-dsimp v-data 0 :ANO-NAM (second domain-data-names) :ano-typ :ano-typ-real))
+                  (if (first ddnam)
+                      (mjr_dsimp_add-data new-dsimp u-data 0 :ANO-NAM (first ddnam) :ano-typ :ano-typ-real))
+                  (if (second ddnam)
+                      (mjr_dsimp_add-data new-dsimp v-data 0 :ANO-NAM (second ddnam) :ano-typ :ano-typ-real))
                   ;; Add the simplices
                   (let* ((nx (if u-close (1+ u-len) u-len))
                          (ny (if v-close (1+ v-len) v-len)))
@@ -660,5 +665,5 @@ Arguments:
                                             :ano-nam        (mjr_dquad_get-data-ano dquad cur-dat :ano-nam)
                                             :ano-typ        (mjr_dquad_get-data-ano dquad cur-dat :ano-typ))))
                     ;; Add range data
-                    (apply #'mjr_dsimp_convert-points-do-data new-dsimp range-data-names)
+                    (apply #'mjr_dsimp_convert-points-do-data new-dsimp rdnam)
                     new-dsimp)))))))))

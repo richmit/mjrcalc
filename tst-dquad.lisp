@@ -34,17 +34,22 @@
 
 (in-package :MJR_DQUAD-TESTS)
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar t1 #2a((1 1/2 1/3)(2 2/3 2/5)(3 3/5 3/7)(5 5/7 5/11)))
+(defvar t2 #2A((1 2 3 5)(1/2 2/3 3/5 5/7)(1/3 2/5 3/7 5/11)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar a)
-(setq a (mjr_dquad_make-from-axis "x"                                            '(:start 1 :end 10 :len 10)
-                                  '((:dq-nam . "y") (:dq-typ . :dq-typ-integer)) #(2 3 4 5)))
-(mjr_dquad_add-data-from-map a (lambda (x y)        (+ x y))                     :axes 't              :arg-mode :arg-number :dq-nam "z1"     :dq-typ :dq-typ-real   )
-(mjr_dquad_add-data-from-map a (lambda (xi yi)      (- xi yi))         :idxes 't                       :arg-mode :arg-number :dq-nam "z2"                            )
-(mjr_dquad_add-data-from-map a (lambda (xi yi x y)  (* xi yi x y))     :idxes 't :axes 't              :arg-mode :arg-number :dq-nam "z3"                            )
-(mjr_dquad_add-data-from-map a (lambda (x)          (* x x))                              :data '(0)   :arg-mode :arg-number :dq-nam "z1^2"   :dq-typ :dq-typ-integer)
-(mjr_dquad_add-data-from-map a (lambda (x y)        (* x y))                              :data '(0 1) :arg-mode :arg-number :dq-nam "z1*z2"  :dq-typ :dq-typ-real   )
-(mjr_dquad_add-data-from-map a (lambda (L)          (apply #'+ L))                        :data '(0 1) :arg-mode :arg-list   :dq-nam "z1+z2"  :dq-typ :dq-typ-real   )
-(mjr_dquad_add-data-from-map a (lambda (x y z1)     (+ x y z1))                  :axes 't :data '(0)   :arg-mode :arg-number :dq-nam "x+y+z1" :dq-typ :dq-typ-real   )
+(setq a (mjr_dquad_make-from-axis "x"                                               '(:start 1 :end 10 :len 10)
+                                  '((:ano-nam . "y") (:ano-typ . :ano-typ-integer)) #(2 3 4 5)))
+(mjr_dquad_add-data-from-map a (lambda (x y)        (+ x y))                     :axes 't              :arg-mode :arg-number :ano-nam "z1"     :ano-typ :ano-typ-real   )
+(mjr_dquad_add-data-from-map a (lambda (xi yi)      (- xi yi))         :idxes 't                       :arg-mode :arg-number :ano-nam "z2"                            )
+(mjr_dquad_add-data-from-map a (lambda (xi yi x y)  (* xi yi x y))     :idxes 't :axes 't              :arg-mode :arg-number :ano-nam "z3"                            )
+(mjr_dquad_add-data-from-map a (lambda (x)          (* x x))                              :data '(0)   :arg-mode :arg-number :ano-nam "z1^2"   :ano-typ :ano-typ-integer)
+(mjr_dquad_add-data-from-map a (lambda (x y)        (* x y))                              :data '(0 1) :arg-mode :arg-number :ano-nam "z1*z2"  :ano-typ :ano-typ-real   )
+(mjr_dquad_add-data-from-map a (lambda (L)          (apply #'+ L))                        :data '(0 1) :arg-mode :arg-list   :ano-nam "z1+z2"  :ano-typ :ano-typ-real   )
+(mjr_dquad_add-data-from-map a (lambda (x y z1)     (+ x y z1))                  :axes 't :data '(0)   :arg-mode :arg-number :ano-nam "x+y+z1" :ano-typ :ano-typ-real   )
 
 (defvar a-numa   2)
 (defvar a-numd   7)
@@ -69,37 +74,41 @@
 (defvar a-z1+z2-n  "z1+z2")
 (defvar a-x+y+z1-n "x+y+z1")
 
-(defvar a-x-t      :dq-typ-real)
-(defvar a-y-t      :dq-typ-integer)
-(defvar a-z1-t     :dq-typ-real)
-(defvar a-z2-t     :dq-typ-real)
-(defvar a-z3-t     :dq-typ-real)
-(defvar a-z1^2-t   :dq-typ-integer)
-(defvar a-z1*z2-t  :dq-typ-real)
-(defvar a-z1+z2-t  :dq-typ-real)
-(defvar a-x+y+z1-t :dq-typ-real)
+(defvar a-x-t      :ano-typ-real)
+(defvar a-x-a      '((:ANO-NAM . "x") (:ANO-TYP . :ANO-TYP-REAL)))
+(defvar a-y-t      :ano-typ-integer)
+(defvar a-z1-t     :ano-typ-real)
+(defvar a-z1-a     '((:ANO-NAM . "z1") (:ANO-TYP . :ANO-TYP-REAL)))
+(defvar a-z2-t     :ano-typ-real)
+(defvar a-z3-t     :ano-typ-real)
+(defvar a-z1^2-t   :ano-typ-integer)
+(defvar a-z1*z2-t  :ano-typ-real)
+(defvar a-z1+z2-t  :ano-typ-real)
+(defvar a-x+y+z1-t :ano-typ-real)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar b)
-(null (setq b (mjr_dquad_make-from-axis "x" (list :start (* -2 pi) :end (* 2 pi) :len 100) "y" (list :start (* -2 pi) :end (* 2 pi) :len 100))))
-(null (mjr_dquad_add-data-from-map b (lambda (x y) (sin (sqrt (+ (* x x) (* y y))))) :axes 't :arg-mode :arg-number :dq-nam "sindst" :dq-typ :dq-typ-real))
-(null (mjr_dquad_add-data b (mjr_dquad_colorize b :data '(0) :color-method "rgb" :color-space :cs-rgb :max-color 1 :auto-scale 't) :dq-nam "cRGB" :dq-typ :dq-typ-color :dq-colorspace :cs-rgb))
-(null (mjr_dquad_add-data b (mjr_dquad_colorize b :data '(0) :color-method "01"  :color-space :cs-rgb :max-color 1 :auto-scale 't) :dq-nam "cBW"  :dq-typ :dq-typ-color :dq-colorspace :cs-rgb))
+(setq b (mjr_dquad_make-from-axis "x" (list :start (* -2 pi) :end (* 2 pi) :len 100) "y" (list :start (* -2 pi) :end (* 2 pi) :len 100)))
+(mjr_dquad_add-data-from-map b (lambda (x y) (sin (sqrt (+ (* x x) (* y y))))) :axes 't :arg-mode :arg-number :ano-nam "sindst" :ano-typ :ano-typ-real)
+(mjr_dquad_colorize b :data '(0) :color-method "rgb" :max-color 1 :auto-scale 't :ano-nam "cRGB" :ano-typ :ano-typ-rgbvec)
+(mjr_dquad_colorize b :data '(0) :color-method "01"  :max-color 1 :auto-scale 't :ano-nam "cBW"  :ano-typ :ano-typ-rgbvec)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar c '(1
-            ((:dq-nam . "X Values") (:dq-typ . :dq-typ-real))                      #(1 2 3)
-            ((:dq-nam . "Y Values") (:dq-typ . :dq-typ-real))                      #(1 4 9)
-            ((:dq-nam . "C") (:dq-typ . :dq-typ-color) (:dq-colorspace . :cs-rgb)) #(#(0.1 0.2 0.3) #(0.4 0.5 0.6) #(0.7 0.8 1.0))))
+            ((:ano-nam . "X Values") (:ano-typ . :ano-typ-real))                      #(1 2 3)
+            ((:ano-nam . "Y Values") (:ano-typ . :ano-typ-real))                      #(1 4 9)
+            ((:ano-nam . "C") (:ano-typ . :ano-typ-rgbvec))                           #(#(0.1 0.2 0.3) #(0.4 0.5 0.6) #(0.7 0.8 1.0))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar d (mjr_dquad_make-from-axis "x" '(:start -2 :end 2 :len 5) "y" '(:start -2 :end 2 :len 5)))
-(mjr_dquad_add-data-from-map d (lambda (x y) (* x y)) :axes 't :dq-nam "z")
-(mjr_dquad_add-data-from-map d (lambda (x y) (vector (* x x) (* y y) (* x y))) :axes 't :dq-nam "uvw")
+(defvar d nil)
+(setq d (mjr_dquad_make-from-axis "x" '(:start -2 :end 2 :len 5) "y" '(:start -2 :end 2 :len 5)))
+(mjr_dquad_add-data-from-map d (lambda (x y) (* x y)) :axes 't :ano-nam "z")
+(mjr_dquad_add-data-from-map d (lambda (x y) (vector (* x x) (* y y) (* x y))) :axes 't :ano-nam "uvw")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar e (mjr_dquad_make-from-axis "u" '(:start 0 :end 7.0 :len 5)))
-(mjr_dquad_add-data-from-map e (lambda (u) (vector (sin u) (cos u) (/ u 7))) :axes 't :dq-nam "xyz")
+(defvar e nil)
+(setq e (mjr_dquad_make-from-axis "u" '(:start 0 :end 7.0 :len 5)))
+(mjr_dquad_add-data-from-map e (lambda (u) (vector (sin u) (cos u) (/ u 7))) :axes 't :ano-nam "xyz")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_read-from-file
@@ -140,118 +149,103 @@
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_dquad_get-data-array-by-index
-  (assert-equalp a-z1     (mjr_dquad_get-data-array-by-index a 0))
-  (assert-equalp a-z2     (mjr_dquad_get-data-array-by-index a 1))
-  (assert-equalp a-z3     (mjr_dquad_get-data-array-by-index a 2))
-  (assert-equalp a-z1^2   (mjr_dquad_get-data-array-by-index a 3))
-  (assert-equalp a-z1*z2  (mjr_dquad_get-data-array-by-index a 4))
-  (assert-equalp a-z1+z2  (mjr_dquad_get-data-array-by-index a 5))
-  (assert-equalp a-x+y+z1 (mjr_dquad_get-data-array-by-index a 6))
-  ;; Errors
-  (assert-error 'error     (mjr_dquad_get-data-array-by-index a 't))
-  (assert-error 'error     (mjr_dquad_get-data-array-by-index a nil))
-  (assert-error 'error     (mjr_dquad_get-data-array-by-index a 1.4))
-  (assert-error 'error     (mjr_dquad_get-data-array-by-index a -1))
-  (assert-error 'error     (mjr_dquad_get-data-array-by-index a 7))
-  )
+(define-test mjr_dquad_get-data-array
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_dquad_get-data-array-by-name
-  (assert-equalp a-z1     (mjr_dquad_get-data-array-by-name a "z1"))
-  (assert-equalp a-z2     (mjr_dquad_get-data-array-by-name a "z2"))
-  (assert-equalp a-z3     (mjr_dquad_get-data-array-by-name a "z3"))
-  (assert-equalp a-z1^2   (mjr_dquad_get-data-array-by-name a "z1^2"))
-  (assert-equalp a-z1*z2  (mjr_dquad_get-data-array-by-name a "z1*z2"))
-  (assert-equalp a-z1+z2  (mjr_dquad_get-data-array-by-name a "z1+z2"))
-  (assert-equalp a-x+y+z1 (mjr_dquad_get-data-array-by-name a "x+y+z1"))
+  ;; Ints
+  (assert-equalp a-z1     (mjr_dquad_get-data-array a 0))
+  (assert-equalp a-z2     (mjr_dquad_get-data-array a 1))
+  (assert-equalp a-z3     (mjr_dquad_get-data-array a 2))
+  (assert-equalp a-z1^2   (mjr_dquad_get-data-array a 3))
+  (assert-equalp a-z1*z2  (mjr_dquad_get-data-array a 4))
+  (assert-equalp a-z1+z2  (mjr_dquad_get-data-array a 5))
+  (assert-equalp a-x+y+z1 (mjr_dquad_get-data-array a 6))
+  ;; Errors
+  (assert-error 'error     (mjr_dquad_get-data-array a 't))
+  (assert-error 'error     (mjr_dquad_get-data-array a nil))
+  (assert-error 'error     (mjr_dquad_get-data-array a 1.4))
+  (assert-error 'error     (mjr_dquad_get-data-array a -1))
+  (assert-error 'error     (mjr_dquad_get-data-array a 7))
+  ;; Strings
+  (assert-equalp a-z1     (mjr_dquad_get-data-array a "z1"))
+  (assert-equalp a-z2     (mjr_dquad_get-data-array a "z2"))
+  (assert-equalp a-z3     (mjr_dquad_get-data-array a "z3"))
+  (assert-equalp a-z1^2   (mjr_dquad_get-data-array a "z1^2"))
+  (assert-equalp a-z1*z2  (mjr_dquad_get-data-array a "z1*z2"))
+  (assert-equalp a-z1+z2  (mjr_dquad_get-data-array a "z1+z2"))
+  (assert-equalp a-x+y+z1 (mjr_dquad_get-data-array a "x+y+z1"))
   ;; Missing
-  (assert-equalp nil      (mjr_dquad_get-data-array-by-name a "missing"))
-  (assert-equalp nil      (mjr_dquad_get-data-array-by-name a ""))
-  ;; Errors
-  (assert-error 'error     (mjr_dquad_get-data-array-by-name a 't))
-  (assert-error 'error     (mjr_dquad_get-data-array-by-name a nil))
-  (assert-error 'error     (mjr_dquad_get-data-array-by-name a 1.4))
-  (assert-error 'error     (mjr_dquad_get-data-array-by-name a -1))
-  (assert-error 'error     (mjr_dquad_get-data-array-by-name a 7))
+  (assert-equalp nil      (mjr_dquad_get-data-array a "missing"))
+  (assert-equalp nil      (mjr_dquad_get-data-array a ""))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_dquad_get-axis-vector-by-index
-  (assert-equalp a-x    (mjr_dquad_get-axis-vector-by-index a 0))
-  (assert-equalp a-y    (mjr_dquad_get-axis-vector-by-index a 1))
+(define-test mjr_dquad_get-axis-vector
+  ;; Ints
+  (assert-equalp a-x    (mjr_dquad_get-axis-vector a 0))
+  (assert-equalp a-y    (mjr_dquad_get-axis-vector a 1))
   ;; Errors
-  (assert-error 'error  (mjr_dquad_get-axis-vector-by-index a 't))
-  (assert-error 'error  (mjr_dquad_get-axis-vector-by-index a nil))
-  (assert-error 'error  (mjr_dquad_get-axis-vector-by-index a 1.4))
-  (assert-error 'error  (mjr_dquad_get-axis-vector-by-index a -1))
-  (assert-error 'error  (mjr_dquad_get-axis-vector-by-index a 5))
-  )
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_dquad_get-axis-vector-by-name
-  (assert-equalp a-x     (mjr_dquad_get-axis-vector-by-name a "x"))
-  (assert-equalp a-y     (mjr_dquad_get-axis-vector-by-name a "y"))
+  (assert-error 'error  (mjr_dquad_get-axis-vector a -1))
+  (assert-error 'error  (mjr_dquad_get-axis-vector a 5))
+  ;; Strings
+  (assert-equalp a-x     (mjr_dquad_get-axis-vector a "x"))
+  (assert-equalp a-y     (mjr_dquad_get-axis-vector a "y"))
   ;; Missing
-  (assert-equalp nil      (mjr_dquad_get-axis-vector-by-name a "missing"))
-  (assert-equalp nil      (mjr_dquad_get-axis-vector-by-name a ""))
+  (assert-equalp nil      (mjr_dquad_get-axis-vector a "missing"))
+  (assert-equalp nil      (mjr_dquad_get-axis-vector a ""))
   ;; Errors
-  (assert-error 'error    (mjr_dquad_get-axis-vector-by-name a 't))
-  (assert-error 'error    (mjr_dquad_get-axis-vector-by-name a nil))
-  (assert-error 'error    (mjr_dquad_get-axis-vector-by-name a 1.4))
-  (assert-error 'error    (mjr_dquad_get-axis-vector-by-name a -1))
-  (assert-error 'error    (mjr_dquad_get-axis-vector-by-name a 5))
+  (assert-error 'error    (mjr_dquad_get-axis-vector a 't))
+  (assert-error 'error    (mjr_dquad_get-axis-vector a nil))
+  (assert-error 'error    (mjr_dquad_get-axis-vector a 1.4))
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_dquad_get-axis-ano-by-index
-  (assert-equalp a-x-n     (mjr_dquad_get-axis-ano-by-index a 0 :dq-nam))
-  (assert-equalp a-y-n     (mjr_dquad_get-axis-ano-by-index a 1 :dq-nam))
-  (assert-equalp a-x-t     (mjr_dquad_get-axis-ano-by-index a 0 :dq-typ))
-  (assert-equalp a-y-t     (mjr_dquad_get-axis-ano-by-index a 1 :dq-typ))
+(define-test mjr_dquad_get-axis-ano
+  (assert-equalp a-x-n      (mjr_dquad_get-axis-ano a 0   :ano-nam))
+  (assert-equalp a-y-n      (mjr_dquad_get-axis-ano a 1   :ano-nam))
+  (assert-equalp a-x-t      (mjr_dquad_get-axis-ano a 0   :ano-typ))
+  (assert-equalp a-y-t      (mjr_dquad_get-axis-ano a 1   :ano-typ))
+  (assert-equalp a-x-a      (mjr_dquad_get-axis-ano a 0   nil ))
   ;; Errors (bad index)
-  (assert-error 'error  (mjr_dquad_get-axis-ano-by-index a 't  :dq-nam))
-  (assert-error 'error  (mjr_dquad_get-axis-ano-by-index a nil :dq-nam))
-  (assert-error 'error  (mjr_dquad_get-axis-ano-by-index a 1.4 :dq-nam))
-  (assert-error 'error  (mjr_dquad_get-axis-ano-by-index a -1  :dq-nam))
-  (assert-error 'error  (mjr_dquad_get-axis-ano-by-index a 5   :dq-nam))
-  ;; Errors (bad attr name)
-  (assert-error 'error  (mjr_dquad_get-axis-ano-by-index a 0 't  ))
-  (assert-error 'error  (mjr_dquad_get-axis-ano-by-index a 0 nil ))
-  (assert-error 'error  (mjr_dquad_get-axis-ano-by-index a 0 1.4 ))
-  (assert-error 'error  (mjr_dquad_get-axis-ano-by-index a 0 -1  ))
-  (assert-error 'error  (mjr_dquad_get-axis-ano-by-index a 0 5   ))
+  (assert-error 'error      (mjr_dquad_get-axis-ano a 't  :ano-nam))
+  (assert-error 'error      (mjr_dquad_get-axis-ano a nil :ano-nam))
+  (assert-error 'error      (mjr_dquad_get-axis-ano a 1.4 :ano-nam))
+  (assert-error 'error      (mjr_dquad_get-axis-ano a -1  :ano-nam))
+  (assert-error 'error      (mjr_dquad_get-axis-ano a 5   :ano-nam))
+  ;; Errors (bad attr name) 
+  (assert-error 'error      (mjr_dquad_get-axis-ano a 0   't  ))
+  (assert-error 'error      (mjr_dquad_get-axis-ano a 0   1.4 ))
+  (assert-error 'error      (mjr_dquad_get-axis-ano a 0   -1  ))
+  (assert-error 'error      (mjr_dquad_get-axis-ano a 0   5   ))
 )
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_dquad_get-data-ano-by-index
-
-  (assert-equalp a-z1-t     (mjr_dquad_get-data-ano-by-index a 0 :dq-typ))
-  (assert-equalp a-z2-t     (mjr_dquad_get-data-ano-by-index a 1 :dq-typ))
-  (assert-equalp a-z3-t     (mjr_dquad_get-data-ano-by-index a 2 :dq-typ))
-  (assert-equalp a-z1^2-t   (mjr_dquad_get-data-ano-by-index a 3 :dq-typ))
-  (assert-equalp a-z1*z2-t  (mjr_dquad_get-data-ano-by-index a 4 :dq-typ))
-  (assert-equalp a-z1+z2-t  (mjr_dquad_get-data-ano-by-index a 5 :dq-typ))
-  (assert-equalp a-x+y+z1-t (mjr_dquad_get-data-ano-by-index a 6 :dq-typ))
-  (assert-equalp a-z1-n     (mjr_dquad_get-data-ano-by-index a 0 :dq-nam))
-  (assert-equalp a-z2-n     (mjr_dquad_get-data-ano-by-index a 1 :dq-nam))
-  (assert-equalp a-z3-n     (mjr_dquad_get-data-ano-by-index a 2 :dq-nam))
-  (assert-equalp a-z1^2-n   (mjr_dquad_get-data-ano-by-index a 3 :dq-nam))
-  (assert-equalp a-z1*z2-n  (mjr_dquad_get-data-ano-by-index a 4 :dq-nam))
-  (assert-equalp a-z1+z2-n  (mjr_dquad_get-data-ano-by-index a 5 :dq-nam))
-  (assert-equalp a-x+y+z1-n (mjr_dquad_get-data-ano-by-index a 6 :dq-nam))
+(define-test mjr_dquad_get-data-ano
+  (assert-equalp a-z1-t     (mjr_dquad_get-data-ano a 0   :ano-typ))
+  (assert-equalp a-z2-t     (mjr_dquad_get-data-ano a 1   :ano-typ))
+  (assert-equalp a-z3-t     (mjr_dquad_get-data-ano a 2   :ano-typ))
+  (assert-equalp a-z1^2-t   (mjr_dquad_get-data-ano a 3   :ano-typ))
+  (assert-equalp a-z1*z2-t  (mjr_dquad_get-data-ano a 4   :ano-typ))
+  (assert-equalp a-z1+z2-t  (mjr_dquad_get-data-ano a 5   :ano-typ))
+  (assert-equalp a-x+y+z1-t (mjr_dquad_get-data-ano a 6   :ano-typ))
+  (assert-equalp a-z1-n     (mjr_dquad_get-data-ano a 0   :ano-nam))
+  (assert-equalp a-z2-n     (mjr_dquad_get-data-ano a 1   :ano-nam))
+  (assert-equalp a-z3-n     (mjr_dquad_get-data-ano a 2   :ano-nam))
+  (assert-equalp a-z1^2-n   (mjr_dquad_get-data-ano a 3   :ano-nam))
+  (assert-equalp a-z1*z2-n  (mjr_dquad_get-data-ano a 4   :ano-nam))
+  (assert-equalp a-z1+z2-n  (mjr_dquad_get-data-ano a 5   :ano-nam))
+  (assert-equalp a-x+y+z1-n (mjr_dquad_get-data-ano a 6   :ano-nam))
+  (assert-equalp a-z1-a     (mjr_dquad_get-data-ano a 0   nil))
   ;; Errors (bad index)
-  (assert-error 'error  (mjr_dquad_get-data-ano-by-index a 't  :dq-nam))
-  (assert-error 'error  (mjr_dquad_get-data-ano-by-index a nil :dq-nam))
-  (assert-error 'error  (mjr_dquad_get-data-ano-by-index a 1.4 :dq-nam))
-  (assert-error 'error  (mjr_dquad_get-data-ano-by-index a -1  :dq-nam))
-  (assert-error 'error  (mjr_dquad_get-data-ano-by-index a 7   :dq-nam))
+  (assert-error 'error  (mjr_dquad_get-data-ano a 't  :ano-nam))
+  (assert-error 'error  (mjr_dquad_get-data-ano a nil :ano-nam))
+  (assert-error 'error  (mjr_dquad_get-data-ano a 1.4 :ano-nam))
+  (assert-error 'error  (mjr_dquad_get-data-ano a -1  :ano-nam))
+  (assert-error 'error  (mjr_dquad_get-data-ano a 7   :ano-nam))
   ;; Errors (bad attr name)
-  (assert-error 'error  (mjr_dquad_get-data-ano-by-index a 0 't  ))
-  (assert-error 'error  (mjr_dquad_get-data-ano-by-index a 0 nil ))
-  (assert-error 'error  (mjr_dquad_get-data-ano-by-index a 0 1.4 ))
-  (assert-error 'error  (mjr_dquad_get-data-ano-by-index a 0 -1  ))
-  (assert-error 'error  (mjr_dquad_get-data-ano-by-index a 0 7   ))
+  (assert-error 'error  (mjr_dquad_get-data-ano a 0 't  ))
+
+  (assert-error 'error  (mjr_dquad_get-data-ano a 0 1.4 ))
+  (assert-error 'error  (mjr_dquad_get-data-ano a 0 -1  ))
+  (assert-error 'error  (mjr_dquad_get-data-ano a 0 7   ))
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -263,28 +257,129 @@
 (define-test mjr_dquad_slab
   (assert-equalp a                                                                                                (mjr_dquad_slab a nil nil))
   (assert-equalp '(1
-                   ((:DQ-NAM . "x")      (:DQ-TYP . :DQ-TYP-REAL))    #(1 2 3 4 5 6 7 8 9 10)
-                   ((:DQ-NAM . "z1")     (:DQ-TYP . :DQ-TYP-REAL))    #(4 5 6 7 8 9 10 11 12 13)
-                   ((:DQ-NAM . "z2")     (:DQ-TYP . :DQ-TYP-REAL))    #(-1 0 1 2 3 4 5 6 7 8)
-                   ((:DQ-NAM . "z3")     (:DQ-TYP . :DQ-TYP-REAL))    #(0 6 18 36 60 90 126 168 216 270)
-                   ((:DQ-NAM . "z1^2")   (:DQ-TYP . :DQ-TYP-INTEGER)) #(16 25 36 49 64 81 100 121 144 169)
-                   ((:DQ-NAM . "z1*z2")  (:DQ-TYP . :DQ-TYP-REAL))    #(-4 0 6 14 24 36 50 66 84 104)
-                   ((:DQ-NAM . "z1+z2")  (:DQ-TYP . :DQ-TYP-REAL))    #(3 5 7 9 11 13 15 17 19 21)
-                   ((:DQ-NAM . "x+y+z1") (:DQ-TYP . :DQ-TYP-REAL))    #(8 10 12 14 16 18 20 22 24 26))            (mjr_dquad_slab a nil 1))
+                   ((:ANO-NAM . "x")      (:ANO-TYP . :ANO-TYP-REAL))    #(1 2 3 4 5 6 7 8 9 10)
+                   ((:ANO-NAM . "z1")     (:ANO-TYP . :ANO-TYP-REAL))    #(4 5 6 7 8 9 10 11 12 13)
+                   ((:ANO-NAM . "z2")     (:ANO-TYP . :ANO-TYP-REAL))    #(-1 0 1 2 3 4 5 6 7 8)
+                   ((:ANO-NAM . "z3")     (:ANO-TYP . :ANO-TYP-REAL))    #(0 6 18 36 60 90 126 168 216 270)
+                   ((:ANO-NAM . "z1^2")   (:ANO-TYP . :ANO-TYP-INTEGER)) #(16 25 36 49 64 81 100 121 144 169)
+                   ((:ANO-NAM . "z1*z2")  (:ANO-TYP . :ANO-TYP-REAL))    #(-4 0 6 14 24 36 50 66 84 104)
+                   ((:ANO-NAM . "z1+z2")  (:ANO-TYP . :ANO-TYP-REAL))    #(3 5 7 9 11 13 15 17 19 21)
+                   ((:ANO-NAM . "x+y+z1") (:ANO-TYP . :ANO-TYP-REAL))    #(8 10 12 14 16 18 20 22 24 26))            (mjr_dquad_slab a nil 1))
   (assert-equalp '(1
-                   ((:DQ-NAM . "y")      (:DQ-TYP . :DQ-TYP-INTEGER)) #(2 3 4 5)
-                   ((:DQ-NAM . "z1")     (:DQ-TYP . :DQ-TYP-REAL))    #(4 5 6 7)
-                   ((:DQ-NAM . "z2")     (:DQ-TYP . :DQ-TYP-REAL))    #(1 0 -1 -2)
-                   ((:DQ-NAM . "z3")     (:DQ-TYP . :DQ-TYP-REAL))    #(0 6 16 30)
-                   ((:DQ-NAM . "z1^2")   (:DQ-TYP . :DQ-TYP-INTEGER)) #(16 25 36 49)
-                   ((:DQ-NAM . "z1*z2")  (:DQ-TYP . :DQ-TYP-REAL))    #(4 0 -6 -14)
-                   ((:DQ-NAM . "z1+z2")  (:DQ-TYP . :DQ-TYP-REAL))    #(5 5 5 5)
-                   ((:DQ-NAM . "x+y+z1") (:DQ-TYP . :DQ-TYP-REAL))    #(8 10 12 14))                              (mjr_dquad_slab a 1   nil))
+                   ((:ANO-NAM . "y")      (:ANO-TYP . :ANO-TYP-INTEGER)) #(2 3 4 5)
+                   ((:ANO-NAM . "z1")     (:ANO-TYP . :ANO-TYP-REAL))    #(4 5 6 7)
+                   ((:ANO-NAM . "z2")     (:ANO-TYP . :ANO-TYP-REAL))    #(1 0 -1 -2)
+                   ((:ANO-NAM . "z3")     (:ANO-TYP . :ANO-TYP-REAL))    #(0 6 16 30)
+                   ((:ANO-NAM . "z1^2")   (:ANO-TYP . :ANO-TYP-INTEGER)) #(16 25 36 49)
+                   ((:ANO-NAM . "z1*z2")  (:ANO-TYP . :ANO-TYP-REAL))    #(4 0 -6 -14)
+                   ((:ANO-NAM . "z1+z2")  (:ANO-TYP . :ANO-TYP-REAL))    #(5 5 5 5)
+                   ((:ANO-NAM . "x+y+z1") (:ANO-TYP . :ANO-TYP-REAL))    #(8 10 12 14))                              (mjr_dquad_slab a 1   nil))
   ;; Errors
   (assert-error 'error  (mjr_dquad_slab a 1 1))
   (assert-error 'error  (mjr_dquad_slab a nil -1))
   (assert-error 'error  (mjr_dquad_slab a nil 4))
   (assert-error 'error  (mjr_dquad_slab a 10 nil))
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_dquad_make-from-axis-table
+  (assert-equalp '(1
+                   ((:ANO-NAM . "x")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 2 3 5))            (mjr_dquad_make-from-axis-table t1 :ax-cols '(0)   :ax-nam "x"))
+  (assert-equalp '(1
+                   ((:ANO-NAM . "x")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1/2 2/3 3/5 5/7))    (mjr_dquad_make-from-axis-table t1 :ax-cols '(1)   :ax-nam '("x")))
+  (assert-equalp '(2
+                   ((:ANO-NAM . "x0")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 2 3 5)          
+                   ((:ANO-NAM . "x1")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1/2 2/3 3/5 5/7))   (mjr_dquad_make-from-axis-table t1 :ax-cols '(0 1) :ax-nam "x"))
+  (assert-equalp '(2
+                   ((:ANO-NAM . "x")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 2 3 5)           
+                   ((:ANO-NAM . "y")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1/2 2/3 3/5 5/7))    (mjr_dquad_make-from-axis-table t1 :ax-cols '(0 1) :ax-nam '("x" "y")))
+  (assert-equalp '(3
+                   ((:ANO-NAM . "x0")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 2 3 5)          
+                   ((:ANO-NAM . "x1")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1/2 2/3 3/5 5/7)    
+                   ((:ANO-NAM . "x2")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1/3 2/5 3/7 5/11))  (mjr_dquad_make-from-axis-table t1                 :ax-nam "x"))
+  
+  (assert-equalp '(1
+                   ((:ANO-NAM . "x")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 1/2 1/3))          (mjr_dquad_make-from-axis-table t1 :ax-rows '(0)   :ax-nam "x"))
+  (assert-equalp '(1
+                   ((:ANO-NAM . "x")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(2 2/3 2/5))          (mjr_dquad_make-from-axis-table t1 :ax-rows '(1)   :ax-nam '("x")))
+  (assert-equalp '(2
+                   ((:ANO-NAM . "x0")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 1/2 1/3)        
+                   ((:ANO-NAM . "x1")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(2 2/3 2/5))         (mjr_dquad_make-from-axis-table t1 :ax-rows '(0 1) :ax-nam "x"))
+  (assert-equalp '(2
+                   ((:ANO-NAM . "x")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 1/2 1/3)         
+                   ((:ANO-NAM . "y")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(2 2/3 2/5))          (mjr_dquad_make-from-axis-table t1 :ax-rows '(0 1) :ax-nam '("x" "y")))
+  
+  (assert-equalp '(1
+                   ((:ANO-NAM . "x")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 1/2 1/3))          (mjr_dquad_make-from-axis-table t2 :ax-cols '(0)   :ax-nam "x"))
+  (assert-equalp '(1
+                   ((:ANO-NAM . "x")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(2 2/3 2/5))          (mjr_dquad_make-from-axis-table t2 :ax-cols '(1)   :ax-nam '("x")))
+  (assert-equalp '(2
+                   ((:ANO-NAM . "x0")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 1/2 1/3)        
+                   ((:ANO-NAM . "x1")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(2 2/3 2/5))         (mjr_dquad_make-from-axis-table t2 :ax-cols '(0 1) :ax-nam "x"))
+  (assert-equalp '(2
+                   ((:ANO-NAM . "x")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 1/2 1/3)         
+                   ((:ANO-NAM . "y")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(2 2/3 2/5))          (mjr_dquad_make-from-axis-table t2 :ax-cols '(0 1) :ax-nam '("x" "y")))
+  (assert-equalp '(4
+                   ((:ANO-NAM . "x0")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 1/2 1/3)        
+                   ((:ANO-NAM . "x1")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(2 2/3 2/5)          
+                   ((:ANO-NAM . "x2")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(3 3/5 3/7)          
+                   ((:ANO-NAM . "x3")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(5 5/7 5/11))        (mjr_dquad_make-from-axis-table t2                 :ax-nam "x"))
+  
+  (assert-equalp '(1
+                   ((:ANO-NAM . "x")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 2 3 5))            (mjr_dquad_make-from-axis-table t2 :ax-rows '(0)   :ax-nam "x"))
+  (assert-equalp '(1
+                   ((:ANO-NAM . "x")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1/2 2/3 3/5 5/7))    (mjr_dquad_make-from-axis-table t2 :ax-rows '(1)   :ax-nam '("x")))
+  (assert-equalp '(2
+                   ((:ANO-NAM . "x0")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 2 3 5)          
+                   ((:ANO-NAM . "x1")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1/2 2/3 3/5 5/7))   (mjr_dquad_make-from-axis-table t2 :ax-rows '(0 1) :ax-nam "x"))
+  (assert-equalp '(2
+                   ((:ANO-NAM . "x")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1 2 3 5)           
+                   ((:ANO-NAM . "y")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(1/2 2/3 3/5 5/7))    (mjr_dquad_make-from-axis-table t2 :ax-rows '(0 1) :ax-nam '("x" "y")))
+
+  (assert-error 'error (mjr_dquad_make-from-axis-table t1         :ax-cols '(1.1)              :ax-nam "x"))
+  (assert-error 'error (mjr_dquad_make-from-axis-table t1         :ax-cols '(-1)               :ax-nam "x"))
+  (assert-error 'error (mjr_dquad_make-from-axis-table t1         :ax-cols '(10)               :ax-nam "x"))
+  (assert-error 'error (mjr_dquad_make-from-axis-table t1         :ax-rows '(-1)               :ax-nam "x"))
+  (assert-error 'error (mjr_dquad_make-from-axis-table t1         :ax-rows '(1.1)              :ax-nam "x"))
+  (assert-error 'error (mjr_dquad_make-from-axis-table t1         :ax-rows '(10)               :ax-nam "x"))
+  (assert-error 'error (mjr_dquad_make-from-axis-table #(1 2 3)   :ax-cols '(0)                :ax-nam "x"))
+  (assert-error 'error (mjr_dquad_make-from-axis-table #3a(((1))) :ax-cols '(0)                :ax-nam "x"))
+  (assert-error 'error (mjr_dquad_make-from-axis-table nil        :ax-cols '(0)                :ax-nam "x"))
+  (assert-error 'error (mjr_dquad_make-from-axis-table t1         :ax-cols '(0)                :ax-nam '("x" "y")))
+  (assert-error 'error (mjr_dquad_make-from-axis-table t1         :ax-cols '(0)                :ax-nam nil))
+  (assert-error 'error (mjr_dquad_make-from-axis-table t1         :ax-cols '(0)                :ax-nam 1))
+  (assert-error 'error (mjr_dquad_make-from-axis-table t1         :ax-cols '(0)  :ax-rows '(0) :ax-nam "x"))
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

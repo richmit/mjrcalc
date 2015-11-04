@@ -53,10 +53,9 @@
             (ivy    48.0))
         (flet ((f (x y) (or y) (mjr_poly_eval #(7 -168 1630 -8080 21075 -26000 10000) x))
                (s (x)   (mjr_poly_eval #(1 -28 326 -2020 7025 -13000 10000 0) x)))
-          (let* ((num-sol (if do-int
-                              (apply #'mjr_ode_slv-ivp-erk-interval #'f ivy start end :return-all-steps 't         slvarg)
-                              (apply #'mjr_ode_slv-ivp-erk-mesh     #'f ivy (list :start start :end end :step 0.1) slvarg)))
-                 (data    (mjr_dquad_make-from-axis "x" (mjr_arr_get-col num-sol 0))))
-            (mjr_dquad_add-data-from-map data #'s                          :ano-nam "Symbolic"  :ano-typ :ano-typ-real :axes 't)
-            (mjr_dquad_add-data          data  (mjr_arr_get-col num-sol 1) :ano-nam "Numerical" :ano-typ :ano-typ-real)
-            (mjr_gnupl_dquad data :main "Numerical vs Symbolic Solution" :ylim '(-2 50) :type (list :l :p))))))
+          (let* ((deq-sol (if do-int
+                              (apply #'mjr_ode_slv-ivp-erk-interval #'f ivy start end :return-all-steps 't         :y-ano-nam "Numerical" slvarg)
+                              (apply #'mjr_ode_slv-ivp-erk-mesh     #'f ivy (list :start start :end end :step 0.1) :y-ano-nam "Numerical" slvarg))))
+            (mjr_dquad_add-data-from-map deq-sol #'s :ano-nam "Symbolic"  :ano-typ :ano-typ-real :axes 't)
+            (mjr_gnupl_dquad deq-sol :main "Numerical vs Symbolic Solution" :ylim '(-2 50) :type (list :l :p))))))
+
