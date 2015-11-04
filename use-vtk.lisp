@@ -33,8 +33,6 @@
   (:USE :COMMON-LISP
         :MJR_UTIL
         :MJR_VVEC
-        :MJR_COMBC
-        :MJR_MXP
         :MJR_ARR
         :MJR_ANNOT
         :MJR_COLOR

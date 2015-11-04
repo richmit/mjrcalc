@@ -33,8 +33,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_RTRIG
   (:USE :COMMON-LISP
-        :MJR_CMP
-        :MJR_CHK
         :MJR_POLY)
   (:DOCUMENTATION "Brief: Rational Approximations For Irrational Functions.;")
   (:EXPORT #:mjr_rtrig_help

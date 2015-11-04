@@ -30,7 +30,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defpackage :MJR_DFT-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_DFT :MJR_EPS :MJR_CMP :MJR_UTIL :MJR_VVEC :MJR_MAT :MJR_MATT :MJR_ARR :MJR_PRNG))
+(defpackage :MJR_DFT-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_DFT :MJR_EPS :MJR_VVEC :MJR_MATT :MJR_ARR :MJR_PRNG))
 
 (in-package :MJR_DFT-TESTS)
 

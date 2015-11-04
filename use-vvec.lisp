@@ -196,28 +196,33 @@ An arithmetic sequence may be fully specified by any tree of the following: firs
 delta between each pair of terms (STEP).  This function is designed to normalize such parameters describing an arithmetic sequence. Intelligent defaults are
 provided for cases when fewer than three values are provided.
 
-How the arguments are processed until ERROR or CHECK repeatedly applying the following, 16 case 'switch' statement:
+How the arguments are processed until ERROR or CHECK repeatedly applying the following, 'switch' statement:
 
-  |----+----------+-------+-------+-------+-------+-------------------------------+----------------------------------------------|
-  |    | case     | START | END   | STEP  | LEN   | Action.                       | Action Sequence                              |
-  |----+----------+-------+-------+-------+-------+-------------------------------+----------------------------------------------|
-  |  1 | case 0.0 | KNOWN | KNOWN | KNOWN | KNOWN | Checked for consistency.      | CHECK                                        |
-  |  2 | case 1.1 |       | KNOWN | KNOWN | KNOWN | START <- END-(LEN-1)*STEP     | case 0.0  => CHECK                           |
-  |  3 | case 1.2 | KNOWN |       | KNOWN | KNOWN | END   <- START+(LEN-1)*STEP   | case 0.0  => CHECK                           |
-  |  4 | case 1.3 | KNOWN | KNOWN |       | KNOWN | STEP  <- (END-START)/(LEN-1)  | case 0.0  => CHECK                           |
-  |  5 | case 1.4 | KNOWN | KNOWN | KNOWN |       | LEN   <- (END-START)/STEP+1   | case 0.0  => CHECK                           |
-  |  6 | case 2.1 |       |       | KNOWN | KNOWN | START <- 0                    | case 1.2  => case 0.0  => CHECK              |
-  |  7 | case 2.2 |       | KNOWN |       | KNOWN | START <- 0                    | case 1.3  => case 0.0  => CHECK              |
-  |  8 | case 2.3 |       | KNOWN | KNOWN |       | START <- 0                    | case 1.4  => case 0.0  => CHECK              |
-  |  9 | case 2.4 | KNOWN |       |       | KNOWN | STEP  <- 1                    | case 1.2  => case 0.0  => CHECK              |
-  | 10 | case 2.5 | KNOWN |       | KNOWN |       | ERROR                         | ERROR                                        |
-  | 11 | case 2.6 | KNOWN | KNOWN |       |       | LEN   <- 1+|round(end-start)| | case 1.3  => case 0.0  => CHECK              |
-  | 12 | case 3.1 |       |       |       | KNOWN | START <- 0                    | case 2.4  => case 1.2  => case 0.0  => CHECK |
-  | 13 | case 3.2 |       |       | KNOWN |       | ERROR                         | ERROR                                        |
-  | 14 | case 3.3 |       | KNOWN |       |       | START <- 0                    | case 2.6  => case 1.4  => case 0.0  => CHECK |
-  | 15 | case 3.4 | KNOWN |       |       |       | ERROR                         | ERROR                                        |
-  | 16 | case 3.5 |       |       |       |       | ERROR                         | ERROR                                        |
-  |----+----------+-------+-------+-------+-------+-------------------------------+----------------------------------------------|
+  |----+----------+-------+-------+-------+-------+---------------------+----------------------------------+----------------------------------------------|
+  |    | case     | START | END   | STEP  | LEN   | Condition           | Action.                          | Action Sequence                              |
+  |----+----------+-------+-------+-------+-------+---------------------+----------------------------------+----------------------------------------------|
+  | 1* | case 0.0 | N/A   | N/A   | N/A   | 0     |                     | START, END, STEP <- NIL          | EMPTY VECTOR                                 |
+  | 2* | case 0.1 | KNOWN | KNOWN | KNOWN | N/A   | START>END & STEP<=0 | LEN   <- NIL                     | case 0.0 => EMPTY VECTOR                     |
+  | 3* | case 0.2 | KNOWN | KNOWN | KNOWN | N/A   | START<END & STEP>=0 | LEN   <- NIL                     | case 0.0 => EMPTY VECTOR                     |
+  |  4 | case 1.0 | KNOWN | KNOWN | KNOWN | KNOWN |                     | Checked for consistency.         | CHECK                                        |
+  |  5 | case 2.1 |       | KNOWN | KNOWN | KNOWN |                     | START <- END-(LEN-1)*STEP        | case 1.0  => CHECK                           |
+  |  6 | case 2.2 | KNOWN |       | KNOWN | KNOWN |                     | END   <- START+(LEN-1)*STEP      | case 1.0  => CHECK                           |
+  |  7 | case 2.3 | KNOWN | KNOWN |       | KNOWN |                     | STEP  <- (END-START)/(LEN-1)     | case 1.0  => CHECK                           |
+  |  8 | case 2.4 | KNOWN | KNOWN | KNOWN |       |                     | LEN   <- (END-START)/STEP+1      | case 1.0  => CHECK                           |
+  |  9 | case 3.1 |       |       | KNOWN | KNOWN |                     | START <- 0                       | case 2.2  => case 1.0  => CHECK              |
+  | 10 | case 3.2 |       | KNOWN |       | KNOWN |                     | START <- 0                       | case 2.3  => case 1.0  => CHECK              |
+  | 11 | case 3.3 |       | KNOWN | KNOWN |       |                     | START <- 0                       | case 2.4  => case 1.0  => CHECK              |
+  | 12 | case 3.4 | KNOWN |       |       | KNOWN |                     | STEP  <- 1                       | case 2.2  => case 1.0  => CHECK              |
+  | 13 | case 3.5 | KNOWN |       | KNOWN |       |                     | ERROR                            | ERROR                                        |
+  | 14 | case 3.6 | KNOWN | KNOWN |       |       |                     | LEN   <- 1+abs(round(end-start)) | case 2.3  => case 1.0  => CHECK              |
+  | 15 | case 4.1 |       |       |       | KNOWN |                     | START <- 0                       | case 3.4  => case 2.2  => case 1.0  => CHECK |
+  | 16 | case 4.2 |       |       | KNOWN |       |                     | ERROR                            | ERROR                                        |
+  | 17 | case 4.3 |       | KNOWN |       |       |                     | START <- 0                       | case 3.6  => case 2.4  => case 1.0  => CHECK |
+  | 18 | case 4.4 | KNOWN |       |       |       |                     | ERROR                            | ERROR                                        |
+  | 19 | case 4.5 |       |       |       |       |                     | ERROR                            | ERROR                                        |
+  |----+----------+-------+-------+-------+-------+---------------------+----------------------------------+----------------------------------------------|
+
+ * -> TODO -- want to add ability to have empty vectors some day.
 
 Note: 'CHECK' in the table above means 'success'
 
@@ -628,7 +633,9 @@ If POINT-FUN is NIL (as in a NIL was passed to this function), then the behavior
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_gen-0sim (result-type vvec)
-  "Generate and return, as a list or vector, a the sequence of points (0-simplexes) describing the virtual vector"
+  "Interperate VVEC as a list of points (specified by a vvec) that describe a list of 0 simplexes.  Return, as a list or vector, that list of points.
+
+Note: This is one way to transform a vvec into a lisp vector."
   (if (not (or (eq result-type 'list)
                (eq result-type 'vector))) (error "mjr_vvec_gen-0sim: RESULT-TYPE must be 'VECTOR or 'LIST!"))
   (let ((res (mjr_vvec_map-filter-reduce result-type vvec)))
@@ -641,11 +648,12 @@ If POINT-FUN is NIL (as in a NIL was passed to this function), then the behavior
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_gen-1sim (result-type vvec)
-  "Generate and return, as a list or vector, a the sequence of points describing the virtual vector"
+  "Generate and return, as a list or vector, a the sequence of INTERVALS described by the points of the virtual vector.
+
+An interval is a LIST containing an the start and end point of a mathematical interval."
   (if (not (or (eq result-type 'list)
                (eq result-type 'vector))) (error "mjr_vvec_gen-1sim: RESULT-TYPE must be 'VECTOR or 'LIST!"))
-  (let ((res (mjr_vvec_map-filter-reduce result-type vvec
-                                         :pair-fun (lambda (x0 x1 fx0 fx1 i) (declare (ignore fx0 fx1 i)) (list x0 x1)))))
+  (let ((res (mjr_vvec_map-filter-reduce result-type vvec :pair-fun (lambda (x0 x1 fx0 fx1 i) (declare (ignore fx0 fx1 i)) (list x0 x1)))))
     (typecase res 
       (list    (if (null res)
                    (error "mjr_vvec_gen-0sim: Empty vector generated")))
@@ -677,11 +685,15 @@ If POINT-FUN is NIL (as in a NIL was passed to this function), then the behavior
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_to-vec-maybe (vvec)
-  "Convert VVEC to a :VVR-VEC vvec (a real LISP vector), or return VVEC if we can't figure out what to do.
+  "Convert VVEC to a :VVR-VEC vvec (a real LISP vector).
+
+If teh convesion was successfull, the LISP vector an 'T are returned, otherwise the return is VVEC and NIL.
 
 Used as a 'filter' for functions that might get a vvec or some other thing entirely."
-  (or (mjr_vvec_convert-rep vvec :vvr-vec nil)
-      vvec))
+  (let ((ret (mjr_vvec_convert-rep vvec :vvr-vec nil)))
+    (if ret
+        (values ret  't)
+        (values vvec nil))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_map-sum (vvec &key (initial-value 0) pair-fun point-fun filter-fun)

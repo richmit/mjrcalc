@@ -32,7 +32,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_ANNOT
   (:USE :COMMON-LISP
-        :MJR_COLOR
         :MJR_UNITS)
   (:DOCUMENTATION "Brief: Geometric Data Sets: Supporting :MJR_DSIMP and :MJR_DQUAD.;")
   (:EXPORT #:mjr_annot_help ()

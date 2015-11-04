@@ -34,18 +34,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_POV
   (:USE :COMMON-LISP
-        :MJR_VVEC
         :MJR_VEC
         :MJR_ARR
         :MJR_GEOM
-        :MJR_COMBC
-        :MJR_COLORIZED
         :MJR_COLOR
         :MJR_ANNOT
         :MJR_UTIL
         :MJR_DQUAD
-        :MJR_DSIMP
-        :MJR_MXP)
+        :MJR_DSIMP)
   (:DOCUMENTATION "Brief: Write Povray files!;")
   (:EXPORT #:mjr_pov_help
            #:mjr_pov_make-from-dsimp

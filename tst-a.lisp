@@ -30,7 +30,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defpackage :MJR_A-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_A :MJR_CMP :MJR_PRNG :MJR_NUMU))
+(defpackage :MJR_A-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_A :MJR_EPS :MJR_PRNG :MJR_NUMU))
 
 (in-package :MJR_A-TESTS)
 
@@ -56,7 +56,7 @@ If the input is a float, then the fractional outputs (seconds) will be DOUBLE-FL
            (n (mjr_prng_int-cc -100 100))
            (ta (+ a (* 360 n))))
       (if (not (zerop n))
-          (assert-equality (lambda (a b) (and a b (mjr_cmp_= a b 0.001))) a (mjr_a_normalize ta) ta))))
+          (assert-equality (mjr_eps_make-fixed= 0.001) a (mjr_a_normalize ta) ta))))
   ;; Make sure default is :angular-measure & smallest-abs have the documented defaults
   (dotimes (i 1000)
     (let* ((a (mjr_prng_float-co -100000 100000)))
@@ -130,18 +130,9 @@ If the input is a float, then the fractional outputs (seconds) will be DOUBLE-FL
     (let ((d (mjr_prng_random 10000))
           (r (/ (mjr_prng_random 10000) (mjr_prng_int-cc 1 10000)))
           (f (mjr_prng_random 10000.0)))
-      (assert-equality (lambda (x y) (every (lambda (a b) (and a b (mjr_cmp_= a b 0.001))) x y))
-                       (multiple-value-list (mjr_a_d2dms d))
-                       (multiple-value-list (mjr_a_d2dms-naive d))
-                       d)
-      (assert-equality (lambda (x y) (every (lambda (a b) (and a b (mjr_cmp_= a b 0.001))) x y))
-                       (multiple-value-list (mjr_a_d2dms r))
-                       (multiple-value-list (mjr_a_d2dms-naive r))
-                       r)
-      (assert-equality (lambda (x y) (every (lambda (a b) (and a b (mjr_cmp_= a b 0.001))) x y))
-                       (multiple-value-list (mjr_a_d2dms f))
-                       (multiple-value-list (mjr_a_d2dms-naive f))
-                       f)))
+      (assert-equality (mjr_eps_make-fixed= 0.001) (multiple-value-list (mjr_a_d2dms d)) (multiple-value-list (mjr_a_d2dms-naive d)) d)
+      (assert-equality (mjr_eps_make-fixed= 0.001) (multiple-value-list (mjr_a_d2dms r)) (multiple-value-list (mjr_a_d2dms-naive r)) r)
+      (assert-equality (mjr_eps_make-fixed= 0.001) (multiple-value-list (mjr_a_d2dms f)) (multiple-value-list (mjr_a_d2dms-naive f)) f)))
   ;; Errors
   (assert-error 'error    (mjr_a_d2dms 't))
   (assert-error 'error    (mjr_a_d2dms #C(1 1)))
@@ -149,9 +140,9 @@ If the input is a float, then the fractional outputs (seconds) will be DOUBLE-FL
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_a_r2d
-  (assert-true (> 0.0001 (abs (- 180.0d0 (mjr_a_r2d pi)))))
-  (assert-true (> 0.0001 (abs (- 360.0d0 (mjr_a_r2d (* 2 pi))))))
-  (assert-true (> 0.0001 (abs (- 57.29577951308232d0 (mjr_a_r2d 1)))))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) 180.0d0              (mjr_a_r2d pi))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) 360.0d0              (mjr_a_r2d (* 2 pi)))
+  (assert-equality (mjr_eps_make-fixed= 0.0001)  57.29577951308232d0 (mjr_a_r2d 1))
   ;; Errors
   (assert-error 'error (mjr_a_r2d 't))
   (assert-error 'error (mjr_a_r2d #C(1 1)))
@@ -159,9 +150,9 @@ If the input is a float, then the fractional outputs (seconds) will be DOUBLE-FL
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_a_d2r
-  (assert-true (> 0.0001 (abs (- pi       (mjr_a_d2r 180.0d0)))))
-  (assert-true (> 0.0001 (abs (- (* 2 pi) (mjr_a_d2r 360.0d0)))))
-  (assert-true (> 0.0001 (abs (- 1.0d0    (mjr_a_d2r 57.29577951308232d0)))))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) pi       (mjr_a_d2r 180.0d0))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) (* 2 pi) (mjr_a_d2r 360.0d0))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) 1.0d0    (mjr_a_d2r 57.29577951308232d0))
   ;; Errors
   (assert-error 'error (mjr_a_d2r 't))
   (assert-error 'error (mjr_a_d2r #C(1 1)))
@@ -180,9 +171,9 @@ If the input is a float, then the fractional outputs (seconds) will be DOUBLE-FL
     (let ((d (mjr_prng_random 10000))
           (r (/ (mjr_prng_random 10000) (mjr_prng_int-cc 1 10000)))
           (f (mjr_prng_random 10000.0)))
-      (assert-equal                                                   d (multiple-value-call #'mjr_a_dms2d (mjr_a_d2dms d)))
-      (assert-equal                                                   r (multiple-value-call #'mjr_a_dms2d (mjr_a_d2dms r)))
-      (assert-equality (lambda (a b) (and a b (mjr_cmp_= a b 0.001))) f (multiple-value-call #'mjr_a_dms2d (mjr_a_d2dms f)))))
+      (assert-equal                                d (multiple-value-call #'mjr_a_dms2d (mjr_a_d2dms d)))
+      (assert-equal                                r (multiple-value-call #'mjr_a_dms2d (mjr_a_d2dms r)))
+      (assert-equality (mjr_eps_make-fixed= 0.001) f (multiple-value-call #'mjr_a_dms2d (mjr_a_d2dms f)))))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -192,12 +183,12 @@ If the input is a float, then the fractional outputs (seconds) will be DOUBLE-FL
     (let ((d (mjr_prng_int-cc -10000 10000))
           (r (/ (mjr_prng_int-cc -10000 10000) (mjr_prng_int-cc 1 10000)))
           (f (mjr_prng_float-co -10000.0 10000.0)))
-      (assert-equality (lambda (a b) (and a b (mjr_cmp_= a b 0.001))) d (mjr_a_d2r (mjr_a_r2d d)))
-      (assert-equality (lambda (a b) (and a b (mjr_cmp_= a b 0.001))) r (mjr_a_d2r (mjr_a_r2d r)))
-      (assert-equality (lambda (a b) (and a b (mjr_cmp_= a b 0.001))) f (mjr_a_d2r (mjr_a_r2d f)))
-      (assert-equality (lambda (a b) (and a b (mjr_cmp_= a b 0.001))) d (mjr_a_r2d (mjr_a_d2r d)))
-      (assert-equality (lambda (a b) (and a b (mjr_cmp_= a b 0.001))) r (mjr_a_r2d (mjr_a_d2r r)))
-      (assert-equality (lambda (a b) (and a b (mjr_cmp_= a b 0.001))) f (mjr_a_r2d (mjr_a_d2r f)))))
+      (assert-equality (mjr_eps_make-fixed= 0.001) d (mjr_a_d2r (mjr_a_r2d d)))
+      (assert-equality (mjr_eps_make-fixed= 0.001) r (mjr_a_d2r (mjr_a_r2d r)))
+      (assert-equality (mjr_eps_make-fixed= 0.001) f (mjr_a_d2r (mjr_a_r2d f)))
+      (assert-equality (mjr_eps_make-fixed= 0.001) d (mjr_a_r2d (mjr_a_d2r d)))
+      (assert-equality (mjr_eps_make-fixed= 0.001) r (mjr_a_r2d (mjr_a_d2r r)))
+      (assert-equality (mjr_eps_make-fixed= 0.001) f (mjr_a_r2d (mjr_a_d2r f)))))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
