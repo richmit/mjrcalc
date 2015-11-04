@@ -1,19 +1,39 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-nleq.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,1998,2004,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Non-linear equation root finding.@EOL
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-nleq.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            TODO: I want to rethink the way the functions in this package exit.  No more "errors"!  Just return enough data to the
-;;                  caller so that it can figure out what happened, and behave appropriately.  This will transform these functions
-;;                  into something that works better as a library.  I still want this to work well interactively, so the returns
-;;                  must be meaningful and human readable.  Perhaps (values WHY best-x-guess y-value-at-best-x-guess ..)
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
-;;            TODO: Create a function like mjr_nleq_infix-string-to-diff-lambda, but that works with use-ndiff.lisp to compute
-;;                  approximate derivatives.
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
 ;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      Expose mjr_nleq_infix-string-to-diff-lambda -- it may be usefull in other packages, like :MJR_FSAMP.@EOL@EOL
+;; @todo      Rethink the way the functions in this package exit.  No more "errors"!  Just return enough data to the caller so that it can figure out what
+;;            happened, and behave appropriately.  This will transform these functions into something that works better as a library.  I still want this to
+;;            work well interactively, so the returns must be meaningful and human readable.
+;;            Perhaps (values WHY best-x-guess y-value-at-best-x-guess ..).@EOL@EOL
+;; @todo      Create a function like mjr_nleq_infix-string-to-diff-lambda, but that works with use-ndiff.lisp to compute.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_NLEQ

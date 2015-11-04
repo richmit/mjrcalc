@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-char.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Tests for :mjr_char.@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-char.lisp
 ;; @copyright 

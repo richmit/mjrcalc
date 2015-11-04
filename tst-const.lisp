@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-const.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Tests for :mjr_const.@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-const.lisp
 ;; @copyright 

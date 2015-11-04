@@ -420,7 +420,11 @@ Examples:
                                                      m)))
                                    :axes 0
                                    :ano-nam (format nil "r=~a" radius)
-                                   :ano-typ :ano-typ-rvec))
+                                   :ano-typ (if polar
+                                                (if return-complex
+                                                    :ano-typ-complex
+                                                    :ano-typ-rvec)
+                                                :ano-typ-real)))
     data))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

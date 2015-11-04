@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-dsimp.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Tests for use-dsimp.lisp@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-dsimp.lisp
 ;; @copyright 

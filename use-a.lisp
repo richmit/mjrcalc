@@ -36,12 +36,18 @@
         :MJR_CMP
         :MJR_NUMU)
   (:DOCUMENTATION "Brief: Angle (and time-ish) utilities.;")
-  (:EXPORT #:mjr_a_dms2d #:mjr_a_d2dms
+  (:EXPORT #:mjr_a_help
+           #:mjr_a_dms2d #:mjr_a_d2dms
            #:mjr_a_r2d #:mjr_a_d2r
            #:mjr_a_normalize
            ))
 
 (in-package :MJR_A)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_a_help ()
+  "Help for MJR_A:  Angle (and time-ish) utilities."
+  (documentation 'mjr_a_help 'function))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_a_normalize (angle &key (angular-measure :am-degrees) (smallest-abs nil))

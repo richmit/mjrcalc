@@ -34,7 +34,8 @@
                      ;;(lambda (z) (* (+ z 2) (+ z 2) (- z #C(1 2)) (+ z #C(0 1))))
                      ;;(lambda (z) (+ z (/ z)))
                      ;;(lambda (z) (/ (* (- z 2) (- z 2) (+ z #C(1 -2)) (+ z #C(2 2))) (expt z 3)))
-                     (lambda (z) (- (expt z 3) 1))
+                     ;;(lambda (z) (- (expt z 3) 1))
+                     #'mjr_numu_gamma-lanczos
                      ;;(lambda (z) (expt (- (expt z 3) 1) 2))
                      ;;(lambda (z) (+ (/ (+ z 1)) (/ (- z 1))))
                      ;;(lambda (z) (- (/ (+ z 1)) (/ (- z 1))))

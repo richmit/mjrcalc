@@ -3,7 +3,7 @@
 ;;;
 ;; @file      use-arr.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     @EOL
+;; @brief     Array utilities.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-arr.lisp
 ;; @copyright 
@@ -243,14 +243,14 @@ An error will be signaled if the two arrays have different dimensions even if bo
 (defun mjr_arr_aref-row-major (an-array subscript)
   "Return the subscript'th element of an-array -- in row major order just like ROW-MAJOR-AREF."
   (if (vectorp an-array)
-      (svref an-array subscript)
+      (aref an-array subscript)
       (aref (make-array (array-total-size an-array) :displaced-to an-array) subscript)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_arr_aref-col-major (an-array subscript)
   "Return the subscript'th element of an-array as if it were stored in column major order."
   (if (vectorp an-array)
-      (svref an-array subscript)
+      (aref an-array subscript)
       (apply #'aref an-array (loop for j from 0
                                    for d-prod = 1 then (* d-prod d)
                                    for d in (array-dimensions an-array)
@@ -287,7 +287,7 @@ dimensions '(3 5) stored in row-major form and get the element in row 2 and colu
 (defun mjr_arr_aref-col-major-mod (an-array subscript)
   "Return the subscript'th element of an-array as if it were stored in column major order."
   (if (vectorp an-array)
-      (svref an-array subscript)
+      (aref an-array subscript)
       (let* ((dims (array-dimensions an-array))
             (subscript (mod subscript (reduce #'* dims))))
         (apply #'aref an-array (loop for j from 0

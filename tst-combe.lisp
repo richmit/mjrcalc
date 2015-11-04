@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-combe.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Tests for :MJR_COMBE.@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-combe.lisp
 ;; @copyright 

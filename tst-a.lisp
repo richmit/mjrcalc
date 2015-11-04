@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-a.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Tests for :MJR_A.@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-a.lisp
 ;; @copyright 

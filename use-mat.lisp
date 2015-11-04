@@ -1,40 +1,60 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-mat.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1995-2010,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Matrix math library.@EOL
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-mat.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1995-2010,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            TODO: * Better behavior when vectors are used -- i.e. A*x should return a vector when x is a vector
-;;            TODO: * Refactor into several packages out of the basic matrix object stuff
-;;            TODO:   * mjr_mat  -- basic matrix stuff
-;;            TODO:   * mjr_matc -- matrix computations (equations, eigensystems, determinants
-;;            TODO:   * mjr_mats -- special matrixes
-;;            TODO: * SVD factorization
-;;            TODO: * LU Factorization
-;;            TODO: * Iterative system solution
-;;            TODO:   * Stationary methods:
-;;            TODO:     * Gauss Seidel method
-;;            TODO:     * Successive Over-Relaxation method (SOR)
-;;            TODO:     * Jacobi Iteration method
-;;            TODO:   * Krylov subspace methods:
-;;            TODO:     * Conjugate Gradient method (CG)
-;;            TODO:     * Generalized minimal residual method (GMRES)
-;;            TODO:     * Biconjugate gradient method (BiCG)
-;;            TODO: * Eigenvalues & vectors
-;;            TODO: * Condition number
-;;            TODO: * Currently this code uses a system of "special matrix" symbols for 
-;;            TODO:     1) generate special matrices,
-;;            TODO:     2) computing determinants of special (test) matrices, and 
-;;            TODO:     3) testing matrix properties.  
-;;            TODO:   Extend this system to general matrix computation routines so that they may
-;;            TODO:   exploit special structure or properties for increased efficiently.  Examples: determinants and inverse for
-;;            TODO:   upper triangular matrices, determinants for tridiagonal matrices, or inverses for orthogonal matrices.
-;;            TODO: * Add mjr_mat_solve-sys-tridiag -- for tridiagonal systems.
-;;            TODO: * Add some better error checking for *-special functions.  In particular, a clean way to specify what arguments
-;;            TODO:   are required by each special case with useful error messages.
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      mjr_mat_make-from-func: Use vvec iterators instead of materializing vectors.@EOL@EOL
+;; @todo      Better behavior when vectors are used -- i.e. A*x should return a vector when x is a vector.@EOL@EOL
+;; @todo      Refactor into several packages out of the basic matrix object stuff
+;;             * mjr_mat  -- basic matrix stuff
+;;             * mjr_matc -- matrix computations (equations, eigensystems, determinants
+;;             * mjr_mats -- special matrixes@EOL@EOL
+;; @todo      Stationary methods: Gauss Seidel method.@EOL@EOL
+;; @todo      Stationary methods: Successive Over-Relaxation method (SOR).@EOL@EOL
+;; @todo      Stationary methods: Jacobi Iteration method.@EOL@EOL
+;; @todo      Krylov subspace methods: Conjugate Gradient method (CG).@EOL@EOL
+;; @todo      Krylov subspace methods: Generalized minimal residual method (GMRES).@EOL@EOL
+;; @todo      Krylov subspace methods: Biconjugate gradient method (BiCG).@EOL@EOL
+;; @todo      Eigenvalues & vectors.@EOL@EOL
+;; @todo      Condition number.@EOL@EOL
+;; @todo      Currently this code uses a system of "special matrix" symbols for 
+;;               1) generate special matrices,
+;;               2) computing determinants of special (test) matrices, and 
+;;               3) testing matrix properties.  
+;;             Extend this system to general matrix computation routines so that they may
+;;             exploit special structure or properties for increased efficiently.  Examples: determinants and inverse for
+;;             upper triangular matrices, determinants for tridiagonal matrices, or inverses for orthogonal matrices..@EOL@EOL
+;; @todo      SVD factorization.@EOL@EOL
+;; @todo      LU Factorization.@EOL@EOL
+;; @todo      Iterative system solution.@EOL@EOL
+;; @todo      Add mjr_mat_solve-sys-tridiag -- for tridiagonal systems..@EOL@EOL
+;; @todo      Add some better error checking for *-special functions.  In particular, a clean way to specify what arguments.@EOL@EOL
+;;            are required by each special case with useful error messages.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_MAT
@@ -194,7 +214,6 @@ Typical examples (defun ftgr (i j) (sin (+ (* i i) (* j j)))):
          (cvec (mjr_vvec_gen-0sim 'vector (list :points (or cpoints points) :start (or cstart start) :end (or cend end) :step (or cstep step) :len clen))))
     (let ((rlen (length rvec))
           (clen (length cvec)))
-      ;; MJR TODO NOTE <2014-09-26 20:59:15 CDT> mjr_mat_make-from-func: Use vvec iterators instead of materializing vectors.
       (let ((newmat (mjr_mat_make-zero rlen clen)))
         (loop for row from 0 upto (1- rlen)
               for ri across rvec

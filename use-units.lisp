@@ -1,25 +1,44 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-units.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,1998,2004,2011,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Unit conversion tool.@EOL
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-units.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            This package provides basic unit conversions and computations.  It takes an inherently algebraic approach utilizing
-;;            LISPY expression rewriting and other symbolic manipulation with a somewhat hybrid LISP-like implementation.
-;;            
-;;            TODO: Implement direct conversions between two units :si-not-other without using SI units
-;;            TODO: Implement arithmetic on unit expressions -- +, -, *, and /.
-;;            TODO: Detect simple non-linear units, and convert using the offset term -- i.e. temperature conversions
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      Implement direct conversions between two units :si-not-other without using SI units.@EOL@EOL
+;; @todo      Implement arithmetic on unit expressions -- +, -, *, and /.@EOL@EOL
+;; @todo      Detect simple non-linear units, and convert using the offset term -- i.e. temperature conversions.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_UNITS
   (:USE :COMMON-LISP
         :MJR_STRING)
-  (:DOCUMENTATION "Brief: Unit conversion tool.;")
-  (:EXPORT #:mjr_units_find-unit  
+  (:DOCUMENTATION "Brief: Physical UNIT conversions and data.;")
+  (:EXPORT #:mjr_units_help
+           #:mjr_units_find-unit  
            #:mjr_units_canonization            
            #:mjr_units_substitute               
            #:mjr_units_to-si-fundamental
@@ -28,6 +47,14 @@
            ))
 
 (in-package :MJR_UNITS)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_units_help ()
+  "Help for MJR_UNITS: Physical UNIT conversions and data.
+
+This package provides basic unit conversions and computations.  It takes an inherently algebraic approach utilizing LISPY expression rewriting and other
+symbolic manipulation with a somewhat hybrid LISP-like implementation."
+  (documentation 'mjr_units_help 'function))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_units_find-unit (unit-to-find &key (print-ambiguous-warnings 't) (error-on-bad-lookup 't) (case-sensitive 't))

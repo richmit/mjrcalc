@@ -29,22 +29,6 @@
 ;;  @endparblock
 ;; @todo      Flexible argument control (See: mjr_util_fun-adapt-eval-v) -- especially for multivariate functions.@EOL@EOL
 ;; @todo      Create mndiff for functions of multiple vars.@EOL@EOL
-;; @filedetails
-;;
-;;  The "Magic Numbers" were computed with Maxima:
-;;    linel:500;
-;;    display2d:false;
-;;    fdif(order, low, high) := (h^order)*create_list(sublis([y=(x+0*h)], diff(prod((if (m=j) then 1 else (y-(x+m*h))/((x+j*h)-(x+m*h))), m, low, high), y, order)), j, low, high);
-;;    CENTER RULES
-;;    for ptsHalf: 1 step 1 thru 7 do for ord: 1 step 1 thru 2*ptsHalf do display(fdif(ord, -ptsHalf, ptsHalf));
-;;    RIGHT RULES
-;;    for pts: 1 step 1 thru 10 do for ord: 1 step 1 thru pts do display(fdif(ord, 0, pts));
-;;    LEFT RULES
-;;    for pts: 1 step 1 thru 10 do for ord: 1 step 1 thru pts do display(fdif(ord, -pts, 0));
-;;
-;;  Design Goals
-;;    * Speed (These routines will be used inside tight inner loops, and thus must be fast)
-;;    * Ease of use.  Good defaults.  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -53,12 +37,33 @@
         :MJR_POLY
         :MJR_INTRP)
   (:DOCUMENTATION "Brief: Numerical differentiation.;")
-  (:EXPORT #:mjr_ndiff_central #:mjr_ndiff_backward #:mjr_ndiff_forward
+  (:EXPORT #:mjr_ndif_help
+           #:mjr_ndiff_central #:mjr_ndiff_backward #:mjr_ndiff_forward
            #:mjr_ndiff_complex
            #:mjr_ndiff_lagrange
            ))
 
 (in-package :MJR_NDIFF)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_ndif_help ()
+  "Help for MJR_NDIF:  Numerical differentiation.
+
+Design Goals
+  * Speed (These routines will be used inside tight inner loops, and thus must be fast)
+  * Ease of use.  Good defaults.  
+
+The 'Magic Numbers' were computed with Maxima:
+  linel:500;
+  display2d:false;
+  fdif(order, low, high) := (h^order)*create_list(sublis([y=(x+0*h)], diff(prod((if (m=j) then 1 else (y-(x+m*h))/((x+j*h)-(x+m*h))), m, low, high), y, order)), j, low, high);
+  CENTER RULES
+  for ptsHalf: 1 step 1 thru 7 do for ord: 1 step 1 thru 2*ptsHalf do display(fdif(ord, -ptsHalf, ptsHalf));
+  RIGHT RULES
+  for pts: 1 step 1 thru 10 do for ord: 1 step 1 thru pts do display(fdif(ord, 0, pts));
+  LEFT RULES
+  for pts: 1 step 1 thru 10 do for ord: 1 step 1 thru pts do display(fdif(ord, -pts, 0));"
+  (documentation 'mjr_ndif_help 'function))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ndiff_central (f x &key (order 1) (h (sqrt single-float-epsilon)) (points nil))

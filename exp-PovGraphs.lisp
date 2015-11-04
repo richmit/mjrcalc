@@ -1,22 +1,44 @@
 ;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      exp-PovGraphs.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,1998,2004 by Mitch Richling.  All rights reserved.
-;; @Tested    2014-12-11
 ;; @brief     Some graphs with Povray -- using general p.pov-like code.@EOL
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            To render, in a bash shell, with Povray:
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
-;;               for AFILE in exp-PovGraphs-AUX-*.pov; do 
-;;                 OFILE=`echo $AFILE | sed 's/-AUX-/-ART-/' | sed 's/\.pov/.png/'`;
-;;                 IFILE=`echo $AFILE | sed 's/-AUX-/-OUT-/' | sed 's/[0-9]\.pov/.pov/' | sed 's/[0-9]\.pov/.pov/'`;
-;;                 povray -W3840 -H2160 -Q11 +A +AM2 -K0.08 +R4 +J3 -P -D -O$OFILE -I$IFILE  -HI$AFILE;
-;;                 #povray -W800 -H450 -Q11 +A +AM2 -K0.08 +R4 +J3 -P -D -O$OFILE -I$IFILE  -HI$AFILE;
-;;                 #pqiv -f $OFILE &
-;;               done
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
 ;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @filedetails
+;;
+;;  To render, in a bash shell, with Povray:
+;;
+;;     for AFILE in exp-PovGraphs-AUX-*.pov; do 
+;;       OFILE=`echo $AFILE | sed 's/-AUX-/-ART-/' | sed 's/\.pov/.png/'`;
+;;       IFILE=`echo $AFILE | sed 's/-AUX-/-OUT-/' | sed 's/[0-9]\.pov/.pov/' | sed 's/[0-9]\.pov/.pov/'`;
+;;       povray -W3840 -H2160 -Q11 +A +AM2 -K0.08 +R4 +J3 -P -D -O$OFILE -I$IFILE  -HI$AFILE;
+;;       #povray -W800 -H450 -Q11 +A +AM2 -K0.08 +R4 +J3 -P -D -O$OFILE -I$IFILE  -HI$AFILE;
+;;       #pqiv -f $OFILE &
+;;     done
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (print "Trefoil knot curve")

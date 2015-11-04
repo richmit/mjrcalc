@@ -1,10 +1,34 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-probau.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,1998,2004,2010,2011,2012 by Mitch Richling.  All rights reserved.
 ;; @brief     Balls And Urns probability distributions.@EOL
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-probau.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2010,2011,2012,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
+;;
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      mjr_probau_multi-hypergeometric-pdf: Optimize!!  Fix edge cases.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_PROBAU
@@ -139,7 +163,7 @@ Value of :ALGORITHM determines how the computation is performed.
   * :direct  -- use direct computation using definition
 
 Classical formula:
-  $$\left(\frac{m}{n+m}\right)^k\cdot\left(\frac{n}{n+m}\right)$$"
+  $$\\left(\\frac{m}{n+m}\\right)^k\\cdot\\left(\\frac{n}{n+m}\\right)$$"
   (cond ((not (integerp m))                (error "mjr_probau_geometric-pdf: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_geometric-pdf: M must be non-negative!"))
         ((not (integerp n))                (error "mjr_probau_geometric-pdf: N must be an integer!"))
@@ -330,7 +354,7 @@ Value of :ALGORITHM determines how the computation is performed.
   * :floating  -- Use floating point approximations in the standard formula
 
 Classical formula:
-  $$\frac{\binom{n}{k}\binom{m}{s-k}}{\binom{m+n}{s}} = \frac{m!n!s!(m+n-s)!}{k!(n-k)!(m+k-s)!(s-k)!(m+n)!}$$"
+  $$\\frac{\\binom{n}{k}\\binom{m}{s-k}}{\\binom{m+n}{s}} = \\frac{m!n!s!(m+n-s)!}{k!(n-k)!(m+k-s)!(s-k)!(m+n)!}$$"
   (cond ((not (integerp m))        (error "mjr_probau_hypergeometric-pdf: M must be an integer!"))
         ((< m 0)                   (error "mjr_probau_hypergeometric-pdf: M must be non-negative!"))
         ((not (integerp n))        (error "mjr_probau_hypergeometric-pdf: N must be an integer!"))
@@ -470,8 +494,8 @@ Classical formula:
 i.e. we draw without replacement till we have R red balls, and p(k) is the probability we drew k blue balls in the process.
 
 Classical formula:
-  $$\frac{\binom{k+r-1}{r-1}\binom{m+n-k-r}{n-r}}{\binom{m+n}{n}}$$
-  $$\frac{(k+r-1)! (m+n-k-r) m! n!}{(r-1)! (n-r)! (m-k)! (m+n)! k!}$$"
+  $$\\frac{\\binom{k+r-1}{r-1}\\binom{m+n-k-r}{n-r}}{\\binom{m+n}{n}}$$
+  $$\\frac{(k+r-1)! (m+n-k-r) m! n!}{(r-1)! (n-r)! (m-k)! (m+n)! k!}$$"
   (cond ((not (integerp m))        (error "mjr_probau_negative-hypergeometric-pdf: M must be an integer!"))
         ((< m 0)                   (error "mjr_probau_negative-hypergeometric-pdf: M must be non-negative!"))
         ((not (integerp n))        (error "mjr_probau_negative-hypergeometric-pdf: N must be an integer!"))
@@ -562,8 +586,7 @@ Classical formula:
 Note that $n$ and $k$ are vectors of length $c$.
 
 Classical formula:
-  $$\prod_{i=1}^c\frac{\binom{n_i}{k_i}}{\binom{N}{s}}$$ where $$N=\sum_{j=1}^c n_i$$"
-  ;; MJR TODO NOTE mjr_probau_multi-hypergeometric-pdf: Optimize!!  Fix edge cases.
+  $$\\prod_{i=1}^c\\frac{\\binom{n_i}{k_i}}{\\binom{N}{s}}$$ where $$N=\\sum_{j=1}^c n_i$$"
   (cond ((not (vectorp n))                 (error "mjr_probau_multi-hypergeometric-pdf: N must be a vector!"))
         ((notevery #'integerp n)           (error "mjr_probau_multi-hypergeometric-pdf: Every element of N must be an integer!"))
         ((some (lambda (x) (< x 0)) n)     (error "mjr_probau_multi-hypergeometric-pdf: all elements of N must be non-negative!"))
@@ -587,12 +610,12 @@ Classical formula:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_multinomial-pdf (k n &key (algorithm :direct))
-  "Probability of exactly $k_i$ balls of color $i$ in $\sum k_i$ draws WITH replacement from a population with $n_i$ balls of color $i$
+  "Probability of exactly $k_i$ balls of color $i$ in $\\sum k_i$ draws WITH replacement from a population with $n_i$ balls of color $i$
 
 Note that $n$ and $k$ are vectors of length $c$.
 
 Classical formula:
-  $$K \prod_{i=1}^c \frac{n_i^{k_i}}{N^{k_i}k_i!}$$ where $$K=\sum_{i=1}^c k_i$$ and $$N=\sum_{i=1}^c n_i$$"
+  $$K \\prod_{i=1}^c \\frac{n_i^{k_i}}{N^{k_i}k_i!}$$ where $$K=\\sum_{i=1}^c k_i$$ and $$N=\\sum_{i=1}^c n_i$$"
   (cond ((not (vectorp n))               (error "mjr_probau_multinomial-pdf: N must be a vector!"))
         ((notevery #'integerp n)         (error "mjr_probau_multinomial-pdf: Every element of N must be an integer!"))
         ((some (lambda (x) (< x 0)) n)   (error "mjr_probau_multinomial-pdf: all elements of N must be non-negative!"))

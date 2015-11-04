@@ -1,11 +1,37 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-prime.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1992,1994,1997,1998,2004,2008,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Computational Number Theory.@EOL
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-prime.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1992,1994,1997,1998,2004,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      mjr_prime_pimep-miller-rabin-deterministic: Correct refs and fix name.@EOL@EOL
+;; @todo      mjr_prime_pimep-miller-rabin-deterministic: Correct refs.@EOL@EOL
+;; @todo      mjr_prime_probable-primep-lucas-selfridge: Finish documentation string.@EOL@EOL
+;; @todo      mjr_prime_probable-primep-lucas-selfridge: Add alternative selection for D.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_PRIME
@@ -234,7 +260,6 @@ Artjuhov (1967)"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_pimep-miller-rabin-deterministic (n &optional assume-riemann-hypothesis)
-; MJR TODO NOTE <2013-03-19 23:14:40 CDT> mjr_prime_pimep-miller-rabin-deterministic: Correct refs and fix name.
   "Deterministic Miller-Rabin primality test.  Return is non-NIL if n is PROVED prime, and NIL otherwise.
 
 For n<341550071728321, n will be tested via mjr_prime_strong-probable-primep on one to 7 basis values known to prove primality.  For larger n,
@@ -258,7 +283,6 @@ References:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_probable-primep-miller-rabin (n k)
-; MJR TODO NOTE <2013-03-19 23:14:40 CDT> mjr_prime_pimep-miller-rabin-deterministic: Correct refs
   "Classical, randomized Miller-Rabin primality test.  Return 't if n is probably prime, and NIL if it is PROVED composite.
 
 When 't is returned, the number prime with probability no less than $4^{2-k}$ assuming none of the tested bases were equal.
@@ -406,8 +430,13 @@ and END<N.  If END is too large, then it is clipped to (1-*MJR_PRIME_SMALL-COUNT
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_small-prime-index (p)
-  "Return the index of the N-th small prime -- i.e. 2 is the 0'th prime, 3 is the 1st, etc...  The return is NIL if P is not in *MJR_PRIME_SMALL-MAX*.  The
-only error case is when *mjr_prime_small-max* is not initialized."
+  "Return the index of the N-th small prime, or NIL if P is not in *MJR_PRIME_SMALL-MAX*.
+
+Examples:
+  * (mjr_prime_small-prime-index 0) => 2
+  * (mjr_prime_small-prime-index 1) => 3
+
+The only error case is when *mjr_prime_small-max* can not be initialized."
   (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
   (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_small-prime-index: Could not initialize *mjr_prime_small-list*!")))
@@ -435,7 +464,9 @@ only error case is when *mjr_prime_small-max* is not initialized."
 (defun mjr_prime_pi-func (n)
   "Return pi function value at N.
 
-Also called the prime-counting function.  The result is the number of prime numbers less than or equal to some real number n.
+Also called the prime-counting function.  The result is the number of prime numbers less than or equal to some real number N.
+
+Let $P=\\{p : (p\\leq n) \\wedge (p\\,\\,\\mathrm{prime})\\}$, then $\\pi(n)=\\vert P\\vert$.
 
 Performance notes:
  * For N < *MJR_PRIME_SMALL-MAX*, this function is relatively efficient because it can make use of the recomputed sieve
@@ -620,8 +651,6 @@ References:
      /MJRDOI/9ed1c1463034bf01d90d2dbd3bb1df26
   Baillie & Wagstaff (1980); Lucas Pseudoprimes; Math. Comput. 35, 1391-1417
      /MJRDOI/b02ea0dcd7628245b08775d4893779d2"
-; MJR TODO NOTE <2013-03-19 23:13:45 CDT> mjr_prime_probable-primep-lucas-selfridge: Finish documentation string
-; MJR TODO NOTE <2013-03-19 23:13:54 CDT> mjr_prime_probable-primep-lucas-selfridge: Add alternative selection for D
   (if (< n 5)
       (or (= n 2) (= n 3))
       (if (and (oddp n) (not (mjr_intu_square? n)) (not (zerop (mod n 3))))  ;; Check for even, perfect squares, and multiples of 3

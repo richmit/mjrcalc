@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-poly.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Tests for use-poly.lisp.@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-poly.lisp
 ;; @copyright 
@@ -1139,6 +1139,19 @@ The roots may be given as individual arguments, or as a single list."
                    (setf (aref p 0) (mjr_prng_int-cc 1 10)))
                (assert-equalp (mjr_poly_discriminant-high-degree p) (mjr_poly_discriminant-low-degree p)))))
   )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_poly_discriminant-high-degree
+  ;; A few hand picked test cases -- verfied with maple:
+  ;;  > dlst := proc (p) discrim(add(t, t in [seq(x^i, i=(numelems(p)-1)..0, -1)] *~ p), x); end proc;
+  ;;  > dlst([1,2,3,4,5,6,7]);
+  ;;  -157351936
+  (assert-equalp -157351936              (mjr_poly_discriminant-high-degree #(1 2 3 4 5 6 7)))
+  (assert-equalp 4782969                 (mjr_poly_discriminant-high-degree #(1 1 1 1 1 1 1 1 1)))
+  (assert-equalp -34828517376            (mjr_poly_discriminant-high-degree #(1 -2 3 -4 5 -6 7 -8)))
+  (assert-equalp 4200118229/103723200000 (mjr_poly_discriminant-high-degree #(1/2 1/3 1/4 1/5 1/6 1/7)))
+  )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_resultant
   (assert-equalp 16 (mjr_poly_resultant #(2 -3 4 -5) #(3 -4 5 -6)))
@@ -1228,5 +1241,5 @@ The roots may be given as individual arguments, or as a single list."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests
-;; '(mjr_poly_+-)
+;; '(mjr_poly_discriminant-high-degree)
  )

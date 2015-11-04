@@ -1,14 +1,41 @@
 ;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      use-polygfp.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,1998,2004,2010,2015 by Mitch Richling.  All rights reserved.
+;; @date      2015-08-20
+;; @version   VERSION
 ;; @brief     Univariate polynomials over prime order fields -- i.e. GF(p)[x].@EOL
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2010,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      Unit Tests!!!@EOL@EOL
+;; @todo      mjr_polygfp_roots: OPTIMIZE!@EOL@EOL
+;; @todo      mjr_polygfp_irreducible?: IMPLEMENT!@EOL@EOL
+;; @todo      mjr_polygfp_factor-berlekamp: IMPLEMENT!@EOL@EOL
+;; @todo      mjr_polygfp_factor-cantor-zassenhaus: IMPLEMENT!@EOL@EOL
+;; @todo      mjr_polygfp_factor-shoup: IMPLEMENT!@EOL@EOL
+;; @warning   This package is experimental.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_POLYGFP
@@ -88,7 +115,6 @@ Polynomials are represented as in MJR_POLY."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_polygfp_roots (p poly)
   "List of roots of POLY"
-  ;; MJR TODO NOTE <2011-11-15 21:03:20 CST> mjr_polygfp_roots: OPTIMIZE!
   (loop for i from 0 upto (1- p)
         when (zerop (mjr_polygfp_eval p poly i))
         collect i))
@@ -101,7 +127,6 @@ References:
   Michael Rabin (1980); Probabilistic algorithms in finite fields; SIAM Journal on Computing 9; DOI: 10.1137/0209024
   http://en.wikipedia.org/wiki/Factorization_of_polynomial_over_finite_field_and_irreducibility_tests
   http://en.wikipedia.org/wiki/Berlekamp%27s_algorithm"
-  ;; MJR TODO NOTE <2011-11-15 21:03:20 CST> mjr_polygfp_irreducible?: IMPLEMENT!
   (or p poly))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -112,7 +137,6 @@ References:
   Elwyn Berlekamp (1967); Factoring Polynomials Over Finite Fields; Bell Systems Technical Journal 46
   Donald Knuth (1997); The Art of Computer Programming. v2 3rd; ISBN: 0201896842; pp439-461,678-691
   http://en.wikipedia.org/wiki/Factorization_of_polynomial_over_finite_field_and_irreducibility_tests"
-  ;; MJR TODO NOTE <2011-11-15 21:03:20 CST> mjr_polygfp_factor-berlekamp: IMPLEMENT!
   (or p poly))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -125,7 +149,6 @@ References:
   David Cantor and Hans Zassenhaus (1981); A New Algorithm for Factoring Polynomials Over Finite Fields; Mathematics of Computation
   http://en.wikipedia.org/wiki/Factorization_of_polynomial_over_finite_field_and_irreducibility_tests
   http://en.wikipedia.org/wiki/Cantor%E2%80%93Zassenhaus_algorithm"
-  ;; MJR TODO NOTE <2011-11-15 21:03:20 CST> mjr_polygfp_factor-cantor-zassenhaus: IMPLEMENT!
   (or p poly))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -137,5 +160,4 @@ An equal-degree factorization algorithm.
 References:
   Victor Shoup (1990); On the deterministic complexity of factoring polynomials over finite fields; Information Processing Letters
   http://en.wikipedia.org/wiki/Factorization_of_polynomial_over_finite_field_and_irreducibility_tests"
-  ;; MJR TODO NOTE <2011-11-15 21:03:20 CST> mjr_polygfp_factor-shoup: IMPLEMENT!
   (or p poly))

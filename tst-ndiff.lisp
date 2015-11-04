@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-ndiff.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Numerical differentiation.@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-ndiff.lisp
 ;; @copyright 

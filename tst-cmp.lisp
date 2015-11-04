@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-cmp.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Tests for :MJR_CMP.@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-cmp.lisp
 ;; @copyright 

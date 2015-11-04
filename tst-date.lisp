@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-date.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Tests for use-date.lisp.@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-date.lisp
 ;; @copyright 
