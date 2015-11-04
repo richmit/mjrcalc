@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-units.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -55,7 +55,7 @@
   (assert-equal '(* 5000/127 "in_us")                                   (mjr_units_convert 1        "m"        "in"))
 
   (assert-equal '(* 3125/3429 "ft_us" (/ "s") (/ "s"))                  (mjr_units_convert 1        "km/min^2" "ft/s^2"))
-  (assert-equal '(* 22395937500/283591 "mi_us" (/ "hour") (/ "hour"))   (mjr_units_convert 7963/812 "m/s^2"    "mi/hour^2"))
+  (assert-equal '(* 22395937500/283591 (/ "hour") (/ "hour") "mi_us")   (mjr_units_convert 7963/812 "m/s^2"    "mi/hour^2"))
   (assert-equal '(* 3600 (/ "hour"))                                    (mjr_units_convert 1        "1/s"      "1/hour"))
   (assert-equal '(* 3600 (/ "hour"))                                    (mjr_units_convert 1        "/s"       "/hour"))
   (assert-equal '(* 1/3600 "hour")                                      (mjr_units_convert 1        "s"        "hour"))

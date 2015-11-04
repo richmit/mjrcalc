@@ -6,7 +6,7 @@
 ;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-dquad.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1995-2010,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -135,12 +135,12 @@
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_dquad_axis-count          
+(define-test mjr_dquad_axis-count
   (assert-equal a-numa (mjr_dquad_axis-count a))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_dquad_get-data-array-by-index 
+(define-test mjr_dquad_get-data-array-by-index
   (assert-equalp a-z1     (mjr_dquad_get-data-array-by-index a 0))
   (assert-equalp a-z2     (mjr_dquad_get-data-array-by-index a 1))
   (assert-equalp a-z3     (mjr_dquad_get-data-array-by-index a 2))
@@ -204,7 +204,7 @@
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_dquad_get-axis-ano-by-index    
+(define-test mjr_dquad_get-axis-ano-by-index
   (assert-equalp a-x-n     (mjr_dquad_get-axis-ano-by-index a 0 :dq-nam))
   (assert-equalp a-y-n     (mjr_dquad_get-axis-ano-by-index a 1 :dq-nam))
   (assert-equalp a-x-t     (mjr_dquad_get-axis-ano-by-index a 0 :dq-typ))
@@ -224,7 +224,7 @@
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_dquad_get-data-ano-by-index    
+(define-test mjr_dquad_get-data-ano-by-index
 
   (assert-equalp a-z1-t     (mjr_dquad_get-data-ano-by-index a 0 :dq-typ))
   (assert-equalp a-z2-t     (mjr_dquad_get-data-ano-by-index a 1 :dq-typ))
@@ -262,23 +262,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_slab
   (assert-equalp a                                                                                                (mjr_dquad_slab a nil nil))
-  (assert-equalp '(1 
-                   ((:DQ-NAM . "x")      (:DQ-TYP . :DQ-TYP-REAL))    #(1 2 3 4 5 6 7 8 9 10) 
-                   ((:DQ-NAM . "z1")     (:DQ-TYP . :DQ-TYP-REAL))    #(4 5 6 7 8 9 10 11 12 13)         
-                   ((:DQ-NAM . "z2")     (:DQ-TYP . :DQ-TYP-REAL))    #(-1 0 1 2 3 4 5 6 7 8) 
+  (assert-equalp '(1
+                   ((:DQ-NAM . "x")      (:DQ-TYP . :DQ-TYP-REAL))    #(1 2 3 4 5 6 7 8 9 10)
+                   ((:DQ-NAM . "z1")     (:DQ-TYP . :DQ-TYP-REAL))    #(4 5 6 7 8 9 10 11 12 13)
+                   ((:DQ-NAM . "z2")     (:DQ-TYP . :DQ-TYP-REAL))    #(-1 0 1 2 3 4 5 6 7 8)
                    ((:DQ-NAM . "z3")     (:DQ-TYP . :DQ-TYP-REAL))    #(0 6 18 36 60 90 126 168 216 270)
-                   ((:DQ-NAM . "z1^2")   (:DQ-TYP . :DQ-TYP-INTEGER)) #(16 25 36 49 64 81 100 121 144 169) 
+                   ((:DQ-NAM . "z1^2")   (:DQ-TYP . :DQ-TYP-INTEGER)) #(16 25 36 49 64 81 100 121 144 169)
                    ((:DQ-NAM . "z1*z2")  (:DQ-TYP . :DQ-TYP-REAL))    #(-4 0 6 14 24 36 50 66 84 104)
-                   ((:DQ-NAM . "z1+z2")  (:DQ-TYP . :DQ-TYP-REAL))    #(3 5 7 9 11 13 15 17 19 21) 
+                   ((:DQ-NAM . "z1+z2")  (:DQ-TYP . :DQ-TYP-REAL))    #(3 5 7 9 11 13 15 17 19 21)
                    ((:DQ-NAM . "x+y+z1") (:DQ-TYP . :DQ-TYP-REAL))    #(8 10 12 14 16 18 20 22 24 26))            (mjr_dquad_slab a nil 1))
-  (assert-equalp '(1 
-                   ((:DQ-NAM . "y")      (:DQ-TYP . :DQ-TYP-INTEGER)) #(2 3 4 5) 
-                   ((:DQ-NAM . "z1")     (:DQ-TYP . :DQ-TYP-REAL))    #(4 5 6 7) 
+  (assert-equalp '(1
+                   ((:DQ-NAM . "y")      (:DQ-TYP . :DQ-TYP-INTEGER)) #(2 3 4 5)
+                   ((:DQ-NAM . "z1")     (:DQ-TYP . :DQ-TYP-REAL))    #(4 5 6 7)
                    ((:DQ-NAM . "z2")     (:DQ-TYP . :DQ-TYP-REAL))    #(1 0 -1 -2)
-                   ((:DQ-NAM . "z3")     (:DQ-TYP . :DQ-TYP-REAL))    #(0 6 16 30) 
-                   ((:DQ-NAM . "z1^2")   (:DQ-TYP . :DQ-TYP-INTEGER)) #(16 25 36 49) 
+                   ((:DQ-NAM . "z3")     (:DQ-TYP . :DQ-TYP-REAL))    #(0 6 16 30)
+                   ((:DQ-NAM . "z1^2")   (:DQ-TYP . :DQ-TYP-INTEGER)) #(16 25 36 49)
                    ((:DQ-NAM . "z1*z2")  (:DQ-TYP . :DQ-TYP-REAL))    #(4 0 -6 -14)
-                   ((:DQ-NAM . "z1+z2")  (:DQ-TYP . :DQ-TYP-REAL))    #(5 5 5 5) 
+                   ((:DQ-NAM . "z1+z2")  (:DQ-TYP . :DQ-TYP-REAL))    #(5 5 5 5)
                    ((:DQ-NAM . "x+y+z1") (:DQ-TYP . :DQ-TYP-REAL))    #(8 10 12 14))                              (mjr_dquad_slab a 1   nil))
   ;; Errors
   (assert-error 'error  (mjr_dquad_slab a 1 1))

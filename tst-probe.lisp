@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-probe.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1995,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -232,7 +232,7 @@
   ;; The test cases for mjr_probe_ecwt2prng make heavy use of this function, so we don't need many tests here.
   1
   )
-  
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_probe_help
   ;; Note: This function dosen't need test cases..
@@ -240,5 +240,5 @@
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(run-tests 
+(run-tests
  )

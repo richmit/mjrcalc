@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Colorization of discrete spaces (Z_n).@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1996,1997,2008,2010,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;

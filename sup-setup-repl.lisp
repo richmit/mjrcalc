@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Setup the width of the display fr the REPL.@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1991,1996,1999,2005,1007,1012,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;

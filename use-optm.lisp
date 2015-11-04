@@ -6,7 +6,7 @@
 ;; @brief     Multivariate function OPTimization.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-optm.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -44,7 +44,7 @@
   (:DOCUMENTATION "Brief: Multivariate function OPTimization.;")
   (:EXPORT #:mjr_optm_help
 
-           #:mjr_optm_minimize-mjr-descent  #:mjr_optm_minimize-random-delta 
+           #:mjr_optm_minimize-mjr-descent  #:mjr_optm_minimize-random-delta
            #:mjr_optm_minimize-hooke-jeeves #:mjr_optm_minimize-comb-search
 
            #:mjr_optm_maximize-adapter
@@ -67,19 +67,19 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_optm_minimize-mjr-descent (f x0 &key
-                                     (delta-max 1) (delta-factor 1/2) (delta-min 1e-5)
-                                     (dirs-min 8)  (dirs-slope 16)    (dirs-max 256)
-                                     (max-itr 1000) arg-mode (show-progress nil))
+                                             (delta-max 1) (delta-factor 1/2) (delta-min 1e-5)
+                                             (dirs-min 8)  (dirs-slope 16)    (dirs-max 256)
+                                             (max-itr 1000) arg-mode (show-progress nil))
   "Optimize the function F, from R^2->R, via a direct search analog of the steepest descent algorithm.
 
 This algorithm is analogous to the steepest decent algorithm, except that the steepest direction is discovered at each step via a direct search.  The
 algorithm:
 
    : Set x to x0, DIRS-NUM to DIRS-MIN
-   : If DELTA-FACTOR<DELTA-MIN, then exit  
+   : If DELTA-FACTOR<DELTA-MIN, then exit
   1: Compute DIRS-NUM evenly spaced points, (x_i) on a circle of radius DELTA-CUR around (x)
    : If min(f(x_i))<f(x), then {
-   :   set (x) to the minimum point and goto 1 
+   :   set (x) to the minimum point and goto 1
    : } ELSE { alternately shrink DELTA-CUR by multiplying by DELTA-FACTOR or grow DIRS-NUM by adding DIRS-SLOPE. }
    : If more than MAX-ITR iterations, then exit
   5: goto 1
@@ -175,7 +175,7 @@ F must take a single argument -- a vector of n elements."
   "Optimized F, from R^n->R, using the classical Hooke-Jeeves optimization algorithm.
 
 Optimize a real function of n variables using a modified version of the Hooke & Jeeves method.  Hooke & Jeeves is a charming algorithm that is trivial to
-code, easy to use, and quick to succeed or file.  As optimization algorithms go, it may not be particularly reliable; however, it's reliability to simplicity
+code, easy to use, and quick to succeed or fail.  As optimization algorithms go, it may not be particularly reliable; however, it's reliability to simplicity
 ratio is higher than most.
 
 References:
@@ -240,7 +240,7 @@ This implementation is relatively fast, but it can reevaluate the function multi
                   (setv x-explor x-curent)
                   (setf f-explor f-curent)))
             (if got-backup
-                (progn 
+                (progn
                   (setf got-backup nil)
                   (setv x-curent x-backup)
                   (setf f-curent f-backup)

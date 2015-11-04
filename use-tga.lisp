@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Raster image stuff.@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1996,1997,2008,2010,2012,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -147,4 +147,3 @@ The x-min x-max y-min y-max arguments specify the part of the image to write to 
          (color-packing (mjr_annot_get-colorpacking datt))
          (color-space   (mjr_annot_get-colorspace   datt)))
     (mjr_tga_from-array out-file img-array :color-space color-space :color-packing color-packing :x-min x-min :x-max x-max :y-min y-min :y-max y-max :show-progress show-progress)))
-

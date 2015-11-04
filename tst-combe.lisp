@@ -6,7 +6,7 @@
 ;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-combe.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2008,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -65,7 +65,7 @@ A partition of a number, $n$, is a sum of positive integers equaling $n$. Sums d
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_comb-naive2 (n k)
-  "Only works for n<=31. 
+  "Only works for n<=31.
 
 Makes sophisticated use of Pascal's triangle -- only stores one row at a time, requires on storage beyond the triangle, and only computes the parts of the
 rows required (both sides of the symmetry are computed as that is cheaper than fancy indexing to avoid the single addition required for each cell beyond the
@@ -76,7 +76,7 @@ halfway point).  Requires only integer arithmetic.  One of the best options for 
             ((= k 1) n)
             ((= n 0) 0)
             ((< n k) 0) ;; 0 ways to select more objects than we have
-            ('t      (let ((b (make-array (max 4 (1+ k)) :element-type 'fixnum)))
+            ('t      (let ((b (make-array (max 4 (1+ k)) :element-type 'fixnum :initial-element 0)))
                        (setf (aref b 0) 1
                              (aref b 1) 3
                              (aref b 2) 3
@@ -96,7 +96,7 @@ halfway point).  Requires only integer arithmetic.  One of the best options for 
   ""
   (/ (mjr_combe_! n)
      (reduce #'* (mapcar #'mjr_combe_! k-list))))
-                                                                 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_stirling2nd-naive (n k)
   "Recursive implementation
@@ -138,7 +138,7 @@ Interpretations:
 (define-test mjr_combe_!
   ;; http://oeis.org/A000142
   (loop for i from 0
-        for b in '(1 1 2 6 24 120 720 5040 40320 362880 3628800 39916800 479001600 6227020800 87178291200 1307674368000 
+        for b in '(1 1 2 6 24 120 720 5040 40320 362880 3628800 39916800 479001600 6227020800 87178291200 1307674368000
                    20922789888000 355687428096000 6402373705728000 121645100408832000 2432902008176640000)
         do (assert-equal b (mjr_combe_! i) i))
   ;; Errors
@@ -151,7 +151,7 @@ Interpretations:
 (define-test mjr_combe_!!
   ;; http://oeis.org/A006882
   (loop for i from 0
-        for b in '(1 1 2 3 8 15 48 105 384 945 3840 10395 46080 135135 645120 2027025 10321920 34459425 185794560 654729075 
+        for b in '(1 1 2 3 8 15 48 105 384 945 3840 10395 46080 135135 645120 2027025 10321920 34459425 185794560 654729075
                    3715891200 13749310575 81749606400 316234143225 1961990553600 7905853580625 51011754393600)
         do (assert-equal b (mjr_combe_!! i) i))
   )
@@ -197,7 +197,7 @@ Interpretations:
   (assert-equal 10             (mjr_combe_comb-with-replacement   4   2))
   (assert-equal 20             (mjr_combe_comb-with-replacement   4   3))
   (assert-equal 35             (mjr_combe_comb-with-replacement   4   4))
-  ;; Normal use                
+  ;; Normal use
   (assert-equal 131282408400   (mjr_combe_comb-with-replacement  22  19))
   (assert-equal 1749695026860  (mjr_combe_comb-with-replacement  30  17))
   (assert-equal 991493848554   (mjr_combe_comb-with-replacement  31  16))
@@ -356,7 +356,7 @@ Interpretations:
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_combe_euler1st 
+(define-test mjr_combe_euler1st
   (dotimes (n 25)
     (dotimes (k 25)
       (assert-equal (mjr_combe_euler1st n k) (mjr_combe_euler1st-naive n k))))
@@ -482,10 +482,10 @@ Interpretations:
 (define-test mjr_combe_derangements
   ;; http://oeis.org/A000166
   (loop for i from 0
-        for b in '(1 0 1 2 9 44 265 1854 14833 133496 1334961 14684570 176214841 2290792932 32071101049 481066515734 
+        for b in '(1 0 1 2 9 44 265 1854 14833 133496 1334961 14684570 176214841 2290792932 32071101049 481066515734
                    7697064251745 130850092279664 2355301661033953 44750731559645106 895014631192902121 18795307255050944540)
         do (assert-equal b (mjr_combe_derangements i)))
-  )	
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_rencontres
@@ -518,4 +518,8 @@ Interpretations:
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(run-tests)
+(run-tests
+ '(
+   mjr_combe_comb
+   )
+ )

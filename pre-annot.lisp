@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Provide data annotation tools -- DSIMP and DQUAD.@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997, 2008, 2010, 2013, 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -35,14 +35,14 @@
         :MJR_UNITS)
   (:DOCUMENTATION "Brief: Geometric Data Sets: Supporting :MJR_DSIMP and :MJR_DQUAD.;")
   (:EXPORT #:mjr_annot_help ()
-           
+
            #:mjr_annot_check-ano-typ
            #:mjr_annot_check-ano-nam
 
            #:mjr_annot_check-ano-key
 
            #:mjr_annot_make-alist
-           
+
            #:mjr_annot_get-default-value
            #:mjr_annot_get-value
 
@@ -195,7 +195,7 @@ The order is compatible with the order in which data sets are required to appear
   "Returns one of :cp-int8x3, :cp-none, or NIL."
   (case ano-typ
     (:ano-typ-truint :cp-int8x3)
-    (:ano-typ-truvec :cp-none)  
-    (:ano-typ-rgbvec :cp-none)  
-    (:ano-typ-hsvvec :cp-none)  
+    (:ano-typ-truvec :cp-none)
+    (:ano-typ-rgbvec :cp-none)
+    (:ano-typ-hsvvec :cp-none)
     (:ano-typ-hslvec :cp-none)))

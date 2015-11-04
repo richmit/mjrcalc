@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Meta package for working with *MJRCALC* packages.@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1998,2002,2004,2007,2010,2011,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -393,7 +393,7 @@ MJR_META_SCAN-PACKAGES."
               mjr-ver
               pkg-auth
               pkg-lic
-              (mapcar #'car pkg-data)))    
+              (mapcar #'car pkg-data)))
     (format 't "ASDFify'ed ~d packages!~%" num-asdfify)
     (format 't "ASDFify'ed 1 meta package!~%")
     num-asdfify))
@@ -440,4 +440,3 @@ See: sup-updDepImage.sh for how the dependency graphs on the web site are genera
                    (load pkg-path)
                  (error (e) (print e)))
             do (format 't "~%DONE with package: ~a" pkg-file))))
-

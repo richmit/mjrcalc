@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Handy date stuff.@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -41,7 +41,7 @@
            #:mjr_date_now
            #:mjr_date_add-delta #:mjr_date_delta
            #:mjr_date_unx-convert
-           #:mjr_date_us-tz-utc-offset                   
+           #:mjr_date_us-tz-utc-offset
            ))
 
 (in-package :MJR_DATE)
@@ -72,20 +72,20 @@ Funcs:
 
 If this function returns N for TZ, then UTC - N = Time in TZ"
   (cdr (assoc tz
-              '(( :TZ-ADT  . -3 )     ;;  "Atlantic Daylight Time"        
-                ( :TZ-AST  . -4 )     ;;  "Atlantic Standard Time"        
-                ( :TZ-EDT  . -4 )     ;;  "Eastern Daylight Time"         
-                ( :TZ-EST  . -5 )     ;;  "Eastern Standard Time"         
-                ( :TZ-CDT  . -5 )     ;;  "Central Daylight Time"         
-                ( :TZ-CST  . -6 )     ;;  "Central Standard Time"         
-                ( :TZ-MDT  . -6 )     ;;  "Mountain Daylight Time"        
-                ( :TZ-MST  . -7 )     ;;  "Mountain Standard Time"        
-                ( :TZ-PDT  . -7 )     ;;  "Pacific Daylight Time"         
-                ( :TZ-PST  . -8 )     ;;  "Pacific Standard Time"         
-                ( :TZ-AKDT . -8 )     ;;  "Alaska Daylight Time"          
-                ( :TZ-AKST . -9 )     ;;  "Alaska Standard Time"          
-                ( :TZ-HADT . -9 )     ;;  "Hawaii-Aleutian Daylight Time" 
-                ( :TZ-HAST . -10))))) ;;  "Hawaii-Aleutian Standard Time" 
+              '(( :TZ-ADT  . -3 )     ;;  "Atlantic Daylight Time"
+                ( :TZ-AST  . -4 )     ;;  "Atlantic Standard Time"
+                ( :TZ-EDT  . -4 )     ;;  "Eastern Daylight Time"
+                ( :TZ-EST  . -5 )     ;;  "Eastern Standard Time"
+                ( :TZ-CDT  . -5 )     ;;  "Central Daylight Time"
+                ( :TZ-CST  . -6 )     ;;  "Central Standard Time"
+                ( :TZ-MDT  . -6 )     ;;  "Mountain Daylight Time"
+                ( :TZ-MST  . -7 )     ;;  "Mountain Standard Time"
+                ( :TZ-PDT  . -7 )     ;;  "Pacific Daylight Time"
+                ( :TZ-PST  . -8 )     ;;  "Pacific Standard Time"
+                ( :TZ-AKDT . -8 )     ;;  "Alaska Daylight Time"
+                ( :TZ-AKST . -9 )     ;;  "Alaska Standard Time"
+                ( :TZ-HADT . -9 )     ;;  "Hawaii-Aleutian Daylight Time"
+                ( :TZ-HAST . -10))))) ;;  "Hawaii-Aleutian Standard Time"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_date_jdate2alternate (jdate &optional (aform :MJD))
@@ -285,4 +285,3 @@ Replicates the functionality of the Perl scripts (time2int.pl & time2int.pl) tha
               (mjr_date_convert :dt-posix :dt-string anArg)
               (mjr_date_convert :dt-posix :dt-string anArg 0))
       (mjr_date_unx-convert (mjr_date_convert :dt-string :dt-posix anArg))))
-

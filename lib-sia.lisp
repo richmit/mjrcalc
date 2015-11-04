@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Simple Interval Arithmetic (with guess).@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1995,1997,1998,2004,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -40,10 +40,10 @@
            #:mjr_sia_valid?  #:mjr_sia_valide
            #:mjr_sia_left #:mjr_sia_right #:mjr_sia_ctr #:mjr_sia_width #:mjr_sia_hwide #:mjr_sia_guess
            #:mjr_sia_left= #:mjr_sia_right=  #:mjr_sia_error #:mjr_sia_guess= #:mjr_sia_ctr=
-           #:mjr_sia_ctr=guess?  
-           #:mjr_sia_zapguess 
+           #:mjr_sia_ctr=guess?
+           #:mjr_sia_zapguess
            #:mjr_sia_in? #:mjr_sia_intersect? #:mjr_sia_same?
-           #:mjr_sia_< #:mjr_sia_> 
+           #:mjr_sia_< #:mjr_sia_>
            #:mjr_sia_dist
            #:mjr_sia_monfun #:mjr_sia_apply2guess #:mjr_sia_apply2ends
            #:mjr_sia_* #:mjr_sia_/ #:mjr_sia_+ #:mjr_sia_-

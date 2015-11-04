@@ -30,6 +30,8 @@
 ;;
 ;;  No complex arithmetic for performance.  Nice pic.
 ;;
+;;  composite -compose Screen exp-MandelbrotTGA-OUT-1.tga exp-MandelbrotPot-OUT-RGB.tga mandPotTGAcompost-ART.tga
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -39,14 +41,14 @@
 
 (loop with xmax fixnum = (expt 2 11)
       with ymax fixnum = (expt 2 11)
-      with grd = "0RMGY1CB0"
-      with cmax fixnum = (1- (mjr_colorized_ut-gradient-length grd)) ;; so we get potentially as many levels as we have colors
-      for cf fixnum in '(  10    50      2      2       1)
-      for x0 float  in '(-2.0  -2.0  -0.70  -0.67  -0.642)
-      for x1 float  in '( 2.0   2.0  -0.63  -0.63  -0.630)
-      for y0 float  in '(-2.0  -2.0  -0.50  -0.40  -0.394)
-      for y1 float  in '( 2.0   2.0  -0.40  -0.37  -0.373)
+      for grd       in '("0RMGY1CB0" "0RMGY1CB0" "0RMGY1CB0" "0RMGY1CB0" "0RMGY1CB0"  "0RR0" )
+      for cf fixnum in '(      10          50           2           2           1         2  )
+      for x0 float  in '(    -2.2        -2.2       -0.70       -0.67      -0.642      -2.2  )
+      for x1 float  in '(     0.8         0.8       -0.63       -0.63      -0.630       0.8  )
+      for y0 float  in '(    -1.5        -1.5       -0.50       -0.40      -0.394      -1.5  )
+      for y1 float  in '(     1.5         1.5       -0.40       -0.37      -0.373       1.5  )
       for i from 1
+      for cmax fixnum = (1- (mjr_colorized_ut-gradient-length grd)) ;; so we get potentially as many levels as we have colors
       for fname = (format nil "exp-MandelbrotTGA-OUT-~d.tga" i)
       do (format 't "~%Compute ~a~%" fname)
       do (time (let ((daData (mjr_fsamp_dq-func-r123-r123 (lambda (cx cy)

@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-intu.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;

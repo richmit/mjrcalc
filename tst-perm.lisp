@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-perm.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -246,9 +246,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
   (assert-equal 2      (mjr_perm_eval #(2 3 0 1)                    0))
   (assert-equal 3      (mjr_perm_eval (map 'vector #'1+ #(2 3 0 1)) 1 :index-base 1))
   ;; Errors
-  (assert-error 'error (mjr_perm_eval #(2 3 0 1)                    't))
-  (assert-error 'error (mjr_perm_eval #(2 3 0 1)                    4))
-  (assert-error 'error (mjr_perm_eval #(2 3 0 1)                    -1))
+  ;; No error test cases as this function has no error checking!
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -279,4 +277,23 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(run-tests)
+(run-tests
+ '(
+   ;; mjr_perm_cycle-structure-lengths
+   ;; mjr_perm_cycle-structure-list
+   ;; mjr_perm_make-identity
+   ;; mjr_perm_make-random
+   ;; mjr_perm_swapping-number
+   ;; mjr_perm_evenp
+   ;; mjr_perm_oddp
+   ;; mjr_perm_xxx_oddp+evenp
+   ;; mjr_perm_sgn
+   ;; mjr_perm_order
+   ;; mjr_perm_check-perm
+   ;; mjr_perm_*
+   ;; mjr_perm_/
+   mjr_perm_eval
+   ;; mjr_perm_apply-to-array2d
+   ;; mjr_perm_apply-to-sequence
+   )
+)

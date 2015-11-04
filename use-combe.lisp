@@ -6,7 +6,7 @@
 ;; @brief     Enumerative Combinatorics: Counting combinatorial objects.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-combe.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2008,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;

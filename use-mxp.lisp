@@ -6,7 +6,7 @@
 ;; @brief     Mathematical eXPressions library.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-mxp.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1996,2010,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -52,8 +52,8 @@
            #:mjr_mxp_atom= #:mjr_mxp_expr=
            ;; Expression Component access
            #:mjr_mxp_op #:mjr_mxp_op-in?  #:mjr_mxp_args #:mjr_mxp_nargs #:mjr_mxp_nth-arg
-           ;; Expression Construction        
-           #:mjr_mxp_c #:mjr_mxp_cc #:mjr_mxp_map 
+           ;; Expression Construction
+           #:mjr_mxp_c #:mjr_mxp_cc #:mjr_mxp_map
            ;; Expression argument operations
            #:mjr_mxp_map-args #:mjr_mxp_some
            ;; Expression substitution
@@ -134,7 +134,7 @@ Definitions:
     (string-equal "^" op)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Tokenizer: 
+;; Tokenizer:
 ;;    * Gobble leading white-space
 ;;
 ;;    * Look for + and - that are not part of an integer.
@@ -147,8 +147,8 @@ Definitions:
 ;;      figures it out.  For + or -, we need to figure out if it is binary or unary.  If a - or + character is read, and the previous token read is a number,
 ;;      symbol, or a closing parenthesis, the meaning is taken to be a binary -.  OTOH, if the previous token is an operator, function arg sep, open paren, or
 ;;      if there is no previous token, then the meaning is taken to be unary -.
-;;     
-;;    * Look for symbols (variables & functions): start with [_a-zA-Z] only contain  [_a-zA-Z0-9] 
+;;
+;;    * Look for symbols (variables & functions): start with [_a-zA-Z] only contain  [_a-zA-Z0-9]
 ;;
 ;;      If the next non-whitespcae char after a symbol is a (, then the symbol is a prefix function name.  If it is a function, march along the string keeping
 ;;      track of how many parens are still open (we start with at least one that was at the end of the function name), and we count commas we find while we
@@ -174,7 +174,7 @@ Definitions:
 ;;        * variable  :tokt-symbol                   Variables
 ;;        * function  :tokt-function                 prefix functions
 ;;
-;; parser algorithm: 
+;; parser algorithm:
 ;;  For each token (TOK)
 ;;     * If the TOK represents a number, convert to real lisp number and push that number on B-STACK
 ;;     * If the TOK is a symbol, push TOK on B-STACK
@@ -263,7 +263,7 @@ Definitions:
                                                            (< tok-persidence (mjr_mxp_op-precedence (car a-stack))))
                                                 do (push (pop a-stack) b-stack))
                                           (loop while (and (car a-stack)
-                                                           (and (car a-stack) (listp (car a-stack)) (< 0 (caar a-stack))) ;; means it is an operator   
+                                                           (and (car a-stack) (listp (car a-stack)) (< 0 (caar a-stack))) ;; means it is an operator
                                                            (<= tok-persidence (mjr_mxp_op-precedence (car a-stack))))
                                                 do (push (pop a-stack) b-stack)))
                                       (push (cons 2 cur-tok-str) a-stack)))
@@ -395,7 +395,7 @@ Definitions:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_op-in? (expr op)
-  "non-NIL if the top operator of EXPR is in OP if OP is a list of strings or equal to OP if OP is a string. 
+  "non-NIL if the top operator of EXPR is in OP if OP is a list of strings or equal to OP if OP is a string.
 Note that if EXPR is not a composite expression, then the return is NIL."
   (if (mjr_mxp_not-atom? expr)
       (if (listp op)
@@ -503,7 +503,7 @@ Note that if EXPR is not a composite expression, then the return is NIL."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_trees-to-values-lambda (expr-list arg-list)
   "Like mjr_mxp_tree-to-lambda, but first argument is a list of expressions and second is a list of arguments."
-  (eval (mjr_string_read-as-lisp 
+  (eval (mjr_string_read-as-lisp
          (format nil "(lambda (~{ ~A~}) (values ~{ ~A~}))" arg-list (mapcar #'mjr_mxp_math-op-to-lisp-op expr-list)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -516,7 +516,7 @@ Note that if EXPR is not a composite expression, then the return is NIL."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_string-or-func-to-list-o-lambda (funcs-or-strings &rest vars)
   "Like MJR_MXP_INFIX-TO-TREE, but work on lists of objects.  If not given a list, still return a list of one element."
-  (mapcar (lambda (f-or-s) (apply #'mjr_mxp_string-or-func-to-lambda f-or-s vars)) 
+  (mapcar (lambda (f-or-s) (apply #'mjr_mxp_string-or-func-to-lambda f-or-s vars))
           (if (listp funcs-or-strings) funcs-or-strings (list funcs-or-strings))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -588,6 +588,6 @@ Faster than mjr_mxp_substitute-par."
 (defun mjr_mxp_math-constants-to-lisp-constants (expr)
   "Transform traditional mathematical constant names (%e) to lisp values."
   (mjr_mxp_substitute-atom-par expr
-                               "%e"  (log 1) 
+                               "%e"  (log 1)
                                "%pi" pi
                                "%i" (complex 0 1)))

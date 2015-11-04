@@ -6,7 +6,7 @@
 ;; @brief     Produce Povray files!@EOL
 ;; @std       Common Lisp
 ;; @see       tst-pov.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2012,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -101,7 +101,7 @@ Arguments:
                                                  draw-0-simplex-vertexes
                                                  draw-1-simplex-vertexes draw-1-simplex-edges
                                                  draw-2-simplex-vertexes draw-2-simplex-edges draw-2-simplex-triangles)
-  "Generate POV-Ray data file from dsimp.  
+  "Generate POV-Ray data file from dsimp.
 
   :COLOR-DATA ........... 0-simplex COLOR data set (a dataset name or list containing the dataset simplex dimension and dataset index).  This dataset defines
                           colors for 0-simplex spheres (not vertexes of 1-simplices & 2-simplices), and 2-simplex colors (color is interpolated across the
@@ -246,6 +246,5 @@ Arguments:
                               ;; MESH COLOR
                               (if (not color-data)
                                   (format dest "  texture { triTex2simp }~%"))
-                              ;; MESH OBJECT CLOSE 
+                              ;; MESH OBJECT CLOSE
                               (format dest "}~%")))))))))
-

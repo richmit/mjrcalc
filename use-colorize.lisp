@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Interface for :MJR_COLORIZED and :MJR_COLORIZER.@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1996,1997,2008,2010,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -47,7 +47,7 @@
 This is the one package that tools consuming colorization specifications need to use so that they can generate internal, optimized colorization functions.
 
     We can colorize four kinds of scalar domains:
-    
+
        |------------------------+----------+-----------+-------------+-------------|
        |                        | Z_n      | Z         | I=[0,1]     | R           |
        |------------------------+----------+-----------+-------------+-------------|
@@ -56,9 +56,9 @@ This is the one package that tools consuming colorization specifications need to
        | discrete/continuous    | discrete | discrete  | continuous  | continuous  |
        | colorspace             | :cs-tru  | :cs-tru   | :cs-rgb     | :cs-rgb     |
        |------------------------+----------+-----------+-------------+-------------|
-    
+
     We can also color four kinds of non-scalar domains:
-    
+
        |------------------------+-------------+-------------+-------------+-------------|
        |                        | I^3         | R^3         | I^2         | R^2         |
        |------------------------+-------------+-------------+-------------+-------------|
@@ -67,11 +67,11 @@ This is the one package that tools consuming colorization specifications need to
        | discrete/continuous    | continuous  | continuous  | continuous  | continuous  |
        | colorspace             | :cs-rgb     | :cs-rgb     | :cs-rgb     | :cs-rgb     |
        |------------------------+-------------+-------------+-------------+-------------|
-    
+
     Gradients, multi-gradients, and pallets all can be mapped quite directly to scalar colorization schemes.  When passed as function arguments, these objects
     can be recognized and transformed into colorize functions.  The type of the passed object along with the continuity of the input domain are enough to
     recognize what to do:
-    
+
        |------------+-------------------+----------------+---------|
        | input      | object type       | color method   | support |
        |------------+-------------------+----------------+---------|
@@ -147,4 +147,3 @@ Examples
     (if (and packer (not (equalp packer #'identity)))
         (lambda (&rest rest) (funcall packer (apply colfun rest)))
         colfun)))
-  

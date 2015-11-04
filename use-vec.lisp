@@ -6,7 +6,7 @@
 ;; @brief     Mathematical vectors.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-vec.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2008-2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -44,11 +44,11 @@
         :MJR_VVEC)
   (:DOCUMENTATION "Brief: Mathematical vectors.;")
   (:EXPORT #:mjr_vec_help
-           #:mjr_vec_every-idx #:mjr_vec_e? 
-           #:mjr_vec_make-const #:mjr_vec_make-from-func #:mjr_vec_make-seq #:mjr_vec_make-e 
+           #:mjr_vec_every-idx #:mjr_vec_e?
+           #:mjr_vec_make-const #:mjr_vec_make-from-func #:mjr_vec_make-seq #:mjr_vec_make-e
            #:mjr_vec_ewuo #:mjr_vec_ewbo
            #:mjr_vec_dot #:mjr_vec_triple-cross #:mjr_vec_cross #:mjr_vec_- #:mjr_vec_+ #:mjr_vec_/ #:mjr_vec_*
-           #:mjr_vec_norm-infinity #:mjr_vec_norm-one #:mjr_vec_norm-two #:mjr_vec_norm-two-squared 
+           #:mjr_vec_norm-infinity #:mjr_vec_norm-one #:mjr_vec_norm-two #:mjr_vec_norm-two-squared
            #:mjr_vec_zap-eps #:mjr_vec_float #:mjr_vec_rationalize #:mjr_vec_normalize
            #:mjr_vec_print #:mjr_vec_code
            #:mjr_vec_proj
@@ -78,16 +78,16 @@ as I require new functionality, and it is far from a complete vector arithmetic 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vec_make-from-func (func &key len start end step)
-  "Create a vector by evaluating FUNC on an arithmetic sequence.  
-POINTS, START, END, STEP, and LEN are processed by MJR_VVEC_KW-NORMALIZE.  If LEN is a non-empty sequence (list/vector), 
+  "Create a vector by evaluating FUNC on an arithmetic sequence.
+POINTS, START, END, STEP, and LEN are processed by MJR_VVEC_KW-NORMALIZE.  If LEN is a non-empty sequence (list/vector),
 then the length of that sequence will be used for the length."
-  (mjr_vvec_gen-0sim 'vector (list :map-fun func :start start :end end :step step :len len)))
+  (mjr_vvec_to-vec (mjr_util_strip-nil-val-kwarg (list :map-fun func :start start :end end :step step :len len))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vec_make-seq (&key points start end step len)
   "Compute a sequence, and put the result in a vector.
 See the function MJR_VVEC_KW-NORMALIZE for details of how the arguments specify the sequence."
-  (mjr_vvec_gen-0sim 'vector (list :start start :end end :step step :points points :len len)))
+  (mjr_vvec_to-vec (mjr_util_strip-nil-val-kwarg (list :start start :end end :step step :points points :len len))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vec_dot (vec1 vec2 &optional (hermitian 't))
@@ -354,9 +354,9 @@ inserted inside nested function calls."
              (str   "")
              (bams  (case lang
                       (:lang-povray       (list "<"       "" "" "," ">"   ","))
-                      ((:lang-maxima    
-                        :lang-matlab     
-                        :lang-octave     
+                      ((:lang-maxima
+                        :lang-matlab
+                        :lang-octave
                         :lang-idl
                         :lang-gap
                         :lang-gp
@@ -427,4 +427,3 @@ All of the orderings are suitable for use as monomial orderings for commutative 
                                      ((= sa sb) (mjr_vec_< a b :order :revlex))
                                      ('t        nil))))
         ('t                  (error "mjr_vec_<: Unknown ordering!"))))
-

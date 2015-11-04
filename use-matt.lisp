@@ -6,7 +6,7 @@
 ;; @brief     Generate and compute with various test matrices.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-matt.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1998,2004,2010,2012,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -49,7 +49,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_matt_help ()
-  "Help for MJR_MATT: Test MATrix 
+  "Help for MJR_MATT: Test MATrix
 
 This package focuses on various 'test' matrices -- i.e. matrices that have an exploitable structure allowing specialized algorithms.  This code is not in a
 -test package because these matrices frequently come up in applications, and because they are very handy during the software development process."

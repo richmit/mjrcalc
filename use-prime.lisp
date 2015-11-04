@@ -6,7 +6,7 @@
 ;; @brief     Computational Number Theory.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-prime.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1992,1994,1997,1998,2004,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -281,7 +281,7 @@ References:
                                             ((< n 2152302898747)             (list 2 3 5 7 11))                         ;; J1993   <=40-bits
                                             ((< n 3474749660383)             (list 2 3 5 7 11 13))                      ;; J1993   <=41-bits
                                             ((< n 341550071728321)           (list 2 3 5 7 11 13 17))                   ;; J1993   <=48-bits
-                                            ((< n 3825123056546413051)       (list 2 3 5 7 11 13 17 19 23 29 31))       ;; ZT2003  <=61-bits                                            
+                                            ((< n 3825123056546413051)       (list 2 3 5 7 11 13 17 19 23 29 31))       ;; ZT2003  <=61-bits
                                           ;;((< n 318665857834031151167461)  (list 2 3 5 7 11 13 17 19 23 29 31 37)     ;; SW2015  <=78-bits  Result too new to trust. ;)
                                           ;;((< n 3317044064679887385961981) (list 2 3 5 7 11 13 17 19 23 29 31 37 41)  ;; SW2015  <=81-bits  Result too new to trust. ;)
                                             (assume-riemann-hypothesis (- (min (ceiling (* 2 (expt (log n) 2))) (1- n))))
@@ -374,7 +374,7 @@ unfactored (if this second part is 1, then the number was completely factored by
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_prime-factorization (n)
-  "Return the prime factorization of N as an assoc array with (prime . power) and 1 as the second return value.  
+  "Return the prime factorization of N as an assoc array with (prime . power) and 1 as the second return value.
 
 Use MJR_PRIME_SMALL-PRIME-FACTORIZATION when N is small enough, and MJR_PRIME_BIG-PRIME-FACTORIZATION otherwise."
   (if (zerop *mjr_prime_small-count*)
@@ -510,9 +510,9 @@ References:
   "Find the number of factors of N.  N may be a number or an associative-style prime factorization.
 
     * Euler totient function
- 	* phi(n): count numbers <= n and prime to n.
- 	* Number of distinct generators of a cyclic group of order n. 
- 	* Number of automorphisms of the cyclic group of order n"
+    * phi(n): count numbers <= n and prime to n.
+    * Number of distinct generators of a cyclic group of order n.
+    * Number of automorphisms of the cyclic group of order n"
   (if (listp n)
       (reduce #'* (mapcar (lambda (x) (* (expt (car x) (1- (cdr x))) (1- (car x)))) n))
       (mjr_prime_phi-func (mjr_prime_prime-factorization n))))

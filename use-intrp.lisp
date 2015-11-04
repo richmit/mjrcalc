@@ -6,7 +6,7 @@
 ;; @brief     Polynomial interpolation.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-intrp.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -58,10 +58,10 @@
 
 NOTE: This is a raw algorithmic function intended for internal use by other functions -- not interactively.  Not Exported.
 
-Implementation notes: 
+Implementation notes:
   Based based upon Neville's algorithm with minor enhancements suggested by Stoer & Bulirsch (2002). Storage and CPU consumption are both O(1).
 
-Reference: 
+Reference:
   Josef Stoer & Roland Bulirsch (2002); Introduction to numerical analysis; Springer; pp 42"
   (let ((tmp (copy-seq y-data))
         (len (length y-data)))
@@ -75,7 +75,7 @@ Reference:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intrp_poly-val (x x-data y-data &optional use-points)
-  "Return interpolating polynomial value at X. 
+  "Return interpolating polynomial value at X.
 
 If the number of data points in Y-DATA outnumber the X-DATA points, then X-DATA is assumed to contain only TWO data points representing the minimum x data
 value and the maximum x data value, any remaining elements of X-DATA are ignored, and the x data used in the computation is COMPUTED on a regular grid the
@@ -86,7 +86,7 @@ NOTE: If :use-points is 2, then this can be used to produce the piecewise linear
   (let* ((y-data (if (vectorp y-data) y-data (concatenate 'vector y-data)))
          (leny   (length y-data))
          (x-data (if (< (length x-data) leny)
-                     (mjr_vvec_gen-0sim 'vector (list :start (elt x-data 0) :end (elt x-data 1) :len leny))
+                     (mjr_vvec_to-vec (list :start (elt x-data 0) :end (elt x-data 1) :len leny))
                      (if (vectorp x-data) x-data (concatenate 'vector x-data))))
          (lenx   (length x-data)))
     (cond ((< leny lenx)                        (error "mjr_intrp_poly-val: Not enough Y data points!"))
@@ -111,7 +111,7 @@ NOTE: If :use-points is 2, then this can be used to produce the piecewise linear
 
 NOTE: This is a raw algorithmic function intended for internal use by other functions -- not interactively.  Not Exported.
 
-Implementation notes: 
+Implementation notes:
   The implementation of this function first computes the Newton polynomial via the solution of a lower-triangular, Vandermonde-like system, and then
   transforms the Newton polynomial into the interpolating polynomial in the standard power basis.  Storage and CPU consumption are O(n^2)."
   (let* ((len (length x-data))
@@ -145,7 +145,7 @@ Implementation notes:
             initially (setf (aref b (1- len)) 1
                             (aref p (1- len)) (* (aref np 0)))
             ;; Compute next b
-            do (setf (aref b (- ii 1)) (aref b ii)) 
+            do (setf (aref b (- ii 1)) (aref b ii))
             do (loop for jj from ii upto (- len 2)
                      do (setf (aref b jj) (- (aref b (1+ jj)) (* (aref x-data i) (aref b jj)))))
             do (setf (aref b (1- len)) (* (aref b (1- len)) (- (aref x-data i))))
@@ -161,7 +161,7 @@ Implementation notes:
          (x-data (if (vectorp x-data)
                      (if (= (length x-data) len)
                          x-data
-                         (mjr_vvec_gen-0sim 'vector (list :start (elt x-data 0) :end (elt x-data 1) :len len)))
+                         (mjr_vvec_to-vec (list :start (elt x-data 0) :end (elt x-data 1) :len len)))
                      (concatenate 'vector x-data)))
          (y-data (if (vectorp y-data) y-data (concatenate 'vector y-data)))
          (poly   (if (or start end)

@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-ode.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2010, 2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -35,7 +35,7 @@
 (in-package :MJR_ODE-TESTS)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun restrictedThreeBody (time y) 
+(defun restrictedThreeBody (time y)
   (declare (ignore time))
   (let* ((x1  (aref y 0))
          (x2  (aref y 1))

@@ -6,7 +6,7 @@
 ;; @brief     Uniform random deviate generators.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-prng.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2010,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;

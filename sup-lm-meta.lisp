@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Load and use-package all *MJRCALC* packages via META.@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1998,2002,2004,2007,2010,2011,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;

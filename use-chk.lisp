@@ -6,7 +6,7 @@
 ;; @brief     Floating point comparison: disaster prevention.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-chk.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1996,1997,2008,2012,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -74,7 +74,7 @@ If necessary, the epsilon returned will error on the large side."
                                     (mjr_chk_mk-eps-dtype (imagpart x))))
                 (short-float   (max (abs short-float-negative-epsilon) (abs short-float-epsilon)))
                 (long-float    (max (abs long-float-negative-epsilon)  (abs long-float-epsilon)))))))
-      
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defparameter *mjr_chk_eps* 0.00001
   "The default epsilon used for floating point check tests")
@@ -100,7 +100,7 @@ If the first two arguments are rational, then an exact numerical comparison will
         ((complexp b)                       (error "mjr_chk_<: The B argument must be real"))
         ((and (rationalp a) (rationalp b))  (< a b))
         ('t                                 (< (+ a (mjr_chk_dflt-eps eps a b)) b))))
-        
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_chk_> (a b &optional eps)
   "Return non-NIL if A is certainly greater than B
@@ -148,4 +148,3 @@ If A is rational, then an exact numerical comparison will be used; otherwise, no
 
 If A is rational, then an exact numerical comparison will be used; otherwise, non-NIL is returned iff iff A>EPS."
   (mjr_chk_> a 0 eps))
-

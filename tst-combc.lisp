@@ -6,7 +6,7 @@
 ;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-combc.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2008,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -70,15 +70,15 @@
   ;; Hand picked examplel (Checked with maxima's integer_partitions functino)
   (assert-equalp (mjr_combc_gen-all-k-partitions-colex 11 2 :collect-value #'copy-seq) '(#(6 5) #(7 4) #(8 3) #(9 2) #(10 1)))
   (assert-equalp (mjr_combc_gen-all-k-partitions-colex 6  5 :collect-value #'copy-seq) '(#(2 1 1 1 1)))
-  
+
   ;; Trivial cases
-  (loop for i from 1 upto 50        
+  (loop for i from 1 upto 50
         do (assert-equalp (mjr_combc_gen-all-k-partitions-colex i i :collect-value #'copy-seq)
                           (list (concatenate 'vector (loop for j from 1 upto i
                                                            collect  1)))))
-  (loop for i from 1 upto 50        
+  (loop for i from 1 upto 50
         do (assert-equalp (mjr_combc_gen-all-k-partitions-colex i 1 :collect-value #'copy-seq) (list (vector i))))
-  
+
   ;; Make sure we have teh correct number of elements
   (loop for i from 1 upto 40
         do (loop for j from 1 upto i
@@ -94,5 +94,5 @@
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(run-tests 
+(run-tests
  )

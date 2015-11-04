@@ -6,7 +6,7 @@
 ;; @brief     Geographic and cartographic computations.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-geo.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,2006,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -40,8 +40,8 @@
   (:DOCUMENTATION "Brief: Geographic and cartographic computations.;")
   (:EXPORT #:mjr_geo_help
            ;; Geometric stuff
-           #:mjr_geo_angular-spherical-distance 
-           #:mjr_geo_spherical-distance #:mjr_geo_spheroid-distance 
+           #:mjr_geo_angular-spherical-distance
+           #:mjr_geo_spherical-distance #:mjr_geo_spheroid-distance
            ;; Real geographic stuff
            #:mjr_geo_geod-distance
            #:mjr_geo_geod-mean-radius
@@ -71,7 +71,7 @@ Geographical computations like great circle distance between two points."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geo_spherical-distance (lat1 lon1 lat2 lon2 r)
   (let ((a (mjr_geo_angular-spherical-distance lat1 lon1 lat2 lon2)))
-    (if a 
+    (if a
         (* a r))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -123,7 +123,7 @@ Reference: H. Andoyer (1950); Annuaire du Bureau des Longitudes pour; pp 145"
                (w    (asin (sqrt s)))
                (c    (- 1 s))
                (r    (* 3 (sqrt (* s c)))))
-          (if (and (>= c 0.0d0) (mjr_chk_!=0 s) (mjr_chk_!=0 c))              
+          (if (and (>= c 0.0d0) (mjr_chk_!=0 s) (mjr_chk_!=0 c))
               (* a (+ (* 2 w)
                       (/ (- (* (/ (- r w) c) (expt (* sf cg) 2))
                             (* (/ (+ r w) s) (expt (* sg cf) 2)))

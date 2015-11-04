@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-mat.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1995-2010,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -136,7 +136,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
 ; J. Grad & M. A. Brebner 1968; Algorithm 343: Eigenvalues and Eigenvectors of a Real General Matrix; Communications of the ACM
 (defvar gb68-b #2a((-2 1 1 1)(-7 -5 -2 -4)(0 -1 -3 -2)(-1 0 -1 0))) ; -4+i*2, -4-i*2, -1+sqrt(2), -1-sqrt(2)
 
-; Richard L. Burden & J. Douglas Faires (2000); Numerical Analysis, ISBN: 0534382169 
+; Richard L. Burden & J. Douglas Faires (2000); Numerical Analysis, ISBN: 0534382169
 (defvar baf-a  #2a((4 1 -2 2)(1 2 0 1)(-2 0 3 -2)(2 1 -2 -1)))                           ; (tri-diag via householder example)
 (defvar baf-q1 #2a((1 0 0 0)(0 -1/3 2/3 -2/3)(0 2/3 2/3 1/3)(0 -2/3 1/3 2/3)))
 (defvar baf-q2 #2a((1 0 0 0)(0 1 0 0)(0 0 -3/5 -4/5)(0 0 -4/5 3/5)))
@@ -184,7 +184,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-true  (mjr_mat_matp m))
   (assert-false (mjr_mat_matp v3))
   ;; MJR TODO NOTE mjr_mat_matp: Need to think about this next one.  Perhaps the empty array should not be a matrix...
-  (assert-true  (mjr_mat_matp em)) 
+  (assert-true  (mjr_mat_matp em))
   ;; With "vectors are a matrix" turned on.
   (assert-true  (mjr_mat_matp m  't))
   (assert-true  (mjr_mat_matp v3 't))
@@ -200,7 +200,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp #2a((0 0)(0 0)(0 0))   (mjr_mat_make-const 3 2))
   (assert-equalp #2a((1 1 1)(1 1 1))    (mjr_mat_make-const 2 3 1))
   (assert-equalp em                     (mjr_mat_make-const 0 0 1))
-  (assert-error 'type-error             (mjr_mat_make-const -1 -1 1))
+  (assert-error 'error                  (mjr_mat_make-const -1 -1 1))
   )
 
 
@@ -286,7 +286,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp #2A((0 1 0 0) (0 0 2 0) (0 0 0 3) (0 0 0 0))    (mjr_mat_make-diag #(1 2 3) 1))
   (assert-equalp #2A((0 0 0 0) (1 0 0 0) (0 2 0 0) (0 0 3 0))    (mjr_mat_make-diag #(1 2 3) -1))
   )
- 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_make-poly-companion
   (assert-equalp #2A((0 -5/3) (1 -4/3))              (mjr_mat_make-poly-companion #(3 4 5)))
@@ -329,8 +329,8 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_make-table
   (assert-equalp #2A((0 0) (1 1) (2 2))          (mjr_mat_make-table (lambda (x) (+ x))                    :len 3 :n 1 :arg-mode :arg-number))
-  (assert-equalp #2A((0 0 0) (0 1 1) (0 2 2) 
-                     (1 0 1) (1 1 2) (1 2 3) 
+  (assert-equalp #2A((0 0 0) (0 1 1) (0 2 2)
+                     (1 0 1) (1 1 2) (1 2 3)
                      (2 0 4) (2 1 5) (2 2 6))    (mjr_mat_make-table (lambda (x y) (+ (* x x) y))          :len 3 :n 2 :arg-mode :arg-number))
   (assert-equalp #2A((0 0) (1 1) (2 4))          (mjr_mat_make-table (lambda (x) (* x x))                  :len 3 :n 1 :arg-mode :arg-number))
   (assert-equalp #2A((0 0 0) (1 1 2) (2 4 4))    (mjr_mat_make-table (lambda (x) (vector (* x x) (* 2 x))) :len 3 :n 1 :arg-mode :arg-number))
@@ -416,7 +416,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp em                                                   (mjr_mat_+ 2 em))
   ;; Number case
   (assert-equalp (+ 2 3 4)                                            (mjr_mat_+ 2 3 4))
-  ;; sizes don't match. 
+  ;; sizes don't match.
   (assert-error 'error                                                (mjr_mat_+ wm m))
   (assert-error 'error                                                (mjr_mat_+ m em))
   )
@@ -443,10 +443,10 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error                                                (mjr_mat_ew* em 2))
   (assert-error 'error                                                (mjr_mat_ew* 2 m))
   (assert-error 'error                                                (mjr_mat_ew* 2 em))
-  ;; More errors 
+  ;; More errors
   (assert-error 'error                                                (mjr_mat_ew* 2 3))
   (assert-error 'error                                                (mjr_mat_ew* 2 3 4))
-  ;; sizes don't match. 
+  ;; sizes don't match.
   (assert-error 'error                                                (mjr_mat_ew* wm m))
   (assert-error 'error                                                (mjr_mat_ew* m em))
   )
@@ -462,10 +462,10 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error                                                (mjr_mat_ew/ em 2))
   (assert-error 'error                                                (mjr_mat_ew/ 2 m))
   (assert-error 'error                                                (mjr_mat_ew/ 2 em))
-  ;; More errors 
+  ;; More errors
   (assert-error 'error                                                (mjr_mat_ew/ 2 3))
   (assert-error 'error                                                (mjr_mat_ew/ 2 3 4))
-  ;; sizes don't match. 
+  ;; sizes don't match.
   (assert-error 'error                                                (mjr_mat_ew/ wm m))
   (assert-error 'error                                                (mjr_mat_ew/ m em))
   )
@@ -485,7 +485,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   ;; Number case
   (assert-equalp (- 2 3)                                              (mjr_mat_- 2 3))
   (assert-equalp (- 2 3 4)                                            (mjr_mat_- 2 3 4))
-  ;; sizes don't match. 
+  ;; sizes don't match.
   (assert-error 'error                                                (mjr_mat_- wm m))
   (assert-error 'error                                                (mjr_mat_- m em))
   )
@@ -668,15 +668,15 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp #2A((4 5 6) (1 2 3) (7 8 9))   (mjr_mat_rowop-swap m    1 0))
   (assert-equalp #2A((7 8 9) (4 5 6) (1 2 3))   (mjr_mat_rowop-swap m    2 0))
   (assert-equalp #2A((1 2 3) (7 8 9) (4 5 6))   (mjr_mat_rowop-swap m    2 1))
-  ;; tall row=0                                                            
+  ;; tall row=0
   (assert-equalp #2A((3 4)(1 2)(5 6)(7 8)(9 0)) (mjr_mat_rowop-swap mtm  1 0))
   (assert-equalp #2A((5 6)(3 4)(1 2)(7 8)(9 0)) (mjr_mat_rowop-swap mtm  2 0))
   (assert-equalp #2A((7 8)(3 4)(5 6)(1 2)(9 0)) (mjr_mat_rowop-swap mtm  3 0))
   (assert-equalp #2A((9 0)(3 4)(5 6)(7 8)(1 2)) (mjr_mat_rowop-swap mtm  4 0))
-  ;; tall row=1                                                            
+  ;; tall row=1
   (assert-equalp #2A((1 2)(5 6)(3 4)(7 8)(9 0)) (mjr_mat_rowop-swap mtm  2 1))
   (assert-equalp #2A((1 2)(7 8)(5 6)(3 4)(9 0)) (mjr_mat_rowop-swap mtm  3 1))
-  ;; wide row=0                                                            
+  ;; wide row=0
   (assert-equalp #2a((4 5 6)(1 2 3))            (mjr_mat_rowop-swap wm   1 0))
   ;; Error cases
   (assert-error 'error                          (mjr_mat_rowop-swap m    0 0))
@@ -862,7 +862,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp (values #2A((0 6/7 0) (0 0 1/2) (7 0 0))   #(2 0 1))      (mjr_mat_eliminate mi :full-elim 't :pivot-row :max-non-zero))
   (assert-equalp (values #2A((1 0 0) (0 -3 0) (0 0 -1))     #(0 1 2))      (mjr_mat_eliminate mi :full-elim 't :pivot-row :first-non-zero))
   (assert-equalp (values #2A((1 0 0) (0 -3 0) (0 0 -1))     #(0 1 2))      (mjr_mat_eliminate mi :full-elim 't :pivot-row :min-non-zero-top))
-  (dotimes (i 50) 
+  (dotimes (i 50)
     (let* ((mr (mjr_matt_make-test :mp-random :m (mjr_prng_int-co 1 20) :n (mjr_prng_int-co 1 20) :a 100)))
       (assert-equalp (mjr_mat_eliminate mr) (mjr_mat_eliminate mr :pivot-row :max-non-zero))))
   ;; XREF: This function is heavily tested in mjr_mat_det-ge, mjr_mat_solve-sys-sge, mjr_mat_inv-sge, and mjr_mat_rank-sge .
@@ -1206,11 +1206,11 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   ;;      product is the identity matrix.
   ;;   3) compute QDR factorization, multiply factors, and make sure
   ;;      product is the original matrix.
-  (dotimes (i 50) 
+  (dotimes (i 50)
     (let* ((rc (mjr_prng_int-co 1 16))
            (mr (mjr_matt_make-test :mp-random :m rc :a 100))
            (dd (mjr_mat_det mr)))
-      (if (not (zerop dd)) 
+      (if (not (zerop dd))
           (let* ((mri (mjr_mat_inv mr)))
             (assert-equalp (/ (mjr_mat_det mri)) dd)
             (assert-true (mjr_mat_test-property-struct (mjr_mat_* mr mri) :mp-identity))
@@ -1219,7 +1219,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_cpoly-eq-mjr_mat_cpoly-det
   ;; Make sure mjr_mat_cpoly and mjr_mat_cpoly-det have same value.
-  (dotimes (i 50) 
+  (dotimes (i 50)
     (let* ((rc (mjr_prng_int-co 1 10))
            (mr (mjr_matt_make-test :mp-random :m rc :a 100))
            (cp (mjr_mat_cpoly mr)))

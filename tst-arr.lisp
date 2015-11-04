@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-arr.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,2004,2010,2012,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -52,7 +52,8 @@
 (defvar mv3 ) (setq mv3  #2a((1)(2)(3)))                                                       ; integer, 3-vector
 (defvar u3  ) (setq u3   #(4 5 6))                                                             ; integer, 3-vector
 (defvar v2  ) (setq v2   #(1 2))                                                               ; integer, 2-vector
-(defvar tpm ) (setq tpm  #2A((1 2 3) (4 5 6) (7 8 9) (0 0 0) (0 0 0) (0 0 0) (0 0 0) (0 0 0))) ; integer, Tall padded matrix 9x3
+(defvar tpm ) (setq tpm  #2A((1 2 3) (4 5 6) (7 8 9) (nil nil nil) (nil nil nil)
+                             (nil nil nil) (nil nil nil) (nil nil nil)))                       ; integer, Tall padded matrix 9x3
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_arr_cbind
@@ -216,12 +217,12 @@
   (assert-equalp #2a((#C(1 1) #C(2 2) #C(3 3)) (#C(4 4) #C(5 5) #C(6 6)) (#C(7 7) #C(8 8) #C(9 9))) (mjr_arr_binary-map2 m m #'complex))
   (assert-equalp #2A((2 4 6) (8 10 12) (14 16 18))                                                  (mjr_arr_binary-map2 m m #'+))
   (assert-equalp #2A((1 4 9) (16 25 36) (49 64 81))                                                 (mjr_arr_binary-map2 m m #'*))
-  (assert-equalp #2A()                                                                              (mjr_arr_binary-map2 em em #'*))          
+  (assert-equalp #2A()                                                                              (mjr_arr_binary-map2 em em #'*))
   ;; Make sure binary-map matches results from map.
-  (assert-equalp (mjr_arr_map #'complex m m)                                                        (mjr_arr_binary-map2 m m #'complex))      
-  (assert-equalp (mjr_arr_map #'+ m m)                                                              (mjr_arr_binary-map2 m m #'+))            
-  (assert-equalp (mjr_arr_map #'* m m)                                                              (mjr_arr_binary-map2 m m #'*))            
-  (assert-equalp (mjr_arr_map #'* em em)                                                            (mjr_arr_binary-map2 em em #'*))          
+  (assert-equalp (mjr_arr_map #'complex m m)                                                        (mjr_arr_binary-map2 m m #'complex))
+  (assert-equalp (mjr_arr_map #'+ m m)                                                              (mjr_arr_binary-map2 m m #'+))
+  (assert-equalp (mjr_arr_map #'* m m)                                                              (mjr_arr_binary-map2 m m #'*))
+  (assert-equalp (mjr_arr_map #'* em em)                                                            (mjr_arr_binary-map2 em em #'*))
   ;; Sizes don't match
   (assert-error 'error                                                                              (mjr_arr_binary-map2 wm m #'*))
   ;; function takes only one arg
@@ -253,7 +254,7 @@
   (assert-equalp m                                                                                  (mjr_arr_map #'identity m))
   ;; Sizes don't match
   (assert-equalp #2A((1 4 9) (16 25 36))                                                            (mjr_arr_map #'* wm m))
-  (assert-equalp #2A((1 4 9) (16 25 36) (0 0 0))                                                    (mjr_arr_map #'* m wm))
+  (assert-equalp #2A((1 4 9) (16 25 36) (nil nil nil))                                              (mjr_arr_map #'* m wm))
   (assert-error 'warning                                                                            (mjr_arr_map #'* m wm))
   ;; function takes diffrent number of args
   (assert-error 'error                                                                              (mjr_arr_map #'sin m m))
@@ -262,5 +263,3 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests)
-
-

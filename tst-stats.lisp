@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOF
 ;; @std       Common Lisp
 ;; @see       use-stats.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1996,1997,1998,2004,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;

@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Colorization of continuous spaces (R, C, R^2, R^3, C, I, I^2, and I^3).@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1996,1997,2008,2010,2012,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;

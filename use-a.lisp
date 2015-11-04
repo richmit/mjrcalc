@@ -6,7 +6,7 @@
 ;; @brief     Angle (and time-ish) utilities.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-a.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,2006,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -31,7 +31,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_A
-  (:USE :COMMON-LISP 
+  (:USE :COMMON-LISP
         :MJR_STRING
         :MJR_CMP
         :MJR_NUMU)
@@ -75,7 +75,7 @@ Value of :SMALLEST-ABS changes the definition of 'normalized':
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_a_dms2d (&rest dms-list)
-  "Return fractional degs from deg, min, sec.  
+  "Return fractional degs from deg, min, sec.
 
 If all inputs are rational, then so is the output.  The values may be provided in a list, a string in D:M:S format, or as individual arguments.  The min and
 sec are optional, and are assumed to be zero if missing."
@@ -95,7 +95,7 @@ sec are optional, and are assumed to be zero if missing."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_a_d2dms (df &key return-int-sec)
-  "Return degrees, minutes, and seconds from fractional degrees.  
+  "Return degrees, minutes, and seconds from fractional degrees.
 
 The degrees and minutes returned are integers. :RETURN-INT-SEC is NIL, then the returned seconds will included the fractional seconds.  On the other hand,
 if :RETURN-INT-SEC is non-nil, then the returned seconds will also be an integer and an additional fourth return value will will be the fractional seconds.

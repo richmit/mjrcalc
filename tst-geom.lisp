@@ -6,7 +6,7 @@
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-geom.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1994,1995,1997,1998,2004,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -35,7 +35,7 @@
 (in-package :MJR_GEOM-TESTS)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_geom_simplex-area 
+(define-test mjr_geom_simplex-area
   (assert-equal 1 (mjr_geom_simplex-area #(0 0) #(0 1)))
   (assert-equal 1 (mjr_geom_simplex-area #(0 0) #(1 0)))
   (assert-equal 1 (mjr_geom_simplex-area #(0 1) #(0 0)))
@@ -166,7 +166,7 @@
 ;;                  for tri-lst = (loop for xo in '(1 -1 -1  1)
 ;;                                      for yo in '(1 -1  1 -1)
 ;;                                      collect (list (vector x y) (vector (+ x xo) y) (vector x        (+ y yo)))
-;;                                      collect (list (vector x y) (vector (+ x xo) y) (vector (+ x xo) (+ y yo))))  
+;;                                      collect (list (vector x y) (vector (+ x xo) y) (vector (+ x xo) (+ y yo))))
 ;;                  do (loop for tri in tri-lst
 ;;                           do (loop with plst = (mjr_combc_gen-all-permutations-gry tri :collect-value #'copy-seq)
 ;;                                    for p in plst

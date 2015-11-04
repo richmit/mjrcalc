@@ -6,7 +6,7 @@
 ;; @brief     Handy integer utilities.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-intu.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -35,7 +35,7 @@
         :MJR_CMP)
   (:DOCUMENTATION "Brief: Handy integer utilities.;")
   (:EXPORT #:mjr_intu_help
-           #:mjr_intu_pc #:mjr_intu_px 
+           #:mjr_intu_pc #:mjr_intu_px
            #:mjr_intu_divides?
            #:mjr_intu_extended-gcd
            #:mjr_intu_quadratic-residue?
@@ -77,7 +77,7 @@
     (and (= n-pow n) m)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_intu_pc (x) 
+(defun mjr_intu_pc (x)
   "Convert integer to a string in decimal representation with commas."
   (cond ((complexp x)      (error "mjr_intu_pc: Argument must not be complex"))
         ((not (numberp x)) (error "mjr_intu_pc: Argument must be a number")))

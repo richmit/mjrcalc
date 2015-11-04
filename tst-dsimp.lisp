@@ -6,7 +6,7 @@
 ;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-dsimp.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1995-2010,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -43,17 +43,17 @@
             ((:gd-nam . "Peat") (:gd-typ . :gd-typ-real))                              ;; Second 0-simplices data set (real)
             #(3 0 1 6 4 2 9 5)
             ((:gd-nam . "HeatC") (:gd-typ . :gd-typ-color) (:gd-colorspace :cs-rgb))   ;; Third 0-simplices data set (Color)
-            #(#(0.0 0.0 0.0) #(0.0 0.0 1.0) #(0.0 1.0 0.0) #(0.0 1.0 1.0)              
+            #(#(0.0 0.0 0.0) #(0.0 0.0 1.0) #(0.0 1.0 0.0) #(0.0 1.0 1.0)
               #(1.0 0.0 0.0) #(1.0 0.0 1.0) #(1.0 1.0 0.0) #(1.0 1.0 1.0))
             ((:gd-nam . "Dir") (:gd-typ . :gd-typ-rvec))                               ;; Fourth 0-simplices data set (Real Vector)
-            #(#(0.0 2.0 2.0) #(0.0 0.0 2.0) #(0.0 2.0 0.0) #(0.0 2.0 2.0)              
+            #(#(0.0 2.0 2.0) #(0.0 0.0 2.0) #(0.0 2.0 0.0) #(0.0 2.0 2.0)
               #(2.0 0.0 0.0) #(2.0 0.0 2.0) #(2.0 2.0 0.0) #(2.0 2.0 2.0))
             nil                                                                        ;; 1-simplices
             #(#(0 1 2) #(0 2 3) #(1 5 2) #(0 4 3) #(4 7 3) #(4 7 5))                   ;; 2-simplices (two triangles on face of cube)
             ((:gd-nam . "Pie") (:gd-typ . :gd-typ-real))                               ;; First 2-simplices data set
             #(3.14 6.28 6.28 3.14 3.14 6.28)
             ((:gd-nam . "Cake") (:gd-typ . :gd-typ-real))                              ;; Second 2-simplices data set
-            #(9.8596 39.4384 39.4384 9.8596 9.8596 39.4384 )  
+            #(9.8596 39.4384 39.4384 9.8596 9.8596 39.4384 )
             nil))                                                                      ;; 3-simplices
 (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0) 0 :gd-nam "zsn2")     ;; Fifth 0-simplices data set (Real)
 
@@ -76,5 +76,3 @@
 ;; 'error                                         (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0)  0 :gd-nam "zsn2" :gd-typ :gd-type-real  :gd-colorspace :cs-tru)
 ;; 'error                                         (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0)  0 :gd-nam "zsn2"                        :gd-colorspace :cs-tru)
 ;; 'error                                         (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0)  0 :gd-nam "zsn2" :gd-typ :gd-type-color :gd-colorspace :cs-truX)
-
-

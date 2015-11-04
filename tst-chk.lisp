@@ -6,7 +6,7 @@
 ;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-chk.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;

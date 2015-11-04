@@ -6,7 +6,7 @@
 ;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-char.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -35,7 +35,7 @@
 (in-package :MJR_CHAR-TESTS)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_char_table 
+(define-test mjr_char_table
   (assert-equal 2771 (length (with-output-to-string (*standard-output* nil) (mjr_char_table  :char-set :cs-ebcdic))))
   (assert-equal 1411 (length (with-output-to-string (*standard-output* nil) (mjr_char_table  :char-set :cs-ascii))))
   )
@@ -135,7 +135,7 @@
     )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_char_lettersp 
+(define-test mjr_char_lettersp
     (assert-true  (mjr_char_lettersp "abcd"))
     (assert-true  (mjr_char_lettersp "cd"  ))
     (assert-true  (mjr_char_lettersp ""    ))
@@ -256,4 +256,3 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests)
-

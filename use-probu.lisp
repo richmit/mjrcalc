@@ -6,7 +6,7 @@
 ;; @brief     Computations on PDFs (Probability Distribution Functions).@EOL
 ;; @std       Common Lisp
 ;; @see       tst-probu.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,1998,2004,2010,2011,2012,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;

@@ -6,7 +6,7 @@
 ;; @brief     Numerical utilities.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-numu.lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 1997,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
@@ -34,14 +34,15 @@
   (:USE :COMMON-LISP
         :MJR_CMP
         :MJR_CHK
+        :MJR_UTIL
         :MJR_VVEC)
   (:DOCUMENTATION "Brief: Numerical utilities.;")
   (:EXPORT #:mjr_numu_help
-           
+
            #:mjr_numu_max-accuracy
 
            #:mjr_numu_abssqr
-           
+
            #:mjr_numu_absdif
            #:mjr_numu_min-nil
            #:mjr_numu_max-nil
@@ -56,7 +57,7 @@
            #:mjr_numu_dabs
 
            #:mjr_numu_sqrt #:mjr_numu_cubert
-           #:mjr_numu_hypot          
+           #:mjr_numu_hypot
            #:mjr_numu_argument
 
            #:mjr_numu_log!
@@ -109,14 +110,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_sum (&key start end step len seq-fun)
   "User friendly wrapper for MJR_VVEC_MAP-SUM that directly takes keyword arguments. nil values are ignored."
-  (mjr_vvec_map-sum (list :start start :end end :step step :len len :map-fun seq-fun) :filter-fun (lambda (v f i) (declare (ignore f i)) v))
-  )
+  (mjr_vvec_map-sum (mjr_util_strip-nil-val-kwarg (list :start start :end end :step step :len len :map-fun seq-fun))
+                    :filter-fun (lambda (v f i) (declare (ignore f i)) v)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_prod (&key start end step len seq-fun)
   "User friendly wrapper for MJR_VVEC_MAP-PROD that directly takes keyword arguments. nil values are ignored."
-  (mjr_vvec_map-prod (list :start start :end end :step step :len len :map-fun seq-fun) :filter-fun (lambda (v f i) (declare (ignore f i)) v))
-  )
+  (mjr_vvec_map-prod (mjr_util_strip-nil-val-kwarg (list :start start :end end :step step :len len :map-fun seq-fun))
+                     :filter-fun (lambda (v f i) (declare (ignore f i)) v)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_tuple-max-min (r g b)
@@ -193,9 +194,9 @@ This is useful for finding special points (discontinuities, extrema, etc) for pe
 0,2*pi, min(cos) @ pi,2*pi"
   (let* ((ymsdp  (/ (- upper-bound seed) period))
          (minPPI (floor (- ymsdp 1)))
-         (lowPP  (loop 
+         (lowPP  (loop
                    for i from minPPI
-                   until (>= (+ seed (* i period)) upper-bound) 
+                   until (>= (+ seed (* i period)) upper-bound)
                    finally (return (+ seed (* i period)))))
          (maxPP  (if (mjr_cmp_<= lowPP upper-bound eps)
                      lowPP
@@ -238,7 +239,7 @@ This is useful for finding special points (discontinuities, extrema, etc) for pe
                                   (format nil "~f" y))))
            (fmtRatFlt    (x) (fmtFloat (float x 1.0d0)))
            (fmtRatFltSgl (x) (fmtFloatSgl x))
-           (fmtSgnInt32  (x) (if (> (abs x) 2147483647)                              
+           (fmtSgnInt32  (x) (if (> (abs x) 2147483647)
                                 (mjr_numu_code (float the-number 1.0d0) :lang lang)
                                 (format nil "~D" x)))
            (fmtSgnInt64  (x) (if (> (abs x) 9223372036854775808)
@@ -276,8 +277,8 @@ This is useful for finding special points (discontinuities, extrema, etc) for pe
                    (:lang-ruby         (list #'fmtFloat    "Complex(~a,~a)"          "~D"          "Rational(~a,~a)"))
                    (:lang-idl          (list #'fmtFloat    "complex(~a,~a)"          #'fmtSgnInt32 #'fmtRatFlt))
                    ((:lang-hp48
-                     :lang-f77   
-                     :lang-r90     
+                     :lang-f77
+                     :lang-r90
                      :lang-fortran)    (list #'fmtFloat    "(~a,~a)"                 "~D"          #'fmtRatFlt))
                    (:lang-python       (list #'fmtFloat    "(~a+~aj)"                "~D"          #'fmtRatFlt))
                    (:lang-csv          (list #'fmtFloat    "(~a+i~a)"                "~D"          #'fmtRatFlt))
@@ -328,7 +329,7 @@ The aggressiveness of the algorithm varies according the the value of :AGGRESSIV
       (cond ((integerp x)  (let* ((absx   (abs x))
                                   (xisqrt (isqrt absx)))
                              (if (= absx (* xisqrt xisqrt))
-                                 (if (< x 0) 
+                                 (if (< x 0)
                                      (complex 0 xisqrt)
                                      xisqrt)
                                  (sqrt x))))
@@ -346,11 +347,11 @@ The aggressiveness of the algorithm varies according the the value of :AGGRESSIV
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_hypot (x y)
-  "Computes (sqrt (+ (expt (abs x) 2) (expt (abs y))) in such a way as to avoid floating point overflow/underflow."
+  "Computes (sqrt (+ (expt (abs x) 2) (expt (abs y) 2))) in such a way as to avoid floating point overflow/underflow."
   (if (and (rationalp x) (rationalp y))
       (mjr_numu_sqrt (+ (* (abs x) (abs x)) (* (abs y) (abs y))))
-      (let ((x (abs x))
-            (y (abs y)))
+      (let ((x (if (complexp x) (mjr_numu_hypot (realpart x) (imagpart x)) (abs x)))
+            (y (if (complexp y) (mjr_numu_hypot (realpart y) (imagpart y)) (abs y))))
         (if (< x y)
             (rotatef x y))
         (if (mjr_chk_!=0 x)
@@ -378,7 +379,7 @@ The aggressiveness of the algorithm varies according the the value of :AGGRESSIV
     (if (mjr_cmp_zerop y)
         (cond ((mjr_cmp_zerop x)                  (warn "mjr_numu_gamma-domain-check: Gamma undefied at 0. Argument near zero: ~a" z))
               ((and (< x 0) (mjr_cmp_integerp x)) (warn "mjr_numu_gamma-domain-check: Gamma undefied on negative integers. Argument near integer: ~a" z))))))
-  
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_gamma-lanczos-9 (z &optional ln)
   "Lanczos approximation with $g=7$ and $n=9.  Generally good to about 4 digits. Euler's reflection formula is used when $\\Re(z)<\\frac{1}{2}$.
@@ -431,20 +432,20 @@ References:
           (- (log pi) (+ (log (sin (* pi z))) (mjr_numu_gamma-lanczos (- 1 z) 't)))
           (/ pi (* (sin (* pi z)) (mjr_numu_gamma-lanczos-15 (- 1 z)))))
       (let* ((g  607/128)
-             (p #( 0.99999999999999709182d+0 
-                   0.57156235665862923517d+2 
-                  -0.59597960355475491248d+2 
-                   0.14136097974741747174d+2  
-                  -0.49191381609762019978d+0  
-                   0.33994649984811888699d-4 
-                   0.46523628927048575665d-4 
-                  -0.98374475304879564677d-4 
-                   0.15808870322491248884d-3 
-                  -0.21026444172410488319d-3 
-                   0.21743961811521264320d-3 
-                  -0.16431810653676389022d-3 
-                   0.84418223983852743293d-4 
-                  -0.26190838401581408670d-4 
+             (p #( 0.99999999999999709182d+0
+                   0.57156235665862923517d+2
+                  -0.59597960355475491248d+2
+                   0.14136097974741747174d+2
+                  -0.49191381609762019978d+0
+                   0.33994649984811888699d-4
+                   0.46523628927048575665d-4
+                  -0.98374475304879564677d-4
+                   0.15808870322491248884d-3
+                  -0.21026444172410488319d-3
+                   0.21743961811521264320d-3
+                  -0.16431810653676389022d-3
+                   0.84418223983852743293d-4
+                  -0.26190838401581408670d-4
                   0.36899182659531622704d-5))
              (n 15) ;; (length p)
              (z  (- z 1))
@@ -468,7 +469,7 @@ References:
 ;; May get better accuracy when $x\in\mathbb{R}$ and $x$ is small:
 ;; $$\Gamma(x) = \Gamma(1+x)/x$$
 
-;; Euler's reflection formula: 
+;; Euler's reflection formula:
 ;; $$\\Gamma(1-z)\\Gamma(z)=\\frac{\\pi}{\\sin{(\\pi z)}} \\,\\,\\, \\forall z \\notin \\mathbb{Z}$$
 ;; Basic Gamma property
 ;; $$\\Gamma(z+1)=z\\Gamma(z)$$
@@ -482,14 +483,14 @@ References:
   "Spouge approximation (a=9 by default). Euler's reflection formula is used when $\\Re(z)<1/2$.
 
      $$\\Gamma(z+1) = (z+a)^{z+1/2} e^{-(z+a)} \\left[ c_0 + \\sum_{k=1}^{a-1} \\frac{c_k}{z+k} + \\varepsilon_a(z) \\right]$$
-     
+
      where $a$ is an arbitrary positive integer, $\\varepsilon_a(z)$ is an unknown term, and the $c_k$ are given by:
-     
+
      $$c_0 = \\sqrt{2 \\pi}$$
      $$c_k = \\frac{(-1)^{k-1}}{(k-1)!} (-k+a)^{k-1/2} e^{-k+a}$$
-     
+
      If $Re(z)>0$ and $a>2$, then the error from removing the $\\varepsilon_a(z)$ term is bounded by:
-     
+
      $$a^{-1/2} (2 \\pi)^{-(a+1/2)}$$
 
      Euler's reflection formula: $$\\Gamma(1-z)\\Gamma(z)=\\frac{\\pi}{\\sin{(\\pi z)}} \\,\\,\\, \\forall z \\notin \\mathbb{Z}$$
@@ -572,7 +573,7 @@ For exact answers when the arguments are integers and non-negative, use MJR_COMB
 (defun mjr_numu_iverson-bracket (pred &rest rest)
   "Return 1 if PRED applied to the remaining arguments is true, and 0 otherwise."
   (if (apply pred rest)
-      1 
+      1
       0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
