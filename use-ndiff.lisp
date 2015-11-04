@@ -1,31 +1,53 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-ndiff.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,2010,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Numerical differentiation.@EOL
-;; @Keywords  lisp interactive numerical differentiation
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-ndiff.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,2010,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            The "Magic Numbers" were computed with Maxima:
-;;              linel:500;
-;;              display2d:false;
-;;              fdif(order, low, high) := (h^order)*create_list(sublis([y=(x+0*h)], diff(prod((if (m=j) then 1 else (y-(x+m*h))/((x+j*h)-(x+m*h))), m, low, high), y, order)), j, low, high);
-;;              CENTER RULES
-;;              for ptsHalf: 1 step 1 thru 7 do for ord: 1 step 1 thru 2*ptsHalf do display(fdif(ord, -ptsHalf, ptsHalf));
-;;              RIGHT RULES
-;;              for pts: 1 step 1 thru 10 do for ord: 1 step 1 thru pts do display(fdif(ord, 0, pts));
-;;              LEFT RULES
-;;              for pts: 1 step 1 thru 10 do for ord: 1 step 1 thru pts do display(fdif(ord, -pts, 0));
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
-;;            Design Goals
-;;              * Speed (These routines will be used inside tight inner loops, and thus must be fast)
-;;              * Ease of use.  Good defaults.  
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      Flexible argument control (See: mjr_util_fun-adapt-eval-v) -- especially for multivariate functions.@EOL@EOL
+;; @todo      Create mndiff for functions of multiple vars.@EOL@EOL
+;; @filedetails
+;;
+;;  The "Magic Numbers" were computed with Maxima:
+;;    linel:500;
+;;    display2d:false;
+;;    fdif(order, low, high) := (h^order)*create_list(sublis([y=(x+0*h)], diff(prod((if (m=j) then 1 else (y-(x+m*h))/((x+j*h)-(x+m*h))), m, low, high), y, order)), j, low, high);
+;;    CENTER RULES
+;;    for ptsHalf: 1 step 1 thru 7 do for ord: 1 step 1 thru 2*ptsHalf do display(fdif(ord, -ptsHalf, ptsHalf));
+;;    RIGHT RULES
+;;    for pts: 1 step 1 thru 10 do for ord: 1 step 1 thru pts do display(fdif(ord, 0, pts));
+;;    LEFT RULES
+;;    for pts: 1 step 1 thru 10 do for ord: 1 step 1 thru pts do display(fdif(ord, -pts, 0));
+;;
+;;  Design Goals
+;;    * Speed (These routines will be used inside tight inner loops, and thus must be fast)
+;;    * Ease of use.  Good defaults.  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; MJR TODO NOTE use-ndiff.lisp: Flexible argument control (See: mjr_util_fun-adapt-eval-v) -- especially for multivariate functions
-;; MJR TODO NOTE use-ndiff.lisp: Create mndiff for functions of multiple vars.
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_NDIFF
   (:USE :COMMON-LISP
         :MJR_POLY
@@ -38,22 +60,22 @@
 
 (in-package :MJR_NDIFF)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ndiff_central (f x &key (order 1) (h (sqrt single-float-epsilon)) (points nil))
   "Estimate the value of the ORDER'th derivative of F at X using a POINTS-point rule.
 
 Notes:
  * No error checking is performed -- speed is essential for this function
  * ORDER may be a list, and the return will be a list of derivative estimates.  POINTS is never a list.
- * POINTS must be an integer, points >= 3, points <= 15, and points must be odd.
+ * POINTS must be an odd integer with 3 =< points <= 15
  * ORDER, or each element of ORDER if ORDER is a list, must be strictly less than POINTS
  * A reasonable value for H is (SQRT MACHINE-EPS) --- usually.
  * For well behaved functions, the error is roughly O(H^(POINTS/2)) -- i.e. error gets better as POINTS gets bigger.
  * In all cases, F will be evaluated no more than POINTS times.
  * If POINTS is omitted or NIL, then the smallest value of POINTS for the given ORDER will be used.
  * The stencil is uniformly spaced: {...,-2h, -h, 0, h, 2h,...}.
- * The weights correspond to the Lagrange interpolation weights, and thus the approximation is equal to the derivative of the
-   Lagrange interpolating polynomial on the stencil evaluated at X."
+ * The weights correspond to the Lagrange interpolation weights, and thus the approximation is equal to the derivative of the Lagrange interpolating
+   polynomial on the stencil evaluated at X."
   (let* ((weights #(nil ;0
                     nil ;1
                     nil ;2
@@ -154,22 +176,22 @@ Notes:
                        sum (* (funcall f xi) wi))
                  (expt h order)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ndiff_backward (f x &key (order 1) (h (sqrt single-float-epsilon)) (points nil))
   "Estimate the value of the ORDER'th derivative of F at X using a POINTS-point rule.
 
 Notes:
  * No error checking is performed -- speed is essential for this function
  * ORDER may be a list, and the return will be a list of derivative estimates.  POINTS is never a list.
- * POINTS must be an integer, points >= 2, and points <= 10.
+ * POINTS must be an integer such that 2 <= points <= 10.
  * ORDER, or each element of ORDER if ORDER is a list, must be strictly less than POINTS
  * Suggestion for h: A normally reasonable value is (sqrt machine-eps).
  * Error: For well behaved functions, the error is roughly O(h^(POINTS/2)) -- i.e. error gets better as POINTS gets bigger.
  * In all cases, F will be evaluated no more than ORDER times.
  * If POINTS is omitted or NIL, then the smallest value of POINTS for the given ORDER will be used.
  * The stencil is uniformly spaced: {...,-2h, -h, 0}.  
- * The weights correspond to the Lagrange interpolation weights, and thus the approximation is equal to the derivative of the
-   Lagrange interpolating polynomial on the stencil evaluated at X."
+ * The weights correspond to the Lagrange interpolation weights, and thus the approximation is equal to the derivative of the Lagrange interpolating
+   polynomial on the stencil evaluated at X."
   (let* ((weights #(nil ;0
                     nil ;1
                     #(#(-1 1))
@@ -240,22 +262,22 @@ Notes:
                    sum (* (funcall f xi) wi))
              (expt h order))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ndiff_forward (f x &key (order 1) (h (sqrt single-float-epsilon)) (points nil))
   "Estimate the value of the ORDER'th derivative of F at X using a POINTS-point rule.
 
 Notes:
  * No error checking is performed -- speed is essential for this function
  * ORDER may be a list, and the return will be a list of derivative estimates.  POINTS is never a list.
- * POINTS must be an integer, points >= 2, and points <= 10.
+ * POINTS must be an integer such that 2 <= points <= 10.
  * ORDER, or each element of ORDER if ORDER is a list, must be strictly less than POINTS
  * Suggestion for h: A normally reasonable value is (sqrt machine-eps).
  * Error: For well behaved functions, the error is roughly O(h^(POINTS/2)) -- i.e. error gets better as POINTS gets bigger.
  * In all cases, F will be evaluated no more than ORDER times.
  * If POINTS is omitted or NIL, then the smallest value of POINTS for the given ORDER will be used.
  * The stencil is uniformly spaced: {0, h, 2h,...}.
- * The weights correspond to the Lagrange interpolation weights, and thus the approximation is equal to the derivative of the
-   Lagrange interpolating polynomial on the stencil evaluated at X."
+ * The weights correspond to the Lagrange interpolation weights, and thus the approximation is equal to the derivative of the Lagrange interpolating
+   polynomial on the stencil evaluated at X."
   (let* ((weights #(nil ;0
                     nil ;1
                     #(#(-1 1))
@@ -326,16 +348,18 @@ Notes:
                    sum (* (funcall f xi) wi))
              (expt h order))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ndiff_complex (f x &key (h (sqrt single-float-epsilon)))
   "Compute an approximation to the value of the derivative of F at X using complex numbers.
+
 Reference:
    William Squire & George Trapp (1998); Using Complex Variables To Estimate Derivatives Of Real Functions; SIAM Review; Vol. 40; pp 110-112"
   (/ (imagpart (funcall f (+ x (complex 0 h)))) h))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ndiff_lagrange (f x stencil &optional (order 1))
   "Approximate the value of the ORDER'th derivative of F at X.
+
 Algorithm:  Compute the value of the ORDER'th derivative at X of the Lagrange interpolating polynomial on the stencil."
   (let* ((x-data (map 'vector (lambda (s) (+ x s)) stencil))
          (y-data (map 'vector f x-data)))

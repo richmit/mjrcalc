@@ -4,6 +4,7 @@
 # gnuplot, and not start up a new one. In an init.d-esque way, only a single argument is provided: [start|stop]
 
 GNUPLOT_FIFO=/home/richmit/.lispy-gnuplot-fifo
+GNUPLOT_FIFO=/home/richmit/.mjrcalc-mjr_gunpl-fifo
 
 if [ "$1" = "start" ] ; then
 	if [ -e $GNUPLOT_FIFO ] ; then
@@ -11,7 +12,7 @@ if [ "$1" = "start" ] ; then
 	fi
 	mkfifo $GNUPLOT_FIFO
     GNUPLOT_BIN=gnuplot
-    for BINPOS in '/apps/free/gnuplot/4.4.1/bin/gnuplot' '/apps/free/gnuplot/4.2.4/bin/gnuplot' '/opt/local/bin/gnuplot' '/usr/local/bin/gnuplot' ; do
+    for BINPOS in '/apps/free/gnuplot/4.4.1/bin/gnuplot' '/apps/free/gnuplot/4.2.4/bin/gnuplot' '/opt/local/bin/gnuplot' '/usr/local/bin/gnuplot' '/usr/bin/gnuplot' ; do
         if [ -x "$BINPOS" ] ; then
             GNUPLOT_BIN=$BINPOS
             break

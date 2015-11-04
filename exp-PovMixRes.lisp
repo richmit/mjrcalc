@@ -1,10 +1,9 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      exp-PovMixRes.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2012 by Mitch Richling.  All rights reserved.
 ;; @brief     How to draw a surface with a grid at one scale, and lines at another.@EOL
-;; @Keywords  povray
 ;; @Std       Common Lisp
 ;;
 ;;            After running, we must stick together the povray files and render like so:
@@ -12,7 +11,7 @@
 ;;              povray -W3840 -H2160 -Q11 -K0.08 +A  +AM5  +R4 +J4 -P -D -Oexp-PovMixRes-ART.png -Iexp-PovMixRes-AUX.pov
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (flet ((spf (u v) (vector (* 4 (sin u) (cos v))
                           (* 4 (sin u) (sin v))

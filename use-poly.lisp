@@ -1,21 +1,41 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-poly.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1994,1997,1998,2004,2008,2012,2013 by Mitch Richling.  All rights reserved.
-;; @brief     Univariate Polynomials over R or C.@EOL
-;; @Keywords  lisp interactive univariate polynomial
-;; @Std       Common Lisp
+;; @brief     Polynomials over complex, real, rational, and integers.@EOL
+;; @std       Common Lisp
+;; @see       tst-poly.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1994,1997,1998,2004,2008,2012,2013,2014,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            WARNING: Much of this code has become quite experimental!.  I expect to flesh this out and add the appropriate unit
-;;            tests for the new/changed functionality over time.  Until then, use the old version or use this one with great care.
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
-;;            TODO: * Make some kind of convention for the type of polynomials a function works with.
-;;            TODO: * Better way to find solutions that are in radical extension fields -- i.e. $a,b,c\in\mathbb{Q}$ but $a+b\sqrt{c}\not\in\mathbb{Q}$
-;;            TODO: * Better control/seporation/deliniation of Z[x], Q[x], & R[x] across functions.  Make this uniform.
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
 ;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      mjr_poly_root-solve-search-deflate: Want generic way to specifiy search, refine, and xform methods.@EOL@EOL
+;; @todo      Make some kind of convention for the type (int, gausian, float, complex, etc...) of polynomials a function works with.@EOL@EOL
+;; @todo      Better way to find solutions that are in radical extension fields -- i.e. $a,b,c\in\mathbb{Q}$ but $a+b\sqrt{c}\not\in\mathbb{Q}$.@EOL@EOL
+;; @todo      Better control/seporation/deliniation of Z[x], Q[x], & R[x] across functions.  Make this uniform.@EOL@EOL
+;; @todo      Update unit tests for new functionality.@EOL@EOL
+;; @warning   Much of this code has become quite experimental!  Use the old version if you want to be carefull.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_POLY
   (:USE :COMMON-LISP 
         :MJR_NLEQ 
@@ -51,7 +71,7 @@
            #:mjr_poly_gcd-primitive
 
            ;; Polynomial metrics
-           #:mjr_poly_height #:mjr_poly_length
+           #:mjr_poly_height #:mjr_poly_length #:mjr_poly_mahler-measure
            #:mjr_poly_scount-descartes #:mjr_poly_scount-sturm #:mjr_poly_scount-fourier #:mjr_poly_scount-budan
 
            #:mjr_poly_root-structure #:mjr_poly_root-structure-print
@@ -108,25 +128,23 @@
 
 (in-package :MJR_POLY)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_help ()
   "Univariate, Dense Polynomial Library
 
-Polynomials are represented as vectors containing the coefficients -- the position in the array implies the power of the monomial in
-the term to which the coefficient belongs.  For example, x^2+4 would be represented as #(1 0 4).
+Polynomials are represented as vectors containing the coefficients -- the position in the array implies the power of the monomial in the term to which the
+coefficient belongs.  For example, x^2+4 would be represented as #(1 0 4).
 
-The first coefficient should never be zero unless the polynomial is the zero polynomial.  No function in this package should ever
-produce a non-constant polynomial with a zero in the first position; however, all functions will gladly accept such polynomials and
-silently fix them.
+The first coefficient should never be zero unless the polynomial is the zero polynomial.  No function in this package should ever produce a non-constant
+polynomial with a zero in the first position; however, all functions will gladly accept such polynomials and silently fix them.
 
-Note that while this vector representation is quite adequate for dense polynomials (i.e. polynomials that have mostly non-zero
-coefficients), this data structure is inefficient in both space and time for sparse polynomials.
+Note that while this vector representation is quite adequate for dense polynomials (i.e. polynomials that have mostly non-zero coefficients), this data
+structure is inefficient in both space and time for sparse polynomials.
 
-This library is a work in progress, but it has enough functionality to be useful.  Still, some care should be exercised when using
-it.
+This library is a work in progress, but it has enough functionality to be useful.  Still, some care should be exercised when using it.
 
-Tags: (G) means the function is provided by GPOLY and a (!) means the function is not yet implemented.  Function names have been
-abbreviated in this list by replacing 'mjr_poly_' with 'MP_'.
+Tags: (G) means the function is provided by GPOLY and a (!) means the function is not yet implemented.  Function names have been abbreviated in this list by
+replacing 'mjr_poly_' with 'MP_'.
 
   * Strings & Printing
   ** MP_print MP_code
@@ -174,7 +192,7 @@ abbreviated in this list by replacing 'mjr_poly_' with 'MP_'.
   ** MP_cubic-depress mjr_poly_tschirnhaus-3-2"
   (documentation 'mjr_poly_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (mjr_gpoly_make-coeff          "")
 (mjr_gpoly_make-simplify       "")
 (mjr_gpoly_make-scale          "")
@@ -199,7 +217,7 @@ abbreviated in this list by replacing 'mjr_poly_' with 'MP_'.
 (mjr_gpoly_make-divides?       "")
 (mjr_gpoly_make-gcd            "")
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_print (poly &key (var "x") (add-op "+") (add-apad " ") (add-bpad " ") (expt-op "^") (expt-apad "")
                        (expt-bpad "") (mul-op "*") (mul-apad "") (mul-bpad "") (cof-fmt "~s") (cof-bpad "") (cof-apad "")
                        (pow-fmt "~d") (pow-bpad "") (pow-apad "") (ply-apad "") (ply-bpad "") (suppress-zero-terms 't)
@@ -257,7 +275,7 @@ Arguments:
                    (format 't "~a~%" da-str))
                poly))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_code (poly &key (lang :lang-matlab))
   "Return a string using the syntax of the selected programming language or computational environment."
   (if (not (vectorp poly))
@@ -308,7 +326,7 @@ Arguments:
         ('t                  (error "mjr_poly_code: Language unsupported!"))))
     str-out))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_intg (poly a b)
   "Integrate over the interval $[a,b]$."
   (let* ((poly  (mjr_poly_simplify poly))
@@ -318,7 +336,7 @@ Arguments:
           do (setf (aref ipoly i) (/ (aref poly i) (- plen i))))
     (- (mjr_poly_eval ipoly b) (mjr_poly_eval ipoly a))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_zap-zero-roots (poly &optional eps)
   "Return two values: 1) a new polynomial, $\\text{POLY}/x^n$, where $n$ is the number of times $0$ is a root of POLY, and 2) $n$.
 EPS is used with mjr_cmp_!=0 to detect non-zero coefficients."
@@ -333,7 +351,7 @@ EPS is used with mjr_cmp_!=0 to detect non-zero coefficients."
                 (subseq poly 0 slim))
             zcnt)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_deflate (poly const)
   "Return the quotient and the remainder from POLY / (X - CONST).
 Note: The remainder is equal to POLY(CONST).
@@ -350,7 +368,7 @@ While the result is equivalent to (MJR_POLY_TRUNCATE POLY (VECTOR 1 (- CONST))),
           do (setf (aref newpoly i) ht)
           finally (return (values newpoly polyval)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_shift (b poly)
   "Shift POLY right B units (or left if B is negative).
 References:
@@ -361,7 +379,7 @@ References:
                          (loop for k from i downto 1
                                do (incf (aref new-poly k) (* b (aref new-poly (1- k)))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_reflect (poly)
   "Reflect POLY across the Y-axis (i.e. subst -x)."
   (let ((new-poly (mjr_poly_simplify (copy-seq poly))))
@@ -372,7 +390,7 @@ References:
           do (setf (aref new-poly i) (- cur-coef))
           finally (return (mjr_poly_simplify new-poly)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_make-from-roots (&rest the-roots)
   "Return the the monic polynomial with the given roots.
 The roots may be given as individual arguments, or a single list may be provided."
@@ -391,12 +409,12 @@ The roots may be given as individual arguments, or a single list may be provided
             finally (progn (setf (aref a-lst 0) 1)))
       a-lst)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_eval-nth-derivative (poly x &optional (order 1))
   "Evaluate polynomial derivative."
   (mjr_poly_eval (mjr_poly_diff poly order) x))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_eval-poly-and-first-n-derivatives (poly x &optional (order 1))
   "Return value of poly and the values of the first ORDER derivatives at x.
 
@@ -417,14 +435,14 @@ Algorithm due to Pankiewicz:
           do (setf (aref pd i) (* (aref pd i) cnst)))
     (values-list (concatenate 'list pd))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_2func (poly &optional num-derivatives)
   "Return a function that evaluates the POLY and its first NUM-DERIVATIVES."
   (if (and num-derivatives (> num-derivatives 0))
       (eval `(lambda (x) (mjr_poly_eval-poly-and-first-n-derivatives ,poly x ,num-derivatives)))
       (eval `(lambda (x) (mjr_poly_eval ,poly x)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_seq-eval (seq x &optional result-type)
   "Evaluate the polynomials in the sequence (list or vector) at $x$, and return the results in a sequence.
 
@@ -433,44 +451,27 @@ If result-type is NIL, then the returned type will be the same as the type of se
        (lambda (p) (mjr_poly_eval p x))
        seq))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_height (poly)
   "This is the infinity-norm (maximum absolute value of coefficients)"
   (mjr_vec_norm-infinity poly))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_length (poly)
   "This is the one-norm (sum of absolute values of coefficients)"
   (mjr_vec_norm-one poly))
 
-;; ;;----------------------------------------------------------------------------------------------------------------------------------
-;; (defun mjr_poly_density (poly &optional eps)
-;;   "The number of non-zero terms.  Uses mjr_cmp_!=0, and the eps argument, to detect zeros."
-;;   (loop with poly = (mjr_poly_simplify poly)
-;;         for c across poly
-;;         when (mjr_cmp_!=0 c eps)
-;;         count 1))
-
-;; ;;----------------------------------------------------------------------------------------------------------------------------------
-;; (defun mjr_poly_index (poly &optional eps)
-;;   "Sum of the exponents of the non-zero terms.  Uses mjr_cmp_!=0, and the eps argument, to detect zeros."
-;;   (loop with poly = (mjr_poly_simplify poly)
-;;         for i from (1- (length poly)) downto 0
-;;         for c across poly
-;;         when (mjr_cmp_!=0 c eps)
-;;         sum i))
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_2square-free (p)
   "Return a new polynomial with the same roots as poly, but with no multiple roots."
   (mjr_poly_truncate p (mjr_poly_gcd p (mjr_poly_diff p))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_2monic (poly)
   "Transform POLY, via multiplication, into a monic polynomial that shares the roots of the original."
   (mjr_vec_/ poly (aref poly 0)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_rationalize (poly)
   "Transform POLY so that all coefficients are rational -- imaginary parts of coefficients too."
   (map 'vector
@@ -480,13 +481,13 @@ If result-type is NIL, then the returned type will be the same as the type of se
                        (rationalize x)))
        poly))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_content (poly)
   "Compute the content of an integer or rational polynomial.  POLY is rationalized if necessary.
 
-If $p\\in\\mathbb{Z}[x]$, then the content is the GCD of the coefficients.  If $p\\in\\mathbb{Q}[x], then the content is the GCD of
-the numerators divided by the LCM of the denominators.  i.e. the content is the unique $q\\in\\mathbb{Q}$ such that $p/q$ is a
-primitive polynomial in $\\mathbb{Z}[x]$ -- all the coefficients are integers have have GCD of $1$."
+If $p\\in\\mathbb{Z}[x]$, then the content is the GCD of the coefficients.  If $p\\in\\mathbb{Q}[x], then the content is the GCD of the numerators divided by
+the LCM of the denominators.  i.e. the content is the unique $q\\in\\mathbb{Q}$ such that $p/q$ is a primitive polynomial in $\\mathbb{Z}[x]$ -- all the
+coefficients are integers have have GCD of $1$."
   (let* ((poly (mjr_poly_simplify poly)))
     (cond ((every #'integerp   poly) (reduce #'gcd poly))
           ((every #'rationalp  poly) (/ (apply #'gcd (map 'list #'numerator   poly))
@@ -495,7 +496,7 @@ primitive polynomial in $\\mathbb{Z}[x]$ -- all the coefficients are integers ha
           ((every #'numberp  poly)   (mjr_poly_content (mjr_poly_rationalize poly)))
           ('t                        (error "mjr_poly_content: POLY is not a polynomial!")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_primitive-part (poly)
   "Returns the primitive part of the polynomial and the content.
 
@@ -505,7 +506,7 @@ Note: poly = cont(poly)*primitive-part(poly)"
     (values (mjr_vec_/ poly c)
             c)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_2primitive (poly)
   "Transform POLY, via multiplication by a rational number, into an primitive polynomial that shares the roots of the original.
 
@@ -513,18 +514,16 @@ The rational number used to transform POLY is the second return value.
 
 Results are exact if the polynomial has only integer and/or rational coefficients.
 
-A simple generalization of the idea of primitive is used when the polynomial has complex coefficients -- The real and imaginary
-parts will both be transformed to integers and the entire collection of integers (real parts and imaginary parts together) will
-not share a common factor other than one.
+A simple generalization of the idea of primitive is used when the polynomial has complex coefficients -- The real and imaginary parts will both be transformed
+to integers and the entire collection of integers (real parts and imaginary parts together) will not share a common factor other than one.
 
-Floating point numbers in the coefficients will be rationalized. The finite precision of floating point arithmetic implies that
-polynomials made up of floats, doubles, and long doubles are but a simple scalar product away from their integer doppelganger.
-Unfortunately the vulgarities of floating point arithmetic can destroy this almost-truth.  Still, we do the best we can.
+Floating point numbers in the coefficients will be rationalized. The finite precision of floating point arithmetic implies that polynomials made up of floats,
+doubles, and long doubles are but a simple scalar product away from their integer doppelganger.  Unfortunately the vulgarities of floating point arithmetic
+can destroy this almost-truth.  Still, we do the best we can.
 
-NOTE: A polynomial $p(x)=\sum_{j=0}^na_jx^j\in\mathbb{Z}[x]$ is primitive if $\mathrm{GCD}(a_0,\cdots,a_n)=1$ -- i.e. the
-coefficients are relatively prime. Gauss's lemma: If $p$ and $q$ are primitive, then $p\cdot q$ primitive, and if a
-$p\in\mathbb{Z}[x]$ is irreducible over the $\mathbb{Z}$, then the same polynomial considered in $\mathbb{Q}[x]$ is also irreducible
-over $\mathbb{Q}$.
+NOTE: A polynomial $p(x)=\sum_{j=0}^na_jx^j\in\mathbb{Z}[x]$ is primitive if $\mathrm{GCD}(a_0,\cdots,a_n)=1$ -- i.e. the coefficients are relatively
+prime. Gauss's lemma: If $p$ and $q$ are primitive, then $p\cdot q$ primitive, and if a $p\in\mathbb{Z}[x]$ is irreducible over the $\mathbb{Z}$, then the
+same polynomial considered in $\mathbb{Q}[x]$ is also irreducible over $\mathbb{Q}$.
 
 References:
   Carl Friedrich Gauss(1801); Disquisitiones Arithmeticae; Article 42"
@@ -543,7 +542,7 @@ References:
          (p3   (mjr_vec_/ p2 G)))
     (values p3 (/ L G))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_seq-make-sturm-canonical (p)
   "Return a list of polynomials representing the 'Canonical Sturm sequence'.
 
@@ -559,11 +558,12 @@ The canonical Sturm sequence of a polynomial $p$ is the intermediate results of 
      p_{m+1} & = & 0 & = & -\\text{rem}(p_{m-1}, p_m)    &   &                                          \\\\
   \\end{array}
   $$
-where $\\text{rem}(p_i,p_j)$ and $q_i$ are the remainder and the quotient of the polynomial long division of $p_i$ by $p_j$, and
-where $m\\le\\text{deg}{p}$ is the minimal number of polynomial divisions needed to obtain a zero remainder.
 
-Note: The sequence is well defined even when $p$ is not square-free; however, it may not be a Sturm sequence in this case.
-Confusingly enough, this sequence is always called the canonical Sturm sequence even when it is not really a Sturm sequence."
+where $\\text{rem}(p_i,p_j)$ and $q_i$ are the remainder and the quotient of the polynomial long division of $p_i$ by $p_j$, and where $m\\le\\text{deg}{p}$
+is the minimal number of polynomial divisions needed to obtain a zero remainder.
+
+Note: The sequence is well defined even when $p$ is not square-free; however, it may not be a Sturm sequence in this case.  Confusingly enough, this sequence
+is always called the canonical Sturm sequence even when it is not really a Sturm sequence."
   (let ((pd (mjr_poly_diff p)))
     (nconc (list p pd)
            (loop for p-2 = p  then p-1
@@ -572,7 +572,7 @@ Confusingly enough, this sequence is always called the canonical Sturm sequence 
                  collect p-0
                  until (zerop (mjr_poly_degree p-0))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_seq-make-fourier (p)
   "Return a list of polynomials representing the 'Fourier sequence'.
 
@@ -582,7 +582,7 @@ Let $p$ be a real polynomial of degree $n>0$, then the Fourier sequence of $p$ i
         for p-0 = p then (mjr_poly_diff p-0)
         collect p-0))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_count-sign-changes (seq)
   "Return the number of sign changes in seq (vector or list) -- zeros are ignored"
   (if (vectorp seq)
@@ -599,7 +599,7 @@ Let $p$ be a real polynomial of degree $n>0$, then the Fourier sequence of $p$ i
             count cur-amb                                                       into count-amb
             finally (return (values count-sgn (if (not (zerop count-amb)) count-amb))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_scount-sturm (p l r &optional sturm-sequence)
   "Compute the difference in the sign changes for $S(x+l)$ and $S(x+h)$ where S is the given Sturm sequence or the canonical one.
 
@@ -619,16 +619,15 @@ A Sturm sequence is a set of polynomials $p_0, p_1, \\dots, p_m\\in\\mathbb{R}[x
   \\end{itemize}
 
 Sturm's theorem\\\\
-  Let $p$ be a real, square-free polynomial of degree $n>0$ and $l,r\\in \\mathbb{R}$ with $l<r$.  Let $S_\\text{seq}(x)=\\big\\{
-  p_0(x), p_1(x), ..., p_m(x)\\big\\}$ be a Sturm sequence with $p_0=p$.  Let $v_l$ and $v_r$ be the sign variations in the
-  sequences $S_\\text{seq}(l)$ and $S_\\text{seq}(r)$.  Let $\\rho$ be the number of the real roots of $p$ in $(l,r]$. Let
-  $v_\\delta=v_l - v_r$.  Then we have $\\rho = v_\\delta$
+  Let $p$ be a real, square-free polynomial of degree $n>0$ and $l,r\\in \\mathbb{R}$ with $l<r$.  Let $S_\\text{seq}(x)=\\big\\{ p_0(x), p_1(x), ...,
+  p_m(x)\\big\\}$ be a Sturm sequence with $p_0=p$.  Let $v_l$ and $v_r$ be the sign variations in the sequences $S_\\text{seq}(l)$ and $S_\\text{seq}(r)$.
+  Let $\\rho$ be the number of the real roots of $p$ in $(l,r]$. Let $v_\\delta=v_l - v_r$.  Then we have $\\rho = v_\\delta$
 
 Sturm's Canonical Sequence theorem\\\\
-  Let $p$ be a real polynomial of degree $n>0$ and $l,r\\in \\mathbb{R}$ with $l<r$ and neither $l$ or $r$ is a multiple root of $p$.
-  Let $S_\\text{seq}(x)=\\big\\{ p_0(x), p_1(x), ..., p_m(x)\\big\\}$ be the canonical Sturm sequence of $p$.  Let $v_l$ and $v_r$ be the
-  sign variations in the sequences $S_\\text{seq}(l)$ and $S_\\text{seq}(r)$.  Let $\\rho$ be the number of distinct real roots of $p$
-  in $(l,r]$. Let $v_\\delta=v_l - v_r$.  Then we have $\\rho = v_\\delta$
+  Let $p$ be a real polynomial of degree $n>0$ and $l,r\\in \\mathbb{R}$ with $l<r$ and neither $l$ or $r$ is a multiple root of $p$.  Let
+  $S_\\text{seq}(x)=\\big\\{ p_0(x), p_1(x), ..., p_m(x)\\big\\}$ be the canonical Sturm sequence of $p$.  Let $v_l$ and $v_r$ be the sign variations in the
+  sequences $S_\\text{seq}(l)$ and $S_\\text{seq}(r)$.  Let $\\rho$ be the number of distinct real roots of $p$ in $(l,r]$. Let $v_\\delta=v_l - v_r$.  Then
+  we have $\\rho = v_\\delta$
 
 References:
   Jacques Charles Francois Sturm(1829); Memoire sur la resolution des equations numeriques; Bulletin des Sciences de Ferussac 11; 419-425"
@@ -637,13 +636,13 @@ References:
     (- (mjr_poly_count-sign-changes (mjr_poly_seq-eval ss l))
        (mjr_poly_count-sign-changes (mjr_poly_seq-eval ss r)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_scount-budan (p l h)
   "Compute the difference in the sign changes for $p(x+l)$ and $p(x+h)$
 
 Budan's theorem:\\\\
-  Let $p\\in\\mathbb{R}[x]$ with degree $n>0$ and $l,r\\in \\mathbb{R}$ with $l<r$ and $p(r)\\ne0$. Let $v_l$ and $v_r$ be the sign
-  variations in $p(x+l)$ and $p(x+r)$ respectively. Let $\\rho$ be the number of the real roots of $p$ in $(l,r)$. Let
+  Let $p\\in\\mathbb{R}[x]$ with degree $n>0$ and $l,r\\in \\mathbb{R}$ with $l<r$ and $p(r)\\ne0$. Let $v_l$ and $v_r$ be the sign variations in $p(x+l)$ and
+  $p(x+r)$ respectively. Let $\\rho$ be the number of the real roots of $p$ in $(l,r)$. Let
   $v_\\delta=v_l - v_r$.
     \\begin{enumerate}
       \\item $v_l \\ge v_r$
@@ -658,14 +657,14 @@ References:
   (- (mjr_poly_count-sign-changes (mjr_poly_shift (- l) p))
      (mjr_poly_count-sign-changes (mjr_poly_shift (- h) p))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_scount-fourier (p l h)
   "Compute the difference in the sign changes for $F(x+l)$ and $F(x+h)$ where F is the 'Fourier Sequence' for $p$
 
 Fourier's theorem:\\\\
-  Let $p$ be a real polynomial of degree $n>0$ and $l,r\\in \\mathbb{R}$ with $l<r$ and $p(r)\\ne0$. Let $F_\\text{seq}(x)$ be the
-  Fourier sequence of $p$.  Let $v_l$ and $v_r$ be the sign variations in the sequences $F_\\text{seq}(l)$ and $F_\\text{seq}(r)$.
-  Let $\\rho$ be the number of the real roots of $p$ in $(l,r)$. Let $v_\\delta=v_l - v_r$.
+  Let $p$ be a real polynomial of degree $n>0$ and $l,r\\in \\mathbb{R}$ with $l<r$ and $p(r)\\ne0$. Let $F_\\text{seq}(x)$ be the Fourier sequence of $p$.
+  Let $v_l$ and $v_r$ be the sign variations in the sequences $F_\\text{seq}(l)$ and $F_\\text{seq}(r)$.  Let $\\rho$ be the number of the real roots of $p$
+  in $(l,r)$. Let $v_\\delta=v_l - v_r$.
     \\begin{enumerate}
       \\item $v_l \\ge v_r$
       \\item $\\rho \\le v_\\delta$
@@ -682,7 +681,7 @@ References:
     (- (mjr_poly_count-sign-changes (multiple-value-list (mjr_poly_eval-poly-and-first-n-derivatives p l d)))
        (mjr_poly_count-sign-changes (multiple-value-list (mjr_poly_eval-poly-and-first-n-derivatives p h d))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_scount-descartes (poly &optional (c 0))
   "Apply Descartes rule of signs to the shifted polynomial.
 
@@ -695,10 +694,9 @@ Four values returned:
 Theorem (Descartes):
    Let
    $$p(x)=\\sum\\limits_{j=0}^n a_jx^j\\in\\mathbb{R}[x]$$
-   Let $P=\\sigma(p)$ and $N=\\sigma(p(-x))$ where the $\\sigma$ function is defined as the number of sign changes in the
-   polynomial coefficients ignoring zero coefficients.  Let $Z$ be the number of trailing zeros -- i.e. number of zero
-   coefficients at the end of the polynomial.  Then the polynomial $p$ has $P-2m$ positive roots, $Z$ zero roots, and $N-2n$
-   negative roots where $m$ and $n$ non-negative integers.
+   Let $P=\\sigma(p)$ and $N=\\sigma(p(-x))$ where the $\\sigma$ function is defined as the number of sign changes in the polynomial coefficients ignoring
+   zero coefficients.  Let $Z$ be the number of trailing zeros -- i.e. number of zero coefficients at the end of the polynomial.  Then the polynomial $p$ has
+   $P-2m$ positive roots, $Z$ zero roots, and $N-2n$ negative roots where $m$ and $n$ non-negative integers.
 
 References:
   Rene Descartes (1637); La Geometrie (an appendix to Discours de la methode -- Discourse on Method)
@@ -720,7 +718,7 @@ References:
           count cur-ambiguous                                                             into count-ambiguous-zeros
           finally (return (values count+x count=0 count-x (if (not (zerop count-ambiguous-zeros)) count-ambiguous-zeros))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-bound-positive (poly &key (algorithm :rb-lagrange))
   "Return an upper bound (perhaps strict) on the positive real roots of POLY.  Returns NIL if anything goes wrong."
   (let* ((poly (mjr_poly_simplify poly))
@@ -747,7 +745,7 @@ References:
                                       finally (return (and max1 max2 (+ max1 max2))))))
           (otherwise       (error "mjr_poly_root-bound-positive: Unknown algorithm!"))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-bound-all (poly &key (algorithm :rb-fujiwara))
   "Return an upper bound (perhaps strict) on the modulus of the roots of POLY using the given algorithm
 
@@ -807,7 +805,7 @@ References:
               (mapcar #'cmpbnd algorithm)
               (cmpbnd algorithm))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-bound-all-cauchy (poly &key (xeps 0.0001) (yeps 0.0001) (max-itr 1000))
   "Compute an approximation of the cauchy bound on the roots of the polynomial."
   (loop with soly = (mjr_poly_zap-zero-roots (mjr_poly_simplify poly))
@@ -838,20 +836,19 @@ References:
                                            (setq x0 x-mid y0 y-mid))))
         finally (return x1)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-count-distinct-interval (p a b &optional eps)
   "Use mjr_poly_scount-sturm to compute the total number of distinct, real roots of the polynomial in $(a,b)$
 
-If polynomial is zero at a or b, then those roots will be removed via deflation.  If floating point comparisons are required to
-determine zeros at a and/or b, then eps will be used.  Polynomial rationalization via mjr_poly_2primitive is recommended if floating
-point round-off is a problem."
+If polynomial is zero at a or b, then those roots will be removed via deflation.  If floating point comparisons are required to determine zeros at a and/or b,
+then eps will be used.  Polynomial rationalization via mjr_poly_2primitive is recommended if floating point round-off is a problem."
   (if (mjr_chk_!=0 (mjr_poly_eval p a) eps)
       (if (mjr_chk_!=0 (mjr_poly_eval p b) eps)
           (mjr_poly_scount-sturm p a b)
           (mjr_poly_root-count-distinct-interval (mjr_poly_deflate p b) a b eps))
       (mjr_poly_root-count-distinct-interval (mjr_poly_deflate p a) a b eps)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-count-distinct-negative-zero-positive (p &optional eps)
   "Use mjr_poly_scount-sturm to compute the total number of distinct, real roots of the polynomial in $(a,b)$
 
@@ -863,13 +860,13 @@ mjr_poly_zap-zero-roots and EPS are used to count zero roots (mjr_poly_2primitiv
               nzr
               (mjr_poly_scount-sturm p 0        (+ 1 u)  ss)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-count-distinct-real (p)
   "Use mjr_poly_scount-sturm and mjr_poly_root-bound-all to compute the total number of distinct, real roots of the polynomial."
   (let ((u (ceiling (mjr_poly_root-bound-all p))))
     (mjr_poly_scount-sturm p (- -1 u) (+ 1 u))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-structure (poly &optional use-sturm-sequence)
   "Return a list of vectors with each vector containing possible counts for negative, zero, positive, and complex roots for POLY."
   (let* ((poly (mjr_poly_simplify poly))
@@ -893,7 +890,7 @@ mjr_poly_zap-zero-roots and EPS are used to count zero roots (mjr_poly_2primitiv
                                                         num-pos-roots
                                                         (- num-roots num-not0-roots num-zero-roots)))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-structure-print (rstruct)
   "Print out all the list returned from mjr_poly_root-structure in a nice humanly readable table."
   (format 't "  Negative       Zero   Positive    Complex~%")
@@ -901,12 +898,12 @@ mjr_poly_zap-zero-roots and EPS are used to count zero roots (mjr_poly_2primitiv
         do (format 't "~10d ~10d ~10d ~10d~%" (aref cnts 0) (aref cnts 1) (aref cnts 2) (aref cnts 3))
         finally (return rstruct)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-solve-rational (poly &key only-integer-roots)
   "Find rational roots of a polynomial.
 
-Morally speaking this only works on a polynomials with integer coefficients; however, this function uses MJR_POLY_2PRIMITIVE to
-transform POLY into one with integer coefficients if required.
+Morally speaking this only works on a polynomials with integer coefficients; however, this function uses MJR_POLY_2PRIMITIVE to transform POLY into one with
+integer coefficients if required.
 
 Returns:
   * A list of found roots
@@ -952,12 +949,12 @@ Returns:
              ipolyf
              wpoly))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-solve-integer (poly)
   "Find integer roots of a polynomial.
 
-Morally speaking this only works on a polynomials with integer coefficients; however, this function uses MJR_POLY_2PRIMITIVE to
-transform POLY into one with integer coefficients if required.
+Morally speaking this only works on a polynomials with integer coefficients; however, this function uses MJR_POLY_2PRIMITIVE to transform POLY into one with
+integer coefficients if required.
 
 Returns:
   * A list of found roots
@@ -966,7 +963,7 @@ Returns:
   * the result of deflating IPOLY with each root found"
   (mjr_poly_root-solve-rational poly :only-integer-roots 't))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-search-bsect (poly x0 x1 &rest kw-args &key xeps yeps max-itr show-progress)
   "Use bsect's method to find a root of POLY between X0 and X2.
 See the documentation for MJR_NLEQ_ROOT-BSECT"
@@ -974,7 +971,7 @@ See the documentation for MJR_NLEQ_ROOT-BSECT"
   (flet ((fp  (x) (mjr_poly_eval poly x)))
     (apply #'mjr_nleq_root-bsect #'fp x0 x1 kw-args)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-search-newton (poly x0 &rest kw-args &key xeps yeps max-itr show-progress)
   "Use newton's method to find a root of POLY near (hopefully anyhow) X0.
 See the documentation for MJR_NLEQ_ROOT-NEWTON"
@@ -982,7 +979,7 @@ See the documentation for MJR_NLEQ_ROOT-NEWTON"
   (flet ((fdf (x) (mjr_poly_eval-poly-and-first-n-derivatives poly x 1)))
     (apply #'mjr_nleq_root-newton #'fdf x0 kw-args)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-search-laguerre (poly x0 &rest kw-args &key xeps yeps max-itr show-progress)
   "Use laguerre's method to find a root of POLY near (hopefully anyhow) X0.
 See the documentation for MJR_NLEQ_ROOT-LAGUERRE"
@@ -990,20 +987,19 @@ See the documentation for MJR_NLEQ_ROOT-LAGUERRE"
   (flet ((fdfddf (x) (mjr_poly_eval-poly-and-first-n-derivatives poly x 2)))
     (apply #'mjr_nleq_root-laguerre #'fdfddf (mjr_poly_degree poly) x0 kw-args)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-separate-largest-real (poly &key (xeps 1) max-itr yeps show-progress)
   "Use the canonical sturm-sequence find an interval containing the largest real root and no other roots.
 
-An open interval $(a,b)$ containing the largest real root (and no other roots) is found.  This interval will be no wider than :XEPS,
-and will contain no roots other than the largest real one.  The return of this function will two values corresponding to the left
-and right endpoints of the interval.  In the case of a polynomial with no real roots, then (values nil nil) will be returned. If the
-polynomial is rational, then the interval endpoints will be as well.
+An open interval $(a,b)$ containing the largest real root (and no other roots) is found.  This interval will be no wider than :XEPS, and will contain no roots
+other than the largest real one.  The return of this function will two values corresponding to the left and right endpoints of the interval.  In the case of a
+polynomial with no real roots, then (values nil nil) will be returned. If the polynomial is rational, then the interval endpoints will be as well.
 
-When removed from the vulgarities of real world computing, this algorithm is guaranteed to work; however, some things can go wrong
-with real world implementations.  When the inputs are rational, and enough memory is available for the necessary precision, the
-algorithm will always work unless the :MAX-ITR count is violated (the error is 'Maximum iteration count exceeded!').  When using
-floating point arithmetic various things can go wrong, but when the error 'Could not find a non-root' occurs a lower :YEPS (the only
-use of this argument is to detect when the polynomial is zero at prospective new interval endpoints) might help."
+When removed from the vulgarities of real world computing, this algorithm is guaranteed to work; however, some things can go wrong with real world
+implementations.  When the inputs are rational, and enough memory is available for the necessary precision, the algorithm will always work unless the :MAX-ITR
+count is violated (the error is 'Maximum iteration count exceeded!').  When using floating point arithmetic various things can go wrong, but when the error
+'Could not find a non-root' occurs a lower :YEPS (the only use of this argument is to detect when the polynomial is zero at prospective new interval
+endpoints) might help."
   (let ((d (mjr_poly_degree poly)))
     (cond ((some #'complexp poly) (error "mjr_poly_root-separate-largest-real: POLY must be a non-complex coefficients!"))
           ((< d 2)                (error "mjr_poly_root-separate-largest-real: POLY must be of at least degree two!")))
@@ -1035,17 +1031,17 @@ use of this argument is to detect when the polynomial is zero at prospective new
                        (< (- b a) xeps)))
       (values a b))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-search-largest-real (poly &rest rest)
   "Return the largest real root or NIL if the polynomial has no real roots.
 
-When successful this function returns the center of the interval found by mjr_poly_root-separate-largest-real.  All arguments
-are passed directly to mjr_poly_root-separate-largest-real, so consult that function for usage information."
+When successful this function returns the center of the interval found by mjr_poly_root-separate-largest-real.  All arguments are passed directly to
+mjr_poly_root-separate-largest-real, so consult that function for usage information."
   (multiple-value-bind (a b) (apply #'mjr_poly_root-separate-largest-real poly rest)
     (if (and a b)
         (/ (+ a b) 2))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-solve-low-degree (poly &optional eps)
   "Return list of root(s) to the small degree (<=3) polynomial.
 Multiple roots are listed multiple times.
@@ -1101,7 +1097,7 @@ The argument EPS is used to avoid division by zero."
                         (error "mjr_poly_root-solve-low-degree: Infinitely many solutions!"))))))
       (error "mjr_poly_root-solve-low-degree: Polynomial order is greater than 3!")))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_make-lagrange (points 1point &optional (pval 1))
   "Return the unique polynomial that is PVAL (default 1) on the 1point'th element (zero indexed) of POINTS, and zero all the
   other elements of POINTS"
@@ -1121,14 +1117,14 @@ The argument EPS is used to avoid division by zero."
                        divs (* divs (- 1p p)))))
     (mjr_poly_* poly (/ pval divs))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_seq-make-lagrange (points &optional (pval 1))
   "Return a list of polynomials such that the i'th one has value PVAL on the i'th element of POINTS and zero on all other elements"
   (loop for i from 0 upto (1- (length points))
         collect (mjr_poly_make-lagrange points i pval)))
 ;; MJR TODO NOTE <2012-11-12 22:30:11 CST> mjr_poly_seq-make-lagrange: Optimize this function!
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_seq-make-chebyshev (num &optional (kind 1))
   "Compute first NUM Chebyshev Polynomials (as a vector of vectors).
 kind==1 corresponds to Chebyshev Polynomials of the first kind $T_n$.
@@ -1142,7 +1138,7 @@ kind==2 corresponds to Chebyshev Polynomials of the second kind $U_n$."
             finally (return p)
             do (setf (aref p i) (mjr_poly_- (mjr_poly_* 2 #(1 0) (aref p (- i 1))) (aref p (- i 2)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_make-chebyshev (power &optional (kind 1))
   "Compute Chebyshev Polynomial of the given power.
 kind==1 corresponds to Chebyshev Polynomials of the first kind $T_n$.
@@ -1158,19 +1154,19 @@ kind==2 corresponds to Chebyshev Polynomials of the second kind $U_n$."
                        for pn = (mjr_poly_- (mjr_poly_* 2 #(1 0) pb) pa)
                        when (= power i) do (return pn))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_make-legendre (n)
   "Compute the Nth legendre polynomial using $$\\frac{1}{2^n n!}\\cdot\\frac{d^n}{dx^n}(x^2-1)^n$$"
   (mjr_poly_* (mjr_poly_diff (mjr_poly_iexpt #(1 0 -1) n) n) (/ (* (expt 2 n) (mjr_combe_! n)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_seq-make-legendre (n)
   "Return a list of the first n legendre polynomials (starting with the 0'th one)"
   (loop for i from 0 upto n
         collect (mjr_poly_make-legendre i)))
 ;; MJR TODO NOTE <2012-11-12 22:40:48 CST> mjr_poly_seq-make-legendre: Optimize this function!
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_make-bernstein (nu n)
   "The nu'th Bernstein basis polynomial of degree n."
   (let ((poly (make-array (1+ n) :initial-element 0))
@@ -1179,7 +1175,7 @@ kind==2 corresponds to Chebyshev Polynomials of the second kind $U_n$."
     (dotimes (i (length tmp) poly)
       (setf (aref poly i) (aref tmp i)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_seq-make-bernstein (n &key show-progress)
   "The Bernstein basis polynomials of degree n (all n of them in a list)."
   (reverse (loop with xn = (make-array (1+ n) :initial-element 0)
@@ -1191,7 +1187,7 @@ kind==2 corresponds to Chebyshev Polynomials of the second kind $U_n$."
                  do (if show-progress (format 't "~4d: ~10d ~4d ~80a ~%" nu c (mjr_poly_degree p1) p2))
                  collect (mjr_poly_* c p1 p2))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_imul (poly n)
   "Multiply POLY times the integer N.
 
@@ -1199,26 +1195,24 @@ This function is provided for consistency with other packages that implement ari
 multiplication is not terribly interesting for polynomials over Z, Q, R, or C."
   (mjr_poly_* n poly))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-solve-search-deflate (poly &key
-                                           (xeps 1.0d-5) (yeps 1.0d-5)
-                                           (xepsr 1.0d-10) (yepsr 1.0d-10) (refine-steps 10) (only-refined nil)
-                                           (yepsp nil)
-                                           (retry-factor 4) (float-type 0.0d0)
-                                           (show-warnings nil) (show-progress nil))
+                                                  (xeps 1.0d-5) (yeps 1.0d-5)
+                                                  (xepsr 1.0d-10) (yepsr 1.0d-10) (refine-steps 10) (only-refined nil)
+                                                  (yepsp nil)
+                                                  (retry-factor 4) (float-type 0.0d0)
+                                                  (show-warnings nil) (show-progress nil))
   "Find floating point approximations for all of the roots of a polynomial.
 Three values are returned: list of roots found, list of poly values on roots, and the part of the poly that couldn't be solved.
 
              _____THIS FUNCTION SHOULD BE CONSIDERED EXPERIMENTAL_____
 
-This function works most of the time, but the roots are generally only accurate to a few decimal points.  Retrying the function
-after failure can lead to success (different random seeds).  Lowering the :XEPS and :YEPS can help in initial root location.
-If :ONLY-REFINED is used, then increasing :RETRY-FACTOR may be required.  On LISPs that support it, setting
-:FLOAT-TYPE to 0.0L0 may increase accuracy and help with convergence problems due to round off errors.  As a last resort, the
-:YEPSP argument may be set to a value larger than :YEPS in cases where numerical instability leads to deflated polynomials that have
-roots which are not within :YEPS of being a root of the original polynomial but are within :YEPSP of being a root (i.e.  the
-absolute value of the original polynomial at the proposed root is less than :YEPSP).  This last option can lead not-quite-roots that
-are quite far off, but still useful.
+This function works most of the time, but the roots are generally only accurate to a few decimal points.  Retrying the function after failure can lead to
+success (different random seeds).  Lowering the :XEPS and :YEPS can help in initial root location.  If :ONLY-REFINED is used, then increasing :RETRY-FACTOR
+may be required.  On LISPs that support it, setting :FLOAT-TYPE to 0.0L0 may increase accuracy and help with convergence problems due to round off errors.  As
+a last resort, the :YEPSP argument may be set to a value larger than :YEPS in cases where numerical instability leads to deflated polynomials that have roots
+which are not within :YEPS of being a root of the original polynomial but are within :YEPSP of being a root (i.e.  the absolute value of the original
+polynomial at the proposed root is less than :YEPSP).  This last option can lead not-quite-roots that are quite far off, but still useful.
 
 The algorithm:
    0) Set w<-p
@@ -1241,19 +1235,24 @@ The algorithm:
           for itr from 1 upto trys
           while (< 1 (length wpoly))
           do (multiple-value-bind (x-bst w-bst ex-why)
-                 (mjr_poly_root-search-laguerre wpoly guess :yeps yeps :xeps xeps :show-progress show-progress)
+                 (progn (if show-progress (format 't "Root search: ~f~%" guess))
+                        (mjr_poly_root-search-laguerre wpoly guess :yeps yeps :xeps xeps :show-progress show-progress))
+               (if show-progress (format 't "Root candidate: ~a~%" x-bst))
                ;; Refine the root.
                (setq refined nil)
                (if refine-steps
                    (multiple-value-bind (x-bst2 p-bst2 ex-why2)
-                       (mjr_poly_root-search-laguerre poly x-bst :yeps yepsr :xeps xepsr :max-itr refine-steps :show-progress show-progress)
+                       (progn (if show-progress (format 't "Root refine:~%"))
+                              (mjr_poly_root-search-laguerre poly x-bst :yeps yepsr :xeps xepsr :max-itr refine-steps :show-progress show-progress))
+                     (if show-progress (format 't "Refinement candidate: ~a~%" x-bst2))
                      (if (mjr_eps_=0 p-bst2 yepsp)
                          (let ((w-bst2 (mjr_poly_eval wpoly x-bst2)))
                            (if (mjr_eps_=0 w-bst2 yeps)
-                               (setf x-bst   x-bst2
-                                     w-bst   w-bst2
-                                     ex-why  ex-why2
-                                     refined 't)
+                               (progn (if show-progress (format 't "Refinement success~%"))
+                                      (setf x-bst   x-bst2
+                                            w-bst   w-bst2
+                                            ex-why  ex-why2
+                                            refined 't))
                                (if show-warnings (warn "mjr_poly_root-solve-search-deflate: laguerre refinement failed to find new root: ~a" x-bst))))
                          (if show-warnings (warn "mjr_poly_root-solve-search-deflate: laguerre refinement failed to converge: ~a" x-bst)))))
                (if (or refined (null only-refined))
@@ -1264,26 +1263,37 @@ The algorithm:
                                 (w-bst2 (mjr_poly_eval wpoly x-bst2)))
                            (if (and (mjr_eps_=0 w-bst2 yeps)
                                     (mjr_eps_=0 (mjr_poly_eval poly x-bst2) yepsp))
-                               (setf x-bst  x-bst2
-                                     w-bst  w-bst2))))
+                               (progn (if show-progress (format 't "Root real-ifyed~%"))
+                                      (setf x-bst  x-bst2
+                                            w-bst  w-bst2)))))
+                     ;; Snip off the fractional bit if this results in a good root
+                     (let* ((x-bst2 (complex (round (realpart x-bst)) (round (imagpart x-bst))))
+                            (w-bst2 (mjr_poly_eval wpoly x-bst2)))
+                           (if (and (mjr_eps_=0 w-bst2 yeps)
+                                    (mjr_eps_=0 (mjr_poly_eval poly x-bst2) yepsp))
+                               (progn (if show-progress (format 't "Root int-ifyed~%"))
+                                      (setf x-bst  x-bst2
+                                            w-bst  w-bst2))))
                      ;; Check the "roots", and deflate if things look good
                      (if (mjr_eps_=0 w-bst yeps)
                          (let ((p-bst (mjr_poly_eval poly x-bst)))
                            (if (mjr_eps_=0 p-bst yepsp)
                                (let ((wpoly2 (mjr_poly_deflate wpoly x-bst)))
-                                 (setf roots (cons x-bst roots)
-                                       pvals (cons p-bst pvals))
-                                 (if (and rpoly (complexp x-bst))
-                                     (let* ((x-bst-c (conjugate x-bst)))
-                                       (if (mjr_eps_=0 (mjr_poly_eval wpoly2 x-bst-c) yeps)
-                                           (setf roots (cons x-bst-c roots)
-                                                 pvals (cons (mjr_poly_eval poly x-bst-c) pvals)
-                                                 wpoly (mjr_poly_truncate wpoly
-                                                                          (vector 1 0 (mjr_numu_hypot (realpart x-bst) (imagpart x-bst)))))
-                                           (progn
-                                             (if show-warnings (warn "mjr_poly_root-solve-search-deflate: Numerical instability detected: real poly but conjugate not a root!: ~a" x-bst))
-                                             (setf wpoly wpoly2))))
-                                     (setf wpoly wpoly2)))
+                                  (setf roots (cons x-bst roots)
+                                        pvals (cons p-bst pvals))
+                                  (if (and rpoly (complexp x-bst))
+                                      (let* ((x-bst-c (conjugate x-bst)))
+                                        (if (mjr_eps_=0 (mjr_poly_eval wpoly2 x-bst-c) yeps)
+                                            (setf roots (cons x-bst-c roots)
+                                                  pvals (cons (mjr_poly_eval poly x-bst-c) pvals)
+                                                  wpoly (mjr_poly_truncate wpoly
+                                                                           (vector 1
+                                                                                   (* -2 (realpart x-bst))
+                                                                                   (mjr_numu_abssqr x-bst))))
+                                            (progn
+                                              (if show-warnings (warn "mjr_poly_root-solve-search-deflate: Numerical instability detected: real poly but conjugate not a root!: ~a" x-bst))
+                                              (setf wpoly wpoly2))))
+                                      (setf wpoly wpoly2)))
                                (if show-warnings (warn "mjr_poly_root-solve-search-deflate: Numerical instability detected: root of deflated poly not a root of original poly!"))))
                          (if show-warnings (warn "mjr_poly_root-solve-search-deflate: laguerre failed to converge: ~a ~a ~a" x-bst w-bst ex-why))))
                    (if show-warnings (warn "mjr_poly_root-solve-search-deflate: Ignoring unrefined root: ~a" x-bst))))
@@ -1291,16 +1301,17 @@ The algorithm:
           do (if show-progress (format 't "ROOT:  ~a~%" roots)))
     (values roots pvals wpoly)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_find-integer-factor (poly degree-or-sample-points &key show-progress)
   "Return an integer polynomial factor of the integer polynomial specified by POLY of the specified size or NIL if none exist.
+
 If a factor was found, then a second return value returned is POLY divided by the factor that was found.
 
-If degree-or-sample-points is a vector, then the points will be used in Kronecker's method.  As the value of the polynomial on
-each of these points must be factored, the polynomial must not be zero on any of the points in the vector.
+If degree-or-sample-points is a vector, then the points will be used in Kronecker's method.  As the value of the polynomial on each of these points must be
+factored, the polynomial must not be zero on any of the points in the vector.
 
-The size of the factors may be specified as an integer indicating the degree of the desired factors or a vector of sample points
-to be used by Kronecker's method (in which case the degree of the factors will be one less than the length of the list)
+The size of the factors may be specified as an integer indicating the degree of the desired factors or a vector of sample points to be used by Kronecker's
+method (in which case the degree of the factors will be one less than the length of the list)
 
 References:
   Victor V. Prasolov (2004); Polynomials; ISBN: 3540407146; pp 49-50"
@@ -1335,7 +1346,7 @@ References:
                                                                     (if quo
                                                                         (return-from mjr_poly_find-integer-factor (values p quo))))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_factor-over-integers (poly &key show-progress)
   "Return a list of integer polynomial factors of the integer polynomial specified by POLY.
 
@@ -1379,12 +1390,12 @@ References:
                                                                                        (setq pleft quo)
                                                                                        (setq gotfac 't)))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_gcd-primitive (poly1 poly2)
   "Return primitive GCD of poly1 and poly2. See: MJR_POLY_GCD"
   (mjr_poly_2primitive (mjr_poly_gcd poly1 poly2)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_test-property (poly &rest pp-list)
   "Return non-nil if the given polynomial has all of the specified polynomial properties.
 
@@ -1445,7 +1456,7 @@ This is not a fast function, but it sure is handy.  A few property tests exist a
           (:pp-constant     (= 0 deg))
           (otherwise        (error "mjr_poly_test-property: Unknown property"))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_seq-make-hermite (num)
   "Compute first NUM Hermite Polynomials (as a vector of vectors)."
   (loop with p = (make-array num)
@@ -1457,7 +1468,7 @@ This is not a fast function, but it sure is handy.  A few property tests exist a
         do (setf (aref p i) (mjr_poly_- (mjr_poly_* #(1 0) (aref p (- i 1)))
                                         (mjr_poly_diff (aref p (- i 1)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_make-hermite (power)
   "Compute the Hermite Polynomial of the given power."
   (let* ((p0 #(1))
@@ -1471,7 +1482,7 @@ This is not a fast function, but it sure is handy.  A few property tests exist a
                        for pn = (mjr_poly_- (mjr_poly_* #(1 0) pb) (mjr_poly_diff pb))
                        when (= power i) do (return pn))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_make-laguerre (power)
   "Compute the Laguerre Polynomial of the given power."
   (let* ((p0 #(1))
@@ -1487,7 +1498,7 @@ This is not a fast function, but it sure is handy.  A few property tests exist a
                                                         (mjr_poly_* (1- i) pa)))
                        when (= power i) do (return pn))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_seq-make-laguerre (num)
   "Compute first NUM Hermite Polynomials (as a vector of vectors)."
   (loop with p = (make-array num)
@@ -1500,7 +1511,7 @@ This is not a fast function, but it sure is handy.  A few property tests exist a
                                         (mjr_poly_- (mjr_poly_* (mjr_poly_+ (* 2 (1- i)) #(-1 1)) (aref p (1- i)))
                                                     (mjr_poly_* (1- i) (aref p (- i 2))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_cubic-depress (poly)
   "Return the depressed form of the given cubic polynomial.
 If $p(x)=ax^3+bx^2+cx+d$, then divide $p$ by $a$ and substitute $t=\frac{b}{-3a}$."
@@ -1519,13 +1530,13 @@ If $p(x)=ax^3+bx^2+cx+d$, then divide $p$ by $a$ and substitute $t=\frac{b}{-3a}
                   (/ (+ (* 2 b2 b) (* -9 a b c) (* 27 a2 d)) (* 27 a2 a))))
         (error "mjr_poly_cubic-depress: Polynomial must be a cubic!"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_tschirnhaus-3-2 (poly)
   "Tschirnhaus transformation (wipe out the power 2 term of a degree 3 polynomial)
 If $p(x)=ax^3+bx^2+cx+d$, then substitute $t=\frac{b}{-3a}$."
   (mjr_poly_simplify (mjr_poly_subst (vector 1 (/ (mjr_poly_coeff poly 2) (* -3 (mjr_poly_leading-coeff poly)))) poly)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_discriminant-low-degree (poly)
   "Return discriminant of a non-linear, small degree (<=5) polynomial via a direct formula"
   ;; Maxima Code to compute discriminant
@@ -1594,7 +1605,7 @@ If $p(x)=ax^3+bx^2+cx+d$, then substitute $t=\frac{b}{-3a}$."
                     (- b2 (* 4 a c))))
       (otherwise  (error "mjr_poly_discriminant-low-degree: Only polynomials of degree 2, 3, 4, and 5 are supported!")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_resultant (poly1 poly2)
   "Return resultant the two polynomials via a recursive GCD-like computation."
   (labels ((resultant (poly1 poly2)
@@ -1611,7 +1622,7 @@ If $p(x)=ax^3+bx^2+cx+d$, then substitute $t=\frac{b}{-3a}$."
                                (mjr_poly_* (expt lc (- deg2 (mjr_poly_degree r))) (mjr_poly_resultant poly1 r))))))))))
     (mjr_poly_leading-coeff (resultant poly1 poly2))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_discriminant-high-degree (poly)
   "Return discriminant of a non-linear polynomial via a recursive resultant computation."
   (let ((pdeg (mjr_poly_degree   poly)))
@@ -1619,14 +1630,14 @@ If $p(x)=ax^3+bx^2+cx+d$, then substitute $t=\frac{b}{-3a}$."
        (/ (mjr_poly_leading-coeff poly))
        (mjr_poly_resultant poly (mjr_poly_diff poly)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_discriminant (poly)
   "Return discriminant of a non-linear polynomial using the most efficient method available."
   (if (> (mjr_poly_degree poly) 4)
       (mjr_poly_discriminant-high-degree poly)
       (mjr_poly_discriminant-low-degree poly)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_factor-square-free (poly)
   "Return the square-free factorization of POLY as an assoc array with (poly . power).   
 
@@ -1652,7 +1663,7 @@ References:
         when (not (mjr_poly_onep uj))
         collect (cons uj j)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_factor-irreducible (poly &key show-progress)
   "Return the irreducible factorization of POLY as an assoc array with (poly . power).   
 
@@ -1675,3 +1686,51 @@ VERY SLOW.  Uses kronecker's method."
         do (incf d)
         until (mjr_poly_onep poly-left)
         until (>= d pdeg)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_poly_mahler-measure (poly &optional (method-class :solve) (method-function #'mjr_poly_root-solve-search-deflate) method-args)
+  "Compute the Mahler measure of the polynomial POLY
+
+The optional arguments to determine how the computation is preformed:
+
+   method-class   method-function                          method-args
+   :solve         #'mjr_poly_root-solve-search-deflate     nil                  <= DEFAULT
+   :integrate     #'mjr_intg_simple-gauss-kronrod          '(:order 21)
+   :integrate     #'mjr_intg_simple-gauss-kronrod          '(:order 31)
+   :integrate     #'mjr_intg_simple-gauss-legendre         '(:order 20)
+   :integrate     #'mjr_intg_glb-adp-composite-romberg     '(:the-err 1.0D-5)
+   :integrate     #'mjr_intg_glb-adp-composite-trapezoidal '(:the-err 1.0D-5)
+
+Definition
+
+  Let $p\\in\\mathbb{C}[z]$ with $\\mathrm{deg}(p)=d$.  For definiteness, we express  $p$ like so:
+  
+  $$p(z)=\\sum_{j=0}^d a_jx^j = a_d\\prod_{j=1}^d (z-\\alpha_j)$$
+
+  We then define the Mahler measure to be:
+
+  $$M(p) = 
+    \\vert a_d\\vert\\prod_{\\vert\\alpha_j\\vert\\geq1} \\vert\\alpha_j\\vert = 
+    \\exp\\left(\\frac{1}{2\\pi}\\int_0^{2\\pi}\\ln(\\vert p(e^{i\\theta})\\vert)\\,\\mathrm{d}\\theta\\right)$$
+
+Examples:
+
+  * (mahler-measure #(1 1 0 -1 -1 -1 -1 -1 0 1 1) :integrate #'mjr_intg_simple-gauss-kronrod          '(:order 21      )) => 1.4751609391661360d0
+  * (mahler-measure #(1 1 0 -1 -1 -1 -1 -1 0 1 1) :integrate #'mjr_intg_simple-gauss-kronrod          '(:order 31      )) => 0.7012142844290665d0
+  * (mahler-measure #(1 1 0 -1 -1 -1 -1 -1 0 1 1) :integrate #'mjr_intg_simple-gauss-legendre         '(:order 20      )) => 1.0601232234056748d0
+  * (mahler-measure #(1 1 0 -1 -1 -1 -1 -1 0 1 1) :integrate #'mjr_intg_glb-adp-composite-romberg     '(:the-err 1.0D-5)) => 1.1762811031170224d0
+  * (mahler-measure #(1 1 0 -1 -1 -1 -1 -1 0 1 1) :integrate #'mjr_intg_glb-adp-composite-trapezoidal '(:the-err 1.0D-5)) => 1.1762806954644658d0
+  * (mahler-measure #(1 1 0 -1 -1 -1 -1 -1 0 1 1) :solve     #'mjr_poly_root-solve-search-deflate     '(               )) => 1.1762808182599178d0"
+  (case method-class
+    (:solve     (let* ((roots (mapcar (lambda (x) (max 1 (abs x))) (apply method-function poly method-args)))
+                       (numr  (length roots)))
+                  (if (= numr (mjr_poly_degree poly))
+                      (reduce #'* roots)
+                      (error "mahler-measure: Could not find all roots.  Found ~d" numr))))
+    (:integrate (exp (/ (apply method-function
+                                 (lambda (x) (log (abs (mjr_poly_eval poly (complex (cos x) (sin x))))))
+                                 :start 0.0D0
+                                 :end (* 2.0d0 pi)
+                                 method-args)
+                        (* 2 pi))))
+    (otherwise  (error "mahler-measure: method-class unsupported"))))

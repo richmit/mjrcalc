@@ -1,22 +1,21 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      tst-intrp.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 2015 by Mitch Richling.  All rights reserved.
 ;; @brief     Tests for :mjr_intrp.@EOL
-;; @Keywords  
 ;; @Std       Common Lisp
 ;;
 ;;            
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_INTRP-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_POLY :MJR_MAT :MJR_CMP :MJR_INTRP :MJR_NUMU :MJR_PRNG :MJR_EPS))
 
 (in-package :MJR_INTRP-TESTS)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intrp_poly-val-lagrange (x x-data y-data)
   "Evaluate the polynomial interpolating X-DATA/Y-DATA at the point X.
 
@@ -34,15 +33,15 @@ Implementation notes:
                                                                                        (xi (aref x-data i)))
                                                                                    (/ (- x xj) (- xi xj)))))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intrp_poly-lagrange (x-data y-data)
   "Compute the interpolating polynomial for the given data.
 
 NOTE: This is a raw algorithmic function intended for internal use by other functions -- not interactively.  Not Exported.
 
 Implementation notes: 
-  Directly compute the interpolating polynomial via polynomial arithmetic and the Lagrange formula.  Quite slow, but it always
-  works -- and is memory efficient."
+  Directly compute the interpolating polynomial via polynomial arithmetic and the Lagrange formula.  Quite slow, but it always works -- and is memory
+  efficient."
   (let ((len-1 (1- (length y-data))))
     (apply #'mjr_poly_+ (loop for k from 0 upto len-1
                               for yk = (aref y-data k)
@@ -52,16 +51,15 @@ Implementation notes:
                                                                    when (not (= k i))
                                                                    collect (vector (/ (- xk xi)) (/ xi (- xi xk)))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intrp_poly-vandermonde (x-data y-data)
   "Compute the interpolating polynomial for the given data.
 
 NOTE: This is a raw algorithmic function intended for internal use by other functions -- not interactively.  Not Exported.
 
 Implementation notes: 
-  Compute the interpolating polynomial via the Vandermonde matrix.  Uses a bit more memory than one would like, and is not
-  terribly efficient -- but it works.  always works -- and is memory efficient.  Things work fastest if the input sequences are
-  vectors."
+  Compute the interpolating polynomial via the Vandermonde matrix.  Uses a bit more memory than one would like, and is not terribly efficient -- but it works.
+  always works -- and is memory efficient.  Things work fastest if the input sequences are vectors."
   (let ((poly (reverse (mjr_mat_solve-sys-sge (mjr_mat_make-from-func (lambda (i j) (expt (aref x-data i) j)) :rows (length y-data)) 
                                               y-data))))
     (subseq poly (or (position-if #'mjr_cmp_!=0 poly) 0))))
@@ -87,7 +85,7 @@ Implementation notes:
 (defvar x6-vec) (setq x6-vec #(0 24 36 48 72 144))
 (defvar y6-vec) (setq y6-vec #(10 20 9 21 22 14))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intrp_poly-val
   ;; Make sure that mjr_intrp_poly-val evaluated on one of the x-data points always returns the appropriate y-data point
   (dotimes (i 50)
@@ -142,7 +140,7 @@ Implementation notes:
           (assert-equalp (mjr_intrp_poly-val-lagrange x x-dat y-dat) y)))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intrp_poly
   (assert-true (mjr_eps_= #(-0.1256879165858069d0 -5.551115123125783d-17 
                             0.9648255669881362d0 -1.1102230246251565d-16)                      (mjr_intrp_poly x1-pts y1-pts)))
@@ -177,7 +175,7 @@ Implementation notes:
   ;; MJR TODO NOTE mjr_intrp_poly: Rethink the error handling of this function, and add some error case checks here.
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intrp_lfip
   (dotimes (k 10)
     (let* ((x0  (mjr_prng_int-cc -100 100))  ;; Minimum x value
@@ -191,5 +189,5 @@ Implementation notes:
             (assert-equal (if (= j i) 1 0) (mjr_poly_eval li (elt x-dat j))))))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests)

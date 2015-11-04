@@ -1,21 +1,40 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      tst-poly.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1998,2003,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Tests for use-poly.lisp.@EOL
-;; @Keywords  polynomial use-poly.lisp :mjr_poly
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-poly.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1998,2003,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
 ;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_POLY-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_POLY :MJR_VEC :MJR_EPS :MJR_PRNG :MJR_PRIME :MJR_COMBE))
 
 (in-package :MJR_POLY-TESTS)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Initialize the small prime list..
 
 (if (null mjr_prime::*mjr_prime_small-list*)
@@ -24,7 +43,7 @@
 
 ; Some irreducible polys over Q: #(1 -7 14 -4), #(28 -11 24), #(2 3 -21 -6), #(1 0 -3 -1 -4 14)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_iexpt-naive0 (poly n)
   "Compute poly^n"
   (if (zerop n)
@@ -33,7 +52,7 @@
         (dotimes (i (1- n) pp)
           (setf pp (mjr_poly_* pp poly))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_iexpt-naive1 (poly n)
   "Compute poly^n"
   (if (zerop n)
@@ -41,7 +60,7 @@
       (apply #'mjr_poly_* (loop for i from 1 upto n
                                 collect poly))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_shift-naive0 (b poly)
   "Shift POLY right B units (or left if B is negative).
 
@@ -51,13 +70,13 @@ Based on a simple implementation using MJR_POLY_SUBST. This function is about 5.
         ((< (length poly) 1)   (error "mjr_poly_shift: POLY is empty!")))
   (mjr_poly_subst (vector 1 (- b)) poly))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_shift-naive1 (b poly)
   "Shift POLY right B units (or left if B is negative).
 
-This function performs the computation term-wise by computing poly[j]*(x-b)^j from j=n..0 and adding the results in place.
-This requires O(n) space (for the row of pascal's triangle, the new polynomial, and the powers of b), but is an efficient
-O(n^3) in time complexity.  This function is about 3.2x slower than MJR_POLY_SHIFT-NAIVE2."
+This function performs the computation term-wise by computing poly[j]*(x-b)^j from j=n..0 and adding the results in place.  This requires O(n) space (for the
+row of pascal's triangle, the new polynomial, and the powers of b), but is an efficient O(n^3) in time complexity.  This function is about 3.2x slower than
+MJR_POLY_SHIFT-NAIVE2."
   (cond ((not (vectorp poly))  (error "mjr_poly_shift: POLY is not a vector!"))
         ((not (numberp b))     (error "mjr_poly_shift: B is not a number!"))
         ((< (length poly) 1)   (error "mjr_poly_shift: POLY is empty!")))
@@ -83,13 +102,13 @@ O(n^3) in time complexity.  This function is about 3.2x slower than MJR_POLY_SHI
                                (aref poly (- poly-len-1 master-idx)))))
           finally (return new-poly))))                                                   ;; Finally... Return the new polynomial
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_eval-poly-and-first-n-derivatives-naive (poly x &optional (order 1))
   "Return value of poly at x as well as the value of the first ORDER derivatives at x."
   (values-list (loop for i from 0 upto order
                      collect (mjr_poly_eval (mjr_poly_diff poly i) x))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_shift-naive2 (b poly)
   "Shift POLY right B units (or left if B is negative).
 
@@ -101,7 +120,7 @@ This function performs the computation by using the Taylor expansion at -B.  Sli
                         for f = 1 then (* f i)
                         collect f)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_make-legendre-naive (n)
   "Compute the Nth legendre polynomial using $$P_n(x)=\\frac{(2n-1)\\cdot x\\cdot P_{n-1}(x) - (n-1)\\cdot P_{n-2}(x)}{n}$$"
   (let ((polys (vector #(1) #(1 0)))
@@ -118,26 +137,25 @@ This function performs the computation by using the Taylor expansion at -B.  Sli
         (aref polys n)
         (aref polys (abs (- p-1 order))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_make-laguerre-naive (pow)
   "Use direct formula for laguerre"
   (concatenate 'vector (loop for i from pow downto 0
                              collect (* (mjr_combe_comb pow i) (/ (if (oddp i) -1 1) (mjr_combe_! i))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_scount-fourier-naive (p l h)
   "Construct the fourier sequence, evaluate the sequences, count sign changes, and suptract -- direct implimentation of the thm."
   (let ((fs (mjr_poly_seq-make-fourier p)))
     (- (mjr_poly_count-sign-changes (mjr_poly_seq-eval fs l))
        (mjr_poly_count-sign-changes (mjr_poly_seq-eval fs h)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_make-primative-from-roots-naive (&rest the-roots)
   "Return the primative polynomial with the given roots.
 
-The leading coefficient will be the product of the denominators of the rational roots provided. This implies that if none of the
-roots are non-integer rationals, the the polynomial will be monic.  If all roots are of rational or integer type, then the
-polynomial will have INTEGER coefficients.
+The leading coefficient will be the product of the denominators of the rational roots provided. This implies that if none of the roots are non-integer
+rationals, the the polynomial will be monic.  If all roots are of rational or integer type, then the polynomial will have INTEGER coefficients.
 
 The roots may be given as individual arguments, or as a single list."
   (let ((the-roots (if (and (car the-roots) (listp (car the-roots))) (car the-roots) the-roots)))
@@ -146,12 +164,12 @@ The roots may be given as individual arguments, or as a single list."
                                                 (vector 1                     (- x))))
                                 the-roots))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_make-from-roots-naive (&rest the-roots)
   (let ((the-roots (if (and (car the-roots) (listp (car the-roots))) (car the-roots) the-roots)))
     (apply #'mjr_poly_* (mapcar (lambda (x) (vector 1 (- x))) the-roots))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_onep
   (assert-false (mjr_poly_onep  #(0 0 2)))
   (assert-false (mjr_poly_onep  #(2)))
@@ -162,6 +180,15 @@ The roots may be given as individual arguments, or as a single list."
 
   (assert-false (mjr_poly_onep  #(0 2 1)))
   (assert-false (mjr_poly_onep  #(0 2 1.0)))
+  
+  (assert-false (mjr_poly_onep  #(1 0 0)))
+  (assert-false (mjr_poly_onep  #(0 1 0)))
+  (assert-false (mjr_poly_onep  #(1.0 0 0)))
+  (assert-false (mjr_poly_onep  #(0 1.0 0)))
+
+  (assert-false (mjr_poly_onep  #(1 1 0)))
+  (assert-false (mjr_poly_onep  #(1 0 1)))
+  (assert-false (mjr_poly_onep  #(1 1 1)))
 
   (assert-true  (mjr_poly_onep  #(0 0 1)))
   (assert-true  (mjr_poly_onep  #(1)))
@@ -178,29 +205,29 @@ The roots may be given as individual arguments, or as a single list."
   (assert-false (mjr_poly_onep  0.0))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_zerop
   (assert-false (mjr_poly_zerop  #(0 0 1)))
-  (assert-false (mjr_poly_zerop  #(1)))
-  (assert-false (mjr_poly_zerop  1))
+  (assert-false (mjr_poly_zerop  #(    1)))
+  (assert-false (mjr_poly_zerop        1))
   (assert-false (mjr_poly_zerop  #(0 0 1.0)))
-  (assert-false (mjr_poly_zerop  #(1.0)))
-  (assert-false (mjr_poly_zerop  1.0))
+  (assert-false (mjr_poly_zerop  #(    1.0)))
+  (assert-false (mjr_poly_zerop        1.0))
 
   (assert-false (mjr_poly_zerop  #(0   1   0)))
   (assert-false (mjr_poly_zerop  #(1   0   0)))
   (assert-false (mjr_poly_zerop  #(0   1.0 0)))
   (assert-false (mjr_poly_zerop  #(1.0 0   0)))
 
-  (assert-true  (mjr_poly_zerop  #(0 0 0)))
-  (assert-true  (mjr_poly_zerop  #(0)))
-  (assert-true  (mjr_poly_zerop  0))
-  (assert-true  (mjr_poly_zerop  #(0 0.0 0.0)))
-  (assert-true  (mjr_poly_zerop  #(0.0)))
-  (assert-true  (mjr_poly_zerop  0.0))
+  (assert-true  (mjr_poly_zerop  #(0   0   0)))
+  (assert-true  (mjr_poly_zerop  #(        0)))
+  (assert-true  (mjr_poly_zerop            0))
+  (assert-true  (mjr_poly_zerop  #(0   0.0 0.0)))
+  (assert-true  (mjr_poly_zerop  #(        0.0)))
+  (assert-true  (mjr_poly_zerop            0.0))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_print
   (with-output-to-string (*standard-output* nil)
     (assert-prints "2*x^3 + 3*x^2 + 4*x + 5"   (mjr_poly_print #(2 3 4 5)))
@@ -216,7 +243,7 @@ The roots may be given as individual arguments, or as a single list."
     )
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_diff
   (assert-equalp #(6 6 4)  (mjr_poly_diff #(2 3 4 5) 1))
   (assert-equalp #(12 6)   (mjr_poly_diff #(2 3 4 5) 2))
@@ -231,28 +258,29 @@ The roots may be given as individual arguments, or as a single list."
       (assert-equalp p2 (mjr_poly_diff p2 0))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_intg
-  (assert-equalp 25/3 (mjr_poly_intg #(1 2 3) 1 2))
-  (assert-equalp 11   (mjr_poly_intg #(3 2 1) 1 2))
-  (assert-equalp 7/3  (mjr_poly_intg #(1 0 0) 1 2))
-  (assert-equalp 9/2  (mjr_poly_intg #(0 3 0) 1 2))
+  (assert-equalp 25/3 (mjr_poly_intg #(1 2 3)  1 2))
+  (assert-equalp 11   (mjr_poly_intg #(3 2 1)  1 2))
+  (assert-equalp 7/3  (mjr_poly_intg #(1 0 0)  1 2))
+  (assert-equalp 9/2  (mjr_poly_intg #(0 3 0)  1 2))
   (assert-equalp 9/2  (mjr_poly_intg #(0 3 0) -1 2))
   (assert-equalp 15   (mjr_poly_intg #(1 2 3) -1 2))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_-
   ;; Single arguments case
-  (assert-equalp #(-1) (mjr_poly_- 1))
-  (assert-equalp #(-1) (mjr_poly_- #(1)))
+  (assert-equalp #(      -1) (mjr_poly_-       1))
+  (assert-equalp #(      -1) (mjr_poly_- #(    1)))
+  (assert-equalp #(-1 -2 -3) (mjr_poly_- #(1 2 3)))
+  (assert-equalp #(-1  0 -1) (mjr_poly_- #(1 0 1)))
   ;; Make sure the types are as expected
   (assert-equalp #(-1) (mjr_poly_- 2 3))
   (assert-equalp #(-5) (mjr_poly_- 2 3 4))
   (assert-equalp #(-1) (mjr_poly_- 2    #(3)))
   (assert-equalp #(-1) (mjr_poly_- #(2) #(3)))
   (assert-equalp #(-5) (mjr_poly_- 2 3 #(4)))
-  ;; Subtract zero and get no change, subtract from zero and get the negative
   (dotimes (i 30)
     (let* ((p   (mjr_poly_simplify (mjr_prng_vector (mjr_prng_int-cc 1 3) #'mjr_prng_int-cc 0 10))))
       ;; Should always return zero
@@ -278,7 +306,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-error 'error    (mjr_poly_-))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_+
   ;; Zero arguments case
   (assert-equalp #(0) (mjr_poly_+))
@@ -313,7 +341,19 @@ The roots may be given as individual arguments, or as a single list."
   (assert-error 'error    (mjr_poly_+ #(2 3)  nil       3))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_poly_+-
+  ;; Add the negative is the same as subtracting
+  (dotimes (i 200)
+    (let* ((p   (mjr_poly_simplify (mjr_prng_vector (mjr_prng_int-cc 1 3) #'mjr_prng_int-cc 0 10)))
+           (q   (mjr_poly_simplify (mjr_prng_vector (mjr_prng_int-cc 1 3) #'mjr_prng_int-cc 0 10))))
+      (assert-equalp (mjr_poly_- p q) (mjr_poly_+ p (mjr_poly_- q)))
+      (assert-equalp (mjr_poly_- q p) (mjr_poly_+ q (mjr_poly_- p)))
+      (assert-equalp #(0)             (mjr_poly_+ p (mjr_poly_- p)))
+      (assert-equalp #(0)             (mjr_poly_+ q (mjr_poly_- q)))))
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_*
   ;; Zero arguments case
   (assert-equalp #(1) (mjr_poly_*))
@@ -349,7 +389,19 @@ The roots may be given as individual arguments, or as a single list."
   (assert-error 'error    (mjr_poly_* #(2 3)  nil       3))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_poly_+-and-mjr_poly_*
+  ;; Repeated adds should be the same as scalar multiplication
+  (dotimes (i 100)
+    (let* ((p (mjr_prng_vector (mjr_prng_int-cc 1 3) #'mjr_prng_int-cc 0 10)))
+      (assert-equalp (mjr_poly_+ p p)         (mjr_poly_* 2 p))
+      (assert-equalp (mjr_poly_+ p p p)       (mjr_poly_* 3 p))
+      (assert-equalp (mjr_poly_+ p p p p)     (mjr_poly_* 4 p))
+      (assert-equalp (mjr_poly_+ p p p p p)   (mjr_poly_* 5 p))
+      (assert-equalp (mjr_poly_+ p p p p p p) (mjr_poly_* 6 p))))
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_reflect
   (dotimes (i 50)
     (let* ((poly (loop for pp = (mjr_prng_vector (mjr_prng_int-cc 2 5) #'mjr_prng_int-cc -10 10)
@@ -357,7 +409,7 @@ The roots may be given as individual arguments, or as a single list."
                        return pp)))
       (assert-equality #'mjr_eps_= (mjr_poly_subst #(-1 0) poly) (mjr_poly_reflect poly) (list poly)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_shift
   ;; Make sure the -naive implementation matches the optimized version
   (dotimes (i 20)
@@ -372,7 +424,7 @@ The roots may be given as individual arguments, or as a single list."
           (assert-equality #'mjr_eps_= (mjr_poly_shift-naive1 s poly) ps (list "N1" s poly))
           (assert-equality #'mjr_eps_= (mjr_poly_shift-naive2 s poly) ps (list "N2" s poly)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_deflate
   (assert-equalp (values #(1 1) 0) (mjr_poly_deflate #(1 0 -1) 1))
   ;; Repeatedly deflate
@@ -393,7 +445,7 @@ The roots may be given as individual arguments, or as a single list."
         do (assert-equalp p1 (mjr_poly_deflate p2 r2)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_root-structure
   (assert-equalp '(#(4 1 6 0) #(2 1 6 2))
                  (mjr_poly_root-structure (mjr_poly_make-from-roots 1 2 3 4 5 6 -1 -2 0 -2 -2                 ) 't))
@@ -429,7 +481,7 @@ The roots may be given as individual arguments, or as a single list."
                  (mjr_poly_root-structure (mjr_poly_make-from-roots 1 2 3 4 5 6 -1 -2         #C(1 2) #C(1 -2)) nil))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_scount-descartes
   (assert-equalp (values 0 0 5 nil) (mjr_poly_scount-descartes #(1 2 3 4 5 6)))
   (assert-equalp (values 5 0 0 nil) (mjr_poly_scount-descartes #(1 -2 3 -4 5 -6)))
@@ -455,7 +507,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-error  'error             (mjr_poly_scount-descartes #(0)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_truncate
   (loop for lenb from 1 upto 10
         do (loop for lent from lenb upto (* 3 lenb)
@@ -468,7 +520,7 @@ The roots may be given as individual arguments, or as a single list."
                                (assert-equalp (list polyt polyr) (list fq fr))))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_simplify
   (assert-equalp #(2 3 4)   (mjr_poly_simplify #(2 3 4)))
   (assert-equalp #(2 3 4)   (mjr_poly_simplify #(0 2 3 4)))
@@ -483,7 +535,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-error 'error    (mjr_poly_simplify nil))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_eval
   (assert-equalp 3  (mjr_poly_eval #(2 3 4) -1))
   (assert-equalp 4  (mjr_poly_eval #(2 3 4) 0))
@@ -499,7 +551,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-error 'error    (mjr_poly_eval nil       3))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_eval-poly-and-first-n-derivatives
   (assert-equalp (values 3  -1)       (mjr_poly_eval-poly-and-first-n-derivatives #(2 3 4) -1  ))
   (assert-equalp (values 4   3)       (mjr_poly_eval-poly-and-first-n-derivatives #(2 3 4) 0   ))
@@ -539,18 +591,17 @@ The roots may be given as individual arguments, or as a single list."
           (assert-equalp (mjr_poly_eval-poly-and-first-n-derivatives-naive p x n) (mjr_poly_eval-poly-and-first-n-derivatives p x n))))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_root-solve-rational
   (assert-equalp '(1/2 3/5 7/11 2/3 5/7)        (sort (mjr_poly_root-solve-rational #(2310 -7201 8949 -5541 1709 -210)) #'<))
   (assert-equalp '(-3 -2 1/3 1 3/2 2)           (sort (mjr_poly_root-solve-rational #(1 1/6 -61/6 35/6 139/6 -26 6))    #'<))
   (assert-equalp '(0 1 2 3 4 5)                 (sort (mjr_poly_root-solve-rational  #(1 -15 85 -225 274 -120 0))       #'<))
-  ;; Make sure we find the integer roots of several random polynomials
-  (loop for i from 1 upto 40
-        for lenb = (mjr_prng_int-cc 1 10)
-        for roots = (sort (loop for i from 1 upto lenb
-                                collect (mjr_prng_int-cc -100 100)) #'<)
-        do (assert-equalp roots (sort (mjr_poly_root-solve-rational (apply #' mjr_poly_make-from-roots roots)) #'<)))
-  ;; Errors
+  ;; Random Integer polynomial with integer roots
+  (dotimes (i 1000)
+    (let* ((r (mjr_prng_list (mjr_prng_int-cc 1 10) #'mjr_prng_int-cc -10 10))
+           (p (apply #'mjr_poly_make-from-roots r)))
+      (assert-false (set-difference r  (mjr_poly_root-solve-rational p) :test (mjr_eps_make-fixed= 1e-2)) r)))
+  ;; Errors  set-equal
   (assert-error 'error (mjr_poly_root-solve-rational #()))
   (assert-error 'error (mjr_poly_root-solve-rational nil))
   (assert-error 'error (mjr_poly_root-solve-rational (list 1 2 3)))
@@ -558,7 +609,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-error 'error (mjr_poly_root-solve-rational 1))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_2primitive
   ;; Hand picked cases
   (assert-equalp #(1155 1386 1540 1650 1470)    (mjr_poly_2primitive #(1/2 3/5 2/3 5/7 7/11)))
@@ -584,22 +635,22 @@ The roots may be given as individual arguments, or as a single list."
              (assert-true   (every #'integerp qq))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_root-search-bsect
   (assert-true (> 0.001 (abs (- 1/2   (mjr_poly_root-search-bsect #(2310 -7201 8949 -5541 1709 -210) 0.3 0.6)))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_root-search-newton
   (assert-true (> 0.001 (abs (- 1/2   (mjr_poly_root-search-newton #(2310 -7201 8949 -5541 1709 -210) 0.51)))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_root-search-laguerre
   (assert-true (> 0.001 (abs (- 5/7   (mjr_poly_root-search-laguerre #(2310 -7201 8949 -5541 1709 -210) 100.55)))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_make-from-roots
   (assert-equalp #(1 -7201/2310 2983/770 -1847/770 1709/2310 -1/11)
                  (mjr_poly_make-from-roots 1/2 3/5 2/3 5/7 7/11))
@@ -631,7 +682,7 @@ The roots may be given as individual arguments, or as a single list."
       (assert-equalp p1 p2)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_root-solve-low-degree
   (flet ((cpl-lex< (x y) (or (< (realpart x) (realpart y)) (and (= (realpart x) (realpart y)) (< (imagpart x) (imagpart y)))))
          (int-it (alis) (mapcar (lambda (x) (if (complexp x) (complex (round (realpart x)) (round (imagpart x))) (round x))) alis)))
@@ -698,7 +749,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-error 'error                       (mjr_poly_root-solve-low-degree (list 1 2 3)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_constant-coeff
   (assert-equalp 3 (mjr_poly_constant-coeff #(1 2 3)))
   (assert-equalp 3 (mjr_poly_constant-coeff #(0 1 2 3)))
@@ -715,7 +766,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-error 'error (mjr_poly_constant-coeff (list 1 2 3)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_leading-coeff
   (assert-equalp 1 (mjr_poly_leading-coeff #(1 2 3)))
   (assert-equalp 1 (mjr_poly_leading-coeff #(0 1 2 3)))
@@ -732,7 +783,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-error 'error (mjr_poly_leading-coeff (list 1 2 3)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_make-lagrange
   (assert-equalp #(1/2 -1/2 0) (mjr_poly_make-lagrange '(-1 0 1) 0))
   (assert-equalp #(-1 0 1)     (mjr_poly_make-lagrange '(-1 0 1) 1))
@@ -753,19 +804,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-error 'error (mjr_poly_make-lagrange '(1 2 3) 3))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-(define-test mjr_poly_+-and-mjr_poly_*
-  ;; Repeated adds should be the same as scalar multiplication
-  (dotimes (i 30)
-    (let* ((p (mjr_prng_vector (mjr_prng_int-cc 1 3) #'mjr_prng_int-cc 0 10)))
-      (assert-equalp (mjr_poly_+ p p)         (mjr_poly_* 2 p))
-      (assert-equalp (mjr_poly_+ p p p)       (mjr_poly_* 3 p))
-      (assert-equalp (mjr_poly_+ p p p p)     (mjr_poly_* 4 p))
-      (assert-equalp (mjr_poly_+ p p p p p)   (mjr_poly_* 5 p))
-      (assert-equalp (mjr_poly_+ p p p p p p) (mjr_poly_* 6 p))))
-  )
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_seq-make-chebyshev
   (assert-equalp #(#(1))                                            (mjr_poly_seq-make-chebyshev 1))
   (assert-equalp #(#(1) #(1 0))                                     (mjr_poly_seq-make-chebyshev 2))
@@ -774,7 +813,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-equalp #(#(1) #(1 0) #(2 0 -1) #(4 0 -3 0) #(8 0 -8 0 1)) (mjr_poly_seq-make-chebyshev 5))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_make-chebyshev
   ;; Normal cases for kind=1
   (assert-equalp #(1)             (mjr_poly_make-chebyshev 0))
@@ -806,7 +845,7 @@ The roots may be given as individual arguments, or as a single list."
                                      collect j))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_make-legendre
   ;; (%i39) ev(1/(2^n*n!)*diff((x^2-1)^n,x,n), diff, n=5, expand);
   ;; (%o39) 63*x^5/8-35*x^3/4+15*x/8
@@ -833,7 +872,7 @@ The roots may be given as individual arguments, or as a single list."
     (assert-equalp (mjr_poly_make-legendre i) (mjr_poly_make-legendre-naive i)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_iexpt
   ;; Check naive
   (dotimes (i 100)
@@ -844,7 +883,7 @@ The roots may be given as individual arguments, or as a single list."
       (assert-equalp m (mjr_poly_iexpt-naive1 p n))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_factor-over-integers
 
   ;; Van der Waerden(1970); Transactions on Algebra; Blum and Schulenberger; Frederick Ungar; Sections 5.4 and 5.6
@@ -866,7 +905,7 @@ The roots may be given as individual arguments, or as a single list."
   ;;(assert-equalp '(#(1))             (mjr_poly_factor-over-integers #(1)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_degree
   (assert-equalp 3 (mjr_poly_degree #(1 2 3 4)))
   (assert-equalp 2 (mjr_poly_degree #(0 2 3 4)))
@@ -881,7 +920,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-error 'error (mjr_poly_degree (list 1 2 3)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_index
   ;; "Sum of the exponents of the non-zero terms."
   (assert-equalp 6 (mjr_poly_index #(1 2 3 4)))
@@ -893,7 +932,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-equalp 0 (mjr_poly_index #(0 0 0 0)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_density
     ;; "The number of non-zero terms."
   (assert-equalp 4 (mjr_poly_density #(1 2 3 4)))
@@ -906,7 +945,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-equalp 0 (mjr_poly_density #(0 0 0 0)))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_root-search-largest-real
 
   ;; Faliure when we look for our first interval midpoint
@@ -937,7 +976,7 @@ The roots may be given as individual arguments, or as a single list."
         do (assert-equality #'mjr_eps_= (apply #'max roots) (mjr_poly_root-search-largest-real (mjr_poly_make-from-roots roots) :max-itr 50 :xeps 1e-10)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_root-count-distinct-interval
 
   (assert-equalp 0 (mjr_poly_root-count-distinct-interval (mjr_poly_make-from-roots 1)   -2   0))
@@ -972,17 +1011,17 @@ The roots may be given as individual arguments, or as a single list."
   )
 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_seq-make-sturm-canonical
   (assert-equalp '(#(1 1 0 -1 -1) #(4 3 0 -1) #(3/16 3/4 15/16) #(-32 -64) #(-3/16))    (mjr_poly_seq-make-sturm-canonical #(1 1 0 -1 -1)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_seq-make-fourier
   (assert-equalp '(#(1 0 -7 7) #(3 0 -7) #(6 0) #(6))  (mjr_poly_seq-make-fourier #(1 0 -7 7)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_scount-sturm
 
   (assert-equalp 1 (mjr_poly_scount-sturm (mjr_poly_make-from-roots  #C(2 1) #C(2 -1) 2)     1 3))
@@ -992,7 +1031,7 @@ The roots may be given as individual arguments, or as a single list."
   (assert-equalp 2 (mjr_poly_scount-sturm (mjr_poly_make-from-roots  2 2 4 #C(2 1) #C(2 -1)) 1 5))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_scount-budan
   (assert-equalp 3 (mjr_poly_scount-budan (mjr_poly_make-from-roots  #C(2 1) #C(2 -1) 2)     1 3))
   (assert-equalp 1 (mjr_poly_scount-budan (mjr_poly_make-from-roots  0 2 4)                  1 3))
@@ -1008,7 +1047,7 @@ The roots may be given as individual arguments, or as a single list."
         do (assert-equalp (mjr_poly_scount-fourier p l u) (mjr_poly_scount-budan p l u)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_scount-fourier
   (assert-equalp 3 (mjr_poly_scount-fourier (mjr_poly_make-from-roots  #C(2 1) #C(2 -1) 2)     1 3))
   (assert-equalp 1 (mjr_poly_scount-fourier (mjr_poly_make-from-roots  0 2 4)                  1 3))
@@ -1026,7 +1065,7 @@ The roots may be given as individual arguments, or as a single list."
   ;; XREF: This function is heavily tested in mjr_poly_scount-budan
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_make-laguerre
   (assert-equalp #(1)                (mjr_poly_make-laguerre 0))
   (assert-equalp #(-1 1)             (mjr_poly_make-laguerre 1))
@@ -1037,13 +1076,13 @@ The roots may be given as individual arguments, or as a single list."
     (assert-equalp (mjr_poly_make-laguerre-naive i) (mjr_poly_make-laguerre i)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_seq-make-laguerre
   (assert-equalp (concatenate 'vector (loop for pow from 0 upto 30
                                             collect (mjr_poly_make-laguerre pow))) (mjr_poly_seq-make-laguerre 31))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_make-hermite
   (assert-equalp #(1)              (mjr_poly_make-hermite 0))
   (assert-equalp #(1 0)            (mjr_poly_make-hermite 1))
@@ -1053,35 +1092,45 @@ The roots may be given as individual arguments, or as a single list."
   (assert-equalp #(1 0 -10 0 15 0) (mjr_poly_make-hermite 5))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_seq-make-hermite
   (assert-equalp (concatenate 'vector (loop for pow from 0 upto 30
                                             collect (mjr_poly_make-hermite pow))) (mjr_poly_seq-make-hermite 31))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_root-solve-search-deflate
-  ;; We try each one three times in case we get a bad luck run or two
+
+  ;; Integer polynomial with integer roots
   (dotimes (i 1000)
     (let* ((r (mjr_prng_list (mjr_prng_int-cc 1 10) #'mjr_prng_int-cc -10 10))
            (p (apply #'mjr_poly_make-from-roots r)))
-      (assert-false (and (set-difference r  (mjr_poly_root-solve-search-deflate p) :test (mjr_eps_make-fixed= 1e-2))
-                         (set-difference r  (mjr_poly_root-solve-search-deflate p) :test (mjr_eps_make-fixed= 1e-2))
-                         (set-difference r  (mjr_poly_root-solve-search-deflate p) :test (mjr_eps_make-fixed= 1e-2)))
-                    r)))
+      (assert-false (set-difference r  (mjr_poly_root-solve-search-deflate p) :test (mjr_eps_make-fixed= 1e-2)) r)))
+  ;;Gausian Integer polynomial with Gausian integer roots
+  (dotimes (i 1000)
+    (let* ((r (mapcar #'complex (mjr_prng_list (mjr_prng_int-cc 1 10) #'mjr_prng_int-cc -10 10) (mjr_prng_list (mjr_prng_int-cc 1 10) #'mjr_prng_int-cc -10 10)))
+           (p (apply #'mjr_poly_make-from-roots r)))
+      (assert-false (set-difference r  (mjr_poly_root-solve-search-deflate p) :test (mjr_eps_make-fixed= 1e-2)) r)))
+  ;; Integer polynomial with Gausian integer roots
+  (dotimes (i 1000)
+    (let* ((ra (mapcar #'complex (mjr_prng_list (mjr_prng_int-cc 1 5) #'mjr_prng_int-cc -10 10) (mjr_prng_list (mjr_prng_int-cc 1 10) #'mjr_prng_int-cc -10 10)))
+           (rb (mapcar #'conjugate ra))
+           (r (concatenate 'list ra rb))
+           (p (apply #'mjr_poly_make-from-roots r)))
+      (assert-false (set-difference r  (mjr_poly_root-solve-search-deflate p) :test (mjr_eps_make-fixed= 1e-2)) r)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_cubic-depress
     (assert-equalp #(1 0 6 -20) (mjr_poly_cubic-depress #(2 -30 162 -350)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_tschirnhaus-3-2
     (assert-equalp #(2 0 12 -40) (mjr_poly_tschirnhaus-3-2 #(2 -30 162 -350)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_discriminant-low-degree
   (loop for d from 2 upto 5
         do (dotimes (i 1000)
@@ -1090,13 +1139,94 @@ The roots may be given as individual arguments, or as a single list."
                    (setf (aref p 0) (mjr_prng_int-cc 1 10)))
                (assert-equalp (mjr_poly_discriminant-high-degree p) (mjr_poly_discriminant-low-degree p)))))
   )
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_poly_resultant
   (assert-equalp 16 (mjr_poly_resultant #(2 -3 4 -5) #(3 -4 5 -6)))
   )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_poly_mahler-measure
+  ;; Some integer polynomials with small Mahler measure from http://www.cecm.sfu.ca/~mjm/Lehmer/search/
+  ;;
+  ;;    Measure 	    P
+  ;;    1.1762808182 	x^10+x^9-x^7-x^6-x^5-x^4-x^3+x+1                               
+  ;;    1.1883681475 	x^18+x^17+x^16+x^15-x^12-x^11-x^10-x^9-x^8-x^7-x^6+x^3+x^2+x+1 
+  ;;    1.2163916611 	x^10-x^6+x^5-x^4+1
+  ;;    1.2277855586 	x^12+x^11+x^10-x^8-x^7-x^6-x^5-x^4+x^2+x+1
+  ;;    1.2303914344 	x^10+x^7+x^5+x^3+1
+  ;;    1.2612309611 	x^10-x^8+x^5-x^2+1
+  ;;    1.2672338594 	x^10+x^8+x^7+x^5+x^3+x^2+1
+  ;;    1.2835823606 	x^10+x^9-x^5+x+1
+  ;;    1.2934859531 	x^10-x^8+x^7-x^5+x^3-x^2+1
+  ;;    1.2806381562 	x^8+x^5-x^4+x^3+1                                              
+  ;;
+  ;;    Lehmer's polynomial is the first on the list.  It is from his 1933 paper:
+  ;;    Lehmer, D.H. (1933). "Factorization of certain cyclotomic functions". Ann. Math. (2) 34: 461-479. doi:10.2307/1968172. ISSN 0003-486X. Zbl 0007.19904.
+  ;;
+  ;;    More info about Lehmer's Conjecture: https://en.wikipedia.org/wiki/Lehmer%27s_conjecture
+  ;;
+  ;; A little bit of maxima to create lisp vectors:
+  ;;
+  ;;   (i) poly2coeff(p):=makelist(coeff(p,x,j),j,reverse(makelist(i,i,0,hipow(p,x))));
+  ;;   (i) makelist(poly2coeff(pi), pi, [x^10+x^9-x^7-x^6-x^5-x^4-x^3+x+1,
+  ;;                                     x^18+x^17+x^16+x^15-x^12-x^11-x^10-x^9-x^8-x^7-x^6+x^3+x^2+x+1 ,
+  ;;                                     x^10-x^6+x^5-x^4+1,
+  ;;                                     x^12+x^11+x^10-x^8-x^7-x^6-x^5-x^4+x^2+x+1,
+  ;;                                     x^10+x^7+x^5+x^3+1,
+  ;;                                     x^10-x^8+x^5-x^2+1,
+  ;;                                     x^10+x^8+x^7+x^5+x^3+x^2+1,
+  ;;                                     x^10+x^9-x^5+x+1,
+  ;;                                     x^10-x^8+x^7-x^5+x^3-x^2+1,
+  ;;                                     x^8+x^5-x^4+x^3+1]);
+  ;;   (o) [[1,1,0,-1,-1,-1,-1,-1,0,1,1],
+  ;;        [1,1,1,1,0,0,-1,-1,-1,-1,-1,-1,-1,0,0,1,1,1,1],
+  ;;        [1,0,0,0,-1,1,-1,0,0,0,1],
+  ;;        [1,1,1,0,-1,-1,-1,-1,-1,0,1,1,1],
+  ;;        [1,0,0,1,0,1,0,1,0,0,1],
+  ;;        [1,0,-1,0,0,1,0,0,-1,0,1],
+  ;;        [1,0,1,1,0,1,0,1,1,0,1],
+  ;;        [1,1,0,0,0,-1,0,0,0,1,1],
+  ;;        [1,0,-1,1,0,-1,0,1,-1,0,1],
+  ;;        [1,0,0,1,-1,1,0,0,1]]                                    
+  ;;
+  ;; Some test cases
+  ;;
+  ;;         |----------------+----------------------------------------------------------------+-------------------------------------------------|
+  ;;         | Mahler Measure | Polynomial                                                     | Coefficient Vector                              |
+  ;;         |----------------+----------------------------------------------------------------+-------------------------------------------------|
+  ;;         |   1.1762808182 | x^10+x^9-x^7-x^6-x^5-x^4-x^3+x+1                               | #(1 1 0 -1 -1 -1 -1 -1 0 1 1)                   |
+  ;;         |   1.1883681475 | x^18+x^17+x^16+x^15-x^12-x^11-x^10-x^9-x^8-x^7-x^6+x^3+x^2+x+1 | #(1 1 1 1 0 0 -1 -1 -1 -1 -1 -1 -1 0 0 1 1 1 1) |
+  ;;         |   1.2163916611 | x^10-x^6+x^5-x^4+1                                             | #(1 0 0 0 -1 1 -1 0 0 0 1)                      |
+  ;;         |   1.2277855586 | x^12+x^11+x^10-x^8-x^7-x^6-x^5-x^4+x^2+x+1                     | #(1 1 1 0 -1 -1 -1 -1 -1 0 1 1 1)               |
+  ;;         |   1.2303914344 | x^10+x^7+x^5+x^3+1                                             | #(1 0 0 1 0 1 0 1 0 0 1)                        |
+  ;;         |   1.2612309611 | x^10-x^8+x^5-x^2+1                                             | #(1 0 -1 0 0 1 0 0 -1 0 1)                      |
+  ;;         |   1.2672338594 | x^10+x^8+x^7+x^5+x^3+x^2+1                                     | #(1 0 1 1 0 1 0 1 1 0 1)                        |
+  ;;         |   1.2806381562 | x^8+x^5-x^4+x^3+1                                              | #(1 0 0 1 -1 1 0 0 1)                           |
+  ;;         |   1.2835823606 | x^10+x^9-x^5+x+1                                               | #(1 1 0 0 0 -1 0 0 0 1 1)                       |
+  ;;         |   1.2934859531 | x^10-x^8+x^7-x^5+x^3-x^2+1                                     | #(1 0 -1 1 0 -1 0 1 -1 0 1)                     |
+  ;;         |----------------+----------------------------------------------------------------+-------------------------------------------------|
+  ;;
+  ;; For Lehmer's polynomial:
+  ;;  (i) expand(xreduce("*", map(lambda([y],max(1,rhs(abs(y)))), allroots(x^10+x^9-x^7-x^6-x^5-x^4-x^3+x+1=0))));
+  ;;  (o) 1.176280818259936
+  
+  (loop for m in '(1.1762808182 1.1883681475 1.2163916611 1.2277855586 1.2303914344
+                   1.2612309611 1.2672338594 1.2806381562 1.2835823606
+                   1.2934859531)
+        for p in '(#(1 1 0 -1 -1 -1 -1 -1 0 1 1) #(1 1 1 1 0 0 -1 -1 -1 -1 -1 -1 -1 0 0 1 1 1 1) #(1 0 0 0 -1 1 -1 0 0 0 1)
+                   #(1 1 1 0 -1 -1 -1 -1 -1 0 1 1 1) #(1 0 0 1 0 1 0 1 0 0 1) #(1 0 -1 0 0 1 0 0 -1 0 1)
+                   #(1 0 1 1 0 1 0 1 1 0 1) #(1 0 0 1 -1 1 0 0 1) #(1 1 0 0 0 -1 0 0 0 1 1) #(1 0 -1 1 0 -1 0 1 -1 0 1))
+        for cm = (loop for i from 1 upto 3
+                       for ccm = (mjr_poly_mahler-measure p :solve #'mjr_poly_root-solve-search-deflate)
+                       when ccm
+                       collect ccm)
+        do (if cm
+               (loop for ccm in cm
+                     do (assert-equality (mjr_eps_make-fixed= 1.0d-3) ccm m p))
+               (assert-true nil (format nil "Failed for ~a" p))))
+  )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests
+;; '(mjr_poly_+-)
  )
-

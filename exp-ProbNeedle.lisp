@@ -1,17 +1,16 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      exp-ProbNeedle.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 2005 by Mitch Richling.  All rights reserved.
 ;; @brief     Buffon's Needle Problem.@EOL
-;; @Keywords  buffon's needle problem probability needle
 ;; @Std       Common Lisp
 ;;
 ;;            Drop a 1 unit long needle onto a plane with lines 1 unit apart.  Compute the probability that the needle hits some
 ;;            line.
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (loop with num-trials = (expt 10 6)                         ;; Number of trials to perform
       with num-hit = 0                                      ;; Number of needle hits (updated during simulation)

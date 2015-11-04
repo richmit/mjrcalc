@@ -1,20 +1,19 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      tst-vec.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,2008,2012 by Mitch Richling.  All rights reserved.
 ;; @brief     tests for :MJR_VVEC.@EOL
-;; @Keywords  lisp interactive chebyshev uniform interval partition virtual vector
 ;; @Std       Common Lisp
 ;;
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_VVEC-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_VVEC))
 
 (in-package :MJR_VVEC-TESTS)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_vvec_normalize-vvt-aseq
   (assert-equalp (list :vvec-type :VVT-ASEQ :start 4 :end 2 :step -1 :len 3 :map-fun nil)         (mjr_vvec::mjr_vvec_normalize-vvt-aseq (list :start 4 :end 2 :step -1 :len 3                    )))  ;; nothing is computed
   (assert-equalp (list :vvec-type :VVT-ASEQ :start 2 :end 4 :step  1 :len 3 :map-fun nil)         (mjr_vvec::mjr_vvec_normalize-vvt-aseq (list :start 2 :end 4 :step 1  :len 3                    )))  ;; nothing is computed
@@ -51,7 +50,7 @@
    (assert-error 'error                                                                     (mjr_vvec::mjr_vvec_normalize-vvt-aseq (list :vvec-type :vvt-mitch1 :start 4 :end 2 :step -1 :len 3)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_vvec_normalize-vvt-points
   (assert-equalp '(:vvec-type :vvt-points :points (2)       :start 0 :end 0 :len 1 :map-fun nil)   (mjr_vvec::mjr_vvec_normalize-vvt-points (list :points '(2))))
   (assert-equalp '(:vvec-type :vvt-points :points (2 3 4)   :start 0 :end 2 :len 3 :map-fun nil)   (mjr_vvec::mjr_vvec_normalize-vvt-points (list :points '(2 3 4))))
@@ -88,7 +87,7 @@
   (assert-error 'error                                                   (mjr_vvec::mjr_vvec_normalize-vvt-points (list :end -1                  :len 2  :points '(4 9 16))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_vvec_map-filter-reduce
   ;; Various combinations of args
   (assert-equalp '(0 1 2 3 4 5 6 7 8 9 10)  (mjr_vvec_map-filter-reduce 'list   (list :start 0  :end 10 :step 1  :len 11)))
@@ -158,13 +157,13 @@
   (assert-error 'error                      (mjr_vvec_map-filter-reduce 'list   (list                    :step 1  :len 11 :points '(0 1 2 3 4 5 6 7 8 9 10))))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_vvec_vvec2fi
   ;; Note: This function dosen't need test cases -- tested by mjr_vvec_map-filter-reduce
   1
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_vvec_map-sum
 
   (assert-equalp 29 (mjr_vvec_map-sum (list :start 4 :end 2 :step -1 :map-fun (lambda (x) (* x x)))))
@@ -189,7 +188,7 @@
   (assert-equalp 4  (mjr_vvec_map-sum (list :start 4 :end 4)))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_vvec_map-prod
   (assert-equalp 576 (mjr_vvec_map-prod (list :start 4 :end 2 :step -1 :map-fun (lambda (x) (* x x)))))
   (assert-equalp 576 (mjr_vvec_map-prod (list :start 2 :end 4 :step 1  :map-fun (lambda (x) (* x x)))))
@@ -213,7 +212,7 @@
   (assert-equalp 4   (mjr_vvec_map-prod (list :start 4 :end 4)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_vvec_map-maxi
 
   (assert-equalp '(0 100)   (multiple-value-list (mjr_vvec_map-maxi (list :map-fun (lambda (x) (* x x))      :start -10 :end 10 :len 21))))
@@ -252,7 +251,7 @@
  
  )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_vvec_map-mini
   (assert-equalp '(10 0)     (multiple-value-list (mjr_vvec_map-mini (list :map-fun (lambda (x) (* x x))      :start -10 :end 10 :len 21))))
   (assert-equalp '(0 -100)   (multiple-value-list (mjr_vvec_map-mini (list :map-fun (lambda (x) (- (* x x)))  :start -10 :end 10 :len 21))))
@@ -277,7 +276,7 @@
   (assert-error 'error                      (multiple-value-list (mjr_vvec_map-mini (list :points #()))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_vvec_help
   ;; Note: This function dosen't need test cases..
   1
@@ -293,7 +292,7 @@
 ;; TODO: (defun mjr_vvec_normalize-vvt-nfun
 ;; TODO: (defun mjr_vvec_normalize-all
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_vvec_gen-0sim
   ;; -------------------------------------------------------------------------------------------------------------------------------
   ;; vvt-rfun
@@ -359,7 +358,7 @@
   (assert-equalp #(1 2 3 4 5 6 7 8 9 10)         (mjr_vvec_gen-0sim 'vector -10))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests
  ;; mjr_vvec_gen-0sim
  ;; mjr_vvec_normalize-vvt-aseq

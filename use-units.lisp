@@ -1,10 +1,9 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-units.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2011,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Unit conversion tool.@EOL
-;; @Keywords  lisp interactive units convert conversion
 ;; @Std       Common Lisp
 ;;
 ;;            This package provides basic unit conversions and computations.  It takes an inherently algebraic approach utilizing
@@ -15,7 +14,7 @@
 ;;            TODO: Detect simple non-linear units, and convert using the offset term -- i.e. temperature conversions
 ;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_UNITS
   (:USE :COMMON-LISP
         :MJR_STRING)
@@ -30,7 +29,7 @@
 
 (in-package :MJR_UNITS)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_units_find-unit (unit-to-find &key (print-ambiguous-warnings 't) (error-on-bad-lookup 't) (case-sensitive 't))
   "Searches unit database for UNIT-TO-FIND, and return info.
 Returns:
@@ -228,30 +227,30 @@ Options:
                  (error "mjr_units_find-unit: Unknown unit symbol or string: ~s" unit-to-find))
              (first result))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_units_canonization  (number-or-unit-thingy &optional nil-or-unit-thingy)
   "Return Canonical unit expressions and unit information alist when given various unit representations
 
 Unit Representations
- * Canonical unit expression  LISP list starting with '*, optionally followed by a number, and sequence of
-                               unit names or two element lists with the first element '/ and the second a unit name
 
-                               This is the format used internally for all computations and is the only form that will be
-                               returned from a unit expression manipulation function.
+ * Canonical unit expression .. LISP list starting with '*, optionally followed by a number, and sequence of unit names or two element lists with the first
+                                element '/ and the second a unit name
 
- * Unit expression             LISP expression with * & / functions operating on unit names (strings), unit 
-                               abbreviations (strings), and/or unit symbols (list symbols representing unit abbreviations)
+                                This is the format used internally for all computations and is the only form that will be returned from a unit expression
+                                manipulation function.
 
- * Algebraic unit expression   LISP string representing an unit expression using an algebra-LIKE syntax
+ * Unit expression ............ LISP expression with * & / functions operating on unit names (strings), unit abbreviations (strings), and/or unit
+                                symbols (list symbols representing unit abbreviations)
 
-                               Note that a syntax similar to, but different from, traditional algebraic notation is used.  It is
-                               designed to provide a quick way to express complex units.  These strings represent rational
-                               expressions with the top and bottom being pure multiplicative products of symbols.  In this
-                               syntax, * indicates a product.  The ^ is for exponents.  The exponent only applies to the symbol
-                               immediately preceding the ^.  Exponents must be integers. All symbols to the left of the / are on
-                               the top, and all symbols on the right are on the bottom -- so a*b/c*d is (in traditional algebra
-                               syntax) (a*b)/(c*d).  A / with nothing on the left is the same as having a 1 on the left -- i.e.
-                               everything on the right is on the bottom of the fraction. parentheses are ignored. Examples:
+ * Algebraic unit expression .. LISP string representing an unit expression using an algebra-LIKE syntax
+
+                                Note that a syntax similar to, but different from, traditional algebraic notation is used.  It is designed to provide a quick
+                                way to express complex units.  These strings represent rational expressions with the top and bottom being pure multiplicative
+                                products of symbols.  In this syntax, * indicates a product.  The ^ is for exponents.  The exponent only applies to the symbol
+                                immediately preceding the ^.  Exponents must be integers. All symbols to the left of the / are on the top, and all symbols on
+                                the right are on the bottom -- so a*b/c*d is (in traditional algebra syntax) (a*b)/(c*d).  A / with nothing on the left is the
+                                same as having a 1 on the left -- i.e.  everything on the right is on the bottom of the fraction. parentheses are
+                                ignored. Examples:
 
                                     * Frequency    =  1/s*s    = /s*s     = /s^2    
                                     * Area         =  m*m      = m*m/     = m^2   = m^2/
@@ -367,7 +366,7 @@ Unit Representations
                   ;; Do it again
                   (mjr_units_canonization  multiplyer new-exp)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_units_substitute (unit-thingy &rest rest)
   "Substitute expressions for unit symbols in UNIT-THINGY."
   (let ((exp-c (mjr_units_canonization  unit-thingy))
@@ -385,7 +384,7 @@ Unit Representations
                                                             sub
                                                             (list '/ sub)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_units_to-si-fundamental (number-or-unit-thingy &optional nil-or-unit-thingy)
   "convert into base SI units"
   (multiple-value-bind (unit-expr unit-info) (mjr_units_canonization  number-or-unit-thingy nil-or-unit-thingy)
@@ -400,7 +399,7 @@ Unit Representations
                                        (mjr_units_substitute (fifth s-info) (list (first (first hop-unit-list)) (fifth (second (first hop-unit-list))))))
                                      (list '* (first s-info) (fifth s-info))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_units_convert (number-or-unit-thingy-from unit-thingy-from-or-unit-thingy-to &optional unit-thingy-to-or-nil)
   "Convert units.
 
@@ -429,7 +428,7 @@ value returned will ALWAYS be EQUAL to the original quantity."
                                                                                           (mjr_units_to-si-fundamental unit-thingy-to)))
                                                         unit-thingy-to))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_units_compatible (unit-thingy-1 unit-thingy-2)
   "non-NIL if the units are compatible"
   (let ((foo (mjr_units_canonization  (list '/

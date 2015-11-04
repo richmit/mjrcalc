@@ -1,16 +1,35 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-a.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,2006,2008,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Angle (and time-ish) utilities.@EOL
-;; @Keywords  
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-a.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,2006,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_A
   (:USE :COMMON-LISP 
         :MJR_STRING
@@ -24,7 +43,7 @@
 
 (in-package :MJR_A)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_a_normalize (angle &key (angular-measure :am-degrees) (smallest-abs nil))
   "Return normalized angle
 
@@ -48,12 +67,12 @@ Value of :SMALLEST-ABS changes the definition of 'normalized':
         (- nangle bconst)
         nangle)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_a_dms2d (&rest dms-list)
   "Return fractional degs from deg, min, sec.  
 
-If all inputs are rational, then so is the output.  The values may be provided in a list, a string in D:M:S format, or as individual
-arguments.  The min and sec are optional, and are assumed to be zero if missing."
+If all inputs are rational, then so is the output.  The values may be provided in a list, a string in D:M:S format, or as individual arguments.  The min and
+sec are optional, and are assumed to be zero if missing."
   (if (stringp (first dms-list))
       (mjr_a_dms2d (mapcar #'mjr_string_read-as-lisp (mjr_string_split (first dms-list) #\:)))
       (if (not (listp (first dms-list)))
@@ -68,14 +87,13 @@ arguments.  The min and sec are optional, and are assumed to be zero if missing.
                   (s (or (third the-list) 0)))
               (+ d (/ m 60) (/ s 3600)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_a_d2dms (df &key return-int-sec)
   "Return degrees, minutes, and seconds from fractional degrees.  
 
-The degrees and minutes returned are integers. :RETURN-INT-SEC is NIL, then the returned seconds will included the fractional
-seconds.  On the other hand, if :RETURN-INT-SEC is non-nil, then the returned seconds will also be an integer and an additional
-fourth return value will will be the fractional seconds.  If the input is rational, then the fractional outputs will be too.  If the
-input is a float, then the fractional outputs will be DOUBLE-FLOAT."
+The degrees and minutes returned are integers. :RETURN-INT-SEC is NIL, then the returned seconds will included the fractional seconds.  On the other hand,
+if :RETURN-INT-SEC is non-nil, then the returned seconds will also be an integer and an additional fourth return value will will be the fractional seconds.
+If the input is rational, then the fractional outputs will be too.  If the input is a float, then the fractional outputs will be DOUBLE-FLOAT."
   (cond  ((complexp df)      (error "mjr_a_dms2d: Input must not be complex!"))
          ((not (numberp df)) (error "mjr_a_dms2d: Input must be a number!")))
   (multiple-value-bind (tmp1 sec-frac) (truncate (* 60 60 (abs (mjr_numu_max-accuracy df))))
@@ -85,7 +103,7 @@ input is a float, then the fractional outputs will be DOUBLE-FLOAT."
             (values (if (< df 0) (- deg) deg) min sec             sec-frac)
             (values (if (< df 0) (- deg) deg) min (+ sec sec-frac)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_a_r2d (rad)
   "Convert rads to degrees
 
@@ -96,7 +114,7 @@ Result is DOUBLE-FLOAT unless input is SINGLE-FLOAT (computation performed with 
       (coerce (/ (* rad 180L0) pi) 'single-float)
     (/ (* rad 180L0) pi)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_a_d2r (deg)
   "Convert degrees to rads
 

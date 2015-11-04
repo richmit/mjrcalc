@@ -1,35 +1,51 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;; @file      exp-dquad.lisp
+;; @file      exp-dXXXX.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 2015 by Mitch Richling.  All rights reserved.
-;; @brief     Example for :MJR_DQUAD.@EOL
-;; @Keywords  
-;; @Std       Common Lisp
+w;; @brief     Example for :MJR_DQUAD.@EOL
+;; @std       Common Lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            Experimental!!!
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @warning   Experimental!!!@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
-
-(defvar f-q-r1-r1    nil)
-(defvar f-q-r1-r2    nil)
-(defvar f-q-r1-r3    nil)
-(defvar f-q-r2-r1    nil)
-(defvar f-q-r2-r2    nil)
-(defvar f-q-r2-r3    nil)
-(defvar f-q-r3-r1    nil)
-(defvar f-q-r3-r2    nil)
-(defvar f-q-r3-r3    nil)
-(defvar f-s-r1-r1    nil)
-(defvar f-s-r1-r2-o  nil)
-(defvar f-s-r1-r2-c  nil)
-(defvar f-s-r1-r3-o  nil)
-(defvar f-s-r1-r3-c  nil)
-(defvar f-s-r2-r1    nil)
-(defvar f-s-r2-r3    nil)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar f-q-r1-r1           nil)
+(defvar f-q-r1-r2           nil)
+(defvar f-q-r1-r3           nil)
+(defvar f-q-r2-r1           nil)
+(defvar f-q-r2-r2           nil)
+(defvar f-q-r2-r3           nil)
+(defvar f-q-r3-r1           nil)
+(defvar f-q-r3-r2           nil)
+(defvar f-q-r3-r3           nil)
+(defvar f-s-r1-r1           nil)
+(defvar f-s-r1-r2-o         nil)
+(defvar f-s-r1-r2-c         nil)
+(defvar f-s-r1-r3-o         nil)
+(defvar f-s-r1-r3-c         nil)
+(defvar f-s-r2-r1           nil)
+(defvar f-s-r2-r3           nil)
 (defvar f-s-r2-r3-oo-000-tt nil)
 (defvar f-s-r2-r3-oo-00d-tt nil)
 (defvar f-s-r2-r3-oo-0y0-tt nil)
@@ -57,59 +73,68 @@
 (defvar f-s-r2-r3-cc-xyd-0t nil)
 (defvar f-s-r2-r3-cc-xyd-00 nil)
 
-(defvar len-vvr1     nil)
-(defvar len-vvr2     nil)
-(defvar len-vvr3     nil)
+(defvar len-vvr1            nil)
+(defvar len-vvr2            nil)
+(defvar len-vvr3            nil)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-(if nil
-    (progn (setq len-vvr1 17)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(if 't
+    (progn (setq len-vvr1 23)
            (setq len-vvr2 19)
-           (setq len-vvr3 23))
-    (progn (setq len-vvr1 5)
+           (setq len-vvr3 17))
+    (progn (setq len-vvr1 11)
            (setq len-vvr2 7)
-           (setq len-vvr3 11)))
+           (setq len-vvr3 5)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear Scalar Field in 3D
 (format 't "f-q-r3-r1~%")
-(setq f-q-r3-r1 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" (list :start -2 :end 2 :len len-vvr1) 
-                                                                       "y" (list :start -2 :end 2 :len len-vvr2)
-                                                                       "z" (list :start -2 :end 2 :len len-vvr3))
-                                             (lambda (x y z) (* x y z))
+(setq f-q-r3-r1 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" (list :start -4 :end 4 :len len-vvr1) 
+                                                                       "y" (list :start -5 :end 5 :len len-vvr2)
+                                                                       "z" (list :start -6 :end 6 :len len-vvr3))
+                                             (lambda (x y z) (* (- (sin x) (cos y)) (cos z)))
                                              :axes 't 
                                              :ano-nam "z"
                                              :ano-typ :ano-typ-real))
 
 (mjr_vtk_from-dquad "exp-dXXXX-OUT-f-q-r3-r1.vtk" f-q-r3-r1)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear Scalar Field in 2D
 ;; Rectilinear Surface in 3D -- i.e. the points [x, y, f(x,y)]
 (format 't "f-q-r2-r1~%")
-(setq f-q-r2-r1 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" (list :start -2 :end 2 :len len-vvr1) 
-                                                                       "y" (list :start -1 :end 1 :len len-vvr2))
-                                             (lambda (x y) (* x y))
+(setq f-q-r2-r1 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" (list :start -4 :end 4 :len len-vvr1) 
+                                                                       "y" (list :start -5 :end 5 :len len-vvr2))
+                                             (lambda (x y) (- (sin x) (cos y)))
                                              :axes 't 
                                              :ano-nam "z"
                                              :ano-typ :ano-typ-real))
-(mjr_dquad_colorize f-q-r2-r1 :data 0 :color-method "RGB" :ano-nam "z_color")
+(mjr_dquad_add-data-from-map f-q-r2-r1 (lambda (x y) (- (cos x) (cos y))) :axes '(0 1) :ano-nam "dz/dx" :ano-typ :ano-typ-real)
+(mjr_dquad_add-data-from-map f-q-r2-r1 (lambda (x y) (+ (sin x) (sin y))) :axes '(0 1) :ano-nam "dz/dy" :ano-typ :ano-typ-real)
+                                                          
+(mjr_dquad_colorize f-q-r2-r1 :data 0 :color-method "01"  :ano-nam "z_color")
 
+;; (mjr_gnupl_dquad f-q-r2-r1 :data-arrays 0 :main "f-q-r2-r1" :type :l)
+;; (mjr_gnupl_dquad f-q-r2-r1 :data-arrays 0 :main "f-q-r2-r1" :type :f)
+;; (mjr_gnupl_dquad f-q-r2-r1 :data-arrays 0 :main "f-q-r2-r1" :type :i)
 (mjr_vtk_from-dquad "exp-dXXXX-OUT-f-q-r2-r1.vtk" f-q-r2-r1)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear Scalar Field in 1D
 ;; Rectilinear Curve in 2D -- i.e. the points [x, f(x)]
 (format 't "f-q-r1-r1~%")
 (setq f-q-r1-r1 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" (list :start -2 :end 2 :len len-vvr1))
-                                             (lambda (x) (* x x))
+                                             (lambda (x) (* x (sin x)))
                                              :axes 't
                                              :ano-nam "y"
                                              :ano-typ :ano-typ-real))
+(mjr_dquad_add-data-from-map f-q-r1-r1 (lambda (x) (+ (sin x) (* x (cos x))))       :axes 0 :ano-nam "y'"  :ano-typ :ano-typ-real)
+(mjr_dquad_add-data-from-map f-q-r1-r1 (lambda (x) (- (* 2 (cos x)) (* x (sin x)))) :axes 0 :ano-nam "y''" :ano-typ :ano-typ-real)
 
+;;(mjr_gnupl_dquad f-q-r1-r1 :main "f-q-r1-r1")
 (mjr_vtk_from-dquad "exp-dXXXX-OUT-f-q-r1-r1.vtk" f-q-r1-r1)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear 3D Vector Field 3D
 (format 't "f-q-r3-r3~%")
 (setq f-q-r3-r3 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" (list :start -2 :end 2 :len len-vvr1) 
@@ -122,7 +147,7 @@
 
 (mjr_vtk_from-dquad "exp-dXXXX-OUT-f-q-r3-r3.vtk" f-q-r3-r3)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear 2D Vector Field 2D
 ;; Parametric Surface in 3D -- i.e. the points [f_x(u, v), f_y(u, v), f_z(u, v)].  See: mjr_dsimp for options.
 (format 't "f-q-r2-r3~%")
@@ -138,9 +163,10 @@
                                              :ano-typ :ano-typ-rvec
                                              :ano-nam "torus"))
 
+;;(mjr_gnupl_dquad f-q-r2-r3 :main "f-q-r2-r3")
 (mjr_vtk_from-dquad "exp-dXXXX-OUT-f-q-r2-r3.vtk" f-q-r2-r3)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear 3D Vector Field 1D -- i.e. vectors with base points on the x-axis
 ;; Parametric Curve in 3D -- i.e. the points [f_x(u), f_y(u), f_z(u)].  See: mjr_dsimp for options.
 (format 't "f-q-r1-r3~%")
@@ -150,9 +176,10 @@
                                              :ano-nam "xy"
                                              :ano-typ :ano-typ-rvec))
 
+;;(mjr_gnupl_dquad f-q-r1-r3 :main "f-q-r1-r3")
 (mjr_vtk_from-dquad "exp-dXXXX-OUT-f-q-r1-r3.vtk" f-q-r1-r3)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear 2D Vector Field 3D -- i.e. 2D vectors with base points in the 3-space.
 ;; This is an unusual data set.
 (format 't "f-q-r3-r2~%")
@@ -166,7 +193,7 @@
 
 (mjr_vtk_from-dquad "exp-dXXXX-OUT-f-q-r3-r2.vtk" f-q-r3-r2)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear 2D Vector Field 2D -- i.e. vectors with base points in the x-y plane
 ;; Frequently used to represent a slope filed for a DEQ
 (format 't "f-q-r2-r2~%")
@@ -179,7 +206,7 @@
 
 (mjr_vtk_from-dquad "exp-dXXXX-OUT-f-q-r2-r2.vtk" f-q-r2-r2)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear 2D Vector Field 1D -- i.e. vectors with base points on the x-axis
 ;; Parametric Curve in 2D -- i.e. the points [f_x(u), f_y(u)].  See: mjr_dsimp for options.
 (format 't "f-q-r1-r2~%")
@@ -189,16 +216,17 @@
                                              :ano-nam "xy"
                                              :ano-typ :ano-typ-rvec))
 
+;;(mjr_gnupl_dquad f-q-r1-r2 :main "f-q-r1-r2")
 (mjr_vtk_from-dquad "exp-dXXXX-OUT-f-q-r1-r2.vtk" f-q-r1-r2)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear Curve in 2D -- i.e. the points [x, f(x)]
 (format 't "f-s-r1-r1~%")
 (setq f-s-r1-r1 (mjr_dsimp_make-from-dquad f-q-r1-r1 0 0))
 
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r1-r1.vtk" f-s-r1-r1 :simplices 1)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parametric Curve in 2D -- i.e. the points [f_x(u), f_y(u)].  See: mjr_dsimp for options.
 (format 't "f-s-r1-r2~%")
 (setq f-s-r1-r2-o (mjr_dsimp_make-from-dquad f-q-r1-r2 0 0))
@@ -207,7 +235,7 @@
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r1-r2-o.vtk" f-s-r1-r2-o :simplices 1)
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r1-r2-c.vtk" f-s-r1-r2-c :simplices 1)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parametric Curve in 3D -- i.e. the points [f_x(u), f_y(u), f_z(u)].  See: mjr_dsimp for options.
 (format 't "f-s-r1-r3~%")
 (setq f-s-r1-r3-o (mjr_dsimp_make-from-dquad f-q-r1-r3 0 0))
@@ -216,14 +244,14 @@
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r1-r3-o.vtk" f-s-r1-r3-o :simplices 1)
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r1-r3-c.vtk" f-s-r1-r3-c :simplices 1)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear Surface in 3D -- i.e. the points [x, y, f(x,y)]
 (format 't "f-s-r2-r1~%")
 (setq f-s-r2-r1 (mjr_dsimp_make-from-dquad f-q-r2-r1 '(0 1) 0))
 
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r1.vtk" f-s-r2-r1 :simplices 2)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parametric Surface in 3D -- i.e. the points [f_x(u, v), f_y(u, v), f_z(u, v)].  See: mjr_dsimp for options.
 (format 't "f-s-r2-r3~%")
 

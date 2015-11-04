@@ -1,10 +1,9 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      exp-ODEthreeBody.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 2010,2012 by Mitch Richling.  All rights reserved.
 ;; @brief     A famous 3-body problem.@EOL
-;; @Keywords  3-body problem ode
 ;; @Std       Common Lisp
 ;;
 ;;            This particular example is documented in two good texts:
@@ -17,7 +16,7 @@
 ;;              * (setf action :fiveLobe)
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (time (let ((action (if (boundp 'action) (symbol-value 'action) :fiveLobe)))
         (flet ((pvf (time y) 
                  (declare (ignore time))
@@ -69,10 +68,4 @@
                                                                                          :return-all-steps 't)))))
             (mjr_vtk_from-dsimp (concatenate 'string "exp-ODEthreeBody-OUT-" (symbol-name action) ".vtk")  
                                 (mjr_dsimp_make-from-points ns :point-columns '(1 2) :data-columns 0 :data-column-names "time" :connect-points 't) 
-                                :simplices 1)
-            (mjr_plot_data :dat ns
-                           :title "Orbit"
-                           :main (concatenate 'string "Three Body Problem " (symbol-name action))
-                           :datcols (list 1 2);; index 0 is the x
-                           :xlim '(-2 2) :ylim '(-2 2)
-                           :type :l)))))
+                                :simplices 1)))))

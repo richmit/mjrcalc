@@ -1,16 +1,15 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      exp-ODEcircle.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1999,2008,2012,2015 by Mitch Richling.  All rights reserved.
 ;; @brief     Example of an ODE plot.@EOL
-;; @Keywords  example of an ode plot field direction 
 ;; @Std       Common Lisp
 ;;
 ;; Two slope plots with the x and y reversed.  The results are frequently surprising for newcomers to DEQ.
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (time 
  (flet ((xy2x (x y)  (* (+ (* x x) (* y y) (- 4)) (* x y)))
         (xy2y (x y)  (* (+ (* x x) (* y y) (- 4)) (- (* x x) (* y y))))

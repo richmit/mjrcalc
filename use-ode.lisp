@@ -1,37 +1,57 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-ode.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,1998,2004,2013 by Mitch Richling.  All rights reserved.
+;; @date      2015-MM-DD
+;; @version   VERSION
 ;; @brief     ODE (Ordinary Differential Equation) IVP (Initial Value Problem) solvers.@EOL
-;; @Keywords  lisp interactive ODE ordinary differential equations IVP initial value problems root solutions
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-ode.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997, 1998, 2004, 2013, 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            TODO: Don't print too many warnings. Ex: WARNING(mjr_ode_slv-ivp-erk-interval): Violated Y-ERR-ABS-MAX or Y-DELTA-ABS-MAX constraint!
-;;            TODO: * mjr_ode_slv-ivp-erk-interval
-;;            TODO:   * Zero x-delta-min may lead to infinite loop
-;;            TODO:   * Add exit for total path length beyond a threshold
-;;            TODO:   * Add exit for length of y beyond a threshold
-;;            TODO:   * Add min y-delta -- a "get progress" parameter
-;;            TODO:   * Starting step size computation 
-;;            TODO: * mjr_ode_erk-step-kernel
-;;            TODO:   * Add option to provide traditional error computation
-;;            TODO: * Add support EQ list with some elements returning vectors and others return numbers
-;;            TODO: * Better handling when tolerances are not given: i.e. don't compute y2-delta, traverse lists unnecessarily
-;;            TODO: * FASTER
-;;            TODO: * Richardson Extrapolation for 'err' tolerances
-;;            TODO: * RK methods
-;;            TODO:   * Add high order Verner methods
-;;            TODO:   * Add additional fehlberg methods
-;;            TODO:   * Add optimized version of Dormand-Price method (double, formula based, FAST)
-;;            TODO:   * Add embedded methods for all order 1, 2, 3, & 4 methods
-;;            TODO:   * Add NAG methods
-;;            TODO: * Do everything in float-double
-;;            TODO: * Add better support for stiff problems
-;;            TODO: * Figure out a way to do everything with optimized doubles.  Could use macros to create optimized step functions.
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo Put results in dquad.@EOL@EOL
+;; @todo Don't print too many warnings. Ex: WARNING(mjr_ode_slv-ivp-erk-interval): Violated Y-ERR-ABS-MAX or Y-DELTA-ABS-MAX constraint!.@EOL@EOL
+;; @todo mjr_ode_slv-ivp-erk-interval: Zero x-delta-min may lead to infinite loop.@EOL@EOL
+;; @todo mjr_ode_slv-ivp-erk-interval: Add exit for total path length beyond a threshold.@EOL@EOL
+;; @todo mjr_ode_slv-ivp-erk-interval: Add exit for length of y beyond a threshold.@EOL@EOL
+;; @todo mjr_ode_slv-ivp-erk-interval: Add min y-delta -- a "get progress" parameter.@EOL@EOL
+;; @todo mjr_ode_slv-ivp-erk-interval: Starting step size computation .@EOL@EOL
+;; @todo mjr_ode_erk-step-kernel: Add option to provide traditional error computation.@EOL@EOL
+;; @todo Add support EQ list with some elements returning vectors and others return numbers.@EOL@EOL
+;; @todo Better handling when tolerances are not given: i.e. don't compute y2-delta, traverse lists unnecessarily.@EOL@EOL
+;; @todo FASTER.@EOL@EOL
+;; @todo Richardson Extrapolation for 'err' tolerances.@EOL@EOL
+;; @todo Add high order Verner methods.@EOL@EOL
+;; @todo Add additional fehlberg methods.@EOL@EOL
+;; @todo Add optimized version of Dormand-Price method (double, formula based, FAST).@EOL@EOL
+;; @todo Add embedded methods for all order 1, 2, 3, & 4 methods.@EOL@EOL
+;; @todo Add NAG methods.@EOL@EOL
+;; @todo Do everything in float-double.@EOL@EOL
+;; @todo Add better support for stiff problems.@EOL@EOL
+;; @todo Figure out a way to do everything with optimized doubles.  Could use macros to create optimized step functions..@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_ODE
   (:USE :COMMON-LISP
         :MJR_NUMU
@@ -61,7 +81,7 @@
 
 (in-package :MJR_ODE)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_help ()
 "Help for MJR_ODE:
 A system of ODEs is defined to be:
@@ -88,11 +108,10 @@ $$
 \\end{array}\\right]
 $$
 
-While such systems may be the natural result of the physical system under study, it is more common for them to be the result of
-transforming a single $n^\\mathrm{th}$ order differential equation into a group of $n$ first order equations -- which facilitates
-the solution of the original equation via numerical methods.  When multiple higher order ODEs are to be solved, the natural result
-is several such systems to be simultaneously solved.  This package solves such groups of first order ODE systems via various
-Runge-Kutta methods.
+While such systems may be the natural result of the physical system under study, it is more common for them to be the result of transforming a single
+$n^\\mathrm{th}$ order differential equation into a group of $n$ first order equations -- which facilitates the solution of the original equation via
+numerical methods.  When multiple higher order ODEs are to be solved, the natural result is several such systems to be simultaneously solved.  This package
+solves such groups of first order ODE systems via various Runge-Kutta methods.
 
 A Runge-Kutta method is defined by a set of coefficients that are most frequently organized into a ``Butcher tableau'':
 
@@ -122,8 +141,8 @@ The primary 'Human Interface' functions are:
   * MJR_ODE_SLV-IVP-ERK-MESH     -- Solve ODE IVP via an explicit RK method at specified grid points
   * MJR_ODE_SLV-IVP-ERK-INTERVAL -- Solve ODE IVP via explicit RK method interval endpoint (with an adaptive mesh or single jump)
 
-The primary emphasis of this code base is to enable one to easily compare various RK methods and experiment with new ones.  The
-functions above implement the overall structure common to all RK algorithms, but leave the actual RK step to plugin functions.
+The primary emphasis of this code base is to enable one to easily compare various RK methods and experiment with new ones.  The functions above implement the
+overall structure common to all RK algorithms, but leave the actual RK step to plugin functions.
 
 Some vocabulary:
    * ERK      Explicit Runge-Kutta
@@ -135,8 +154,8 @@ Some vocabulary:
    * ODE      Ordinary Differential Equation
    * IVP      Initial Value Problem
 
-The following functions each implement a the single step RK method suitable for use with the MJR_ODE_SLV-IVP-ERK-MESH and
-MJR_ODE_SLV-IVP-ERK-INTERVAL functions:
+The following functions each implement a the single step RK method suitable for use with the MJR_ODE_SLV-IVP-ERK-MESH and MJR_ODE_SLV-IVP-ERK-INTERVAL
+functions:
 
   * mjr_ode_erk-step-euler-1               --  order 1      ERK
   * mjr_ode_erk-step-euler-1-direct        --  order 1      ERK - as above, but a faster direct formula
@@ -156,12 +175,11 @@ MJR_ODE_SLV-IVP-ERK-INTERVAL functions:
   * mjr_ode_erk-step-verner-6-5            --  order 6(5)   EERKLE
   * mjr_ode_erk-step-fehlberg-7-8          --  order 7(8)   EERK
 
-See MJR_ODE_ERK-STEP-KERNEL and MJR_ODE_ERK-STEP-HEUN-EULER-1-2 for the interface guidelines for a RK step function, and how to
-construct one from the Butcher Tableau.  See MJR_ODE_ERK-STEP-EULER-1-DIRECT for an example of directly implementing a non-embedded
-RK step function."
+See MJR_ODE_ERK-STEP-KERNEL and MJR_ODE_ERK-STEP-HEUN-EULER-1-2 for the interface guidelines for a RK step function, and how to construct one from the Butcher
+Tableau.  See MJR_ODE_ERK-STEP-EULER-1-DIRECT for an example of directly implementing a non-embedded RK step function."
   (documentation 'mjr_ode_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-kernel (eq x y xdelta
                                 a c b1 b2 p1 p2
                                 y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
@@ -238,7 +256,7 @@ Arguments:
                                       1))
                               y-rat))))
             
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-euler-1 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 1.
 References:
@@ -252,7 +270,7 @@ References:
                            1 nil
                            y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-heun-2 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 2.
 References:
@@ -267,7 +285,7 @@ Corresponds to the trapezoidal rule."
                            2 nil
                            y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-mid-point-2 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 2.
 References:
@@ -282,7 +300,7 @@ Corresponds to the mid-point rule."
                            2 nil
                            y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-runge-kutta-4 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 4.
 References:
@@ -300,7 +318,7 @@ In the literature, this method is frequently called 'RK4'.  It is considered by 
                            4 nil
                            y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-kutta-three-eight-4 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 4.  More precise than RK4.  Sometimes called the '3/8-rule'.
 References:
@@ -318,7 +336,7 @@ References:
                            y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-heun-euler-1-2 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   (mjr_ode_erk-step-kernel eq x y xdelta
                            #2a((0 0)
@@ -329,7 +347,7 @@ References:
                            1 2
                            y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-verner-6-5 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 6(5).
 References:
@@ -350,7 +368,7 @@ References:
                            6 5
                            y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-merson-4-5 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 4('5').
 
@@ -375,7 +393,7 @@ References:
                            y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-zonneveld-4-3 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 4(3).
 
@@ -414,7 +432,7 @@ References:
                            4 5
                            y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-fehlberg-7-8 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 7(8).
 This method is not designed for local extrapolation, and performs quite poorly when it is used with local extrapolation.
@@ -442,7 +460,7 @@ References:
                            7 8
                            y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-bogackia-shampine-3-2 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 3(2).
 References:
@@ -458,7 +476,7 @@ References:
                           3 2
                            y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-cash-karp-5-4 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 5(4).
 References:
@@ -476,7 +494,7 @@ References:
                           5 4
                           y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-dormand-prince-5-4 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 5(4).
 References:
@@ -495,7 +513,7 @@ References:
                            5 4
                            y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-Prince-Dormand-7-8 (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Order 7(8).  Not as well tested as mjr_ode_erk-step-fehlberg-7-8.  Use with care"
   (mjr_ode_erk-step-kernel eq x y xdelta
@@ -518,7 +536,7 @@ References:
                            7 8
                            y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-euler-1-direct (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Compute YDELTA directly using Euler's method via formulas in the most simplistic way possible.  Used for testing.
 
@@ -531,7 +549,7 @@ $$\Delta\mathbf{\vec{y}}=\Delta{x}\cdot\vec{\mathbf{f}}(x, \vec{\mathbf{y}})$$"
                   y)
           nil))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-heun-2-direct (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Compute YDELTA directly using Heun's method via formulas in the most simplistic way possible.  Used for testing.
 
@@ -550,7 +568,7 @@ $$\Delta\mathbf{\vec{y}}=
                   y)
           nil))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_erk-step-runge-kutta-4-direct (eq x y xdelta y-err-abs-max y-err-rel-max y-delta-abs-max y-delta-rel-max)
   "Compute YDELTA directly using RK4 via formulas in the most simplistic way possible.  Used for testing.
 
@@ -578,7 +596,7 @@ $$\Delta\mathbf{\vec{y}}=\frac{\vec{\mathbf{k}}_1+2\vec{\mathbf{k}}_2+2\vec{\mat
                   y)
           nil))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_slv-ivp-erk-interval (eq ivy x-min x-max &key
                                          max-itr x-delta-min x-delta-max x-delta-init x-delta-fac-max x-delta-fac-min
                                          y-delta-abs-max y-delta-rel-max y-err-abs-max y-err-rel-max x-delta-fac-fuz
@@ -665,12 +683,12 @@ $$\Delta\mathbf{\vec{y}}=\frac{\vec{\mathbf{k}}_1+2\vec{\mathbf{k}}_2+2\vec{\mat
                                      * mjr_ode_erk-step-cash-karp-5-4         --  order 5(4)   EERKLE
                                      * mjr_ode_erk-step-dormand-prince-5-4    --  order 5(4)   EERKLE
                                      * mjr_ode_erk-step-verner-6-5            --  order 6(5)   EERKLE
-                                 When using an embedded algorithm, error is best controlled via the Y-ERR-REL-MAX or Y-ERR-ABS-MAX
-                                 parameters.  The x and y-delta parameters can be used to set bounds, and fine tune step sizes, but
-                                 they are generally not required -- except as a safety factor for very large steps.
+                                 When using an embedded algorithm, error is best controlled via the Y-ERR-REL-MAX or Y-ERR-ABS-MAX parameters.  The x and
+                                 y-delta parameters can be used to set bounds, and fine tune step sizes, but they are generally not required -- except as a
+                                 safety factor for very large steps.
 
-                                 While it is possible to use an RK method without an embedded error estimate, both performance and
-                                 error control can be quite poor.  The following should only be used by experts:
+                                 While it is possible to use an RK method without an embedded error estimate, both performance and error control can be quite
+                                 poor.  The following should only be used by experts:
                                      * mjr_ode_erk-step-euler-1               --  order 1      ERK
                                      * mjr_ode_erk-step-euler-1-direct        --  order 1      ERK - as above, but a faster direct formula
                                      * mjr_ode_erk-step-heun-2                --  order 2      ERK
@@ -679,12 +697,11 @@ $$\Delta\mathbf{\vec{y}}=\frac{\vec{\mathbf{k}}_1+2\vec{\mathbf{k}}_2+2\vec{\mat
                                      * mjr_ode_erk-step-runge-kutta-4         --  order 4      ERK
                                      * mjr_ode_erk-step-runge-kutta-4-direct  --  order 4      ERK - as above, but a faster direct formula
                                      * mjr_ode_erk-step-kutta-three-eight-4   --  order 4      ERK
-                                 When using a non-embedded algorithm, error can't be controlled via the Y-ERR-REL-MAX or
-                                 Y-ERR-ABS-MAX as the method has no good error estimation built in.  When using such RK methods, the
-                                 x and y-delta parameters are the most important -- i.e. you must take direct control over the
-                                 points used in the solution.  When using a non-embedded method, one should consider using
-                                 mjr_ode_slv-ivp-erk-mesh instead of mjr_ode_slv-ivp-erk-interval as the mesh solver allows more
-                                 direct control over the solution points.
+                                 When using a non-embedded algorithm, error can't be controlled via the Y-ERR-REL-MAX or Y-ERR-ABS-MAX as the method has no
+                                 good error estimation built in.  When using such RK methods, the x and y-delta parameters are the most important -- i.e. you
+                                 must take direct control over the points used in the solution.  When using a non-embedded method, one should consider using
+                                 mjr_ode_slv-ivp-erk-mesh instead of mjr_ode_slv-ivp-erk-interval as the mesh solver allows more direct control over the
+                                 solution points.
 
                                  DEFAULT: #'mjr_ode_erk-step-cash-karp-5-4"
   (flet ((nil-min   (x y)     (or (and x y (min x y)) x y))
@@ -759,9 +776,10 @@ $$\Delta\mathbf{\vec{y}}=\frac{\vec{\mathbf{k}}_1+2\vec{\mathbf{k}}_2+2\vec{\mat
                     (y-are-vec (first y))
                     (y-are-num (aref (first y) 0))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ode_slv-ivp-erk-mesh (eq ivy mesh &rest rest &key show-progress &allow-other-keys)
   "Approximate solutions to one or more systems of ODEs initial value problems across a mesh of points.
+
 The return value will be a 2D array with a row for each mesh point, and a column for x and all the requested variables.
 
    Arguments:

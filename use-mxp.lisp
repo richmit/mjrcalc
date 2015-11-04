@@ -1,10 +1,9 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-mxp.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1996,2010,2011,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Mathematical eXPressions library.@EOL
-;; @Keywords  lisp interactive expression parsing infix computer algebra system mxp
 ;; @Std       Common Lisp
 ;;
 ;;            TODO: Add this kind of code to other packages
@@ -12,7 +11,7 @@
 ;;            TODO: DONE: nleq.lisp, plot.lisp, vtk.lisp, pov.lisp
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_MXP
   (:USE :COMMON-LISP
         :MJR_STRING
@@ -51,27 +50,26 @@
 
 (in-package :MJR_MXP)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_help ()
   "MXP (Mathematical eXPressions)
 
 This package provides the core functionality required:
 
- 1) transform an infix-string into a mxp-tree.  That is to say, convert a LISP string representing an infix mathematical expression
-    into a LISP tree (nested lists) representing the logical structure of the expression
+ 1) transform an infix-string into a mxp-tree.  That is to say, convert a LISP string representing an infix mathematical expression into a LISP tree (nested
+    lists) representing the logical structure of the expression
 
  2) Convert a mxp-tree into other forms (like a LISP function, LISP code, or an infix-string)
 
- 3) Preform 'structural' manipulations on an mxp-tree.  The word 'structural' is used to imply that this library preforms changes to
-    an expression at the structural level and not the mathematical level.  i.e. it is not a CAS, but rather a tool a CAS might use
-    to manage expressions.
+ 3) Preform 'structural' manipulations on an mxp-tree.  The word 'structural' is used to imply that this library preforms changes to an expression at the
+    structural level and not the mathematical level.  i.e. it is not a CAS, but rather a tool a CAS might use to manage expressions.
 
- 4) Provide some handy functions combining some of the above operations in ways commonly used by other code (i.e. directly transform
-    an infix-string representing a mathematical function into a LISP function)
+ 4) Provide some handy functions combining some of the above operations in ways commonly used by other code (i.e. directly transform an infix-string
+    representing a mathematical function into a LISP function)
 
- While this package is primary useful for providing back-end functionality to other packages (like MJR_PLOT, MJR_NLEQ, VTK.LISP, and
- POV.LISP), I have decided to design it for interactive use and expose it at the top level because it is occasionally handy to
- convert an equation from a text book or other source into LISP's prefix notation.
+ While this package is primary useful for providing back-end functionality to other packages (like MJR_NLEQ, VTK.LISP, and POV.LISP), I have decided to design
+ it for interactive use and expose it at the top level because it is occasionally handy to convert an equation from a text book or other source into LISP's
+ prefix notation.
 
 Definitions:
   atom
@@ -84,7 +82,7 @@ Definitions:
       A string containing a representation of a mathematical expression in c-like syntax (only MJR_MXP_INFIX-TO-TREE takes these)"
   (documentation 'mjr_mxp_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_op-precedence (op)
   "Take a string with a binary operator name, and return the integer indicating its precedence."
   (let ((op (if (and op (listp op))
@@ -99,7 +97,7 @@ Definitions:
           ((string-equal ":" op)    4))))
 
 
-;;;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;(defun mjr_mxp_op-type (op)
 ;;  ""
 ;;  (if (= 1 (length op))
@@ -108,7 +106,7 @@ Definitions:
 ;;            ((mjr_char_in-class op "!")    POSTFIX))
 ;;        FUNCTION))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_op-right-assocp (op)
   "Take a string with a binary operator name, and return non-NIL if it is right associative."
   (let ((op (if (and op (listp op))
@@ -116,7 +114,7 @@ Definitions:
                 op)))
     (string-equal "^" op)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tokenizer: 
 ;;    * Gobble leading white-space
 ;;
@@ -126,18 +124,16 @@ Definitions:
 ;;
 ;;    * Look for 1 char things
 ;;
-;;      For :tokt-op-infix, :tokt-op-postfix, :tokt-op-prefix, & :tokt-function the number of arguments must be determined.  For
-;;      :tokt-function, the tokenizer figures it out.  For + or -, we need to figure out if it is binary or unary.  If a - or +
-;;      character is read, and the previous token read is a number, symbol, or a closing parenthesis, the meaning is taken to be
-;;      a binary -.  OTOH, if the previous token is an operator, function arg sep, open paren, or if there is no previous token,
-;;      then the meaning is taken to be unary -.
+;;      For :tokt-op-infix, :tokt-op-postfix, :tokt-op-prefix, & :tokt-function the number of arguments must be determined.  For :tokt-function, the tokenizer
+;;      figures it out.  For + or -, we need to figure out if it is binary or unary.  If a - or + character is read, and the previous token read is a number,
+;;      symbol, or a closing parenthesis, the meaning is taken to be a binary -.  OTOH, if the previous token is an operator, function arg sep, open paren, or
+;;      if there is no previous token, then the meaning is taken to be unary -.
 ;;     
 ;;    * Look for symbols (variables & functions): start with [_a-zA-Z] only contain  [_a-zA-Z0-9] 
 ;;
-;;      If the next non-whitespcae char after a symbol is a (, then the symbol is a prefix function name.  If it is a function,
-;;      march along the string keeping track of how many parens are still open (we start with at least one that was at the end
-;;      of the function name), and we count commas we find while we are 1 paren level deep.  Stop when paren level is 0 --
-;;      i.e. we found the last paren.  Record the number of commas as the number of arguments-1.
+;;      If the next non-whitespcae char after a symbol is a (, then the symbol is a prefix function name.  If it is a function, march along the string keeping
+;;      track of how many parens are still open (we start with at least one that was at the end of the function name), and we count commas we find while we
+;;      are 1 paren level deep.  Stop when paren level is 0 -- i.e. we found the last paren.  Record the number of commas as the number of arguments-1.
 ;;
 ;; Tokens
 ;;        * float     :tokt-number                   short-float double-float
@@ -303,7 +299,7 @@ Definitions:
           do (if show-progress
                  (format 't "SYNTH: BSTACK: ~120a ASTACK: ~80a~%"  b-stack a-stack)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_lisp-to-tree (lisp-code)
   "Transforms the LISP expression in LISP-CODE into a mxp-tree"
   ;; Example: (mjr_mxp_lisp-to-tree '(+ a "234" b c (* d 345 f))) => ("+" "A" 234 "B" "C" ("*" "D" 345 "F"))
@@ -320,44 +316,44 @@ Definitions:
         (symbol     (symbol-name lisp-code))
         (otherwise  (format nil "~a" lisp-code)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_tree-eval-as-lisp (expr)
   "Transform mxp-tree into LISP code, and evaluate it -- Get a number if everything is defined."
   (eval (mjr_string_read-as-lisp (format nil "~a" expr))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_number? (expr)
   "non-NIL if EXPR is a number"
   (numberp expr))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_not-number? (expr)
   "non-NIL if EXPR is not a number"
   (not (numberp expr)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_symbol? (expr)
   "non-NIL if EXPR is a symbol"
   (stringp expr))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_not-symbol? (expr)
   "non-NIL if EXPR is not a symbol"
   (not (mjr_mxp_symbol? expr)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_atom? (expr)
   "non-NIL if EXPR is a symbol or a number -- i.e. if EXPR is a mxp-tree, it is not an composite expression."
   (or (mjr_mxp_symbol? expr) (mjr_mxp_number? expr)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_not-atom? (expr)
   "non-NIL if EXPR is not a string or number -- i.e. if EXPR is a mxp-tree, then it must be a composite expression."
   ;; Logically, this is: (not (or (mjr_mxp_symbol? expr) (mjr_mxp_number? expr)))
   ;; That said, the only other things we can have are lists starting with an operator.  So we do this instead:
   (and expr (listp expr)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_atom= (atom1 atom2)
   "non-NIL if arguments are both atoms and equal."
   (or (and (mjr_mxp_number? atom1)
@@ -367,18 +363,18 @@ Definitions:
            (mjr_mxp_symbol? atom2)
            (equal atom1 atom2))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_expr= (expr1 expr2)
   "non-NIL if the expressions are equal."
   (equal expr1 expr2))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_op (expr)
   "Top operator if EXPR is a composite expression, and NIL otherwise."
   (if (mjr_mxp_not-atom? expr)
       (car expr)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_op-in? (expr op)
   "non-NIL if the top operator of EXPR is in OP if OP is a list of strings or equal to OP if OP is a string. 
 Note that if EXPR is not a composite expression, then the return is NIL."
@@ -387,18 +383,18 @@ Note that if EXPR is not a composite expression, then the return is NIL."
           (member (car expr) op :test #'mjr_mxp_atom=)
           (mjr_mxp_atom= op (car expr)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_args (expr)
   "Args for the top operator, or NIL if EXPR is an atom."
   (cdr expr))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_nargs (expr)
   "Number of args for the top operator, or NIL if EXPR is not a composite expression."
   (if (mjr_mxp_not-atom? expr)
       (length (mjr_mxp_args expr))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_nth-arg (expr n)
   "nth arg for the top operator, or NIL if EXPR is not a composite expression.  Error if N is out of bounds or not an integer."
   (cond ((not (integerp n)) (error "mjr_mxp_nth-arg: N must be an integer."))
@@ -409,7 +405,7 @@ Note that if EXPR is not a composite expression, then the return is NIL."
             (error "mjr_mxp_nth-arg: N must be less than the length of the argument list of EXPR.")
             the-arg))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_some (expr func &rest fargs)
   "non-NIL if FUNC applied to an argument of EXPR is non-NIL for at least one argument of EXPR."
   (if (mjr_mxp_not-atom? expr)
@@ -418,19 +414,19 @@ Note that if EXPR is not a composite expression, then the return is NIL."
           (some func                              (mjr_mxp_args expr)))))
 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_map-args (expr func &rest fargs)
   "Form a list by applying FUNC to each argument of EXPR."
   (if fargs
       (mapcar (lambda (x) (apply func x fargs)) (mjr_mxp_args expr))
       (mapcar func                              (mjr_mxp_args expr))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_map (expr func &rest fargs)
   "Apply FUNC to EXPR args and construct new expression with same top operator."
   (apply #'list (first expr) (apply #'mjr_mxp_map-args expr func fargs)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_copy-expr (expr)
   "Copy an expression."
   (typecase expr
@@ -440,12 +436,12 @@ Note that if EXPR is not a composite expression, then the return is NIL."
     (otherwise  (progn (warn "mjr_mxp_copy-expr: Argument was not a valid MXP")
                        expr))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_c (op &rest args)
   "Construct new expression with OP applied to the arguments following OP."
   (apply #'list op args))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_cc (op &rest arg-lists)
   "Construct new expression with OP applied to elements the concatenation of the arguments after OP."
   (if arg-lists
@@ -454,7 +450,7 @@ Note that if EXPR is not a composite expression, then the return is NIL."
           (apply #'mjr_mxp_c op (car arg-lists)))                      ;; One element in arg-lists
       (mjr_mxp_c op)))                                                 ;; arg-lists is empty -- is this an error?
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_math-op-to-lisp-op (expr)
   "Transform traditional mathematical function names to lisp function names (^ => expt)"
   (flet ((op-trans (op) (if (string-equal "^" op)
@@ -464,7 +460,7 @@ Note that if EXPR is not a composite expression, then the return is NIL."
           ('t                   (mjr_mxp_cc (op-trans (mjr_mxp_op expr))
                                             (mjr_mxp_map-args expr #'mjr_mxp_math-op-to-lisp-op))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_lisp-op-to-math-op (expr)
   "Transform lisp function names to traditional mathematical ones (expt => ^)"
   (flet ((op-trans (op) (if (string-equal "expt" op)
@@ -474,43 +470,42 @@ Note that if EXPR is not a composite expression, then the return is NIL."
           ('t                   (mjr_mxp_cc (op-trans (mjr_mxp_op expr))
                                             (mjr_mxp_map-args expr #'mjr_mxp_lisp-op-to-math-op))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_tree-to-lambda (expr &rest args)
   "Transform mxp-tree into LISP code, and make it the body of a function taking VARS."
   (eval (mjr_string_read-as-lisp (format nil "(lambda ~a ~a )" args (mjr_mxp_math-op-to-lisp-op expr)))))
 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_tree-to-code (expr)
   "Transform mxp-tree into LISP code."
   (eval (mjr_string_read-as-lisp (format nil "(quote ~a)" (mjr_mxp_math-op-to-lisp-op expr)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_trees-to-values-lambda (expr-list arg-list)
   "Like mjr_mxp_tree-to-lambda, but first argument is a list of expressions and second is a list of arguments."
   (eval (mjr_string_read-as-lisp 
          (format nil "(lambda (~{ ~A~}) (values ~{ ~A~}))" arg-list (mapcar #'mjr_mxp_math-op-to-lisp-op expr-list)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_string-or-func-to-lambda (func-or-string &rest vars)
   "If FUNC-OR-STRING is a string, then transform it into a lambda on VARS.  Otherwise return FUNC-OR-STRING as is."
   (if (stringp func-or-string)
       (apply #'mjr_mxp_tree-to-lambda (mjr_mxp_math-op-to-lisp-op (mjr_mxp_infix-to-tree func-or-string)) vars)
       func-or-string))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_string-or-func-to-list-o-lambda (funcs-or-strings &rest vars)
   "Like MJR_MXP_INFIX-TO-TREE, but work on lists of objects.  If not given a list, still return a list of one element."
   (mapcar (lambda (f-or-s) (apply #'mjr_mxp_string-or-func-to-lambda f-or-s vars)) 
           (if (listp funcs-or-strings) funcs-or-strings (list funcs-or-strings))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_tree-to-infix (expr &optional (prv-prec -1))
   "Transform mxp-tree into an infix encoded string.  This is not well tested!!!
 
-Some care has been taken to make the expression less ugly.  Many unnecessary parenthesis are culled, and funny lisp function
-names are replaced by traditional operators (expt => ^ for example).  Some things are funny like unary minus and postfix
-operators.  Frankly I don't use this enough to care about it much. :)"
+Some care has been taken to make the expression less ugly.  Many unnecessary parenthesis are culled, and funny lisp function names are replaced by traditional
+operators (expt => ^ for example).  Some things are funny like unary minus and postfix operators.  Frankly I don't use this enough to care about it much. :)"
   (if (mjr_mxp_atom? expr)
       (format nil "~a" expr)
       (let* ((expr      (mjr_mxp_lisp-op-to-math-op expr))
@@ -525,7 +520,7 @@ operators.  Frankly I don't use this enough to care about it much. :)"
                                           (mjr_mxp_map-args expr #'mjr_mxp_tree-to-infix cur-prec)))
                      (if need-parn ")" "")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_substitute-atom-par (expr &rest atom-exprs-pairs)
   "Replace atoms.  Example: '(* x y) x '(+ 4 z) y '(+ x y)) => (* (+ 4 z) (+ x y))
 Faster than mjr_mxp_substitute-par."
@@ -537,7 +532,7 @@ Faster than mjr_mxp_substitute-par."
             finally (return expr))
       (apply #'mjr_mxp_map expr #'mjr_mxp_substitute-atom-par atom-exprs-pairs)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_substitute-par (expr &rest exprs-pairs)
   "Replace atoms.  Example: '(* (+ a b) c) a b b q) => (* (+ b q) c)"
   (let ((nexpr (if (mjr_mxp_atom? expr)
@@ -549,7 +544,7 @@ Faster than mjr_mxp_substitute-par."
                  (return (mjr_mxp_copy-expr rhs)))
           finally (return nexpr))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_substitute-seq (expr &rest exprs-pairs)
   "Replace atoms.  Example: '(* (+ a b) c) a b b q) => (* (+ q q) c)"
   (loop for lhs in exprs-pairs       by #'cddr
@@ -557,7 +552,7 @@ Faster than mjr_mxp_substitute-par."
         for nexpr = (mjr_mxp_substitute-par expr lhs rhs) then (mjr_mxp_substitute-par nexpr lhs rhs)
         finally (return nexpr)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_has (expr small-expr)
   "EXPR contains SMALL-EXPR as a 'complete sub-expression'."
   (if (mjr_mxp_expr= small-expr expr)
@@ -565,12 +560,12 @@ Faster than mjr_mxp_substitute-par."
       (if (mjr_mxp_not-atom? expr)
           (mjr_mxp_some expr #'mjr_mxp_has small-expr))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_free-of (expr small-expr)
   "EXPR doesn't contain SMALL-EXPR as a 'complete sub-expression'."
   (not (mjr_mxp_has expr small-expr)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_math-constants-to-lisp-constants (expr)
   "Transform traditional mathematical constant names (%e) to lisp values."
   (mjr_mxp_substitute-atom-par expr

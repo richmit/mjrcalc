@@ -1,11 +1,10 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      use-nleqm.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 2015 by Mitch Richling.  All rights reserved.
 ;; @brief     Multiple Non-linear EQuation root location.@EOL
-;; @Keywords  lisp interactive multiple non-linear equations root solutions
 ;; @Std       Common Lisp
 ;;
 ;;            TODO: * Add newton/chord hybrid
@@ -19,7 +18,7 @@
 ;;            
 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_NLEQM
   (:USE :COMMON-LISP
         :MJR_CMP
@@ -36,7 +35,7 @@
 
 (in-package :MJR_NLEQM)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_nleqm_root-newton (fdf x0 &key (df-is-inverse nil) (xeps 0.0001) (yeps 0.0001) (max-itr 1000) arg-mode (show-progress nil))
   "Use newton's method to localize a root of f near (hopefully anyhow) X0.  
 The first return of FDF is the value of f, and the second return depends upon DF-IS-INVERSE:
@@ -65,7 +64,7 @@ WHY-STRING is a string description of why the function returned."
              (if (and y-old (mjr_eps_= y-cur y-old yeps))                          (return (values nil x-cur y-cur i-cur "Y-DELTA=0")))
              (setf y-old y-cur))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_nleqm_fixed-point-itr (f x0 &key (xeps 0.0001) (yeps 0.0001) (max-itr 1000) arg-mode (show-progress nil))
   "Use fixed point iteration to localize a root f(x)-x near (hopefully anyhow) X0.
 If a root is found (i.e. an x such that f(x)-x is nearly zero, then the return is: x, f(x), iteration count, WHY-STRING.
@@ -85,7 +84,7 @@ WHY-STRING is a string description of why the function returned."
              (if (and y-old (mjr_eps_= y-cur y-old yeps))                          (return (values nil x-cur y-cur i-cur "Y-DELTA=0")))
              (setf y-old y-cur))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_nleqm_root-comb-search (f s &key (target 0) arg-mode show-progress)
   "Find best solutions to F=TARGET, from $(S_1 \times S_2 \times \cdots \times S_n)$, using the an exhaustive search algorithm.
 

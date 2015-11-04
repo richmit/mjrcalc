@@ -1,16 +1,15 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-stats.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1996,1997,1998,2004,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Statistics: Averages, histograms, sub-samples, simple linear regression.@EOF
-;; @Keywords  lisp interactive
 ;; @Std       Common Lisp
 ;;
 ;;            
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_STATS
   (:USE :COMMON-LISP
         :MJR_UTIL
@@ -26,7 +25,7 @@
 
 (in-package :MJR_STATS)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_stats_avg (&rest x) 
   "Compute the arithmetic mean of the input arguments (a group of sequences and/or numbers).
 For complex inputs, the average of the real and complex parts are independently computed."
@@ -41,20 +40,19 @@ For complex inputs, the average of the real and complex parts are independently 
         ((and (= 1 (length x)) (listp (first x)))  (loop for y in (first x) for psum = y then (+ y psum) collect psum))
         ('t                                        (mjr_stats_subtotal (apply #'mjr_util_super-concatenate 'list x)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_stats_summary (the-list &key out-filter in-filter)
   "Compute various statistics for a list of numbers.
 
-:OUT-FILTER is a function to be applied to all results.  The most typical use is to convert the result data type. If
-missing, then the output will be left in its natural state. Some special function symbols are supported:
+:OUT-FILTER is a function to be applied to all results.  The most typical use is to convert the result data type. If missing, then the output will be left in
+its natural state. Some special function symbols are supported:
 
    :if    => 'float will be applied to all non-integer numbers
    :f     => same as 'float
    :r     => same as 'rational
 
-IN-FILTER is also a function, but it is is applied to each element of the input list.  This is normally used to transform
-the data before computing the stats -- exp, log, and expt are common choices.  The special symbols :if, :f, and :r do not
-work for the input filter.
+IN-FILTER is also a function, but it is is applied to each element of the input list.  This is normally used to transform the data before computing the stats
+-- exp, log, and expt are common choices.  The special symbols :if, :f, and :r do not work for the input filter.
 
 Statistics returned (in an associative array) are:
   :sum    - Sum of values
@@ -177,7 +175,7 @@ Statistics returned (in an associative array) are:
                                 )
                               (pairlis the-ret-tags (mapcar (lambda (y) (if out-filter (funcall out-filter y) y)) the-ret-vals))))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_stats_fmt-summary (the-stats &key the-cats)
   "Format the output of stats as a string"
   (if (listp (cdr (first the-stats)))
@@ -285,7 +283,7 @@ The DATA argument should be a vector for performance reasons, but lists are acce
                 do (setf (aref all-count i) (/ (aref all-count i) area)))))
     (list all-count breaks low-count high-count)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_stats_fmt-hist (hist)
   "Format the output of MJR_STATS_HIST as a string.
 

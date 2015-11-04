@@ -1,36 +1,35 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      tst-perm.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 2015 by Mitch Richling.  All rights reserved.
 ;; @brief     Tests for :mjr_perm.@EOL
-;; @Keywords  
 ;; @Std       Common Lisp
 ;;
 ;;            
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_PERM-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_PERM :MJR_PRNG))
 
 (in-package :MJR_PERM-TESTS)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_perm_oddp-naive (perm)
   "Return non-nil if the permutation is odd, or nil if it is not (or is invalid).
 See MJR_PERM_CHECK-PERM for more information about invalid permutations."
   (let ((num-inversions (mjr_perm_swapping-number perm)))
     (and num-inversions (oddp num-inversions))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_perm_evenp-naive (perm)
   "Return non-nil if the permutation is even, or nil if it is not (or is invalid).
 See MJR_PERM_CHECK-PERM for more information about invalid permutations."
   (let ((num-inversions (mjr_perm_swapping-number perm)))
     (and num-inversions (evenp num-inversions))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_perm_sgn-naive (perm)
   "Return the signature (or sign) of the permutation (-1 if odd, 1 if even, nil if invalid).
 See MJR_PERM_CHECK-PERM for more information about invalid permutations."
@@ -38,7 +37,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
     (if num-inversions
         (if (evenp num-inversions) 1 -1))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_perm_order-naive (perm)
   "Return the order (group theory wise) of the perm.  No error checking is performed."
   (loop for order from 1
@@ -46,7 +45,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
         when (equalp perm nperm)
         do (return order)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_perm_swapping-number-naive (perm)
   "Return the number of inversions, or nil if the permutation is invalid.
 
@@ -75,7 +74,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
                               (rotatef (aref p-inv i) (aref p-inv j)))
                     finally (return the-count)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_cycle-structure-lengths
   (assert-equal '(1 1 1) (mjr_perm_cycle-structure-lengths #(0 1 2)))
   (assert-equal '(1 2)   (mjr_perm_cycle-structure-lengths #(0 2 1)))
@@ -93,7 +92,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
       (assert-equalp len (apply #'+ (mjr_perm_cycle-structure-lengths p)))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_cycle-structure-list
   (assert-equal '((0)(1)(2))    (mjr_perm_cycle-structure-list #(0 1 2)))
   (assert-equal '((0)(1 2))     (mjr_perm_cycle-structure-list #(0 2 1)))
@@ -106,7 +105,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
   (assert-equal '((0 1 2)(3))   (mjr_perm_cycle-structure-list #(1 2 0 3)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_make-identity
       (assert-equalp #(0)         (mjr_perm_make-identity 1))
       (assert-equalp #(0 1)       (mjr_perm_make-identity 2))
@@ -115,7 +114,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
       (assert-equalp #(0 1 2 3 4) (mjr_perm_make-identity 5))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_make-random
     (dotimes (i 20)
       (let* ((len (mjr_prng_int-co 1 20))
@@ -125,7 +124,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
         (assert-true (mjr_perm_check-perm p))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_swapping-number
   ;; Make sure the -naive version matches the production one.
   (dotimes (i 20)
@@ -134,7 +133,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
       (assert-equal (mjr_perm_swapping-number p) (mjr_perm_swapping-number-naive p))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_evenp
   ;; Make sure the -naive version matches the production one.
   (dotimes (i 20)
@@ -143,7 +142,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
       (assert-equal (mjr_perm_evenp p) (mjr_perm_evenp-naive p))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_oddp
   ;; Make sure the -naive version matches the production one.
   (dotimes (i 20)
@@ -152,7 +151,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
       (assert-equal (mjr_perm_oddp p) (mjr_perm_oddp-naive p) p)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_xxx_oddp+evenp
   (dotimes (i 20)
     (let* ((len (mjr_prng_int-co 1 20))
@@ -161,7 +160,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
       (assert-equal (not (mjr_perm_oddp-naive p)) (mjr_perm_evenp-naive p))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_sgn
   ;; Make sure the -naive version matches the production one.
   (dotimes (i 20)
@@ -170,7 +169,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
       (assert-equal (mjr_perm_sgn p) (mjr_perm_sgn-naive p) p)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_order
   ;; Make sure the -naive version matches the production one.
   (dotimes (i 20)
@@ -179,7 +178,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
       (assert-equal (mjr_perm_order p) (mjr_perm_order-naive p))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_check-perm
   ;; Normal perms
   (assert-true  (mjr_perm_check-perm #(2 3 0 1)))
@@ -197,7 +196,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
   (assert-false (mjr_perm_check-perm #()))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_*
   ;; Order one example
   (assert-equalp #(0 1 2 3) (mjr_perm_* #(2 3 0 1)                   #(2 3 0 1)))
@@ -209,7 +208,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
   (assert-equalp #(0 3 1 2) (mjr_perm_* #(1 2 0 3)                   #(2 3 0 1)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_/
   (assert-equalp #(2 3 0 1) (mjr_perm_/ #(2 3 0 1)))
   (assert-equalp #(2 0 1 3) (mjr_perm_/ #(1 2 0 3)))
@@ -223,7 +222,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
       (assert-equalp (mjr_perm_make-identity len) (mjr_perm_/ p p))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_eval
   (assert-equal 2      (mjr_perm_eval #(2 3 0 1)                    0))
   (assert-equal 3      (mjr_perm_eval (map 'vector #'1+ #(2 3 0 1)) 1 :index-base 1))
@@ -233,7 +232,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
   (assert-error 'error (mjr_perm_eval #(2 3 0 1)                    -1))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_apply-to-array2d
   (assert-equalp #2a((4 5 6)(1 2 3)(7 8 9))  (mjr_perm_apply-to-array2d #(1 0 2) #2a((1 2 3)(4 5 6)(7 8 9)) ))
   (assert-equalp #2a((4 5 6)(1 2 3))         (mjr_perm_apply-to-array2d #(1 0)   #2a((1 2 3)(4 5 6))        ))
@@ -248,7 +247,7 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
   (assert-equalp #2a((1)(2)(3))              (mjr_perm_apply-to-array2d #(0)     #2a((1)(2)(3))             't))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_perm_apply-to-sequence
   (assert-equalp #(0 3 1 2) (mjr_perm_apply-to-sequence #(2 3 0 1)                   #(1 2 0 3)))
   (assert-equalp #(3 0 2 1) (mjr_perm_apply-to-sequence #(1 2 0 3)                   #(2 3 0 1)))
@@ -260,5 +259,5 @@ See MJR_PERM_CHECK-PERM for more information about invalid permutations."
       (assert-equalp (mjr_perm_* b a) (mjr_perm_apply-to-sequence a b))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests)

@@ -1,16 +1,15 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-util.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,2004,2010,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Utilities.@EOL
-;; @Keywords  lisp interactive math utilities
 ;; @Std       Common Lisp
 ;;
 ;;            
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_UTIL
   (:USE :COMMON-LISP
         :MJR_STRING)
@@ -36,16 +35,16 @@
 
 (in-package :MJR_UTIL)
 
-;; -----------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_help ()
   "Help for MJR_UTIL:
 
-This packages is a home for all the code that didn't have a better place to live -- just like the stuff in that extra drawer in
-the kitchen that holds all the odds and ends.  That's right.  Sometimes things in this package get factored when similar code
-reaches a critical mass here -- that is how :mjr_part and :mjr_arr started."
+This packages is a home for all the code that didn't have a better place to live -- just like the stuff in that extra drawer in the kitchen that holds all the
+odds and ends.  That's right.  Sometimes things in this package get factored when similar code reaches a critical mass here -- that is how :mjr_part
+and :mjr_arr started."
   (documentation 'mjr_util_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_get-all-elements-or-args (first-or-all &rest rest)
   "If (null (car rest)) then the elements of FIRST-OR-ALL are returned.  Otherwise, all the arguments are returned."
   (if (null (car rest))
@@ -56,7 +55,7 @@ reaches a critical mass here -- that is how :mjr_part and :mjr_arr started."
         (t       (values first-or-all)))
       (values-list (append (list first-or-all) rest))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_non-empty-seqp (x)
   "If X is a non-empty sequence (list or vector), then return X's length.  Otherwise, return nil"
   (and (or (listp x) (vectorp x))
@@ -64,7 +63,7 @@ reaches a critical mass here -- that is how :mjr_part and :mjr_arr started."
          (if (> len 0)
              len))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_strip-kwarg (kw-arg &key strip-list keep-list)
   "Given a list of KW arguments, strip off the pairs in strip-list and keep only the ones in keep-list.
 If both :STRIP-LIST & :KEEP-LIST are nil, then KW-ARG is returned."
@@ -79,7 +78,7 @@ If both :STRIP-LIST & :KEEP-LIST are nil, then KW-ARG is returned."
             append (list s v))
       kw-arg))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_get-kwarg-vals (args-to-return kw-args &optional (error-on-extra-kw-args-with-non-nil-values nil))
   "Given a list of KW arguments, return the values for the arguments named by the rest of the parameters.
 Useful for multiple value bind'n argument values."
@@ -99,13 +98,13 @@ Useful for multiple value bind'n argument values."
           (values-list (loop for arg in args-to-return
                              collect (cdr (assoc arg kvp))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_max-print-width (in-seq &optional (fmt-str "~a"))
   "Return maximum format (print) width for any of the elements in IN-SEQ using the given FMT-STR."
   (reduce 'max (map 'vector (lambda (x) (length (format nil fmt-str x))) in-seq)))
 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_partition-list-if (the-list the-predicate)
   "Return two lists with the first containing the elements for which the-predicate is true, and the rest in the second."
   (loop for x in the-list
@@ -115,7 +114,7 @@ Useful for multiple value bind'n argument values."
         else
         collect x into false-list))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_split-seq-if (the-seq the-predicate &key show-progress)
   "Split the sequence up on the elements where the predicate is true.  Returns a list of sequences"
   (loop with cur-pos = 0
@@ -127,12 +126,12 @@ Useful for multiple value bind'n argument values."
         until (null nxt-pos)
         do (setq cur-pos (1+ nxt-pos))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_split-seq-on-elt (the-seq split-elt &key show-progress)
   "Split the sequence up on the given element.  Returns a list of sequences"
   (mjr_util_split-seq-if the-seq (lambda (x) (equal split-elt x)) :show-progress show-progress))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_read-csv-file (file-name &key
                                          (header-lines-to-skip 1) (max-lines nil) (max-data-lines nil) 
                                          (return-as-array nil) (check-field-count 't) (filter-func nil)
@@ -172,7 +171,7 @@ Optional keyword arguments:
           (make-array (list dat-lines fields-per-line) :initial-contents the-data)
           the-data))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_write-csv-file (data file-name &key (titles nil) (filter-func #'identity) (check-field-count 't))
   "Write the given data into the given file as CSV data.
 
@@ -201,7 +200,7 @@ Optional keyword arguments:
                   (if (= i (1- fields-per-line)) "" ",")))
         (format stream "~%")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_super-concatenate (output-type-spec &rest x) 
   "Assemble a group of sequences (lists and vectors), and other objects into one big list.  Arrays are flattened.
 Example: (mjr_util_super-concatenate 'list 1 '(2) #(3) #2a((5 6)(7 8)) 9) => '(1 2 3 5 6 7 8 9)"
@@ -212,7 +211,7 @@ Example: (mjr_util_super-concatenate 'list 1 '(2) #(3) #2a((5 6)(7 8)) 9) => '(1
                                                               (otherwise (list y))))
                                                 x)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_random-permute-seq (the-seq &optional (num-swaps nil))
   "Randomly permute the input sequence.  "
   (let* ((new-seq   (concatenate 'vector the-seq))
@@ -224,7 +223,7 @@ Example: (mjr_util_super-concatenate 'list 1 '(2) #(3) #2a((5 6)(7 8)) 9) => '(1
         (concatenate 'list new-seq)
         new-seq)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_func-args-to-vector (arg-mode &rest rest)
   "Take the args after the first and return a vector.  Used to transform arguments to vector form.
 
@@ -240,21 +239,21 @@ Example: (mjr_util_super-concatenate 'list 1 '(2) #(3) #2a((5 6)(7 8)) 9) => '(1
         ((eq arg-mode :arg-list)     (apply #'vector (first rest)))
         ((eq arg-mode :arg-concat)   (apply #'mjr_util_super-concatenate 'vector rest))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_funcall-one-if (f x)
   "If F is non-NIL, then FUNCALL F on X.  Otherwise return X."
   (if f
       (funcall f x)
       x))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_funcall-many-if (f &rest rest)
   "If F is non-NIL, then APPLY F to the rest of the arguments.  Otherwise return arguments after F."
   (if f
       (apply f rest)
       (values-list rest)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_fun-adapt-eval-v (f x arg-mode)
   "Evaluate the multivariate function F (R^N->A) on the vector x
 
@@ -269,7 +268,7 @@ The function specified in the F argument takes a N numeric values.  :ARG-MODE: d
           ((eq arg-mode :arg-args)     (apply   f (concatenate 'list x)))
           ((eq arg-mode :arg-list)     (funcall f (concatenate 'list x))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_fun-adapt-x2x (f from-arg-mode to-arg-mode)
   "Convert a function from one :arg-mode to another."
   (let ((from-arg-mode (or from-arg-mode :arg-number)))
@@ -290,7 +289,7 @@ The function specified in the F argument takes a N numeric values.  :ARG-MODE: d
                                                ((eq from-arg-mode :arg-args)     f)
                                                ((eq from-arg-mode :arg-list)     (lambda (&rest rest) (funcall f (concatenate 'list   rest)))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_fun-adapt-strap (result-type &rest rest)
   "Take several functions, and return a single function that returns the results from calling all the input functions.
 
@@ -310,11 +309,11 @@ Ex: (mjr_util_fun-adapt-strap 'vector #'sin #'cos) ==> (lambda (x) (vector (cos 
                                      (values-list (loop for f in rest
                                                         collect (apply f fun-args)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_elt-mod (the-seq idx &optional seq-len)
   (elt the-seq (mod idx (or seq-len (length the-seq)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_func-domain-rect-to-unit (f v-min v-max arg-mode)
   "Shift function input domain to the unit interval, square, cube, etc... Useful for plotting."
   (lambda (&rest rest)
@@ -324,7 +323,7 @@ Ex: (mjr_util_fun-adapt-strap 'vector #'sin #'cos) ==> (lambda (x) (vector (cos 
                                     (map 'vector #'- v-max                                                 v-min))
                                arg-mode)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_read-file (file-name)
   "Read the entire content of the file into a string."
   (with-open-file (stream file-name)
@@ -332,13 +331,13 @@ Ex: (mjr_util_fun-adapt-strap 'vector #'sin #'cos) ==> (lambda (x) (vector (cos 
       (read-sequence da-string stream)
       da-string)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_write-file (file-name da-string)
   "Write the given string into the given file as CSV data."
   (with-open-file (stream file-name :direction :output :if-exists :supersede :if-does-not-exist :create)
     (write-sequence da-string stream)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_non-list-then-list (thingy)
   "If THINGY is a list, then return it.  Otherwise return (LIST THINGY)"
   (if (listp thingy)

@@ -1,16 +1,15 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-color.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1996,1997,2008,2010,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Color theory (color space conversions and computations).@EOL
-;; @Keywords  lisp interactive color space theory processing
 ;; @Std       Common Lisp
 ;;
 ;;
 ;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_COLOR
   (:USE :COMMON-LISP
         :MJR_NUMU
@@ -37,21 +36,21 @@
            #:mjr_color_convert-xxx2xxx
            ;; Color packers & unpackers
            #:mjr_color_cp-pack-int8x3-int24   #:mjr_color_cp-pack-int8x4-int32   #:mjr_color_cp-pack-int0x1-int   #:mjr_color_cp-pack
-           #:mjr_color_cp-unpack-int8x3-int24 #:mjr_color_cp-unpack-int8x4-int32 #:mjr_color_cp-unpack-num0x1-int #:mjr_color_cp-unpack          
+           #:mjr_color_cp-unpack-int8x3-int24 #:mjr_color_cp-unpack-int8x4-int32 #:mjr_color_cp-unpack-int0x1-int #:mjr_color_cp-unpack          
          ))
 
 (in-package :MJR_COLOR)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_help ()
   "Color theory computations
 
 For color schemes (gradients and other schemes), see :MJR_COLORIZE.  Functionality is broken up into the following categories:
 
-A 'color' is usually a vector of channel values -- like Red, Green, and Blue.  Depending on the color space, the components may have
-different meanings -- RGB vs HSL for example.  Most functions here take such vectors as colors, and some will also accept the
-components as arguments.  A few functions, the mjr_color_make-*-from-spec and mjr_color_cp-unpack-*, take objects representing
-colors that may, or may not, be in the vector form just described -- see the documentation about them below.
+A 'color' is usually a vector of channel values -- like Red, Green, and Blue.  Depending on the color space, the components may have different meanings -- RGB
+vs HSL for example.  Most functions here take such vectors as colors, and some will also accept the components as arguments.  A few functions, the
+mjr_color_make-*-from-spec and mjr_color_cp-unpack-*, take objects representing colors that may, or may not, be in the vector form just described -- see the
+documentation about them below.
 
 Color spaces for which special support is provided include:
 
@@ -87,30 +86,28 @@ This library provides functionality broken up into several basic categories:
 
  * Generic color conversion
 
-    Conversion functions look like: mjr_color_convert-XXX2YYY, where XXX & YYY are one of the color space names above.  Note that
-    the function explicitly named MJR_COLOR_CONVERT-XXX2XXX can convert between any two color spaces.
+    Conversion functions look like: mjr_color_convert-XXX2YYY, where XXX & YYY are one of the color space names above.  Note that the function explicitly
+    named MJR_COLOR_CONVERT-XXX2XXX can convert between any two color spaces.
 
  * Color packers & unpackers
 
-    Many traditional image formats use a 24-bit integer to store three 8-bit channels of image information per pixel -- we say that
-    the three, 8-bit numbers are 'packed' into the 24-bit integer.  The plug-in pack/unpack functions allow this library to move
-    beyond integers, and employ arbitrary objects for the same task.  Note that FIXNUMs will normally be the fastest option, and
-    provide more compatibility with external image tools.  That said, things like vectors of color components, HTML color codes, or
-    even color names can prove useful for some applications.
+    Many traditional image formats use a 24-bit integer to store three 8-bit channels of image information per pixel -- we say that the three, 8-bit numbers
+    are 'packed' into the 24-bit integer.  The plug-in pack/unpack functions allow this library to move beyond integers, and employ arbitrary objects for the
+    same task.  Note that FIXNUMs will normally be the fastest option, and provide more compatibility with external image tools.  That said, things like
+    vectors of color components, HTML color codes, or even color names can prove useful for some applications.
 
       - For integer packing, we have three sets of functions:
 
           * mjr_color_cp-pack-int8x3-int24 & mjr_color_cp-unpack-int8x3-int24 ---- 3 channels each with 8-bits -- tru rgb
           * mjr_color_cp-pack-int8x4-int32 & mjr_color_cp-unpack-int8x4-int32 ---- 4 channels each with 8-bits -- tru rgba
-          * mjr_color_cp-pack-int0x1-int   & mjr_color_cp-unpack-num0x1-int   ---- 1 channel with n-bits       -- greyscale
+          * mjr_color_cp-pack-int0x1-int   & mjr_color_cp-unpack-int0x1-int   ---- 1 channel with n-bits       -- greyscale
 
       - The IDENTITY function can be used to 'pack' color vectors into an array -- useful for scientific applications.
 
-      - mjr_color_make-rgb-from-spec & mjr_color_make-tru-from-spec can be used to 'unpack' color specs -- handy for converting from
-        awkward color formats like HTML color codes or X11 color names.
+      - mjr_color_make-rgb-from-spec & mjr_color_make-tru-from-spec can be used to 'unpack' color specs -- handy for converting from awkward color formats
+        like HTML color codes or X11 color names.
 
-    A generic interface exists, but is a bit slower, for common packing schemes via the mjr_color_cp_pack & mjr_color_cp_unpack
-    functions.
+    A generic interface exists, but is a bit slower, for common packing schemes via the mjr_color_cp_pack & mjr_color_cp_unpack functions.
 
          |--------------+----------+------------+-----------------+-------------------------------------------------------------------|
          | Symbol       | Channels | Chan Depth | Colorspace      | pack & unpack functions                                           |
@@ -118,11 +115,11 @@ This library provides functionality broken up into several basic categories:
          | :cp-identity |      N/A | N/A        | :CS_RGB :CS_TRU | identity                       & identity                         |
          | :cp-int8x3   |        3 | 8          | :CS_TRU         | mjr_color_cp-pack-int8x3-int24 & mjr_color_cp-unpack-int8x3-int24 |
          | :cp-int8x4   |        4 | 8          | :CS_TRU         | mjr_color_cp-pack-int8x4-int32 & mjr_color_cp-unpack-int8x4-int32 |
-         | :cp-int0x1   |        1 | N/A        | N/A             | mjr_color_cp-pack-int0x1-int   & mjr_color_cp-unpack-num0x1-int   |
+         | :cp-int0x1   |        1 | N/A        | N/A             | mjr_color_cp-pack-int0x1-int   & mjr_color_cp-unpack-int0x1-int   |
          |--------------+----------+------------+-----------------+-------------------------------------------------------------------|"
   (documentation 'mjr_color_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_metrics-rgb (r-or-rgb &optional g-or-nil b-or-nil)
   "Fastest way to get more than one of maxv, minv, maxi, mini, chroma, hue, brightness, or lightness."
   (multiple-value-bind (r g b) (mjr_util_get-all-elements-or-args r-or-rgb g-or-nil b-or-nil)
@@ -141,7 +138,7 @@ This library provides functionality broken up into several basic categories:
              (luma           (+ (* 0.30 r) (* 0.59 g) (* b 0.11))))
         (values maxv minv maxi mini chroma brightness lightness intensity luma hue)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_convert-rgb2hsv (r-or-rgb &optional g-or-nil b-or-nil)
   "Convert RGB -> HSV"
   (multiple-value-bind (maxv minv maxi mini chroma brightness lightness intensity luma hue)
@@ -151,7 +148,7 @@ This library provides functionality broken up into several basic categories:
             (if (= chroma 0) 0 (/ chroma brightness))
             brightness)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_convert-rgb2hsl (r-or-rgb &optional g-or-nil b-or-nil)
   "Convert RGB -> HSL"
   (multiple-value-bind (maxv minv maxi mini chroma brightness lightness intensity luma hue)
@@ -161,19 +158,19 @@ This library provides functionality broken up into several basic categories:
             (if (= chroma 0) 0 (/ chroma (- 1 (abs (- (* 2 lightness) 1)))))
             lightness)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_convert-rgb2tru (r-or-rgb &optional g-or-nil b-or-nil)
   "Convert RGB -> TRU"
   (let ((color  (if g-or-nil (vector r-or-rgb g-or-nil b-or-nil) r-or-rgb)))
     (map 'vector (lambda (cc) (floor (* 255 cc))) color)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_convert-tru2rgb (r-or-rgb &optional g-or-nil b-or-nil)
   "Convert TRU -> RGB"
   (let ((color  (if g-or-nil (vector r-or-rgb g-or-nil b-or-nil) r-or-rgb)))
     (map 'vector (lambda (cc) (float (+ 0/510 (/ cc 255.0)))) color)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_convert-hsv2rgb (h-or-hsv &optional s-or-nil v-or-nil)
   "Convert HSV -> RGB"
   (multiple-value-bind (h s v) (mjr_util_get-all-elements-or-args h-or-hsv s-or-nil v-or-nil)
@@ -192,7 +189,7 @@ This library provides functionality broken up into several basic categories:
                 ((= i 4) (vector  u p v))
                 ('t      (vector  v p q)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_convert-hsl2rgb (h-or-hsl &optional s-or-nil l-or-nil)
   "Convert HSL -> RGB"
   (multiple-value-bind (h s l) (mjr_util_get-all-elements-or-args h-or-hsl s-or-nil l-or-nil)
@@ -218,37 +215,37 @@ This library provides functionality broken up into several basic categories:
                     ((= i 5) (vector v m u))
                     ('t      (vector v q m))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_convert-hsv2tru (h-or-hsv &optional s-or-nil v-or-nil)
   "Convert HSV -> TRU"
   (mjr_color_convert-rgb2tru (mjr_color_convert-hsv2rgb h-or-hsv s-or-nil v-or-nil)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_convert-hsl2hsv  (h-or-hsv &optional s-or-nil l-or-nil)
   "Convert HSL -> HSV"
   (mjr_color_convert-rgb2hsv (mjr_color_convert-hsl2rgb h-or-hsv s-or-nil l-or-nil)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_convert-hsl2tru  (h-or-hsl &optional s-or-nil l-or-nil)
   "Convert HSL -> TRU"
   (mjr_color_convert-rgb2tru (mjr_color_convert-hsl2rgb h-or-hsl s-or-nil l-or-nil)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_convert-hsv2hsl  (h-or-hsv &optional s-or-nil v-or-nil)
   "Convert HSV -> HSL"
   (mjr_color_convert-rgb2hsl (mjr_color_convert-hsv2rgb h-or-hsv s-or-nil v-or-nil)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_convert-tru2hsl  (r-or-rgb &optional g-or-nil b-or-nil)
   "Convert TRU -> HSL"
   (mjr_color_convert-rgb2hsl (mjr_color_convert-tru2rgb r-or-rgb g-or-nil b-or-nil)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_convert-tru2hsv  (r-or-rgb &optional g-or-nil b-or-nil)
   "Convert RGB -> HSV"
   (mjr_color_convert-rgb2hsv (mjr_color_convert-tru2rgb r-or-rgb g-or-nil b-or-nil)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_convert-xxx2xxx (color in-color-space out-color-space)
   "Convert the COLOR from IN-COLOR-SPACE to OUT-COLOR-SPACE"
   (if (or (not out-color-space)
@@ -277,7 +274,7 @@ This library provides functionality broken up into several basic categories:
                    (:cs-hsv   (mjr_color_convert-hsl2hsv color))
                    (otherwise (error "mjr_color_convert-xxx2xxx: Unknown value for :OUT-COLOR-SPACE!")))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_make-rgb-from-spec (red-or-color-spec &optional green-or-nil blue-or-nil)
   "Return a vector of floats (RGB)
 
@@ -319,7 +316,7 @@ If only one argument is provided, then it must be a COLOR-SPEC:
         (vector     red-or-color-spec)
         (list       (mjr_color_make-rgb-from-spec (make-array 3 :initial-contents red-or-color-spec))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_make-tru-from-spec (red-or-color-spec &optional green-or-nil blue-or-nil)
   "Return a vector of unsigned-byte (TRU)
 
@@ -373,30 +370,30 @@ If only one argument is provided, then it must be a COLOR-SPEC:
                         (map 'vector (lambda (x) (max 0 (min 255 (truncate (* 255 x))))) red-or-color-spec)))
         (list       (mjr_color_make-tru-from-spec (make-array 3 :initial-contents red-or-color-spec))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_mix-wt-avg (color1 color2 weight)
   "Weighted average (1-weight) for the color1 and weight for color2."
   (map 'vector (lambda (c1 c2) (+ (* c1 (- 1 weight)) (* c2 weight))) color1 color2))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_mix-avg (&rest rest)
   "Average the components in each channel."
   (let ((len (length rest)))
     (map 'vector (lambda (x) (/ x len))
          (apply #'map 'vector #'+ rest))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_mix-max (&rest rest)
   "Maximum in each channel."
   (apply #'map 'vector #'max rest))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_to-grey (color)
   "Convert an RGB color to a single gray value (equal weights on all channels)"
   (let ((len (length color)))
     (/ (reduce #'+ color) len)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_cp-pack-int8x3-int24 (color)
   "Pack an 8-bit per pixel RGBA color into a 24bit integer"
   (declare (type (simple-vector 3) color))
@@ -404,7 +401,7 @@ If only one argument is provided, then it must be a COLOR-SPEC:
      (* 256 (aref color 1))
      (* 256 256 (aref color 2))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_cp-unpack-int8x3-int24 (value)
   "Unpack an 8-bit per pixel RGB color from a 24bit integer"
   #-ecl (declare ((unsigned-byte 24) value))
@@ -412,7 +409,7 @@ If only one argument is provided, then it must be a COLOR-SPEC:
           (ldb (byte 8  8) value)
           (ldb (byte 8 16) value)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_cp-pack-int8x4-int32 (color)
   "Pack an 8-bit per pixel RGBA color into a 32bit integer"
   (declare (type (simple-vector 4) color))
@@ -421,7 +418,7 @@ If only one argument is provided, then it must be a COLOR-SPEC:
      (* 256 256 (aref color 2))
      (* 256 256 256 (aref color 3))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_cp-unpack-int8x4-int32 (value)
   "Unpack an 8-bit per pixel RGBA color from a 32bit integer"
   #-ecl (declare ((unsigned-byte 32) value))
@@ -430,19 +427,19 @@ If only one argument is provided, then it must be a COLOR-SPEC:
           (ldb (byte 8 16) value)
           (ldb (byte 8 24) value)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_cp-pack-int0x1-int (color)
   "Unpack an n-bit per pixel greyscale color into an integer"
   (declare (type (simple-vector 1) color))
   (aref color 0))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_color_cp-unpack-num0x1-int (value)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_color_cp-unpack-int0x1-int (value)
   "Unpack an n-bit per pixel greyscale color from an integer"
   (declare (fixnum value))
   (vector value))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_cp-pack (color &optional (packing :cp-identity))
   "Pack a color into a packed color value -- see mjr_color_help for details on the packing argument."
   (case packing
@@ -452,7 +449,7 @@ If only one argument is provided, then it must be a COLOR-SPEC:
     (:cp-int0x1   (mjr_color_cp-pack-int0x1-int   color))
     (otherwise    (error "mjr_color_cp-pack: Value for packing is not supported!"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_cp-unpack (value &optional (packing :cp-identity))
   "Unpack a packed color value into a color -- see mjr_color_help for details on the packing argument."
   (case packing

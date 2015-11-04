@@ -1,10 +1,9 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-opt.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Univariate function optimization.@EOL
-;; @Keywords  lisp interactive non-linear equations optimization minimization root solutions
 ;; @Std       Common Lisp
 ;;
 ;;            TODO: * mxp support
@@ -16,7 +15,7 @@
 ;;            TODO: ** random search
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_OPT
   (:USE :COMMON-LISP
         :MJR_CMP
@@ -27,21 +26,20 @@
 
 (in-package :MJR_OPT)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_opt_minimize-bsect (f x0 x1 xm &key (xeps 0.0001) (max-itr 1000) (show-progress nil) (use-random-position nil))
   "Optimize the function F, from R->R, via a bisection-like algorithm (minimum found will be X0 and X1).
 
-XM should be between X0 and X1, and f(XM) should be less than f(X1) and f(X0) -- it is an approximation to the actual minimum.
-If XM is NIL, then random guesses between X0 and X1 will be used until a suitable XM is found or the maximum number of
-iterations is reached.
+XM should be between X0 and X1, and f(XM) should be less than f(X1) and f(X0) -- it is an approximation to the actual minimum.  If XM is NIL, then random
+guesses between X0 and X1 will be used until a suitable XM is found or the maximum number of iterations is reached.
 
 :USE-RANDOM-POSITION determines how new approximations are selected
-  * if non-NIL, then a random point on the left or right of XM will be selected until X0 and X1 are too close, and then
-    bisection except that the left right choice is made at random.
+  * if non-NIL, then a random point on the left or right of XM will be selected until X0 and X1 are too close, and then bisection except that the left right
+    choice is made at random.
   * if NIL, then bisection is used (on the right of XM, and then alternating left & right)
 
-If a minimum is found (i.e. an x1 nearly equal to X0), then the return is: x, (fun x), iteration count.  If MJR_NLOP_MIN-BSECT
-exits for any other reason (perhaps a minimum/perhaps not), then the return is: nil, x, (fun x), iteration count.
+If a minimum is found (i.e. an x1 nearly equal to X0), then the return is: x, (fun x), iteration count.  If MJR_NLOP_MIN-BSECT exits for any other
+reason (perhaps a minimum/perhaps not), then the return is: nil, x, (fun x), iteration count.
 
 References:
   Jones, Maillardet, & Robinson (2009); Introduction to Scientific Programming and Simulation Using R; ISBN:1420068725; pp 204"
@@ -57,8 +55,7 @@ References:
 ;;        If $f(x_p)<f(x_m)$, then $(x_m, x_p, x_1)$ is admissible, otherwise $(x_0, x_m, x_p)$ is admissible.
 ;; \end{description}
 ;;
-;; By picking new admissible vectors such that $|x_0-x_1|$ gets smaller, we find will eventually narrow down the interval onto
-;; a minimizer.
+;; By picking new admissible vectors such that $|x_0-x_1|$ gets smaller, we find will eventually narrow down the interval onto a minimizer.
 ;;
   (let* ((y0 (funcall f x0))
          (y1 (funcall f x1))
@@ -100,7 +97,3 @@ References:
                            (setq x0 x-cur y0 y-cur)))
                    (if (>= i-cur max-itr)                                     (return (values nil x-cur y-cur i-cur "MAX-ITR")))
                    (setf y-old y-cur))))))
-
-
-
-

@@ -1,11 +1,10 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      use-optm.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004 by Mitch Richling.  All rights reserved.
 ;; @brief     Multivariate function OPTimization.@EOL
-;; @Keywords  lisp interactive non-linear equations optimization minimization root solutions
 ;; @Std       Common Lisp
 ;;
 ;;            TODO: * Simplex based search (see silver book and Kelly book)
@@ -14,7 +13,7 @@
 ;;            TODO: * Newton's method
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_OPTM
   (:USE :COMMON-LISP
         :MJR_CMP
@@ -33,7 +32,7 @@
 
 (in-package :MJR_OPTM)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_optm_help ()
   "Multivariate optimization
 
@@ -46,15 +45,16 @@
         * mjr_optm_maximize-adapter       --  Maximize a function using one of the minimize functions above"
   (documentation 'mjr_optm_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_optm_minimize-mjr-descent (f x0 &key
                                      (delta-max 1) (delta-factor 1/2) (delta-min 1e-5)
                                      (dirs-min 8)  (dirs-slope 16)    (dirs-max 256)
                                      (max-itr 1000) arg-mode (show-progress nil))
   "Optimize the function F, from R^2->R, via a direct search analog of the steepest descent algorithm.
 
-This algorithm is analogous to the steepest decent algorithm, except that the steepest direction is discovered at each step via a
-direct search.  The algorithm:
+This algorithm is analogous to the steepest decent algorithm, except that the steepest direction is discovered at each step via a direct search.  The
+algorithm:
+
    : Set x to x0, DIRS-NUM to DIRS-MIN
    : If DELTA-FACTOR<DELTA-MIN, then exit  
   1: Compute DIRS-NUM evenly spaced points, (x_i) on a circle of radius DELTA-CUR around (x)
@@ -101,7 +101,7 @@ F must take two arguments (x & y) -- not a vector!!!"
               (setf f-nxt f-explor
                     x-nxt x-explor)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_optm_minimize-random-delta (f x0 &key (delta-max 1.0) (delta-factor 0.5) (delta-min 1e-5)
                                                  (num-guess 20)
                                                  (max-itr 1000) arg-mode (show-progress nil))
@@ -149,14 +149,14 @@ F must take a single argument -- a vector of n elements."
           (setf delta (* delta delta-factor))))))
 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_optm_minimize-hooke-jeeves (f x0 &key (delta-min 1e-5) (delta-max 1) (delta-factor 1/2)
                                                  (max-itr 1000) arg-mode (show-progress nil))
   "Optimized F, from R^n->R, using the classical Hooke-Jeeves optimization algorithm.
 
-Optimize a real function of n variables using a modified version of the Hooke & Jeeves method.  Hooke & Jeeves is a charming
-algorithm that is trivial to code, easy to use, and quick to succeed or file.  As optimization algorithms go, it may not be
-particularly reliable; however, it's reliability to simplicity ratio is higher than most.
+Optimize a real function of n variables using a modified version of the Hooke & Jeeves method.  Hooke & Jeeves is a charming algorithm that is trivial to
+code, easy to use, and quick to succeed or file.  As optimization algorithms go, it may not be particularly reliable; however, it's reliability to simplicity
+ratio is higher than most.
 
 References:
     R. Hooke and T. A. Jeeves (1961); Direct Search Solution of Numerical and Statistical Problems; Journal of the ACM; Vol. 8; FILE: p212-hooke.pdf (Original reference)
@@ -166,8 +166,7 @@ References:
     Quarteroni, Sacco, and Saleri (2006); Numerical Mathematics; Springer; (Text Reference)
     C.T.Kelley (1999); Iterative Methods for Optimization; SIAM; (Better Text Reference); FILE: kelly-opt.pdf
 
-This implementation is relatively fast, but it can reevaluate the function multiple times at the same coordinate.
-F is expected to take a vector argument."
+This implementation is relatively fast, but it can reevaluate the function multiple times at the same coordinate.  F is expected to take a vector argument."
   (let* ((x-curent   x0)
          (f-curent   (mjr_util_fun-adapt-eval-v f x0 arg-mode))
          (num-vars   (length x0))
@@ -230,7 +229,7 @@ F is expected to take a vector argument."
                 (progn
                   (setf delta (* delta delta-factor)))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_optm_minimize-comb-search (f s &key  arg-mode (show-progress nil))
   "Minimize F, from $(S_1 \times S_2 \times \cdots \times S_n)\rightarrow R$, using the an exhaustive search algorithm.
 
@@ -251,7 +250,7 @@ Example: Find members of (1 2 3)x(4 4)x(6 7 8 9) such that the tuple elements su
       (mjr_combc_gen-all-cross-product s :func #'m :show-progress show-progress))
     (values minx minv)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_optm_maximize-adapter (f minimizer-function &rest rest)
   "Maximize F by minimizing -F via minimizer-function"
   (let ((ret (multiple-value-list (apply minimizer-function (lambda (x) (- (funcall f x))) rest))))

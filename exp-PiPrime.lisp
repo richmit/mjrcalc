@@ -1,10 +1,9 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      exp-PiPrime.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright ,1994,1997,1998,2004,2008,2010,2012 by Mitch Richling.  All rights reserved.
 ;; @brief     Find primes who's quotient approximates pi.  We want the smallest primes for any given accuracy.@EOL
-;; @Keywords  primes quotient approximates pi
 ;; @Std       Common Lisp
 ;;
 ;;            Output on a relatively slow system running SBCL:

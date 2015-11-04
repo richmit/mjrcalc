@@ -1,10 +1,9 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-geom.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1994,1995,1997,1998,2004,2011,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Computational Geometry.@EOL
-;; @Keywords  lisp interactive computational geometry
 ;; @Std       Common Lisp
 ;;
 ;;            TODO: BOOLEAN: simplex (point/segment/triangle/tetrahedron) intersect simplex (point/segment/triangle/tetrahedron)
@@ -15,7 +14,7 @@
 ;;            TODO: polygon: compute convex hull
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_GEOM
   (:USE :COMMON-LISP
         :MJR_CMP
@@ -34,12 +33,12 @@
 
 (in-package :MJR_GEOM)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geom_help ()
   "This library provides computational geometric support -- mostly for other libraries, but is useful interactively too."
   (documentation 'mjr_geom_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geom_point-inside-simplex? (points &rest vertexes)
   "A non-NIL insures all POINTS (a single vector or list of vectors) are inside the simplex (sure in the MJR_CMP sense)."
   (let* ((points   (if (listp points) points (list points)))
@@ -59,7 +58,7 @@
                                             (mjr_cmp_<= bs 1))))
                                    points))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geom_simplex-area (&rest vertexes)
   "Return area of simplex.  
 
@@ -97,7 +96,7 @@
                                (mjr_mat_det-small (mjr_arr_rbind (loop for vn in rest-verts
                                                                       collect (mjr_vec_- v1 vn))))))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geom_simplex-degeneratep (eps &rest vertexes)
   "degenerate means at least two vertexes are within eps of each other."
   (if (and vertexes (listp (first vertexes)))
@@ -108,7 +107,7 @@
                      do (if (every (lambda (x) (< (abs x) (or eps 0.0001))) (mjr_vec_- fst v))
                             (return-from mjr_geom_simplex-degeneratep 't))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geom_triangle-normal (&rest vertexes)
   "ONLY WORKS IN R^3"
   (if (and vertexes (listp (first vertexes)))

@@ -1,15 +1,14 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-vuse-vec.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,2008,2012 by Mitch Richling.  All rights reserved.
 ;; @brief     Virtual vectors.@EOL
-;; @Keywords  lisp interactive chebyshev uniform interval virtual vector
 ;; @Std       Common Lisp
 ;;
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_VVEC
   (:USE :COMMON-LISP
         :MJR_CMP
@@ -50,7 +49,7 @@
 
 (in-package :MJR_VVEC)
 
-;; -----------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_help ()
   "Help for MJR_VVEC: Virtual VECtor
  
@@ -58,9 +57,9 @@
 
       - :VVEC-TYPE, :POINTS, :START, :END, :STEP, :LEN, :MAP-FUN, :NFUN, & :RFUN
 
-   If :LEN is a floating point number near an integer, then it is rounded to that integer. If :LEN is a sequence (list or vector),
-   then the length of the sequence is used.  Most functions here will directly accept keyword arguments or a list containing keyword
-   arguments.  As an additional convenience feature, VVECs may also be described by a single integer or a sequence (list or vector).
+   If :LEN is a floating point number near an integer, then it is rounded to that integer. If :LEN is a sequence (list or vector), then the length of the
+   sequence is used.  Most functions here will directly accept keyword arguments or a list containing keyword arguments.  As an additional convenience
+   feature, VVECs may also be described by a single integer or a sequence (list or vector).
 
    The meanings of the keyword arguments, and other special cases, are defined in the fallowing table:
 
@@ -86,11 +85,11 @@
      | :VVT-NFUN   | :vvr-kw   | No-Arg Function  | :LEN # :NFUN f                              | n_i = f()                                     |
      |-------------+-----------+------------------+---------------------------------------------+-----------------------------------------------|
 
-   The final step of the vector generation process is to map the elements via MAP-FUN -- MAP-FUN may be provided for any :VVEC-TYPE.
-   Note that map-fun is called for each value of the sequence, even for :VVT-REP, to account for possible side effects in MAP-FUN."
+   The final step of the vector generation process is to map the elements via MAP-FUN -- MAP-FUN may be provided for any :VVEC-TYPE.  Note that map-fun is
+   called for each value of the sequence, even for :VVT-REP, to account for possible side effects in MAP-FUN."
   (documentation 'mjr_vvec_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_get-vvec-rep (vvec)
   "Return a symbol for the representation of the vvec (NIL if the representation is unknown)
 
@@ -101,8 +100,8 @@
      * :vvr-vec .... An vector of numbers .............. The vector contents define the vector
      * :vvr-list ... An list of numbers ................ The list contents define the vector
 
-   NOTE: This function doesn't check syntax.  For example, if VVEC is a vector, then :vvr-vec is returned -- we don't check to make sure
-   that the vector contains only numbers.  As another example, we don't check to make sure keyword arguments are used correctly."
+   NOTE: This function doesn't check syntax.  For example, if VVEC is a vector, then :vvr-vec is returned -- we don't check to make sure that the vector
+   contains only numbers.  As another example, we don't check to make sure keyword arguments are used correctly."
   (typecase vvec
     (vector   (if (< 0 (length vvec))
                   :vvr-vec))
@@ -113,7 +112,7 @@
                   (if vvec
                       :vvr-list)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_get-vvec-type (vvec)
   "Return a symbol for the type (as in :vvec-type) of the vvec (NIL if the type is unknown).
 
@@ -153,7 +152,7 @@ The sequence type is one of the following:
           (step       :vvt-aseq)
           ('t         :vvt-aseq))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_check-len (len)
   "Convert LEN to integer.  If LEN is valid, an integer is returned, otherwise an error is generated."
   (typecase len
@@ -165,17 +164,16 @@ The sequence type is one of the following:
     (list       (length len))
     (otherwise  (error "mjr_vvec_check-len: :LEN was an invalid object"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_normalize-vvt-aseq (vvec)
   "Normalize a group of arguments intended to describe an finite arithmetic sequence.
 
-On success, a :vvr-kw vvec will be returned with the following keywords: :vvec-type, :start, :end, :step, :len, & :map-fun.  Note
-that :end may not be the value that was given -- it may be corrected so that it is consistent with the other values.  Still, :end
-should NEVER be used for iteration.
+On success, a :vvr-kw vvec will be returned with the following keywords: :vvec-type, :start, :end, :step, :len, & :map-fun.  Note that :end may not be the
+value that was given -- it may be corrected so that it is consistent with the other values.  Still, :end should NEVER be used for iteration.
 
-An arithmetic sequence may be fully specified by any tree of the following: first element (START), last element (END), the number of
-terms (LEN), and the delta between each pair of terms (STEP).  This function is designed to normalize such parameters describing an
-arithmetic sequence. Intelligent defaults are provided for cases when fewer than three values are provided.  
+An arithmetic sequence may be fully specified by any tree of the following: first element (START), last element (END), the number of terms (LEN), and the
+delta between each pair of terms (STEP).  This function is designed to normalize such parameters describing an arithmetic sequence. Intelligent defaults are
+provided for cases when fewer than three values are provided.
 
 How the arguments are processed until ERROR or CHECK repeatedly applying the following, 16 case 'switch' statement:
 
@@ -202,11 +200,10 @@ How the arguments are processed until ERROR or CHECK repeatedly applying the fol
 
 Note: 'CHECK' in the table above means 'success'
 
-Once the arguments are normalized, an arithmetic sequence can be generated.  We ALWAYS generate the Ith (zero indexed) element with
-$START+i*STEP$ -- i.e. the first element is $START+0*STEP=START$.  For only sequential access we could successively add STEP to an
-initial value; however, we wish to use the same formula for random and sequential access in order to insure the same results even in
-the face of round-off error.  We never use END to generate or check for termination because we wish to avoid length 'twitter' due to
-round-off error.  An example of a loop that might generate the sequence is as follows:
+Once the arguments are normalized, an arithmetic sequence can be generated.  We ALWAYS generate the Ith (zero indexed) element with $START+i*STEP$ -- i.e. the
+first element is $START+0*STEP=START$.  For only sequential access we could successively add STEP to an initial value; however, we wish to use the same
+formula for random and sequential access in order to insure the same results even in the face of round-off error.  We never use END to generate or check for
+termination because we wish to avoid length 'twitter' due to round-off error.  An example of a loop that might generate the sequence is as follows:
 
                 (multiple-value-bind (start step len)
                     (mjr_vvec_normalize-all '(:start :step :len) :start 1 :end 10 :len 10)
@@ -252,12 +249,12 @@ This function uses MJR_CMP_!=0 against :START, :END, :STEP, and/or :LEN."
             ((not start)                        (mjr_vvec_normalize-vvt-aseq (list :start 0            :end end            :step step              :len len                :map-fun map-fun)))
             ('t                                 (error "mjr_vvec_normalize-vvt-aseq: Unable to compute missing arithmetic sequence parameters!"))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_normalize-vvt-points (vvec)
   "Normalize a group of arguments intended to describe an vvec described by grid points.
 
-On success, a :vvr-kw vvec will be returned with the following keywords: :vvec-type, :points, :start, :end, :len, & :map-fun.  Note
-that :start, :end, & :len will be consistent."
+On success, a :vvr-kw vvec will be returned with the following keywords: :vvec-type, :points, :start, :end, :len, & :map-fun.  Note that :start, :end, & :len
+will be consistent."
   (multiple-value-bind (vvec-type points start end step len map-fun nfun rfun)
       (mjr_util_get-kwarg-vals '(:vvec-type :points :start :end :step :len :map-fun :nfun :rfun) vvec 't)
     (let* ((len       (mjr_vvec_check-len len))
@@ -291,7 +288,7 @@ that :start, :end, & :len will be consistent."
                                                                (list :vvec-type :vvt-points :points points :start start :end end :len len :map-fun map-fun)
                                                                (error "mjr_vvec_normalize-vvt-points: :START, :END, :LEN are inconsistent!"))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_normalize-all-rep (vvec)
   "Normalize a group of arguments intended to describe an vvec described by grid points
 
@@ -311,7 +308,7 @@ On success, a :vvr-kw vvec will be returned with the following keywords: :vvec-t
             ((< len 1)                           (error "mjr_vvec_normalize-all-rep: :LEN must be greater than 0!"))
             ('t                                  (list :vvec-type vvec-type :start (or start end) :len len :map-fun map-fun))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_normalize-vvt-mitch1 (vvec)
   "Normalize a group of arguments intended to describe an vvec described by the mitch1 interpolation scheme.
 
@@ -332,7 +329,7 @@ On success, a :vvr-kw vvec will be returned with the following keywords: :vvec-t
             ((< len 1)                                         (error "mjr_vvec_normalize-vvt-mitch1: :LEN must be greater than 1 for :VVT-MITCH1!"))
             ('t                                                (list :vvec-type vvec-type :start start :end end :len len :map-fun map-fun))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_normalize-vvt-cheb (vvec)
   "Normalize a group of arguments intended to describe an vvec described by the cheb interpolation scheme.
 
@@ -352,7 +349,7 @@ On success, a :vvr-kw vvec will be returned with the following keywords: :vvec-t
             ((< len 1)                                         (error "mjr_vvec_normalize-vvt-cheb: :LEN must be greater than 1 for :VVT-CHEB!"))
             ('t                                                (list :vvec-type vvec-type :start start :end end :len len :map-fun map-fun))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_normalize-vvt-rfun (vvec)
   "Normalize a group of arguments intended to describe an vvec described by a recursive function.
 
@@ -377,7 +374,7 @@ On success, a :vvr-kw vvec will be returned with the following keywords: :vvec-t
             ((some #'complexp start)                (error "mjr_vvec_normalize-vvt-rfun: Requires :START must not contain complex numbers"))
             ('t                                     (list :vvec-type vvec-type :start start :len len :rfun rfun :map-fun map-fun))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_normalize-vvt-nfun (vvec)
   "Normalize a group of arguments intended to describe an vvec described by a no-arg function.
 
@@ -395,14 +392,13 @@ On success, a :vvr-kw vvec will be returned with the following keywords: :vvec-t
             (rfun                                   (error "mjr_vvec_normalize-vvt-nfun: Incompatible with :RFUN"))
             ('t                                     (list :vvec-type vvec-type :len len :nfun nfun :map-fun map-fun))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_normalize-all (vvec)
   "Normalize arguments describing a virtual vector.  
 
 On success, a :vvr-kw vvec will be returned with an appropriate set of keywords.
 
-Uses mjr_vvec_get-vvec-type to determine the vvec-type.  If mjr_vvec_get-vvec-type is inconclusive, then
-:VVT-ASEQ is assumed"
+Uses mjr_vvec_get-vvec-type to determine the vvec-type.  If mjr_vvec_get-vvec-type is inconclusive, then :VVT-ASEQ is assumed"
   (case (mjr_vvec_get-vvec-type vvec)
     (:vvt-aseq   (mjr_vvec_normalize-vvt-aseq   vvec))
     (:vvt-points (mjr_vvec_normalize-vvt-points vvec))
@@ -413,7 +409,7 @@ Uses mjr_vvec_get-vvec-type to determine the vvec-type.  If mjr_vvec_get-vvec-ty
     (:vvt-nfun   (mjr_vvec_normalize-vvt-nfun   vvec))
     (otherwise   (mjr_vvec_normalize-vvt-aseq   vvec))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_vvec2fi (vvec)
   "Return a Forward Iterator and a length"
   ;; ;; How one might use just the forward iterator without the length
@@ -480,59 +476,56 @@ Uses mjr_vvec_get-vvec-type to determine the vvec-type.  If mjr_vvec_get-vvec-ty
                                  (values (lambda () (let ((v (funcall fif))) (if v (funcall map-fun v)))) len)
                                  (values fif len)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_map-filter-reduce (result-type-or-reduce-func vvec &key 
                                    reduce-start filter-fun
                                    point-fun point-fun-nil-map
                                    pair-fun pair-fun-nil-map)
   "Combine virtual vector generation, map, filter, and reduce into one common calling sequence tuned for mathematical code
 
-The first argument determines the top level 'operation type' (reduce or map) as well as the result form if the operation type is a
-map operation.
+The first argument determines the top level 'operation type' (reduce or map) as well as the result form if the operation type is a map operation.
 
   * 'list .................. Do a 'map' and return the results as a list
   * 'vector ................ Do a 'map' and return the results as a vector
   * NIL .................... Do a 'map' and throw away the result
   * otherwise .............. Do a 'reduce' and assume the first argument is callable via funcall
 
-If PAIR-FUN is provided, then the operation is carried out over pairs of points instead of points.  i.e. Instead of iterating over
-sequence elements, we iterate over adjacent PAIRS of elements.  We call this the 'operation mode' (points or pairs) in this
-documentation -- we say the operation mode is 'points' when PAIR-FUN is nil and 'pairs' otherwise.
+If PAIR-FUN is provided, then the operation is carried out over pairs of points instead of points.  i.e. Instead of iterating over sequence elements, we
+iterate over adjacent PAIRS of elements.  We call this the 'operation mode' (points or pairs) in this documentation -- we say the operation mode is 'points'
+when PAIR-FUN is nil and 'pairs' otherwise.
 
-In mathematical code it is common for map operations to depend on the position of the element in the vector, and so the
-functions (POINT-FUN, PAIR-FUN) take as a final argument the index of the point or pair:
+In mathematical code it is common for map operations to depend on the position of the element in the vector, and so the functions (POINT-FUN, PAIR-FUN) take
+as a final argument the index of the point or pair:
 
   * POINT-FUN takes 2 arguments: point & point index.
 
-  * PAIR-FUN takes 5 arguments: left point, right point, POINT-FUN evaluated on left point, POINT-FUN evaluated on right point, and
-    the zero based index of the pair.
+  * PAIR-FUN takes 5 arguments: left point, right point, POINT-FUN evaluated on left point, POINT-FUN evaluated on right point, and the zero based index of
+    the pair.
 
-The FILTER-FUN function is used to suppress the inclusion of a point or pair in the result of a map or reduce.  Depending of the
-'operation mode', the filter-fun will take different arguments:
+The FILTER-FUN function is used to suppress the inclusion of a point or pair in the result of a map or reduce.  Depending of the 'operation mode', the
+filter-fun will take different arguments:
 
   * For points (PAIR-FUN is NIL) the FILTER-FUN takes 3 arguments: point, result of POINT-FUN/PAIR-FUN, and point/pair index.
 
-  * For pairs (PAIR-FUN is non-NIL) the FILTER-FUN takes 6 arguments: left point, right point, POINT-FUN evaluated on left point,
-    POINT-FUN evaluated on right point, result of PAIR-FUN, and the zero based index of the pair.
+  * For pairs (PAIR-FUN is non-NIL) the FILTER-FUN takes 6 arguments: left point, right point, POINT-FUN evaluated on left point, POINT-FUN evaluated on right
+    point, result of PAIR-FUN, and the zero based index of the pair.
 
-It is also common for the reduce operation to depend upon the index of the point of pair, but the number and type of arguments is
-always the same regardless of the mode of operation.
+It is also common for the reduce operation to depend upon the index of the point of pair, but the number and type of arguments is always the same regardless
+of the mode of operation.
 
   * RESULT-TYPE-OR-REDUCE-FUNC takes three arguments: accumulated value, result of POINT-FUN/PAIR-FUN, and point/pair index.
 
-The REDUCE-START argument is only used for a 'reduce' operation, and is used as the initial value for the reduction.  Note that in
-the reduce case the function RESULT-TYPE-OR-REDUCE-FUNC will be called precisely one time for each sequence value (not :LEN-1 times
-as might be expected).  This is to cope with possible function side effects the caller may depend upon, but this means that a
-appropriate REDUCE-START value must almost always be explicitly provided.  The first call to RESULT-TYPE-OR-REDUCE-FUNC will have as
-its first argument :REDUCE-START, the first point/pair as the second, and 0 as the third.
+The REDUCE-START argument is only used for a 'reduce' operation, and is used as the initial value for the reduction.  Note that in the reduce case the
+function RESULT-TYPE-OR-REDUCE-FUNC will be called precisely one time for each sequence value (not :LEN-1 times as might be expected).  This is to cope with
+possible function side effects the caller may depend upon, but this means that a appropriate REDUCE-START value must almost always be explicitly provided.
+The first call to RESULT-TYPE-OR-REDUCE-FUNC will have as its first argument :REDUCE-START, the first point/pair as the second, and 0 as the third.
 
-When the result of POINT-FUN is nil, POINT-FUN-NIL-MAP will be used instead.  Similarly, when the result of PAIR-FUN is nil,
-PAIR-FUN-NIL-MAP will be used instead.  This is to provide a way to insure the result will be a numerical vector even when
-POINT-FUN/PAIR-FUN is unable to return a valid value.  The most important use case is to provide a 'default value' for
-POINT-FUN/PAIR-FUN when it is called outside of its mathematical domain.
+When the result of POINT-FUN is nil, POINT-FUN-NIL-MAP will be used instead.  Similarly, when the result of PAIR-FUN is nil, PAIR-FUN-NIL-MAP will be used
+instead.  This is to provide a way to insure the result will be a numerical vector even when POINT-FUN/PAIR-FUN is unable to return a valid value.  The most
+important use case is to provide a 'default value' for POINT-FUN/PAIR-FUN when it is called outside of its mathematical domain.
 
-Much like the calling strategy for RESULT-TYPE-OR-REDUCE-FUNC in reduce operations, the POINT-FUN/PAIR-FUN functions will ALWAYS be
-called once per point/pair.  Just as with RESULT-TYPE-OR-REDUCE-FUNC, this is to insure any side effects will occur.
+Much like the calling strategy for RESULT-TYPE-OR-REDUCE-FUNC in reduce operations, the POINT-FUN/PAIR-FUN functions will ALWAYS be called once per
+point/pair.  Just as with RESULT-TYPE-OR-REDUCE-FUNC, this is to insure any side effects will occur.
 
 If POINT-FUN is NIL (as in a NIL was passed to this function), then the behavior will be as if #'IDENTITY were passed."
 
@@ -612,7 +605,7 @@ If POINT-FUN is NIL (as in a NIL was passed to this function), then the behavior
                                                 do (setf resv (funcall result-type-or-reduce-func resv fp i)))
                                           resv))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_gen-0sim (result-type vvec)
   "Generate and return, as a list or vector, a the sequence of points (0-simplexes) describing the virtual vector"
   (if (not (or (eq result-type 'list)
@@ -625,7 +618,7 @@ If POINT-FUN is NIL (as in a NIL was passed to this function), then the behavior
                    (error "mjr_vvec_gen-0sim: Empty vector generated"))))
     res))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_gen-1sim (result-type vvec)
   "Generate and return, as a list or vector, a the sequence of points describing the virtual vector"
   (if (not (or (eq result-type 'list)
@@ -639,7 +632,7 @@ If POINT-FUN is NIL (as in a NIL was passed to this function), then the behavior
                    (error "mjr_vvec_gen-0sim: Empty vector generated"))))
     res))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_convert-rep (vvec vvr-type &optional (error-on-bad-vvr-type 't))
   "Convert VVEC representation to VVR-TYPE (supported: :vvr-kw, :vvr-vec, and :vvr-list)."
   (case vvr-type 
@@ -661,7 +654,7 @@ If POINT-FUN is NIL (as in a NIL was passed to this function), then the behavior
     (otherwise  (if error-on-bad-vvr-type
                     (error "mjr_vvec_convert-rep: Unsupported :VVR-TYPE")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_to-vec-maybe (vvec)
   "Convert VVEC to a :VVR-VEC vvec (a real LISP vector), or return VVEC if we can't figure out what to do.
 
@@ -669,7 +662,7 @@ Used as a 'filter' for functions that might get a vvec or some other thing entir
   (or (mjr_vvec_convert-rep vvec :vvr-vec nil)
       vvec))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_map-sum (vvec &key (initial-value 0) pair-fun point-fun filter-fun)
   "Evaluate a function on a sequence and sum the resulting non-NIL values together.
 
@@ -697,22 +690,21 @@ Example of adding the odd numbers from 1 up to 10:
                               :pair-fun-nil-map 0 :point-fun-nil-map 0
                               :pair-fun pair-fun :point-fun point-fun :filter-fun filter-fun))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_map-prod (vvec &key (initial-value 1) pair-fun point-fun filter-fun)
-  "Evaluate a function on a sequence and form the product of the resulting non-NIL values.  The sequence may be an arithmetic
-sequence specified with START, END, STEP, & LEN) or an arbitrary sequence specified by POINTS (a vector or list).  See the
-function MJR_VVEC_ASEQ_ARG_NORMALIZE for details of the arguments used to specify the sequence.  See the function
-MJR_VVEC_MAP-SUM for examples of valid argument combinations. "
+  "Evaluate a function on a sequence and form the product of the resulting non-NIL values.  The sequence may be an arithmetic sequence specified with START,
+END, STEP, & LEN) or an arbitrary sequence specified by POINTS (a vector or list).  See the function MJR_VVEC_ASEQ_ARG_NORMALIZE for details of the arguments
+used to specify the sequence.  See the function MJR_VVEC_MAP-SUM for examples of valid argument combinations. "
   (mjr_vvec_map-filter-reduce (lambda (a b i) (declare (ignore i)) (* a b))
                               vvec
                               :reduce-start initial-value
                               :pair-fun-nil-map 1 :point-fun-nil-map 1
                               :pair-fun pair-fun  :point-fun point-fun :filter-fun filter-fun))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_map-maxi (vvec &key filter-fun point-fun point-fun-nil-map pair-fun pair-fun-nil-map)
-  "Evaluate a function on a sequence and return the index and function value of the maximum of the resulting non-NIL
-values (nil may be mapped to something else via seq-fun-nil-map)."
+  "Evaluate a function on a sequence and return the index and function value of the maximum of the resulting non-NIL values (nil may be mapped to something
+else via seq-fun-nil-map)."
   (let ((maxv nil)
         (maxi nil))
     (mjr_vvec_map-filter-reduce (lambda (a v i)
@@ -726,13 +718,12 @@ values (nil may be mapped to something else via seq-fun-nil-map)."
                                 :point-fun point-fun                  :pair-fun pair-fun)
     (values maxi maxv)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vvec_map-mini (vvec &key filter-fun point-fun point-fun-nil-map pair-fun pair-fun-nil-map)
-  "Evaluate a function on a sequence and return the index, seq value, and function value of the minimum of the resulting non-NIL
-values (nil may be mapped to something else via seq-fun-nil-map).  The sequence may be an arithmetic sequence specified with START, END,
-STEP, & LEN) or an arbitrary sequence specified by POINTS (a vector or list).  See the function MJR_VVEC_ASEQ_ARG_NORMALIZE for
-details of the arguments used to specify the sequence.  See the function MJR_VVEC_MAP-SUM for examples of valid argument
-combinations."
+  "Evaluate a function on a sequence and return the index, seq value, and function value of the minimum of the resulting non-NIL values (nil may be mapped to
+something else via seq-fun-nil-map).  The sequence may be an arithmetic sequence specified with START, END, STEP, & LEN) or an arbitrary sequence specified by
+POINTS (a vector or list).  See the function MJR_VVEC_ASEQ_ARG_NORMALIZE for details of the arguments used to specify the sequence.  See the function
+MJR_VVEC_MAP-SUM for examples of valid argument combinations."
   (let ((maxv nil)
         (maxi nil))
     (mjr_vvec_map-filter-reduce (lambda (a v i)

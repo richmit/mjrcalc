@@ -1,10 +1,9 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-nleq.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Non-linear equation root finding.@EOL
-;; @Keywords  lisp interactive non-linear equations root solutions
 ;; @Std       Common Lisp
 ;;
 ;;            TODO: I want to rethink the way the functions in this package exit.  No more "errors"!  Just return enough data to the
@@ -16,7 +15,7 @@
 ;;                  approximate derivatives.
 ;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_NLEQ
   (:USE :COMMON-LISP
         :MJR_EPS
@@ -39,7 +38,7 @@
 
 (in-package :MJR_NLEQ)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_nleq_help ()
   "Functions in this package attempt to localize a solution/root of a given function.
 
@@ -50,7 +49,7 @@ value (which will be an informative string) requires a closer examination of x-b
 determine if they are acceptable."
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_nleq_infix-string-to-diff-lambda (the-string var num-diff)
   "Take an MXP infix string, and return a lambda acceptable for MJR_NLEQ_ROOT-NEWTON or MJR_NLEQ_ROOT-LAGUERRE.
 If THE-STRING is not a string, then THE-STRING is returned as is.
@@ -62,14 +61,14 @@ it is assumed to be F only, and symbolic derivatives are taken before the lambda
           (mjr_mxp_trees-to-values-lambda (mjr_cas_diff-list (mjr_mxp_infix-to-tree the-string) var num-diff) (list var)))
       the-string))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_nleq_root-bsect (f x0 x1 &key (xeps 0.0001) (yeps 0.0001) (max-itr 1000) (show-progress nil) (use-false-position nil))
   "Use bisection, or false position if :USE-FALSE-POSITION is non-NIL, to localize a root of FUN between X0 and X1.
 
 See mjr_nleq_help for a description of the three value return from this function.
 
-While :USE-FALSE-POSITION is normally faster than regular bisection, it can fail to make progress in cases where regular
-bisection would have worked.  This is because the new x value can be too close to a boundary and trigger an exit on XEPS or YEPS."
+While :USE-FALSE-POSITION is normally faster than regular bisection, it can fail to make progress in cases where regular bisection would have worked.  This is
+because the new x value can be too close to a boundary and trigger an exit on XEPS or YEPS."
 ;; Maxima code for computing false position.
 ;; (%i69) eq:y=m*x+b;
 ;; (%o69) y = m*x+b
@@ -111,7 +110,7 @@ bisection would have worked.  This is because the new x value can be too close t
                  (if (and y-old (mjr_eps_= y-cur y-old yeps))               (return (values x-cur y-cur "Y-DELTA=0")))
                  (setf y-old y-cur))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_nleq_root-newton (fdf x0 &key (xeps 0.0001) (yeps 0.0001) (max-itr 1000) (show-progress nil))
   "Use newton's method to localize a root of the f near (hopefully anyhow) X0.  fdf returns the value of f and df/dx.
 
@@ -136,7 +135,7 @@ See mjr_nleq_help for a description of the three value return from this function
                      (setf y-old y-cur))
                    (error "ERROR: mjr_nleq_root-newton: division by zero (dy) detected. Value of YEPS may be too small."))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_nleq_root-laguerre (fdfddf n x0 &key (xeps 0.0001) (yeps 0.0001) (max-itr 1000) (show-progress nil))
   "Use laguerre's method to localize a root of f near (hopefully anyhow) X0. fdfddf returns (values f df/dx ddf/dx)
 
@@ -166,7 +165,7 @@ See mjr_nleq_help for a description of the three value return from this function
                (if (and y-old (mjr_eps_= y-cur y-old yeps))                 (return (values x-cur y-cur "Y-DELTA=0")))
                (setf y-old y-cur)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_nleq_fixed-point-itr (f x0 &key (xeps 0.0001) (yeps 0.0001) (max-itr 1000) (show-progress nil))
   "Use fixed point iteration to localize a a fixed point (a root of f(x)-x) near (hopefully anyhow) X0.  
 

@@ -1,17 +1,16 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      use-colorizer.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1996,1997,2008,2010,2012 by Mitch Richling.  All rights reserved.
 ;; @brief     Colorization of continuous spaces (R, C, R^2, R^3, C, I, I^2, and I^3).@EOL
-;; @Keywords  lisp interactive colorize euclidean complex visualization
 ;; @Std       Common Lisp
 ;;
 ;;
 ;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_COLORIZER
   (:USE :COMMON-LISP
         :MJR_COLOR
@@ -48,32 +47,32 @@
 (in-package :MJR_COLORIZER)
 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_filter_log (func &rest rest)
   "Compute the logarithm of each element of REST, and apply FUNC to the result"
   (apply func (mapcar #'log rest)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_filter_scale (func scale-list &rest rest)
   "Multiply the scale list components to the corresponding values in rest, and  apply FUNC to the result"
   (apply func (mapcar #'* scale-list rest)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_filter_shift (func shift-list &rest rest)
   "Add the shift list components to the corresponding values in rest, and  apply FUNC to the result"
   (apply func (mapcar #'+ shift-list rest)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_filter_shift-log (func s &rest rest)
   "Add S and compute the logarithm of each element of REST, and apply FUNC to the result"
   (apply func (mapcar (lambda (x) (log (+ s x))) rest)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_filter_zero-log (func &rest rest)
   "Compute logarithm of non-zero elements of REST, and apply FUNC to the result"
   (apply func (mapcar (lambda (x) (if (zerop x) 0 (log x))) rest)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_help ()
  "Colorize euclidean spaces of dimensions one, two, and three -- used for visualization.
 
@@ -113,7 +112,7 @@ Several common gradients include (see ramCanvas for more info):
      * mjr_colorizer_i3-rgb-cube"
   (documentation 'mjr_colorizer_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_ut-rgb-from-gradient (x &optional (gradient "RYGCBMR"))
   "x should be between 0 and 1 -- less than zero is first color in gradient def while greater than 1 is last color in gradient def"
   (let* ((len   (length gradient))
@@ -129,7 +128,7 @@ Several common gradients include (see ramCanvas for more info):
                                (mjr_color_make-rgb-from-spec (aref gradient buk))
                                (mjr_color_make-rgb-from-spec (aref gradient (1+ buk))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_ut-rgb-from-multi-gradient (x &optional (multi-gradient (vector "RYGCBMR")))
   "Vector of grads"
   (let* ((len   (length multi-gradient))
@@ -142,16 +141,16 @@ Several common gradients include (see ramCanvas for more info):
           ((>= buk len-1) (mjr_colorizer_ut-rgb-from-gradient 1 (aref multi-gradient len-1)))
           ('t             (mjr_colorizer_ut-rgb-from-gradient y (aref multi-gradient buk))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r2-1yr0 (realpart-or-complex-number &optional imagpart-or-nil)
-  "Function of phase only. When mapped onto graph of the abs surface surface, all complex information is captured. Top of
-positive real axis is white while bottom is black"
+  "Function of phase only. When mapped onto graph of the abs surface surface, all complex information is captured. Top of positive real axis is white while
+bottom is black"
   (multiple-value-bind (x y) (mjr_util_get-all-elements-or-args realpart-or-complex-number imagpart-or-nil)
     (let* ((z  (complex x y))
            (a  (mjr_numu_argument z)))
       (mjr_colorizer_ut-rgb-from-gradient (/ a (* 2 pi)) "1YR0"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r2-1rgb1 (realpart-or-complex-number &optional imagpart-or-nil)
   "Color is a function of phase.  Axis are identifiable by color.
 
@@ -167,7 +166,7 @@ positive real axis is white while bottom is black"
            (a  (mjr_numu_argument z)))
       (mjr_colorizer_ut-rgb-from-gradient (/ a (* 2 pi)) "1RGB1"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r2-1r.gb.yc.m0 (realpart-or-complex-number &optional imagpart-or-nil)
   "Color is a function of phase.  Positive and negative of each axis is identifiable as well as each quadrant
 
@@ -183,7 +182,7 @@ positive real axis is white while bottom is black"
            (a  (mjr_numu_argument z)))
       (mjr_colorizer_ut-rgb-from-multi-gradient (/ a (* 2 pi)) #("1r" "gb" "yc" "m0")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r2-gr (realpart-or-complex-number &optional imagpart-or-nil)
   "Blue is a function of magnitude while red and green are functions of phase.
 The sides of the positive real axis are identifiable
@@ -202,7 +201,7 @@ The sides of the positive real axis are identifiable
       (setf (aref c 2) s)
       c)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_helper-r2-hs* (realpart-or-complex-number imagpart-or-nil hs-fun max-v)
   "Map color to the complex plane by mapping the plane to a unit sphere, and then mapping to the HSL or HSV color space.
 
@@ -214,29 +213,28 @@ References:
            (v  (if max-v 1 (/ (* 2 (atan (abs z))) pi))))
       (funcall hs-fun h 1 v))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r2-hsl-thaller (realpart-or-complex-number &optional imagpart-or-nil)
   "HSL like color map across entire complex plane.  Function of phase and abs!  Positive real axis is shades of red while
 negative real axis is shades of cyan.  zero is black."
   (mjr_colorizer_helper-r2-hs* realpart-or-complex-number imagpart-or-nil #'mjr_color_convert-hsl2rgb nil))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r2-hsv-thaller (realpart-or-complex-number &optional imagpart-or-nil)
   "HSV like color map across entire complex plane.  Function of phase and abs!  Positive real axis is shades of red while
 negative real axis is shades of cyan.  zero is black."
   (mjr_colorizer_helper-r2-hs* realpart-or-complex-number imagpart-or-nil #'mjr_color_convert-hsv2rgb nil))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r2-hsv-full-v (realpart-or-complex-number &optional imagpart-or-nil)
   "Like MJR_COLORIZE_R2-HSV-THALLER but with v=1 or MJR_COLORIZE_R2-HSL-THALLER with v=1/2 -- i.e. no dependence on magnitude.
-Very colorful. The real axis is still identifiable (Positive real axis is red while negative real axis is cyan -- not shades of
-same, but really red and cyan."
+Very colorful. The real axis is identifiable (Positive real axis is red while negative real axis is cyan -- not shades of same, but really red and cyan."
   (mjr_colorizer_helper-r2-hs* realpart-or-complex-number imagpart-or-nil #'mjr_color_convert-hsv2rgb 't))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r2-hsl-richardson (realpart-or-complex-number &optional imagpart-or-nil)
-  "HSL like color map across entire complex plane Function of phase and abs!  Positive real axis is shades of red while negative
-real axis is shades of cyan.  Zero is black.
+  "HSL like color map across entire complex plane Function of phase and abs!  Positive real axis is shades of red while negative real axis is shades of cyan.
+Zero is black.
 
 References:
   Richardson (1991); Visualizing quantum scattering on the CM-2 supercomputer; Computer Physics Communications 63; pp 84-94"
@@ -253,7 +251,7 @@ References:
            (blue  (+ ofs (- 1/2 (/ (+ xscl yscl)    r2+1)))))
       (vector red green blue))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r2-checker (realpart-or-complex-number &optional imagpart-or-nil)
   "red and blue checkers"
   (multiple-value-bind (x y) (mjr_util_get-all-elements-or-args realpart-or-complex-number imagpart-or-nil)
@@ -265,7 +263,7 @@ References:
             (vector 0 0 1)
             (vector 1 0 0)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r2-strip-x (realpart-or-complex-number &optional imagpart-or-nil)
   "red and blue strips"
   (multiple-value-bind (x y) (mjr_util_get-all-elements-or-args realpart-or-complex-number imagpart-or-nil)
@@ -274,7 +272,7 @@ References:
         (vector 0 0 1)
         (vector 1 0 0))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r2--strip-y (realpart-or-complex-number &optional imagpart-or-nil)
   "red and blue strips"
   (multiple-value-bind (x y) (mjr_util_get-all-elements-or-args realpart-or-complex-number imagpart-or-nil)
@@ -283,7 +281,7 @@ References:
         (vector 0 0 1)
         (vector 1 0 0))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r1-rgb (x)
   "Map color to the complex plane by mapping the plane to a unit sphere, and then mapping to the HSL or HSV color space.
 
@@ -292,14 +290,14 @@ References:
     (let ((d (+ 1/2 (/ (atan x) pi))))
       (mjr_colorizer_ut-rgb-from-gradient d "rgb")))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r1-checker (x)
   "Map color to the real line with one unit wide red and blue intervals."
   (if (oddp (floor x))
       (vector 0 0 1)
       (vector 1 0 0)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_r3-rgb (x-or-vec &optional y-or-nil z-or-nil)
   "Map color to R^3 by stretching out the RGB color cube to infinite size."
   (multiple-value-bind (x y z) (mjr_util_get-all-elements-or-args x-or-vec y-or-nil z-or-nil)
@@ -308,19 +306,19 @@ References:
           (b (+ 1/2 (/ (atan z) pi))))
       (vector r g b))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_i1-rg (x-or-vec)
   "Map color to I^1 red-black-green"
   (mjr_color_mix-max (mjr_colorizer_ut-rgb-from-gradient (if (numberp x-or-vec) x-or-vec (elt x-or-vec 0)) "r0g")))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_i2-rg-yb  (x-or-vec &optional y-or-nil)
   "Map color to I^3"
   (multiple-value-bind (x y) (mjr_util_get-all-elements-or-args x-or-vec y-or-nil)
     (mjr_color_mix-max (mjr_colorizer_ut-rgb-from-gradient x "r0g")
                        (mjr_colorizer_ut-rgb-from-gradient y "y0b"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_i3-rg-yb-cm (x-or-vec &optional y-or-nil z-or-nil)
   "Map color to I^3"
   (multiple-value-bind (x y z) (mjr_util_get-all-elements-or-args x-or-vec y-or-nil z-or-nil)
@@ -328,48 +326,48 @@ References:
                        (mjr_colorizer_ut-rgb-from-gradient y "y0b")
                        (mjr_colorizer_ut-rgb-from-gradient z "c0m"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_i1-rgb-cube (x-or-vec)
   "Map color to I^1 (the R axis of RGB cube -- black to red)."
   (multiple-value-bind (x) (mjr_util_get-all-elements-or-args x-or-vec)
     (vector x 0 0)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_i2-rgb-cube (x-or-vec &optional y-or-nil)
   "Map color to $I^2=[0,1]\times [0,1]$ by mapping the front face of the RGB cube to the unit square."
   (multiple-value-bind (x y) (mjr_util_get-all-elements-or-args x-or-vec y-or-nil)
     (vector x y 0)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_i3-rgb-cube (x-or-vec &optional y-or-nil z-or-nil)
   "Map color to $I^3=[0,1]\times [0,1]\times [0,1]$ by taking $R\rightarrow X$, $G\rightarrow Y$, and $B\rightarrow Z$."
   (multiple-value-bind (x y z) (mjr_util_get-all-elements-or-args x-or-vec y-or-nil z-or-nil)
     (vector x y z)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_i1-hsv-cone (x-or-vec)
   "Map color to $I=[0,1]$ with the colors around the top of the HSV cone (or around the center of the HSL double cone)."
   (multiple-value-bind (x) (mjr_util_get-all-elements-or-args x-or-vec)
     (mjr_color_convert-hsv2rgb x 1 1)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_i2-hsv-cone (x-or-vec &optional y-or-nil)
   "Map color to $I^2=[0,1]\times [0,1]$ by wrapping the outside of the HSV cone (cylinder really) onto the a unit square."
   (multiple-value-bind (x y) (mjr_util_get-all-elements-or-args x-or-vec y-or-nil)
     (mjr_color_convert-hsv2rgb x 1 y)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_i2-hsl-cone (x-or-vec &optional y-or-nil)
   "Map color to $I^2=[0,1]\times [0,1]$ by wrapping the outside of the HSL double cone (cylinder really) onto the a unit square."
  (multiple-value-bind (x y) (mjr_util_get-all-elements-or-args x-or-vec y-or-nil)
     (mjr_color_convert-hsl2rgb x 1 y)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_factory-from-gradient (gradient)
   "Return a function that takes a real number in [0,1], and returns a color."
     (lambda (z) (mjr_colorizer_ut-rgb-from-gradient z gradient)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorizer_factory-from-multi-gradient (multi-gradient)
   "Return a function that takes a real number in [0,1], and returns a color."
     (lambda (z) (mjr_colorizer_ut-rgb-from-multi-gradient z multi-gradient)))

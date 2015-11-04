@@ -1,16 +1,15 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-string.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1998,2008,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     String utilities.@EOL
-;; @Keywords  lisp interactive chars table
 ;; @Std       Common Lisp
 ;;
 ;;            
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_STRING
   (:USE :COMMON-LISP
         :MJR_CHAR)
@@ -32,12 +31,12 @@
 
 (in-package :MJR_STRING)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_read-as-lisp (the-string)
   "Evaluate the given string as lisp code, and return it's value."
   (with-input-from-string (stream the-string) (read stream nil)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_starts-with (small-string big-string &key (case-sensitive nil))
   "Return non-nil if BIG-STRING begins with SMALL-STRING."
   (let* ((small-string (string small-string))
@@ -49,7 +48,7 @@
             (string=      small-string (subseq big-string 0 small-length))
             (string-equal small-string (subseq big-string 0 small-length))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_match-integer (the-string)
   "Is the-string an integer (possibly signed)"
 ; MJR TODO NOTE <2011-10-30 17:09:12 CDT> mjr_string_match-integer: Add :START and :END
@@ -59,7 +58,7 @@
                (> (length the-string) 1))
           (mjr_char_digitsp the-string))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_join (separator &rest rest)
   "Join the strings with SEPARATOR between.  Returns a string.
 Notes:
@@ -71,7 +70,7 @@ Notes:
                 ((vectorp (first rest)) (concatenate 'list (first rest)))
                 ('t                     (print "mjr_string_join: Bad argument")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_split-if (the-string split-predicate &optional max-find)
   "Split the string up on the characters for which SPLIT-PREDICATE is non-NIL.  Returns a list of strings."
   (cond ((and max-find (< max-find 1))            (error "mjr_string_split-if: MAX-FIND must be greater than 0 if provided"))
@@ -86,7 +85,7 @@ Notes:
         until (and max-find (>= num-fnd max-find))
         do (setq cur-pos (1+ nxt-pos))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_split (the-string split-char &optional max-find)
   "Split the string up on the given character.  Returns a list of strings.
 
@@ -97,7 +96,7 @@ SEE: cl-ppcre:split for an equivalent using a RegEx"
         ((stringp split-char)    (mjr_string_split    the-string (aref split-char 0)               max-find))
         ('t                      (error "mjr_string_split: SPLIT-CHAR must be a character or string"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_match-float (the-string)
 ; MJR TODO NOTE <2011-10-30 17:09:12 CDT> mjr_string_match-float: Add :START and :END
   "Is the-string a floating point number (possibly signed)"
@@ -115,7 +114,7 @@ SEE: cl-ppcre:split for an equivalent using a RegEx"
           ((= 2 (length tmp1)) (and (mjr_string_match-float   (first tmp1))                           ;; hav e
                                     (mjr_string_match-integer (second tmp1)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_match-rational (the-string)
 ; MJR TODO NOTE <2011-10-30 17:09:12 CDT> mjr_string_match-rational: Add :START and :END
   "Is the-string a rational number (possibly signed)"
@@ -126,7 +125,7 @@ SEE: cl-ppcre:split for an equivalent using a RegEx"
                                     (> (length (first  tmp1)) 0)
                                     (> (length (second tmp1)) 0))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_ltrim (the-string &optional (chars-to-trim #'mjr_char_whitespacep))
   "Trim THE-STRING on the left.  Returns THE-STRING if nothing to trim, returns a new string otherwise."
   (let ((pos (position-if (lambda (x) (not (funcall chars-to-trim x))) the-string)))
@@ -136,7 +135,7 @@ SEE: cl-ppcre:split for an equivalent using a RegEx"
             (subseq the-string pos))
         "")))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_rtrim (the-string &optional (chars-to-trim #'mjr_char_whitespacep))
   "Trim THE-STRING on the right.  Returns THE-STRING if nothing to trip, returns a new string otherwise."
   (let ((pos (position-if (lambda (x) (not (funcall chars-to-trim x))) the-string :from-end 't)))
@@ -146,15 +145,16 @@ SEE: cl-ppcre:split for an equivalent using a RegEx"
             (subseq the-string 0 (1+ pos)))
         "")))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_trim (the-string &optional (chars-to-trim #'mjr_char_whitespacep))
   ;; MJR TODO NOTE <2011-10-25 20:58:30 CDT> mjr_string_trim: optimize
   "Trim THE-STRING on the right and left"
   (mjr_string_rtrim (mjr_string_ltrim the-string chars-to-trim) chars-to-trim))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_parse-number (the-string &key no-rat no-float (start 0))
   "Return the index of the character immediately following the number at the head of THE-STRING, or NIL if none found.
+
 The algorithm is greedy -- i.e. largest string that matches is found.
 :NO-RAT and :NO-FLOAT can suppress the matching of rationals and floating point numbers respectively.
 Rationals, integers, floating point Numbers are all supported.
@@ -223,7 +223,7 @@ If a number is found, then a second return value represents the type of the numb
           (if (not (zerop cnt))
               (values (1- (+ start cnt)) typ))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_parse-c-identifier (the-string &key (start 0))
   "Return the index of the last character of the c-identifier at the head of THE-STRING, or NIL if none found
 The algorithm is greedy -- i.e. largest string that matches is found."
@@ -236,9 +236,3 @@ The algorithm is greedy -- i.e. largest string that matches is found."
                          count 't)))
           (if (not (zerop cnt))
               (1- (+ start cnt)))))))
-
-
-; 0         0         0         0         0         0         0         0         0         0         1         1         1         1         1         1         1         1         1         1
-; 0         1         2         3         4         5         6         7         8         9         0         1         1         3         4         5         6         7         8         9
-; 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-;"  now + is the time   323  for  42343 all good    men 243 23 to come to the aid of their   country   "

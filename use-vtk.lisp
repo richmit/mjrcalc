@@ -1,15 +1,14 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-vtk.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,2008,2010,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Write VTK files.@EOL
-;; @Keywords  lisp interactive vtk
 ;; @Std       Common Lisp
 ;;
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_VTK
   (:USE :COMMON-LISP
         :MJR_UTIL
@@ -26,22 +25,20 @@
            ;; Very experimental
            #:mjr_vtk_from-dsimp
            #:mjr_vtk_from-dquad
-
            ;; Not exported
-           #:mjr_vtk_print-data-set
+           ;;#:mjr_vtk_print-data-set
            ))
 
 (in-package :MJR_VTK)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vtk_help ()
   "Help for MJR_VTK: Create VTK files
 
-The goal is to provide some basic functionality for transforming mathematical data (in the form of an array or embedded in a
-function) into VTK files."
+The goal is to provide some basic functionality for transforming mathematical data (in the form of an array or embedded in a function) into VTK files."
   (documentation 'mjr_vtk_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vtk_print-data-set  (dest data-array data-anno  npts)
   "Dump a data set from a dquad list to DEST using VTK syntax."
   (let ((data-type (mjr_annot_get-value :ano-typ data-anno))
@@ -84,14 +81,14 @@ function) into VTK files."
                                         (format dest "~%"))
       (otherwise                       (error "mjr_vtk_from-dquad: Unsupported :ANO-TYPE!")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vtk_from-dquad (out-file dquad &key axes data-arrays file-note)
   "Write an ASCII VTK file with the contents of a DQUAD list.
 
-The 0-simplices (the points in VTK speak) are always put in the file.  DATA-ARRAYS specifies which point data sets should be put in
-the file -- it is a data index, data name, or a list of same.  When missing, DATA-ARRAYS defaults to every point data set in the
-DQUAD list.  SIMPLICES is an integer, or list of integers, specifying which sets of simplices should be put in the file -- ex: 2
-means put the 2-simplices (triangles) in the file.  This argument has no default behavour when NIL."
+The 0-simplices (the points in VTK speak) are always put in the file.  DATA-ARRAYS specifies which point data sets should be put in the file -- it is a data
+index, data name, or a list of same.  When missing, DATA-ARRAYS defaults to every point data set in the DQUAD list.  SIMPLICES is an integer, or list of
+integers, specifying which sets of simplices should be put in the file -- ex: 2 means put the 2-simplices (triangles) in the file.  This argument has no
+default behavour when NIL."
   (let* ((data-arrays (sort (or (mjr_util_non-list-then-list data-arrays) ;; Some apps (like VisIT) need colors first, scalars next, vectors last
                                 (concatenate 'list (mjr_vvec_to-vec-maybe (mjr_dquad_data-count dquad))))
                             (lambda (x y)
@@ -128,17 +125,16 @@ means put the 2-simplices (triangles) in the file.  This argument has no default
                                            (mjr_dquad_get-data-ano  dquad da-dat)
                                            npts)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vtk_from-dsimp (out-file dsimp &key point-data simplices file-note)
   "Write an ASCII VTK file with the contents of a DSIMP list.
 
 Arguments:
-  - POINT-DATA specifies which point data sets should be put in the file -- it is a data index, data name, or a list of same.  When
-    missing, POINT-DATA defaults to every point data set in the DSIMP list.
-  - SIMPLICES is an integer, or list of integers, specifying which sets of simplices should be put in the file -- ex: 2 means put
-    the 2-simplices (triangles) in the file.  This argument has no default behavior when NIL.  Note that including 0 in :SIMPLICES
-    is meaningful as this will include a VERTICES section in the VTK file to generate actual geometry for each point -- Simply having
-    the 'POINTS' section is not enough for most tools."
+  - POINT-DATA specifies which point data sets should be put in the file -- it is a data index, data name, or a list of same.  When missing, POINT-DATA
+    defaults to every point data set in the DSIMP list.
+  - SIMPLICES is an integer, or list of integers, specifying which sets of simplices should be put in the file -- ex: 2 means put the 2-simplices (triangles)
+    in the file.  This argument has no default behavior when NIL.  Note that including 0 in :SIMPLICES is meaningful as this will include a VERTICES section
+    in the VTK file to generate actual geometry for each point -- Simply having the 'POINTS' section is not enough for most tools."
   (let* ((point-data (sort (or (mjr_util_non-list-then-list point-data) ;; Some apps (like VisIT) need colors first, scalars next, vectors last
                                (let ((n (mjr_dsimp_data-count dsimp 0)))
                                  (if (> n 0)

@@ -1,15 +1,35 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      pre-annot.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,2008,2010,2013 by Mitch Richling.  All rights reserved.
-;; @brief     Provide data annotation tools.@EOL
-;; @Keywords  lisp interactive annot
-;; @Std       Common Lisp
+;; @brief     Provide data annotation tools -- DSIMP and DQUAD.@EOL
+;; @std       Common Lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997, 2008, 2010, 2013, 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      unit-tests!@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_ANNOT
   (:USE :COMMON-LISP
         :MJR_COLOR
@@ -36,7 +56,7 @@
 
 (in-package :MJR_ANNOT)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_help ()
   "Help for MJR_ANNOT: Annotations for labeling data (for example, in :MJR_DSIMP & :MJR_DQUAD)
 
@@ -72,8 +92,8 @@ of the following possible annotation keys:
          |-----------------------+----------------+-----------+---------------|
 
     * :ano-cpacking -- Indicates how color values are packed into each data cell.  Note that arbitrary pack/unpack functions are NOT
-      supported here as they are in the :MJR_IMG library.  Rather, we er strict the possibilities to a small set of supported
-      options. If missing, a value of :CP-IDENTITY is assumed.
+      supported here as they are in the :MJR_IMG library.  Rather, the possibilities are restricted to the most useful combinations
+      of packing options. If missing, a value of :CP-IDENTITY is assumed.
 
          |---------------------+----------+------------+-----------------+----------------|
          | :ano-cpacking Value | Channels | Chan Depth | Colorspace      | VTK Supported  |
@@ -89,7 +109,7 @@ of the following possible annotation keys:
     * :ano-units -- a string that can be parsed by MJR_UNITS_CANONIZATION."
   (documentation 'mjr_annot_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_get-default-value (ano-key)
   "Return the default value for an ano-key"
   (case ano-key
@@ -98,7 +118,7 @@ of the following possible annotation keys:
     (:ano-typ        :ano-typ-real)
     (otherwise       nil)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_get-value (ano-key ano-alist)
   "Return the value for the ano-key stored in the ano-alist, or the default value if the alist doesn't contain the key."
   (let ((value (cdr (assoc ano-key  ano-alist))))
@@ -106,20 +126,20 @@ of the following possible annotation keys:
         (values value                                 't)
         (values (mjr_annot_get-default-value ano-key) nil))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_check-ano-key (ano-key)
   "Error if ano-key is not a supported value (:ano-typ :ano-colorspace :ano-cpacking :ano-nam :ano-units)"
   (if (not (member ano-key '(:ano-typ :ano-colorspace :ano-cpacking :ano-nam :ano-units)))
       (error "mjr_annot_check-ano-key: :ano-key must be one of :ano-typ, :ano-colorspace, :ano-cpacking, :ano-nam, or :ano-units")))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_check-ano-units (ano-units)
   "ERROR if ano-units is non-NIL and invalid."
   (if (and ano-units
            (not (ignore-errors (mjr_units_canonization "m/gm"))))
       (error "mjr_annot_check-ano-units: :ano-units was non-NIL and could not be parsed by mjr_units_canonization!")))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_check-ano-typ (ano-typ)
   "ERROR if ano-typ is non-NIL and invalid."
   (if ano-typ
@@ -127,13 +147,13 @@ of the following possible annotation keys:
           (error "mjr_annot_check-ano-typ: :ano-typ must be one of :ano-typ-real, :ano-typ-integer, :ano-typ-complex, :ano-typ-color, :ano-typ-ivec, :ano-typ-rvec, or :ano-typ-cvec"))
       (warn "mjr_annot_make-alist: ano-typ is NIL!")))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_check-ano-nam (ano-nam)
   "ERROR if ano-nam is invalid (NIL is invalid BTW)."
     (cond ((null ano-nam)                (error "mjr_annot_check-ano-nam: :ano-nam must not be NIL"))
           ((not (stringp ano-nam))       (error "mjr_annot_check-ano-nam: :ano-nam must be a string"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_check-ano-colorspace (ano-typ ano-colorspace)
   "ERROR if :ano-colorspace is invalid."
   (let ((ano-typ        (or ano-typ
@@ -145,7 +165,7 @@ of the following possible annotation keys:
         (if ano-colorspace
             (error "mjr_annot_check-ano-colorspace: :ano-colorspace must be NIL if :ano-typ is NOT :ano-typ-color")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_check-ano-cpacking (ano-typ ano-colorspace ano-cpacking)
   "ERROR if :ano-cpacking is invalid."
   (let ((ano-typ        (or ano-typ
@@ -169,7 +189,7 @@ of the following possible annotation keys:
         (if ano-cpacking
             (error "mjr_annot_check-ano-cpacking: :ano-cpacking must be NIL if :ano-typ is NOT :ano-typ-color")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_ano-typ< (key1 key2)
   "A comparison function on possible :ano-typ values.
 
@@ -183,7 +203,7 @@ The order is compatible with the order in which data sets are required to appear
                                             (equalp key1 :ano-typ-integer))
                                         (not (equalp key2 :ano-typ-color)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_make-alist (&optional ano-nam ano-typ ano-colorspace ano-cpacking ano-units)
   "Stuff arguments into an alist."
   (mjr_annot_check-ano-nam ano-nam)
@@ -195,12 +215,12 @@ The order is compatible with the order in which data sets are required to appear
         when da-val
         collect (cons da-key da-val)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_make-cunpacker (ano-colorspace ano-cpacking &optional (output-colorspace :cs-rgb))
   "Helper function to unpack a color vector from a value given annotations for colorspace and cpacking"
   (lambda (v) (mjr_color_convert-xxx2xxx (mjr_color_cp-unpack v ano-cpacking) ano-colorspace output-colorspace)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_make-cpacker (ano-colorspace ano-cpacking &optional (input-colorspace :cs-rgb))
   "Helper function to pack a color vector into a value given annotations for colorspace and cpacking"
   (lambda (c) (mjr_color_cp-pack (mjr_color_convert-xxx2xxx c input-colorspace ano-colorspace) ano-cpacking)))
