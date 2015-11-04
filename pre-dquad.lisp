@@ -7,8 +7,7 @@
 ;; @Keywords  lisp interactive math Quadrilateral Rectilinear Grid Data mesh lattice
 ;; @Std       Common Lisp
 ;;
-;;            Many packages in MJRCALC work with data sets that need to be annotated with meta data (ex: :MJR_DQUAD & :MJR_DSIMP).  
-;;
+;;            
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defpackage :MJR_DQUAD 
@@ -54,10 +53,16 @@
 
 Library for dealing with gridded data sets (think a very, very poor man's RAM-only HDF5 or rectilinear data sets in VTK).
 
-The canonical example is geography: Regularly spaced latitude and longitude points define a 2D grid, and the land altitude, and
-potential of the Earths magnetic field define the data points at each grid point.  Another canonical example is meteorological.
-Here we have the same latitude and longitude grid, but we add a 3rd dimension of altitude above the geoid.  This forms a 3D grid.
-The data points might be wind speed, wind direction, and temperature.
+A typical 2D example is geographic data: Regularly spaced latitude and longitude points define a 2D grid while data points might
+include atomosphphicric pressure (a scalar) and the force of gravity (a vector) both measured at the serface.  We can extend this
+example by adding a 3rd dimension of altitude above the geoid.  In this 3D example, the data points might be wind velocity (a
+vector) and temperature (a scalar).  Throughout the *MJRCALC* library such data sets are common.  Some examples include
+
+   - Sampleing a functiosn on a regular grid across its domain is a common first step for visulization and graphing
+
+   - Solving ODEs, systems of ODEs, and preforming univariate quadrature (1D grids)
+
+   - Solving PDEs, arising from fluid mechanics for example, are frequently solved on 2D or 3D grids
 
 Formally, such data sets consist of a grid of points.  This grid is defined as the cross product of axis vectors -- i.e. by points
 on the axis in each dimension.  At each grid point we may have several data values.  The data values may be vectors or numbers.  We
@@ -82,11 +87,9 @@ meta/axis pairs.  6) The last thing on the list are the meta/data pairs.  Essent
 the first element (after the axis count and before the first axis meta item).  Note that this has ZERO impact to code outside of
 this package as code outside the package should use the GET-THINGY functions!!!
 
-The axis-meta & data-meta objects are alists as described by MJR_ANNOT_HELP.  Each axis-vector MUST
-sorted. 
+The axis-meta & data-meta objects are alists as described by MJR_ANNOT_HELP.  Each axis-vector MUST sorted. 
 
-Note that an axis-meta and data-meta alists MUST contain both the :ano-nam and :ano-typ keys, and :ano-nam values should be
-unique.
+Note that an axis-meta and data-meta alists MUST contain both the :ano-nam and :ano-typ keys, and :ano-nam values should be unique.
 
   Example: '(1
               ((:ano-nam . \"X Values\") (:ano-typ . :ano-typ-real))

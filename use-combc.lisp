@@ -8,8 +8,7 @@
 ;; @Keywords  lisp interactive combinatorial constructive generate list
 ;; @Std       Common Lisp
 ;;
-;;            
-;;            
+;;
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defpackage :MJR_COMBC
@@ -18,19 +17,23 @@
   (:DOCUMENTATION "Brief: Constructive Combinatorics: Generating combinatorial objects.;")
   (:EXPORT #:mjr_combc_help
            ;; Permutations
-           #:mjr_combc_gen-all-permutations   #:mjr_combc_gen-rand-permutation
+           #:mjr_combc_gen-all-permutations-gry #:mjr_combc_gen-rand-permutation     #:mjr_combc_gen-all-permutations-lex
            ;; Cross Powers
-           #:mjr_combc_gen-all-cross-power    #:mjr_combc_gen-rand-cross-power
+           #:mjr_combc_gen-all-cross-power      #:mjr_combc_gen-rand-cross-power
            ;; Cross Products
-           #:mjr_combc_gen-all-cross-product  #:mjr_combc_gen-rand-cross-product
+           #:mjr_combc_gen-all-cross-product    #:mjr_combc_gen-rand-cross-product
            ;; Combinations
-           #:mjr_combc_gen-all-combinations   #:mjr_combc_gen-rand-combinations
+           #:mjr_combc_gen-all-combinations     #:mjr_combc_gen-rand-combinations
            ;; Subsets
-           #:mjr_combc_gen-all-subsets        #:mjr_combc_gen-rand-subsets
+           #:mjr_combc_gen-all-subsets          #:mjr_combc_gen-rand-subsets
+           ;; Integer Partitions
+           #:mjr_combc_gen-all-ipartitions-revlex
            ;; Not Exported:
            ;; #:mjr_combc_gen-all-cross-product-array
            ;; #:mjr_combc_gen-all-cross-product-i-array
            ;; #:mjr_combc_gen-all-cross-product-table
+           ;; Experimental and/or silly
+           ;; #:mjr_combc_gen-one-permutation-lex
            ))
 
 (in-package :MJR_COMBC)
@@ -77,25 +80,25 @@ Note: :collect-if REQUIRES the :collect-value -- otherwise the objects collected
   (documentation 'mjr_combc_help 'function))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_combc_gen-all-permutations (length-or-seq &key
+(defun mjr_combc_gen-all-permutations-gry (length-or-seq &key
                                        (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                        (arg-mode :arg-vector) (show-progress nil))
   "Generate all permutations.  See: mjr_combc_help.
 
 Example: Find all permutations of #(0 1 2 3) that have a 1 in the 3rd position.
-  (mjr_combc_gen-all-permutations 4
+  (mjr_combc_gen-all-permutations-gry 4
                                   :collect-value #'copy-seq
                                   :collect-if (lambda (v) (= (aref v 2) 1)))
 Example: Same thing, but with a :pre-if-filter
-  (mjr_combc_gen-all-permutations 4
+  (mjr_combc_gen-all-permutations-gry 4
                                   :collect-value #'copy-seq
                                   :pre-if-filter (lambda (v) (aref v 2))
                                   :collect-if (lambda (x) (= x 1)))
 
 References:
   Richard A. Brualdi (1999); Introductory Combinatorics 3rd; pp 86"
-  (if (and :collect-if (not :collect-value))
-      (error "mjr_combc_gen-all-permutations: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
+  (if (and collect-if (not collect-value))
+      (error "mjr_combc_gen-all-permutations-gry: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
   (let* ((n       (if (numberp length-or-seq) length-or-seq (length length-or-seq)))
          (perm-i (make-array n :initial-contents (loop for i from 0 upto (1- n) collect i)))
          (perm-e (if (not (numberp length-or-seq))
@@ -107,7 +110,7 @@ References:
           with maxi1 = nil
           for j from 0
           finally (return perms)
-          do (if show-progress (format 't "mjr_combc_gen-all-permutations: ~10s ~s ~s~%" j perm-i perm-e))
+          do (if show-progress (format 't "mjr_combc_gen-all-permutations-gry: ~10s ~s ~s~%" j perm-i perm-e))
           do (if func
                  (mjr_util_fun-adapt-eval-v func (or perm-e perm-i) arg-mode))
           do (let* ((pf (and pre-if-filter (mjr_util_fun-adapt-eval-v pre-if-filter (or perm-e perm-i) arg-mode))))
@@ -145,6 +148,65 @@ References:
                    for cur from 0
                    when (< maxv curv)
                    do (setf (bit perm-d cur) (if (zerop (bit perm-d cur)) 1 0))))))
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_combc_gen-all-permutations-lex (length-or-seq
+                                           &key
+                                           (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
+                                           (arg-mode :arg-vector) (show-progress nil))
+  "Generate and process permutations in lexicographic order.  See: mjr_combc_gen-all-permutations-gry & mjr_combc_help.
+
+Works like mjr_combc_gen-all-permutations-gry with the following exception:
+
+   * If a sequence is provided for length-or-seq, then it MUST
+     * Only contain only FIXNUM values
+     * The elements must be ordered with respect to #'<
+   * Works on multi-sets: Example: #(1 2 2 3) will generate
+       #(1 2 2 3) #(1 2 3 2) #(1 3 2 2) #(2 1 2 3) #(2 1 3 2) #(2 2 1 3)
+       #(2 2 3 1) #(2 3 1 2) #(2 3 2 1) #(3 1 2 2) #(3 2 1 2) #(3 2 2 1)
+
+References:
+  Knuth; The Art of Computer Programming, Volume 4A, Combinatorial Algorithms, Part 1; Section 7.2.1.2; page 319"
+  (flet ((nextLexPerm (daPerm)
+           (let* ((n (length daPerm))
+                  (j (loop for j from (- n 2) downto 0
+                           when (< (aref daPerm j) (aref daPerm (1+ j)))
+                           do (return j))))
+             (if j (let ((l (loop for l downfrom (1- n)
+                                  when (< (aref daPerm j) (aref daPerm l))
+                                  do (return l))))
+                     (rotatef (aref daPerm j) (aref daPerm l))
+                     (loop for k from (1+ j)
+                           for l downfrom (1- n)
+                           until (>= k l)
+                           do (rotatef (aref daPerm k) (aref daPerm l)))
+                     daPerm)))))
+    (if (and collect-if (not collect-value))
+        (error "mjr_combc_gen-all-permutations-lex: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
+    (let* ((n       (if (numberp length-or-seq) length-or-seq (length length-or-seq)))
+           (perm-ioe (if (not (numberp length-or-seq))
+                        (concatenate 'vector length-or-seq)
+                        (make-array n :initial-contents (loop for i from 0 upto (1- n) collect i))))
+           (perms   nil))
+      (loop for j from 0
+            finally (return perms)
+            do (if show-progress (format 't "mjr_combc_gen-all-permutations-lex: ~10s ~s~%" j perm-ioe))
+            do (if func
+                   (mjr_util_fun-adapt-eval-v func perm-ioe arg-mode))
+            do (let* ((pf (and pre-if-filter (mjr_util_fun-adapt-eval-v pre-if-filter perm-ioe arg-mode))))
+                 (if (if collect-if
+                         (if pre-if-filter
+                             (funcall collect-if pf)
+                             (mjr_util_fun-adapt-eval-v collect-if perm-ioe arg-mode))
+                         collect-value)
+                     (push (mjr_util_fun-adapt-eval-v collect-value perm-ioe arg-mode) perms))
+                 (if (and exit-if (if pre-if-filter
+                                      (funcall exit-if pf)
+                                      (mjr_util_fun-adapt-eval-v exit-if perm-ioe arg-mode)))
+                     (if (or collect-value collect-if)
+                         (return perms)
+                         (return perm-ioe))))
+            while (nextLexPerm perm-ioe)))))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defmacro mjr_combc_gen-all-cross-product-array (fn am &rest vecs)
@@ -253,7 +315,7 @@ Example: Find members of (0 1 2)x(0 1)x(0 1 2 3) such that the tuple elements su
   (mjr_combc_gen-all-cross-product (list 3 2 4)
                                    :collect-value #'copy-seq
                                    :collect-if (lambda (v) (= (reduce #'+ v) 4)))"
-  (cond ((and :collect-if (not :collect-value))
+  (cond ((and collect-if (not collect-value))
          (error "mjr_combc_gen-all-cross-product: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
         ((and (eq result-type :table) (not collect-value))
          (error "mjr_combc_gen-all-cross-product: For a :result-type of :table, :collect-value must be provided"))
@@ -342,7 +404,7 @@ Example: Find all tuples of #(0 1 2 3)^3 that sum to 4.
                                  4
                                  :collect-value #'copy-seq
                                  :collect-if (lambda (v) (= (reduce #'+ v) 4)))"
-  (if (and :collect-if (not :collect-value))
+  (if (and collect-if (not collect-value))
       (error "mjr_combc_gen-all-cross-power: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
   (let* ((nvec    (if (not (numberp length-or-seq))
                       (if (vectorp length-or-seq)
@@ -395,7 +457,7 @@ Example: Find all combinations of length 3 of #(0 1 2 3)^3 that are sorted:
 
 References:
   P. Eades & B. McKay (1984); An algorithm for generating subsets of fixed size with a strong minimal change property; Inform. Process. Lett. 19 , no. 3, 131-133."
-  (if (and :collect-if (not :collect-value))
+  (if (and :collect-if (not collect-value))
       (error "mjr_combc_gen-all-combinations: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
   (let* ((nvec     (if (not (numberp length-or-seq)) (concatenate 'vector length-or-seq)))
          (n        (if nvec (length nvec) length-or-seq))
@@ -469,7 +531,7 @@ Example: Find all subsets of length 3 of #(0 1 2 3):
   (mjr_combc_gen-all-subsets 4
                              :collect-value #'copy-seq
                              :collect-if (lambda (v) (= 3 (length v))))"
-  (if (and :collect-if (not :collect-value))
+  (if (and collect-if (not collect-value))
       (error "mjr_combc_gen-all-subsets: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
   (mjr_combc_gen-all-combinations length-or-seq
                                   (loop for k from 0 upto (if (numberp length-or-seq) length-or-seq (length length-or-seq))
@@ -482,45 +544,45 @@ Example: Find all subsets of length 3 of #(0 1 2 3):
 (defun mjr_combc_gen-rand-permutation (length-or-seq num-perms &key
                                        (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                        (arg-mode :arg-vector) (show-progress nil))
-  "Generate NUM-PERMS random permutations.  See mjr_combc_gen-all-permutations."
-  (if (and :collect-if (not :collect-value))
-      (error "mjr_combc_gen-rand-permutation: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
-  (let* ((n       (if (numberp length-or-seq) length-or-seq (length length-or-seq)))
-         (perm-i (make-array n :initial-contents (loop for i from 0 upto (1- n) collect i)))
-         (perm-e (if (not (numberp length-or-seq))
-                     (concatenate 'vector length-or-seq)))
-         (perms  nil))
-    (dotimes (j num-perms perms)
-      (dotimes (i n)
-        (let ((ri (+ i (random (- n i)))))
-          (if perm-e
-              (rotatef (aref perm-e i) (aref perm-e ri)))
-        (rotatef (aref perm-i i) (aref perm-i ri))))
-      (if show-progress (format 't "mjr_combc_gen-rand-permutation: ~s ~s~%" perm-i perm-e))
-      do (if func
-             (mjr_util_fun-adapt-eval-v func (or perm-e perm-i) arg-mode))
-      (let* ((pf (and pre-if-filter (mjr_util_fun-adapt-eval-v pre-if-filter (or perm-e perm-i) arg-mode))))
+  "Generate NUM-PERMS random permutations.  See mjr_combc_gen-all-permutations-gry.
 
+The algorithm is the Fisher-Yates shuffle.
+References:. T
+  Knuth; The Art of Computer Programming, Volume 2, Seminumerical Algorithms; Section 3.4.2; page 145"
+  (if (and collect-if (not collect-value))
+      (error "mjr_combc_gen-rand-permutation: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
+  (let* ((n        (if (numberp length-or-seq) length-or-seq (length length-or-seq)))
+         (perm-ioe (if (not (numberp length-or-seq))
+                       (concatenate 'vector length-or-seq)
+                       (make-array n :initial-contents (loop for i from 0 upto (1- n) collect i))))
+         (perms    nil))
+    (dotimes (j num-perms perms)
+      (loop for i from (1- n) downto 1
+            for rnd = (random (1+ i))
+            do (rotatef (aref perm-ioe i) (aref perm-ioe rnd)))
+      (if show-progress (format 't "mjr_combc_gen-rand-permutation: ~s~%" perm-ioe))
+      do (if func
+             (mjr_util_fun-adapt-eval-v func perm-ioe arg-mode))
+      (let* ((pf (and pre-if-filter (mjr_util_fun-adapt-eval-v pre-if-filter perm-ioe arg-mode))))
         (if (if collect-if
                 (if pre-if-filter
                     (funcall collect-if pf)
-                    (mjr_util_fun-adapt-eval-v collect-if (or perm-e perm-i) arg-mode))
+                    (mjr_util_fun-adapt-eval-v collect-if perm-ioe arg-mode))
                 collect-value)
-            (push (mjr_util_fun-adapt-eval-v collect-value (or perm-e perm-i) arg-mode) perms))
-
+            (push (mjr_util_fun-adapt-eval-v collect-value perm-ioe arg-mode) perms))
         (if (and exit-if (if pre-if-filter
                              (funcall exit-if pf)
-                             (mjr_util_fun-adapt-eval-v exit-if (or perm-e perm-i) arg-mode)))
+                             (mjr_util_fun-adapt-eval-v exit-if perm-ioe arg-mode)))
             (if (or collect-value collect-if)
                 (return perms)
-                (return (or perm-e perm-i))))))))
+                (return perm-ioe)))))))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_combc_gen-rand-cross-power (integer-power length-or-seq num-tuples &key
                                        (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                        (arg-mode :arg-vector) (show-progress nil))
   "Generate NUM-TUPLES random tuples.  See: mjr_combc_gen-all-cross-power)"
-  (if (and :collect-if (not :collect-value))
+  (if (and collect-if (not collect-value))
       (error "mjr_combc_gen-rand-cross-power: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
   (let* ((nvec    (if (not (numberp length-or-seq))
                       (if (vectorp length-or-seq)
@@ -558,7 +620,7 @@ Example: Find all subsets of length 3 of #(0 1 2 3):
                                          (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                          (arg-mode :arg-vector) (show-progress nil))
   "Generate NUM-TUPLES random tuples.  See: mjr_combc_gen-all-cross-product"
-  (if (and :collect-if (not :collect-value))
+  (if (and collect-if (not collect-value))
       (error "mjr_combc_gen-rand-cross-product: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
   (let* ((nvecs   (if (not (numberp (first list-of-lengths-or-seqs)))
                       (map 'vector
@@ -612,7 +674,7 @@ Example: Find all subsets of length 3 of #(0 1 2 3):
                                         (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                         (arg-mode :arg-vector) (show-progress nil))
   "Generate NUM-COMBS random combinations.  See: mjr_combc_gen-all-combinations"
-  (if (and :collect-if (not :collect-value))
+  (if (and collect-if (not collect-value))
       (error "mjr_combc_gen-rand-combinations: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
   (let* ((n      (if (numberp length-or-seq) length-or-seq (length length-or-seq)))
          (perm-i (make-array n :initial-contents (loop for i from 0 upto (1- n) collect i)))
@@ -651,7 +713,7 @@ Example: Find all subsets of length 3 of #(0 1 2 3):
                                    (bitmask nil)
                                    (arg-mode :arg-vector) (show-progress nil))
   "Generate NUM-SETS random subsets.  See: MJR_COMBC_GEN-ALL-SUBSETS."
-  (if (and :collect-if (not :collect-value))
+  (if (and collect-if (not collect-value))
       (error "mjr_combc_gen-rand-subsets: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
   (let* ((n        (if (numberp length-or-seq) length-or-seq (length length-or-seq)))
          (subsets  nil)
@@ -683,3 +745,127 @@ Example: Find all subsets of length 3 of #(0 1 2 3):
             (if (or collect-value collect-if)
                 (return subsets)
                 (return subset-X)))))))
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_combc_gen-one-permutation-lex (perm-len perm-idx)
+  "Generate and process permutations in lexicographic order
+
+  * perm-len: a FIXNUM representing the length of the permutation.
+    perm-len! must be a FIXNUM too -- on most LISPs, that means perm-len <= 21
+    Example: perm-len=4 means permutations of #(0 1 2 3)
+  * perm-idx: a FIXNUM representing the zero based index for the permutations in lexicographic order.
+    Example: (mjr_combc_gen-by-idx-permutation-lex 4 0) => #(0 1 2 3)
+    Example: (mjr_combc_gen-by-idx-permutation-lex 4 1) => #(0 1 3 2)
+    Example: (mjr_combc_gen-by-idx-permutation-lex 4 2) => #(0 2 1 3)
+    Example: (mjr_combc_gen-by-idx-permutation-lex 4 6) => #(1 0 2 3)
+
+I don't have a reference for the algorithm.  Here is how it works:
+
+We represent a finite sequence of $n$ items as a list between angle brackets like so: $\\langle a_0, \\ldots, a_{n-1}\\rangle $.
+Let  $A=\\langle a_0,\\ldots, a_{m-1}\\rangle$ and $B=\\langle b_0, \\ldots, b_{n-1}\\rangle$, and define the sum
+$A+B = \\langle a_0, \\ldots, a_{m-1}, b_0, \\ldots, b_{n-1}\\rangle $.
+Note that we use standard subscript notation for sequences, but we base them at zero so that $A_j=a_j$.
+
+Let $S\\in(N \\cup \\{0\\})$.  Let $\\mathrm{Perm}(S)$ be the finite sequence of permutations of $S$ in lexicographic order -- a
+sequence of $n$-tuples of integers.  For example, $\\mathrm{Perm}(\\{0,1\\}) = \\langle (0,1), (1,0)\\rangle $.
+
+We use the zero based subscript notation with this sequence, $\\mathrm{Perm}_k(S)$, to indicate the  $(k+1)$th element.
+Similarly, we use  subscript notation with the tuples as well so that $\\mathrm{Perm}_{k,j}(S)$, indicates the $(j+1)$th element
+of the $(k+1)$th tuple. For example,  $\\mathrm{Perm}_1(\\{0,1\\}) = (1,0)$ and $\\mathrm{Perm}_{1,1}(\\{0,1\\}) = 0$
+
+Let $P\\in \\mathrm{Perm}(S)$ and then define $k \\oplus P$, with $k\\in(N \\cup \\{0\\})$, to be sequence of $(n+1)$-tuples
+constructed by prepending $k$ to the elements of $\\mathrm{Perm}(S)$.
+For example $2\\oplus\\mathrm{Perm}(\\{0,1\\}) = \\langle (2,0,1), (2,1,0)\\rangle $
+
+Define $P(n, k)$ to be $\\mathrm{Perm}_k(\\{0, \\ldots, (n-1)\\})$ -- i.e. the $(k+1)$th element in the sequence of permutations
+on the first $n$ elements  of $N \\cup \\{0\\}$.
+
+What follows is the key observation for understating the structure of $P(n, k)$.
+
+Let $S=\\{0, \\ldots, (n-1)\\}$.  Observe that $$\\mathrm{Perm}(S) = \\sum_{j=0}^{n-1} (j+\\mathrm{Perm}(S - \\{j\\}))$$
+
+This means that we can compute the first element of $n$-tuple $P(n, k)$ directly:
+
+    $$ P_0(n, k) = k\\ \\mathrm{mod}\\ (n-1)!$$
+
+This function uses the above observation recursively to construct $P(n, k)$."
+  (let ((thePerm (make-array perm-len :element-type 'fixnum))
+        (daFacts (make-array perm-len :element-type 'fixnum)))
+    (loop initially (setf (aref daFacts 0) 1)
+          for i from 1 upto (1- perm-len)
+          do (setf (aref daFacts i) (* i (aref daFacts (1- i)))))
+    (loop for s = (loop for jjj from 0 upto (1- perm-len) collect jjj) then (delete kv s)
+          for jd from (1- perm-len) downto 0
+          for ju from 0
+          for ii = perm-idx then v
+          for (k v) = (multiple-value-list (truncate ii (aref daFacts jd)))
+          for kv = (nth k s)
+          do (setf (aref thePerm ju) kv))
+    thePerm))
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_combc_gen-all-ipartitions-revlex (n
+                                             &key
+                                               (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
+                                               (arg-mode :arg-vector) (show-progress nil))
+  "Generate and process integer partitions in reverse lexicographic order.  See: mjr_combc_help.
+
+Find the partitions of 3
+  - (mjr_combc_gen-all-ipartitions-revlex 3  :collect-value #'copy-seq)
+    '(#(3) #(2 1) #(1 1 1))
+Find partitions of 12 with only even numbers:
+  - (mjr_combc_gen-all-ipartitions-revlex 12 :collect-value #'copy-seq :collect-if (lambda (x) (every #'evenp x)))
+    '(#(2 2 2 2 2 2) #(4 2 2 2 2) #(4 4 2 2) #(4 4 4) #(6 2 2 2) #(6 4 2) #(6 6) #(8 2 2) #(8 4) #(10 2) #(12))
+Find partitions of 15 with only prime numbers:
+  - (mjr_combc_gen-all-ipartitions-revlex 15 :collect-value #'copy-seq :collect-if (lambda (x) (every #'mjr_prime_primep x)))
+    '(#(3 2 2 2 2 2 2) #(3 3 3 2 2 2) #(3 3 3 3 3) #(5 2 2 2 2 2) #(5 3 3 2 2) #(5 5 3 2) #(5 5 5) #(7 2 2 2 2) #(7 3 3 2) #(7 5 3) #(11 2 2) #(13 2))
+Find partitions of 21 with only odd, prime numbers:
+  - (mjr_combc_gen-all-ipartitions-revlex 21 :collect-value #'copy-seq :collect-if (lambda (x) (and (every #'oddp x) (every #'mjr_prime_primep x))))
+    '(#(3 3 3 3 3 3 3) #(5 5 5 3 3) #(7 5 3 3 3) #(7 7 7) #(11 5 5) #(11 7 3) #(13 5 3))
+
+References:
+  Knuth; The Art of Computer Programming, Volume 4A, Combinatorial Algorithms, Part 1; Section 7.2.1.4; page 392"
+  (if (and collect-if (not collect-value))
+      (error "mjr_combc_gen-all-ipartitions-revlex: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
+  (let* ((a (make-array (1+ n) :initial-element 1))
+         (m      1)
+         (q      (if (= n 1) 0 1))
+         (x      0)
+         (parts  nil))
+    (setf (aref a 0) 0
+          (aref a 1) n)
+    (loop for j from 0
+          for daPart = (subseq a 1 (1+ m))
+          do (if show-progress (format 't "mjr_combc_gen-all-ipartitions-revlex: ~10s ~s~%" j daPart))
+          do (if func
+                 (mjr_util_fun-adapt-eval-v func daPart arg-mode))
+          do (let* ((pf (and pre-if-filter (mjr_util_fun-adapt-eval-v pre-if-filter daPart arg-mode))))
+               (if (if collect-if
+                       (if pre-if-filter
+                           (funcall collect-if pf)
+                           (mjr_util_fun-adapt-eval-v collect-if daPart arg-mode))
+                       collect-value)
+                   (push (mjr_util_fun-adapt-eval-v collect-value daPart arg-mode) parts))
+               (if (and exit-if (if pre-if-filter
+                                    (funcall exit-if pf)
+                                    (mjr_util_fun-adapt-eval-v exit-if daPart arg-mode)))
+                   (if (or collect-value collect-if)
+                       (return parts)
+                       (return daPart))))
+          do (if (not (= (aref a q) 2))
+                 (progn (if (zerop q)
+                            (return parts)
+                            (setf x               (- (aref a q) 1)
+                                  (aref a q) x
+                                  n               (+ (- m q) 1)
+                                  m               (+ q 1)))
+                        (loop do (if (<= n x)
+                                     (return (setf (aref a m) n
+                                                   q               (- m (if (= n 1) 1 0))))
+                                     (progn (setf (aref a m) x)
+                                            (incf m)
+                                            (decf n x)))))
+                 (progn (setf (aref a q) 1)
+                        (decf q)
+                        (incf m))))))
+
