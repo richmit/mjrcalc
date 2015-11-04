@@ -65,12 +65,6 @@
   )
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(define-test mjr_pov_make-from-gndata
-  ;; XREF: this function is tested heavily by mjr_pov_make-from-func-r12-r13
-  1
-  )
-
-;;----------------------------------------------------------------------------------------------------------------------------------
 (define-test mjr_pov_help
   ;; Note: This function dosen't need test cases..
   1

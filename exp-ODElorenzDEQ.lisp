@@ -34,12 +34,6 @@
                                            '(:start 0 :step 0.009 :len 10000)
                                            :algorithm #'mjr_ode_erk-step-euler-1
                                            )))
-        ;;(mjr_plot_data :dat ar :datcols '(1 2 3))
-        ;; (mjr_pov_make-from-gndata "exp-ODElorenzDEQ-OUT.pov"
-        ;;                           :xdat (mjr_arr_get-col ar 1)
-        ;;                           :ydat (mjr_arr_get-col ar 2)
-        ;;                           :zdat (mjr_arr_get-col ar 3)
-        ;;                           :curve-spline nil)
         (mjr_vtk_from-dsimp "exp-ODElorenzDEQ-OUT.vtk"
                             (mjr_dsimp_make-from-points ar :connect-points 't
                                                         :point-columns '(1 2 3) :data-columns 0 :data-column-names "time")

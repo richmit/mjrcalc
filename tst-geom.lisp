@@ -149,7 +149,7 @@
 ;;                                      collect (list (vector x y) (vector (+ x xo) y) (vector x        (+ y yo)))
 ;;                                      collect (list (vector x y) (vector (+ x xo) y) (vector (+ x xo) (+ y yo))))  
 ;;                  do (loop for tri in tri-lst
-;;                           do (loop with plst = (mjr_combc_gen-all-permutations tri :collect-value #'copy-seq)
+;;                           do (loop with plst = (mjr_combc_gen-all-permutations-gry tri :collect-value #'copy-seq)
 ;;                                    for p in plst
 ;;                                    do (assert-equal 1/2 (apply #'mjr_geom_area-2d-right-triangle-with-sides-parallel-to-axis-in-r2 (concatenate 'list p)))))))
 ;;   ;; Randomly located triangles with area 1/2 and real coordinates
@@ -161,7 +161,7 @@
 ;;                             collect (list (vector x y) (vector (+ x xo) y) (vector x        (+ y yo)))
 ;;                             collect (list (vector x y) (vector (+ x xo) y) (vector (+ x xo) (+ y yo))))
 ;;         do (loop for tri in tri-lst
-;;                  do (loop with plst = (mjr_combc_gen-all-permutations tri :collect-value #'copy-seq)
+;;                  do (loop with plst = (mjr_combc_gen-all-permutations-gry tri :collect-value #'copy-seq)
 ;;                           for p in plst
 ;;                           do (assert-equality #'mjr_eps_= 1/2 (apply #'mjr_geom_area-2d-right-triangle-with-sides-parallel-to-axis-in-r2 (concatenate 'list p))))))
 ;;   )
