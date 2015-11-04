@@ -468,7 +468,6 @@ See MJR_COMBE_PARTITIONS for a definition of partition.
 Interpretations:
   * Number of partitions of N in which the greatest part is K (1<=K<=N).
   * Number of partitions of N into K positive parts (1<=K<=N)
-  * mjr_combe_12way-uu-ge1
   * Number of ways to place N unlabeled balls into K unlabeled urns such that each urn has at least 1 ball
 
 References:

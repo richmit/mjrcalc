@@ -1,44 +1,65 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      use-combc.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,1998,2004,2011 by Mitch Richling.  All rights reserved.
 ;; @brief     Constructive Combinatorics: Generating combinatorial objects.@EOL
-;; @Keywords  lisp interactive combinatorial constructive generate list
-;; @Std       Common Lisp
+;; @keywords  lisp interactive combinatorial constructive generate list
+;; @std       Common Lisp
+;; @see       tst-combc.lisp
+;; @copyright
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2011,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      Better test coverage.@EOL@EOL
+;; @warning   While mjr_combc_gen-all-cross-product is qute well tested tested, the rest of the library has quite poor coverage.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_COMBC
   (:USE :COMMON-LISP
         :MJR_UTIL)
   (:DOCUMENTATION "Brief: Constructive Combinatorics: Generating combinatorial objects.;")
   (:EXPORT #:mjr_combc_help
            ;; Permutations
-           #:mjr_combc_gen-all-permutations-gry #:mjr_combc_gen-rand-permutation     #:mjr_combc_gen-all-permutations-lex
+           #:mjr_combc_gen-all-permutations-gry   #:mjr_combc_gen-rand-permutation     #:mjr_combc_gen-all-permutations-lex
            ;; Cross Powers
-           #:mjr_combc_gen-all-cross-power      #:mjr_combc_gen-rand-cross-power
+           #:mjr_combc_gen-all-cross-power        #:mjr_combc_gen-rand-cross-power
            ;; Cross Products
-           #:mjr_combc_gen-all-cross-product    #:mjr_combc_gen-rand-cross-product
+           #:mjr_combc_gen-all-cross-product      #:mjr_combc_gen-rand-cross-product
            ;; Combinations
-           #:mjr_combc_gen-all-combinations     #:mjr_combc_gen-rand-combinations
+           #:mjr_combc_gen-all-combinations       #:mjr_combc_gen-rand-combinations
            ;; Subsets
-           #:mjr_combc_gen-all-subsets          #:mjr_combc_gen-rand-subsets
+           #:mjr_combc_gen-all-subsets            #:mjr_combc_gen-rand-subsets
            ;; Integer Partitions
-           #:mjr_combc_gen-all-ipartitions-revlex
+           #:mjr_combc_gen-all-partitions-revlex
+           #:mjr_combc_gen-all-k-partitions-colex
            ;; Not Exported:
            ;; #:mjr_combc_gen-all-cross-product-array
            ;; #:mjr_combc_gen-all-cross-product-i-array
            ;; #:mjr_combc_gen-all-cross-product-table
-           ;; Experimental and/or silly
-           ;; #:mjr_combc_gen-one-permutation-lex
            ))
 
 (in-package :MJR_COMBC)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combc_help ()
   "Help for MJR_COMBC: Constructive Combinatorics
 
@@ -79,7 +100,7 @@ Other args:
 Note: :collect-if REQUIRES the :collect-value -- otherwise the objects collected will be temporaries."
   (documentation 'mjr_combc_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combc_gen-all-permutations-gry (length-or-seq &key
                                        (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                        (arg-mode :arg-vector) (show-progress nil))
@@ -149,7 +170,7 @@ References:
                    when (< maxv curv)
                    do (setf (bit perm-d cur) (if (zerop (bit perm-d cur)) 1 0))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combc_gen-all-permutations-lex (length-or-seq
                                            &key
                                            (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
@@ -208,7 +229,7 @@ References:
                          (return perm-ioe))))
             while (nextLexPerm perm-ioe)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_combc_gen-all-cross-product-array (fn am &rest vecs)
   "Return an array produced by evaluating FN on the elements of the cross product of the given vectors.  am is the argument mode."
   (let* ((num-vec (length vecs))
@@ -230,7 +251,7 @@ References:
        ,dc
        ,arr-v)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_combc_gen-all-cross-product-i-array (fn am &rest lengths)
   "Instead explicit vectors, this macro takes integers representing the lengths of each vector -- i.e. VVEC '(:len length)"
   (let* ((num-vec (length lengths))
@@ -249,7 +270,7 @@ References:
        ,dc
        ,arr-v)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_combc_gen-all-cross-product-table (fn am &rest vecs)
   (let* ((num-vec (length vecs))
          (table-v (gensym "table-"))
@@ -294,7 +315,7 @@ References:
        ,dc
        ,table-v)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combc_gen-all-cross-product (list-of-lengths-or-seqs &key
                                         (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                         (result-type :list)
@@ -393,7 +414,7 @@ Example: Find members of (0 1 2)x(0 1)x(0 1 2 3) such that the tuple elements su
                               (setf (aref tuple-e i) (aref (aref nvecs i) (aref tuple-i i))))
                           (return nil)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combc_gen-all-cross-power (integer-power length-or-seq &key
                                       (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                       (arg-mode :arg-vector) (show-progress nil))
@@ -442,14 +463,14 @@ Example: Find all tuples of #(0 1 2 3)^3 that sum to 4.
                           (setf (aref tuple-e i) (aref nvec (aref tuple-i i))))
                       (return nil))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combc_gen-all-combinations (length-or-seq comb-len &key
                                        (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                        (bitmask nil)
                                        (arg-mode :arg-vector) (show-progress nil))
   "Generate all combinations of length COMB-LEN.  See: mjr_combc_help.
 
-Example: Find all combinations of length 3 of #(0 1 2 3)^3 that are sorted:
+Example: Find all combinations of length 3 of #(0 1 2 3) that are sorted:
   (mjr_combc_gen-all-combinations 4
                                   3
                                   :collect-value #'copy-seq
@@ -520,7 +541,7 @@ References:
                  (fwd-act 1 0))))
     subsets))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combc_gen-all-subsets (length-or-seq &key
                                   (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                   (bitmask nil)
@@ -540,7 +561,7 @@ Example: Find all subsets of length 3 of #(0 1 2 3):
                                   :bitmask bitmask
                                   :show-progress show-progress :arg-mode arg-mode))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combc_gen-rand-permutation (length-or-seq num-perms &key
                                        (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                        (arg-mode :arg-vector) (show-progress nil))
@@ -577,7 +598,7 @@ References:. T
                 (return perms)
                 (return perm-ioe)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combc_gen-rand-cross-power (integer-power length-or-seq num-tuples &key
                                        (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                        (arg-mode :arg-vector) (show-progress nil))
@@ -615,7 +636,7 @@ References:. T
                 (return tuples)
                 (return (or tuple-e tuple-i))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combc_gen-rand-cross-product (list-of-lengths-or-seqs num-tuples &key
                                          (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                          (arg-mode :arg-vector) (show-progress nil))
@@ -669,7 +690,7 @@ References:. T
                             (setf (aref tuple-e i) (aref (aref nvecs i) (aref tuple-i i))))
                         (return nil))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combc_gen-rand-combinations (length-or-seq comb-len  num-combs &key
                                         (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                         (arg-mode :arg-vector) (show-progress nil))
@@ -707,7 +728,7 @@ References:. T
                 (return combs)
                 (return (or comb-e comb-i))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combc_gen-rand-subsets (length-or-seq num-sets &key
                                    (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
                                    (bitmask nil)
@@ -746,87 +767,31 @@ References:. T
                 (return subsets)
                 (return subset-X)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_combc_gen-one-permutation-lex (perm-len perm-idx)
-  "Generate and process permutations in lexicographic order
-
-  * perm-len: a FIXNUM representing the length of the permutation.
-    perm-len! must be a FIXNUM too -- on most LISPs, that means perm-len <= 21
-    Example: perm-len=4 means permutations of #(0 1 2 3)
-  * perm-idx: a FIXNUM representing the zero based index for the permutations in lexicographic order.
-    Example: (mjr_combc_gen-by-idx-permutation-lex 4 0) => #(0 1 2 3)
-    Example: (mjr_combc_gen-by-idx-permutation-lex 4 1) => #(0 1 3 2)
-    Example: (mjr_combc_gen-by-idx-permutation-lex 4 2) => #(0 2 1 3)
-    Example: (mjr_combc_gen-by-idx-permutation-lex 4 6) => #(1 0 2 3)
-
-I don't have a reference for the algorithm.  Here is how it works:
-
-We represent a finite sequence of $n$ items as a list between angle brackets like so: $\\langle a_0, \\ldots, a_{n-1}\\rangle $.
-Let  $A=\\langle a_0,\\ldots, a_{m-1}\\rangle$ and $B=\\langle b_0, \\ldots, b_{n-1}\\rangle$, and define the sum
-$A+B = \\langle a_0, \\ldots, a_{m-1}, b_0, \\ldots, b_{n-1}\\rangle $.
-Note that we use standard subscript notation for sequences, but we base them at zero so that $A_j=a_j$.
-
-Let $S\\in(N \\cup \\{0\\})$.  Let $\\mathrm{Perm}(S)$ be the finite sequence of permutations of $S$ in lexicographic order -- a
-sequence of $n$-tuples of integers.  For example, $\\mathrm{Perm}(\\{0,1\\}) = \\langle (0,1), (1,0)\\rangle $.
-
-We use the zero based subscript notation with this sequence, $\\mathrm{Perm}_k(S)$, to indicate the  $(k+1)$th element.
-Similarly, we use  subscript notation with the tuples as well so that $\\mathrm{Perm}_{k,j}(S)$, indicates the $(j+1)$th element
-of the $(k+1)$th tuple. For example,  $\\mathrm{Perm}_1(\\{0,1\\}) = (1,0)$ and $\\mathrm{Perm}_{1,1}(\\{0,1\\}) = 0$
-
-Let $P\\in \\mathrm{Perm}(S)$ and then define $k \\oplus P$, with $k\\in(N \\cup \\{0\\})$, to be sequence of $(n+1)$-tuples
-constructed by prepending $k$ to the elements of $\\mathrm{Perm}(S)$.
-For example $2\\oplus\\mathrm{Perm}(\\{0,1\\}) = \\langle (2,0,1), (2,1,0)\\rangle $
-
-Define $P(n, k)$ to be $\\mathrm{Perm}_k(\\{0, \\ldots, (n-1)\\})$ -- i.e. the $(k+1)$th element in the sequence of permutations
-on the first $n$ elements  of $N \\cup \\{0\\}$.
-
-What follows is the key observation for understating the structure of $P(n, k)$.
-
-Let $S=\\{0, \\ldots, (n-1)\\}$.  Observe that $$\\mathrm{Perm}(S) = \\sum_{j=0}^{n-1} (j+\\mathrm{Perm}(S - \\{j\\}))$$
-
-This means that we can compute the first element of $n$-tuple $P(n, k)$ directly:
-
-    $$ P_0(n, k) = k\\ \\mathrm{mod}\\ (n-1)!$$
-
-This function uses the above observation recursively to construct $P(n, k)$."
-  (let ((thePerm (make-array perm-len :element-type 'fixnum))
-        (daFacts (make-array perm-len :element-type 'fixnum)))
-    (loop initially (setf (aref daFacts 0) 1)
-          for i from 1 upto (1- perm-len)
-          do (setf (aref daFacts i) (* i (aref daFacts (1- i)))))
-    (loop for s = (loop for jjj from 0 upto (1- perm-len) collect jjj) then (delete kv s)
-          for jd from (1- perm-len) downto 0
-          for ju from 0
-          for ii = perm-idx then v
-          for (k v) = (multiple-value-list (truncate ii (aref daFacts jd)))
-          for kv = (nth k s)
-          do (setf (aref thePerm ju) kv))
-    thePerm))
-
-;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_combc_gen-all-ipartitions-revlex (n
-                                             &key
-                                               (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
-                                               (arg-mode :arg-vector) (show-progress nil))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_combc_gen-all-partitions-revlex (n &key
+                                                 (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
+                                                 (arg-mode :arg-vector) (show-progress nil))
   "Generate and process integer partitions in reverse lexicographic order.  See: mjr_combc_help.
 
 Find the partitions of 3
-  - (mjr_combc_gen-all-ipartitions-revlex 3  :collect-value #'copy-seq)
+  - (mjr_combc_gen-all-partitions-revlex 3  :collect-value #'copy-seq)
     '(#(3) #(2 1) #(1 1 1))
 Find partitions of 12 with only even numbers:
-  - (mjr_combc_gen-all-ipartitions-revlex 12 :collect-value #'copy-seq :collect-if (lambda (x) (every #'evenp x)))
+  - (mjr_combc_gen-all-partitions-revlex 12 :collect-value #'copy-seq :collect-if (lambda (x) (every #'evenp x)))
     '(#(2 2 2 2 2 2) #(4 2 2 2 2) #(4 4 2 2) #(4 4 4) #(6 2 2 2) #(6 4 2) #(6 6) #(8 2 2) #(8 4) #(10 2) #(12))
 Find partitions of 15 with only prime numbers:
-  - (mjr_combc_gen-all-ipartitions-revlex 15 :collect-value #'copy-seq :collect-if (lambda (x) (every #'mjr_prime_primep x)))
+  - (mjr_combc_gen-all-partitions-revlex 15 :collect-value #'copy-seq :collect-if (lambda (x) (every #'mjr_prime_primep x)))
     '(#(3 2 2 2 2 2 2) #(3 3 3 2 2 2) #(3 3 3 3 3) #(5 2 2 2 2 2) #(5 3 3 2 2) #(5 5 3 2) #(5 5 5) #(7 2 2 2 2) #(7 3 3 2) #(7 5 3) #(11 2 2) #(13 2))
 Find partitions of 21 with only odd, prime numbers:
-  - (mjr_combc_gen-all-ipartitions-revlex 21 :collect-value #'copy-seq :collect-if (lambda (x) (and (every #'oddp x) (every #'mjr_prime_primep x))))
+  - (mjr_combc_gen-all-partitions-revlex 21 :collect-value #'copy-seq :collect-if (lambda (x) (and (every #'oddp x) (every #'mjr_prime_primep x))))
     '(#(3 3 3 3 3 3 3) #(5 5 5 3 3) #(7 5 3 3 3) #(7 7 7) #(11 5 5) #(11 7 3) #(13 5 3))
 
 References:
   Knuth; The Art of Computer Programming, Volume 4A, Combinatorial Algorithms, Part 1; Section 7.2.1.4; page 392"
-  (if (and collect-if (not collect-value))
-      (error "mjr_combc_gen-all-ipartitions-revlex: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
+  (cond ((not (integerp n))        (error "mjr_combc_gen-all-k-partitions-colex: First argument must be an integer!"))
+        ((< n 0)                   (error "mjr_combc_gen-all-k-partitions-colex: First argument must be non-negative!"))
+        ((and collect-if
+              (not collect-value)) (error "mjr_combc_gen-all-partitions-revlex: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)")))
   (let* ((a (make-array (1+ n) :initial-element 1))
          (m      1)
          (q      (if (= n 1) 0 1))
@@ -836,7 +801,7 @@ References:
           (aref a 1) n)
     (loop for j from 0
           for daPart = (subseq a 1 (1+ m))
-          do (if show-progress (format 't "mjr_combc_gen-all-ipartitions-revlex: ~10s ~s~%" j daPart))
+          do (if show-progress (format 't "mjr_combc_gen-all-partitions-revlex: ~10s ~s~%" j daPart))
           do (if func
                  (mjr_util_fun-adapt-eval-v func daPart arg-mode))
           do (let* ((pf (and pre-if-filter (mjr_util_fun-adapt-eval-v pre-if-filter daPart arg-mode))))
@@ -869,3 +834,75 @@ References:
                         (decf q)
                         (incf m))))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_combc_gen-all-k-partitions-colex (n k &key
+                                                   (func nil) (collect-value nil) (pre-if-filter nil) (collect-if nil) (exit-if nil)
+                                                   (arg-mode :arg-vector) (show-progress nil))
+  "Generate and process integer k-partitions in colexicographic order.  See: mjr_combc_help.
+
+Find the length 3 partitions of 11
+  - (mjr_combc_gen-all-k-partitions-colex 11 3 :collect-value #'copy-seq)
+    (#(4 4 3) #(5 3 3) #(5 4 2) #(6 3 2) #(7 2 2) #(5 5 1) #(6 4 1) #(7 3 1) #(8 2 1) #(9 1 1))
+Find the length 4 partitions of 12 with only even numbers:
+  - (mjr_combc_gen-all-k-partitions-colex 12 4 :collect-value #'copy-seq :collect-if (lambda (x) (every #'evenp x)))
+    (#(4 4 2 2) #(6 2 2 2))
+Find the length 5 partitions of 15 with only prime numbers:
+  - (mjr_combc_gen-all-k-partitions-colex 15 5 :collect-value #'copy-seq :collect-if (lambda (x) (every #'mjr_prime_primep x)))
+    (#(3 3 3 3 3) #(5 3 3 2 2) #(7 2 2 2 2))
+Find the length 5  partitions of 21 with only odd, prime numbers:
+  - (mjr_combc_gen-all-k-partitions-colex 21 5 :collect-value #'copy-seq :collect-if (lambda (x) (and (every #'oddp x) (every #'mjr_prime_primep x))))
+    (#(5 5 5 3 3) #(7 5 3 3 3))
+
+References:
+  Knuth; The Art of Computer Programming, Volume 4A, Combinatorial Algorithms, Part 1; Section 7.2.1.4; page 392"
+  (cond ((not (integerp n))        (error "mjr_combc_gen-all-k-partitions-colex: First argument must be an integer!"))
+        ((< n 0)                   (error "mjr_combc_gen-all-k-partitions-colex: First argument must be non-negative!"))
+        ((not (integerp k))        (error "mjr_combc_gen-all-k-partitions-colex: Second argument must be an integer!"))
+        ((< k 0)                   (error "mjr_combc_gen-all-k-partitions-colex: Second argument must be non-negative!"))
+        ((and collect-if
+              (not collect-value)) (error "mjr_combc_gen-all-k-partitions-colex: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)")))
+  (let* ((a (make-array (+ 1 k) :initial-element 1))
+         (daPart (make-array k :displaced-to a))
+         (j      0)
+         (x      0)
+         (s      0)
+         (parts  nil))
+    (setf (aref a 0) (1+ (- n k)))
+    (setf (aref a k) -1)
+    (loop for i from 0
+          do (if show-progress (format 't "mjr_combc_gen-all-k-partitions-colex: ~10s ~s~%" i daPart))
+          do (if func
+                 (mjr_util_fun-adapt-eval-v func daPart arg-mode))
+          do (let* ((pf (and pre-if-filter (mjr_util_fun-adapt-eval-v pre-if-filter daPart arg-mode))))
+               (if (if collect-if
+                       (if pre-if-filter
+                           (funcall collect-if pf)
+                           (mjr_util_fun-adapt-eval-v collect-if daPart arg-mode))
+                       collect-value)
+                   (push (mjr_util_fun-adapt-eval-v collect-value daPart arg-mode) parts))
+               (if (and exit-if (if pre-if-filter
+                                    (funcall exit-if pf)
+                                    (mjr_util_fun-adapt-eval-v exit-if daPart arg-mode)))
+                   (if (or collect-value collect-if)
+                       (return parts)
+                       (return daPart))))
+          do (if (= k 1)
+                 (return parts))
+          do (if (< (aref a 1) (1- (aref a 0)))
+                 (progn (decf (aref a 0))
+                        (incf (aref a 1)))
+                 (progn (loop initially (setf j 2
+                                              s (1- (+ (aref a 0) (aref a 1))))
+                              while (>= (aref a j) (1- (aref a 0)))
+                              do (incf s (aref a j))
+                              do (incf j))
+                        (if (> (1+ j) k)
+                            (return parts)
+                            (progn (setf x (1+ (aref a j)))
+                                   (setf (aref a j) x)
+                                   (decf j)))
+                        (loop while (> j 0)
+                              do (setf (aref a j) x)
+                              do (decf s x)
+                              do (decf j))
+                        (setf (aref a 0) s))))))
