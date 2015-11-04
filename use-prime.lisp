@@ -319,9 +319,9 @@ MJR_PRIME_FIND-A-BIG-PRIME-FACTOR to find factors and MJR_PRIME_PRIMEP-MILLER-RA
 The second value of the return is to provide compatibility with the return of other primep-like functions.
 
 This function is O(1) with a run time typically measured in micro-seconds with 2008 vintage hardware."
-  (if (null *mjr_prime_small-list*)
+  (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
-  (cond ((null *mjr_prime_small-list*) (error "mjr_prime_primep-small: Could not initialize *mjr_prime_small-list*!"))
+  (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_primep-small: Could not initialize *mjr_prime_small-list*!"))
         ((> n *mjr_prime_small-max*)   (error "mjr_prime_primep-small: The value of N must be less than *mjr_prime_small-max*")))
   (if (> n 0)
       (let ((idx (mjr_prime_sieve-int2idx n)))
@@ -331,9 +331,9 @@ This function is O(1) with a run time typically measured in micro-seconds with 2
 (defun mjr_prime_small-prime-factorization (n)
   "Find all the small (<= *MJR_PRIME_SMALL-MAX*) prime factors of n.  The return is an assoc array with (prime . power) and
 the remaining part of N left unfactored (if this second part is 1, then the number was completely factored by small primes"
-  (if (null *mjr_prime_small-list*)
+  (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
-  (cond ((null *mjr_prime_small-list*) (error "mjr_prime_small-prime-factorization: Could not initialize *mjr_prime_small-list*!"))
+  (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_small-prime-factorization: Could not initialize *mjr_prime_small-list*!"))
         ((<= n 0)                      (error "mjr_prime_small-prime-factorization: The value of N must be positive")))
   (if (and (<= n *mjr_prime_small-max*) (mjr_prime_primep-small n)) ;; mjr_prime_primep-small has almost no run time cost, so we check..
       (list (cons n 1))
@@ -350,9 +350,9 @@ the remaining part of N left unfactored (if this second part is 1, then the numb
   "Return the prime factorization of N as an assoc array with (prime . power) and 1 as the second return value.  
 
 Use MJR_PRIME_SMALL-PRIME-FACTORIZATION when N is small enough, and MJR_PRIME_BIG-PRIME-FACTORIZATION otherwise."
-  (if (null *mjr_prime_small-list*)
+  (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
-  (cond ((null *mjr_prime_small-list*) (error "mjr_prime_prime-factorization: Could not initialize *mjr_prime_small-list*!")))
+  (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_prime-factorization: Could not initialize *mjr_prime_small-list*!")))
   (if (<= n *mjr_prime_small-max*)
       (mjr_prime_small-prime-factorization n)
       (mjr_prime_big-prime-factorization n)))
@@ -378,9 +378,9 @@ may regression test more useful (faster) implementations."
   "Return NIL if N is composite, and 'T if it is prime.
 
 This function uses MJR_PRIME_PRIMEP-SMALL or MJR_PRIME_PRIMEP-MILLER-RABIN-DETERMINISTIC depending on the size of N."
-  (if (null *mjr_prime_small-list*)
+  (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
-  (cond ((null *mjr_prime_small-list*) (error "mjr_prime_primep: Could not initialize *mjr_prime_small-list*!")))
+  (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_primep: Could not initialize *mjr_prime_small-list*!")))
   (if (> n 0)
       (if (<= n *mjr_prime_small-max*)
           (mjr_prime_primep-small n)
@@ -391,9 +391,9 @@ This function uses MJR_PRIME_PRIMEP-SMALL or MJR_PRIME_PRIMEP-MILLER-RABIN-DETER
   "If END is NIL, return the N-th prime.  If END is non-NIL, return an array of the N-th to the end-th prime numbers.
 N and END are zero based, and 2 is the zero'th prime. Note that N, END < *MJR_PRIME_SMALL-COUNT*.  NIL is returned if N
 is out of bounds or if end is a number and END<N.  If END is too large, then it is clipped to (1-*MJR_PRIME_SMALL-COUNT*)."
-  (if (null *mjr_prime_small-list*)
+  (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
-  (cond ((null *mjr_prime_small-list*) (error "mjr_prime_nth-small-prime: Could not initialize *mjr_prime_small-list*!")))
+  (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_nth-small-prime: Could not initialize *mjr_prime_small-list*!")))
   (if (and (>= n 0) (< n *mjr_prime_small-count*))
       (if end
           (and (<= n end) (subseq *mjr_prime_small-list* n (min end (1- *mjr_prime_small-count*))))
@@ -402,18 +402,18 @@ is out of bounds or if end is a number and END<N.  If END is too large, then it 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_prime_random-small-prime ()
   "Return a random prime number less than or equal to *MJR_PRIME_SMALL-MAX*."
-  (if (null *mjr_prime_small-list*)
+  (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
-  (cond ((null *mjr_prime_small-list*) (error "mjr_prime_random-small-prime: Could not initialize *mjr_prime_small-list*!")))
+  (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_random-small-prime: Could not initialize *mjr_prime_small-list*!")))
   (mjr_prime_nth-small-prime (mjr_prng_random *mjr_prime_small-count*)))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_prime_small-prime-index (p)
   "Return the index of the N-th small prime -- i.e. 2 is the 0'th prime, 3 is the 1st, etc...  The return is NIL if P is not
 in *MJR_PRIME_SMALL-MAX*.  The only error case is when *mjr_prime_small-max* is not initialized."
-  (if (null *mjr_prime_small-list*)
+  (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
-  (cond ((null *mjr_prime_small-list*) (error "mjr_prime_small-prime-index: Could not initialize *mjr_prime_small-list*!")))
+  (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_small-prime-index: Could not initialize *mjr_prime_small-list*!")))
   (if (and (>= p 2) (< p *mjr_prime_small-max*))
       (loop with i-low = 0
             with i-hgh = (1- mjr_prime::*mjr_prime_small-count*)
@@ -441,7 +441,7 @@ in *MJR_PRIME_SMALL-MAX*.  The only error case is when *mjr_prime_small-max* is 
 Also called the prime-counting function.  The result is the number of prime numbers less than or equal to some real number n.
 
 Performance notes:
- * For N < *MJR_PRIME_SMALL-MAX*, this function is relatively efficient because it can make use of the precomputed sieve
+ * For N < *MJR_PRIME_SMALL-MAX*, this function is relatively efficient because it can make use of the recomputed sieve
  * N that are a power of 10 with the exponent power in [0, 23], a look-up table is used
  * N that are a power of 2 with the exponent power in [0, 52], a look-up table is used
  * For other N larger than *MJR_PRIME_SMALL-MAX*, this function is quite slow
@@ -690,9 +690,9 @@ References:
     Pomerance, Selfridge, and Wagstaff (1980); The pseudoprimes to 25*10^9; Mathematics of Computation 35; DOI: 10.2307/2006210
     Pomerance; Are there counterexamples to the Baillie-PSW primality test?; 1984
     Arnault (1997); The Rabin-Monier theorem for Lucas pseudoprimes; Math. Comp. 66"
-  (if (null *mjr_prime_small-list*)
+  (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
-  (cond ((null *mjr_prime_small-list*) (error "mjr_prime_probable-primep-bpsw: Could not initialize *mjr_prime_small-list*!")))
+  (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_probable-primep-bpsw: Could not initialize *mjr_prime_small-list*!")))
   (if (< n 5)
       (or (= n 2) (= n 3))
       (and (loop for i from 1 upto 1000
@@ -709,5 +709,5 @@ References:
   "Return NIL if N is composite, and 'T if it is probably prime.
 
 Currently this function uses MJR_PRIME_PROBABLE-PIMEP-BPSW"
-  (if (> n 0)
+  (if (and (integerp n) (> n 0))
           (mjr_prime_probable-primep-bpsw n)))

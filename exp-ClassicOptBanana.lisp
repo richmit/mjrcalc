@@ -49,7 +49,14 @@ Global Minimum: $f(1,1)=0$"
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (format 't "Dump VTK~%")
-(mjr_vtk_grid-from-func "exp-ClassicOptBanana-OUT.vtk" :s-func #'ROSENBROCK-BANANA :xdat '(:start -1.5 :end 2 :len 500) :ydat '(:start -0.75 :end 3 :len 500))
+(mjr_vtk_from-dquad "exp-ClassicOptBanana-OUT.vtk"
+                    (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" '(:start -1.5 :end 2 :len 500)
+                                                                           "y" '(:start -0.75 :end 3 :len 500))
+                                                 #'ROSENBROCK-BANANA
+                                                 :axes 't
+                                                 :ano-nam "Rosenbrock-Banana"
+                                                 :ano-typ :ano-typ-real))
+                                  
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (format 't "DONE~%")

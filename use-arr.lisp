@@ -20,15 +20,16 @@
            #:mjr_arr_rank-is #:mjr_arr_num-rows #:mjr_arr_num-cols
            ;; every and friends
            #:mjr_arr_every #:mjr_arr_some #:mjr_arr_notevery #:mjr_arr_notany
-
            ;; Vector indexing with out-of-bound behavior control
            #:mjr_arr_svref-mod #:mjr_arr_aref-vector-clip
            ;; General array indexing with out-of-bound behavior control
            #:mjr_arr_aref-mod #:mjr_arr_aref-clip
            ;; Addressing of general arrays as vectors
-           #:mjr_arr_aref-as-vector
+           #:mjr_arr_aref-row-major #:mjr_arr_aref-col-major
+           ;; Computeing indexes for general arrays as vectors
+           #:mjr_arr_subscripts-to-row-major-subscript #:mjr_arr_subscripts-mod-to-row-major-subscript
            ;; Addressing of general arrays as vectors with out-of-bound behavior control
-           #:mjr_arr_aref-as-vector-mod #:mjr_arr_aref-cmo-as-vector-mod
+           #:mjr_arr_aref-row-major-mod #:mjr_arr_aref-col-major-mod
            ;; Vector indexing with vectors (R-like)
            #:mjr_arr_svref-via-bit-seq #:mjr_arr_svref-via-bol-seq #:mjr_arr_svref-via-int-seq
            ;; Sub-array: General Case
@@ -84,7 +85,7 @@ This package contains array functionality that is useful for other packages."
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_arr_nreflow (old-array new-dims)
-  "Return new array (with possibly diffrent diminitions) offset to old-array -- NO DATA IS COPIED!"
+  "Return new array (with possibly different dimensions) offset to old-array -- NO DATA IS COPIED!"
   (make-array new-dims :displaced-to old-array))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
@@ -195,7 +196,7 @@ An error will be signaled if the two arrays have different dimensions even if bo
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_arr_svref-mod (an-array subscript &optional an-array-length)
-  "Index AN-ARRAY, but modulous SUBSCRIPT to AN-ARRAY-LENGTH.  AN-ARRAY-LENGTH is computed if not provided."
+  "Index AN-ARRAY, but modulo SUBSCRIPT to AN-ARRAY-LENGTH.  AN-ARRAY-LENGTH is computed if not provided."
   (aref an-array (mod subscript (or an-array-length (length an-array)))))
 
 ;; ;;----------------------------------------------------------------------------------------------------------------------------------
@@ -218,28 +219,69 @@ An error will be signaled if the two arrays have different dimensions even if bo
   (apply #'aref an-array (mapcar (lambda (i m) (max 0 (min i (1- m)))) subscripts (array-dimensions an-array))))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_arr_aref-as-vector (an-array subscript)
-  "Return the subscript'th element of an-array -- in row major order."
+(defun mjr_arr_aref-row-major (an-array subscript)
+  "Return the subscript'th element of an-array -- in row major order just like ROW-MAJOR-AREF."
   (if (vectorp an-array)
       (svref an-array subscript)
       (aref (make-array (array-total-size an-array) :displaced-to an-array) subscript)))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_arr_aref-as-vector-mod (an-array subscript)
+(defun mjr_arr_aref-col-major (an-array subscript)
+  "Return the subscript'th element of an-array as if it were stored in column major order."
+  (if (vectorp an-array)
+      (svref an-array subscript)
+      (apply #'aref an-array (loop for j from 0
+                                   for d-prod = 1 then (* d-prod d)
+                                   for d in (array-dimensions an-array)
+                                   collect (mod (truncate subscript d-prod) d)))))
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_arr_subscripts-to-row-major-subscript (an-array-or-dims &rest subscripts)
+  "Convert a set of row-major subscripts (i.e. the last args to AREF) to a single index.
+
+If A is a vector of length 15 then, one might use (aref a (mjr_arr_subscripts-to-row-major-subscript '(3 5) 2 4)) to pretend that A
+is an array with dimensions '(3 5) stored in row-major form and get the element in row 2 and column 4."
+  (reduce #'+ (mapcar #'* (reverse subscripts) (loop for j from 0
+                                                     for d-prod = 1 then (* d-prod d)
+                                                     for d in (reverse (if (listp an-array-or-dims)
+                                                                           an-array-or-dims
+                                                                           (array-dimensions an-array-or-dims)))
+                                                     collect d-prod))))
+
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_arr_subscripts-mod-to-row-major-subscript (an-array-or-dims &rest subscripts)
+  "Same as MJR_ARR_SUBSCRIPTS-TO-ROW-MAJOR-SUBSCRIPT, but MOD each subscripts elements to the length of the corresponding dimensions"
+  (let ((array-dims (if (listp an-array-or-dims)
+                        an-array-or-dims
+                        (array-dimensions an-array-or-dims))))
+    (reduce #'+ (mapcar #'*
+                        (reverse (mapcar #'mod subscripts array-dims))
+                        (loop for j from 0
+                              for d-prod = 1 then (* d-prod d)
+                              for d in (reverse array-dims)
+                              collect d-prod)))))
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_arr_aref-col-major-mod (an-array subscript)
+  "Return the subscript'th element of an-array as if it were stored in column major order."
+  (if (vectorp an-array)
+      (svref an-array subscript)
+      (let* ((dims (array-dimensions an-array))
+            (subscript (mod subscript (reduce #'* dims))))
+        (apply #'aref an-array (loop for j from 0
+                                     for d-prod = 1 then (* d-prod d)
+                                     for d in dims
+                                     collect (mod (truncate subscript d-prod) d))))))
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_arr_aref-row-major-mod (an-array subscript)
   "Return the subscript'th element of an-array -- in row major order.  Out of bounds subscripts are wrapped."
   (let ((dims (array-dimensions an-array)))
     (if (vectorp an-array)
         (aref an-array subscript)
         (let ((nelt (apply #'* dims)))
           (aref (make-array (apply #'* dims) :displaced-to an-array) (mod subscript nelt))))))
-
-;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_arr_aref-cmo-as-vector-mod (an-array subscript)
-  "Return the subscript'th element of an-array -- in row major order.  Out of bounds subscripts are clipped."
-  (apply #'aref an-array (loop for j from 0
-                               for d-prod = 1 then (* d-prod d)
-                               for d in (array-dimensions an-array)
-                               collect (mod (truncate subscript d-prod) d))))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_arr_svref-via-bit-seq (an-array idx)
@@ -295,7 +337,7 @@ An error will be signaled if the two arrays have different dimensions even if bo
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defmacro mjr_arr_fill-sub-array (da-arr da-sub-ranges)
-  "Used by mjr_arr_get-subarray to fill the subarray from the origonal array"
+  "Used by mjr_arr_get-subarray to fill the subarray from the original array"
   (let* ((num-vec (length da-sub-ranges))
          (dims    (array-dimensions da-arr))
          (ranges  (loop for lv in da-sub-ranges

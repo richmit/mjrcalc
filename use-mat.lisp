@@ -70,7 +70,7 @@
            #:mjr_mat_orthogonal-zero-pair #:mjr_mat_householder-many
            #:mjr_mat_apply-householder-2!! #:mjr_mat_apply-givens-2!! #:mjr_mat_apply-householder-many!!
            #:mjr_mat_apply-gauss-1!! #:mjr_mat_apply-gauss-2!! #:mjr_mat_apply-gauss-3!!
-           ;; Liear Algebra Computation
+           ;; Linear Algebra Computation
            #:mjr_mat_factor-qdr
            #:mjr_mat_solve-sys-sub
            #:mjr_mat_eliminate #:mjr_mat_det-ge #:mjr_mat_inv-sge #:mjr_mat_solve-sys-sge #:mjr_mat_rank-sge

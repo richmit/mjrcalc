@@ -72,11 +72,11 @@ package only supports integer arguments (see MJR_NUMU_GAMMA).
         |-------------+-----------+---------------------------------+------------------------------+------------------------|
         | balls       | urns      | all                             | le1                          | ge1                    |
         |-------------+-----------+---------------------------------+------------------------------+------------------------|
-        | labled      | labled    | mjr_combe_perm-with-replacement | mjr_combe_perm               | mjr_combe_12way-ll-ge1 |
+        | labeled     | labeled   | mjr_combe_perm-with-replacement | mjr_combe_perm               | mjr_combe_12way-ll-ge1 |
         |             |           | mjr_combe_bell (N=K)            |                              | mjr_combe_! (N=K)      |
-        | unlabeled   | labled    | mjr_combe_comb-with-replacement | mjr_combe_comb               | mjr_combe_12way-ul-ge1 |
-        | labled      | unlabeled | mjr_combe_12way-lu-all          | mjr_combe_iverson-bracket-le | mjr_combe_stirling2nd  |
-        | unlabele    | unlabeled | mjr_combe_12way-uu-all          | mjr_combe_iverson-bracket-le | mjr_combe_k-partitions |
+        | unlabeled   | labeled   | mjr_combe_comb-with-replacement | mjr_combe_comb               | mjr_combe_12way-ul-ge1 |
+        | labeled     | unlabeled | mjr_combe_12way-lu-all          | mjr_combe_iverson-bracket-le | mjr_combe_stirling2nd  |
+        | unlabeled   | unlabeled | mjr_combe_12way-uu-all          | mjr_combe_iverson-bracket-le | mjr_combe_k-partitions |
         |-------------+-----------+---------------------------------+------------------------------+------------------------|
 
   Non-twelvefold

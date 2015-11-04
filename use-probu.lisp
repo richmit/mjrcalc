@@ -4,7 +4,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2010,2011,2012 by Mitch Richling.  All rights reserved.
 ;; @brief     Computations on PDFs (Probability Distribution Functions).@EOL
-;; @Keywords  lisp interactive probuability distributions math library
+;; @Keywords  lisp interactive probability distributions math library
 ;; @Std       Common Lisp
 ;;
 
@@ -110,8 +110,6 @@ This package has several utility functions useful for computations on PDFs (Prob
 
 ;; ;;----------------------------------------------------------------------------------------------------------------------------------
 ;; (defun mjr_probu_icdf2prng (icdf-func &rest rest)
-;;   ;; MJR TODO NOTE <2013-06-10 20:22:06 CDT> use-probu.lisp: Add option to use a diffrent PRNG (i.e. random instead of mjr_prng_float-oo)
+;;   ;; MJR TODO NOTE <2013-06-10 20:22:06 CDT> use-probu.lisp: Add option to use a different PRNG (i.e. random instead of mjr_prng_float-oo)
 ;;   "Return random number generator (a LISP function) given an inverse CDF.  The algorithm is the the inverse CDF method."
 ;;   (eval `(lambda () (apply ,icdf-func (mjr_prng_float-oo 0 1) ',rest))))
-
-

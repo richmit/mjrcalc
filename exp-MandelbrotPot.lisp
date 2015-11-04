@@ -23,11 +23,15 @@
                                              finally (return (values z cnt))
                                              until (or (> (abs z) 100000) (> cnt 768)))
                  (- (max 0.0 (/ (log (abs the-z)) (expt 2.0D0 the-count)))))))
+        (let ((daData (mjr_dquad_make-from-axis "x" '(:start -2.0 :end 1.0 :len 200)
+                                                "y" '(:start -1.5 :end 1.5 :len 200))))
+        (print "Compute dquad...")
+        (mjr_dquad_add-data-from-map daData
+                                     #'pot-fun
+                                     :axes 't
+                                     :ano-nam "Mandelbrot-Pot")
         (print "VTK...")
-        (mjr_vtk_grid-from-func "exp-MandelbrotPot-OUT.vtk"
-                                :s-func #'pot-fun
-                                :xdat '(:start -2.0 :end 1.0 :len 200)
-                                :ydat '(:start -1.5 :end 1.5 :len 200))
+        (mjr_vtk_from-dquad "exp-MandelbrotPot-OUT.vtk" daData)
         (print "gnuplot")
         (mjr_plot_func-r2-r1 #'pot-fun :pal "rainbow" :type :f
                              :xdat '(:start -2.0 :end 1.0 :len 100)
@@ -35,12 +39,12 @@
                              :zlim '(-0.4 0.01))
         (print "povray TGA")
         (mjr_img_tga-write "exp-MandelbrotPot-OUT.tga"
-                           (mjr_img_make-from-func-r2-r1 #'pot-fun 
+                           (mjr_img_make-from-func-r2-r1 #'pot-fun   
                                               :xdat '(:start -2.0 :end 1.0 :len 1536)
                                               :ydat '(:start -1.5 :end 1.5 :len 1536)
                                               :auto-scale 't
                                               :max-color #xFFFF
-                                              :z-color-method #'mjr_colorized_povray))
+                                              :color-method #'mjr_colorized_povray))
         (print "povray geom")
         (mjr_pov_make-from-func-r12-r13 "exp-MandelbrotPot-OUT.pov" 
                            #'pot-fun
@@ -49,4 +53,5 @@
                            :draw-points nil
                            :surface-smooth 't
                            :draw-surface-grid nil
-                           :draw-surfaces 't)))
+                           :draw-surfaces 't)
+        )))

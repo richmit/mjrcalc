@@ -3,7 +3,7 @@
 ;; @file      use-probau.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2010,2011,2012 by Mitch Richling.  All rights reserved.
-;; @brief     Balls And Urns probuability distributions.@EOL
+;; @brief     Balls And Urns probability distributions.@EOL
 ;; @Keywords  lisp interactive probability distributions math library
 ;; @Std       Common Lisp
 
@@ -14,7 +14,7 @@
         :MJR_COMBE
         :MJR_PROBU
         :MJR_PROB)
-  (:DOCUMENTATION "Brief: Balls And Urns probuability distributions.;")
+  (:DOCUMENTATION "Brief: Balls And Urns probability distributions.;")
   (:EXPORT #:mjr_probau_help
            ;; In :#:MJR_PROBAU and :#:MJR_PROB (with alternate parametrization)
            #:mjr_probau_bernoulli-pdf               #:mjr_probau_bernoulli-cdf               #:mjr_probau_bernoulli-ccdf                #:mjr_probau_bernoulli-prng

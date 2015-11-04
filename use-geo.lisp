@@ -65,15 +65,15 @@ are provided."
     (case num-prm
       (3           (if (mjr_chk_!= majax minax)
                        (values majax minax invflt)
-                       (error "ERROR: mjr_geo_spheroid-parameter-normalize: inconsistant parameters (non-NIL invflt for sphere)")))
+                       (error "ERROR: mjr_geo_spheroid-parameter-normalize: inconsistent parameters (non-NIL invflt for sphere)")))
       (2           (values (or majax  (/ (* invflt minax) (1- invflt)))
                            (or minax  (/ (* majax (1- invflt)) invflt))
                            (or invflt (if (mjr_chk_!= majax minax)
                                           (/ majax (- majax minax))))))
       (1           (if invflt
-                       (error "ERROR: mjr_geo_spheroid-parameter-normalize: inconsistant parameters (only invflt provided)")
+                       (error "ERROR: mjr_geo_spheroid-parameter-normalize: inconsistent parameters (only invflt provided)")
                        (values (or majax minax) (or majax minax) nil)))
-      (otherwise   (error "ERROR: mjr_geo_spheroid-parameter-normalize: inconsistant parameters (no values provided)")))))
+      (otherwise   (error "ERROR: mjr_geo_spheroid-parameter-normalize: inconsistent parameters (no values provided)")))))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_geo_spheroid-distance (lat1 lon1 lat2 lon2 majax minax invflt)

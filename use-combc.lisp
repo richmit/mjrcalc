@@ -8,7 +8,7 @@
 ;; @Keywords  lisp interactive combinatorial constructive generate list
 ;; @Std       Common Lisp
 ;;
-;;            Notes here
+;;            
 ;;            
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
@@ -37,17 +37,12 @@
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_combc_help ()
-  "Help for MJR_COMBC:
+  "Help for MJR_COMBC: Constructive Combinatorics
 
-This package is a growing experiment.  It is not used much by other packages, but it could be.  Examples: 1) the optimization
-package makes use of random stencil patterns -- just random members of a cross product space, 2) The matrix package makes
-tables by exhaustively going through a tuple space.  Performance is the only question for some applications.
+Two types of generating functions: mjr_combc_gen-all-* & mjr_combc_gen-rand-*
 
-Two types of generating functions:  mjr_combc_gen-all-* & mjr_combc_gen-rand-*
-
-The first will generate all objects of a particular class (permutations, cross product elements, combinations, and subsets)
-while the second will generate random objects of a particular class such that any object in the class are equally likely to be
-generated.
+The first will generate all objects of a particular class (permutations, cross product elements, combinations, and subsets) while
+the second will generate random objects of a particular class such that any object in the class is equally likely to be generated.
 
 Base spaces are specified directly via sequences or as integers ($n$ represents the set $[n] = \{0,1,\cdots,n\}$).
 
@@ -76,7 +71,7 @@ Processing loop
 
 Other args:
   * :arg-mode      -- How are args given to funcs
-  * :show-progress -- show progress as objects are genearted
+  * :show-progress -- show progress as objects are generated
 
 Note: :collect-if REQUIRES the :collect-value -- otherwise the objects collected will be temporaries."
   (documentation 'mjr_combc_help 'function))
@@ -153,7 +148,7 @@ References:
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defmacro mjr_combc_gen-all-cross-product-array (fn am &rest vecs)
-  "Return an array produced by evaluateing FN on the elements of the cross product of the given vectors.  am is the argument mode."
+  "Return an array produced by evaluating FN on the elements of the cross product of the given vectors.  am is the argument mode."
   (let* ((num-vec (length vecs))
          (arr-v   (gensym "arr-"))
          (vei-vl  (loop for i from 0 upto (1- num-vec)
@@ -261,11 +256,11 @@ Example: Find members of (0 1 2)x(0 1)x(0 1 2 3) such that the tuple elements su
   (cond ((and :collect-if (not :collect-value))
          (error "mjr_combc_gen-all-cross-product: :collect-if requires :collect-value (use #'copy-seq to collect generated objects)"))
         ((and (eq result-type :table) (not collect-value))
-         (error "mjr_combc_gen-all-cross-product: For a :result-type of :table, :collect-value msut be provided"))
+         (error "mjr_combc_gen-all-cross-product: For a :result-type of :table, :collect-value must be provided"))
         ((and (eq result-type :array) (not collect-value))
-         (error "mjr_combc_gen-all-cross-product: For a :result-type of :array, :collect-value msut be provided"))
+         (error "mjr_combc_gen-all-cross-product: For a :result-type of :array, :collect-value must be provided"))
         ((and (eq result-type :table) (or func pre-if-filter collect-if exit-if))
-         (error "mjr_combc_gen-all-cross-product: For a :result-type of :table the :func, :pre-if-filter, :collect-if, :exit-if arguments must all be nill"))
+         (error "mjr_combc_gen-all-cross-product: For a :result-type of :table the :func, :pre-if-filter, :collect-if, :exit-if arguments must all be nil"))
         ((not (member result-type '(:table :array :list nil)))
          (error "mjr_combc_gen-all-cross-product: :result-type must be one of :table, :array, :list, or nil"))
         ((and collect-value (not result-type))

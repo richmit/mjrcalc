@@ -28,10 +28,10 @@
 
 The API:
   * mjr_chem_find-element-property      -- Find element property values via element-key
-  * mjr_chem_find-element-key           -- Find element-keys via property serach criteria
+  * mjr_chem_find-element-key           -- Find element-keys via property search criteria
   * mjr_chem_element-key-to-element-key -- convert between various element-keys and element-symbols
 
-Vocabluary:
+Vocabulary:
  * element-key .................. An object uniquely identifying an element
                                    * element-symbol  -- A string or LISP symbol. Examples: \"He\" or :HE
                                    * element-name    -- A string or LISP symbol. Examples: \"Helium\" or :HELIUM
@@ -118,7 +118,7 @@ If no conversion is required, then element-key-or-keys is simply returned. Only 
 
 Return is NIL if conversion is unsupported, otherwise the return depends on element-key-or-keys.  If element-key-or-keys is:
   * NIL ........................
-  * an element-symbol .......... a element-symbol convereted to the specified type
+  * an element-symbol .......... a element-symbol converted to the specified type
   * a list of element-symbols .. a list of element-symbols each converted to the specified type
   * cons cell .................. a cons is with the car converted to out-element-key-type
   * a list of cons cells ....... a list of cons cells with the cars converted to the specified type"
@@ -149,7 +149,7 @@ Return is NIL if conversion is unsupported, otherwise the return depends on elem
 (defun mjr_chem_find-element-property (element-key-or-keys element-property-name &optional (out-element-key-type :ek-symbol))
   "Take an element-key & element-property-value, and return the search results.
 
-out-element-key-type determins the form of returned element-keys
+out-element-key-type determines the form of returned element-keys
    
 The return will be NIL if the search had no hits, otherwise it depends on the value of element-key-or-keys:
   * A single element-key .... An element-property-value-cons

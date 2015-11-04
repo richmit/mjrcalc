@@ -13,7 +13,7 @@
 ;;            The idea is to provide "live" vector drawing capabilities on "interactive" X11 displays via an external drawing
 ;;            server.  mjrDRsrv is the external drawing server, and it comes in various flavors with the PlotUtils version being the
 ;;            most popular. Note that mjrDRsrv behaves similarly to the 'plot' command that is part of GNU PlotUtils; however, the
-;;            'plot' common is quite unforgiving.  Some examples of the kinds of things we might want to draw include:
+;;            'plot' command is quite unforgiving.  Some examples of the kinds of things we might want to draw include:
 ;;
 ;;               * Moving bodes in a restricted 3-body simulation
 ;;               * The game of life

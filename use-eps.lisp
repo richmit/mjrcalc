@@ -45,7 +45,7 @@ All functions apply MJR_EPS_NORMALIZE to arguments."
 
 If EPS is:
   * NIL: use global parameter *mjr_eps_eps* (*mjr_eps_eps* may be a positive or negative real number)
-  * positive real number: use as traditioanl epsilon value
+  * positive real number: use as traditional epsilon value
   * negative real number: use as a percentage (1% of magnitude of the smallest remaining argument)
   * integer 0: use 0 as the eps (reverts all tests to native lisp version)
   * anything else: ERROR!"

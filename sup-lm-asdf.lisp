@@ -8,7 +8,8 @@
 ;; @Keywords  lisp load mjr library
 ;; @Std       Common Lisp
 ;; @Tested    2015-02-01 SBCL               1.0.57.0.debian  debian 7.7  WORKS with HACK-A
-;; @Tested    2015-02-01 SBCL               1.2.8            debian 7.7  WORKS
+;; @Tested    2015-02-01 SBCL               1.2.8            debian 7.7  WORKS 
+;; @Tested    2015-02-01 SBCL               1.2.11           debian 7.7  WORKS 
 ;; @Tested    2015-02-01 ECL                11.1.1           debian 7.7  WORKS
 ;; @Tested    2015-02-01 GCL                2.6.7            debian 7.7  BROKEN
 ;; @Tested    2015-02-01 GCL                2.6.9            debian 7.7  BROKEN
@@ -20,14 +21,17 @@
 ;;            
 ;;            If you have problems with ASDF loading *MJRCALC* on your platform, I suggest that you try the following:
 ;;                1) Put the *MJRCALC* source in "~/.local/share/common-lisp/source/mjrcalc/ -- or make a link.
-;;                2) Try HACK-B below -- change the conditional to include you lisp
+;;                2) Try HACK-B below -- change the conditional to include your lisp
 ;;                3) Put a copy of the newest ASDF in ~/.local/share/common-lisp/source/asdf/asdf.lisp
-;;                4) Try HACK-A below -- change the conditional to include you lisp
+;;                4) Try HACK-A below -- change the conditional to include your lisp
 ;;
 ;;            The following lines are here for cut-n-paste help. :)
 ;;                (load "/home/richmit/.local/share/common-lisp/source/asdf/asdf.lisp")
 ;;                (load "/home/richmit/.local/share/common-lisp/source/mjrcalc/sup-lm-asdf.lisp")
-
+;;
+;;            If you have quicklisp installed, then you can likely use this:
+;;                (load "/home/richmit/quicklisp/asdf.lisp")
+;;                (load "/home/richmit/.local/share/common-lisp/source/mjrcalc/sup-lm-asdf.lisp")
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 
@@ -39,6 +43,7 @@
                                                  "~/.local/share/common-lisp/source/asdf.lisp"
                                                  "~/.local/share/common-lisp/source/asdf/asdf.lisp"
                                                  "asdf.lisp"
+                                                 "~/quicklisp/asdf.lisp"
                                                  "../olispy/asdf/asdf.lisp"))))
           (if asdf-file 
               (progn (load asdf-file)

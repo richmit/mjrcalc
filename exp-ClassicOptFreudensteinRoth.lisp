@@ -58,7 +58,13 @@ Local Minimum:  $f(11.41, -0.8986)=48.9842$"
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (format 't "Dump VTK~%")
-(mjr_vtk_grid-from-func "exp-ClassicOptFreudensteinRoth-OUT.vtk" :s-func #'freudenstein-roth :xdat '(:start -4 :end 23 :len 500) :ydat '(:start -2 :end 5 :len 500))
+(mjr_vtk_from-dquad "exp-ClassicOptFreudensteinRoth-OUT.vtk"
+                    (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" '(:start -4 :end 23 :len 500)
+                                                                           "y" '(:start -2 :end 5  :len 500))
+                                                 #'freudenstein-roth
+                                                 :axes 't
+                                                 :ano-nam "Freudenstein-Roth"
+                                                 :ano-typ :ano-typ-real))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (format 't "DONE~%")

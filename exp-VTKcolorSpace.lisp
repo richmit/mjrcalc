@@ -11,22 +11,37 @@
 ;;            
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-;; RGB Cube
-(mjr_vtk_from-dquad "exp-VTKcolorSpace-OUT-RGBcube2.vtk" 
+;; RGB Cube: Using basic functions
+(mjr_vtk_from-dquad "exp-VTKcolorSpace-OUT-RGBcube1.vtk" 
                     (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "r" '(:start 0 :end 1 :len 2)
                                                                            "g" '(:start 0 :end 1 :len 2)
                                                                            "b" '(:start 0 :end 1 :len 2))  
                                                  #'mjr_colorizer_i3-rgb-cube
                                                  :axes 't
-                                                 :gd-nam "color" :gd-typ :gd-typ-color :gd-colorspace :cs-rgb))
+                                                 :ano-nam "color" :ano-typ :ano-typ-color :ano-colorspace :cs-rgb))
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+;; RGB Cube: Using the colorize function 
+(mjr_vtk_from-dquad "exp-VTKcolorSpace-OUT-RGBcube2.vtk" 
+                    (mjr_dquad_colorize (mjr_dquad_make-from-axis "r" '(:start 0.0 :end 1 :len 2)
+                                                                  "g" '(:start 0.0 :end 1 :len 2)
+                                                                  "b" '(:start 0.0 :end 1 :len 2))
+                                        :axes 't
+                                        :color-method #'mjr_colorizer_i3-rgb-cube
+                                        :ano-nam "color" :ano-colorspace :cs-rgb))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 ;; HSL sphere
 (let ((d 0.01))
-  (mjr_vtk_polydata-from-func-r12-r123 "exp-VTKcolorSpace-OUT-HSLsphere.vtk"
-                             (lambda (u v) (vector (* (sin v) (cos u))
-                                                   (* (sin v) (sin u))
-                                                   (cos v)))
-                             :c-func (mjr_util_func-domain-rect-to-unit #'mjr_colorizer_i2-hsl-cone (vector 0 d) (vector (* pi 2) (- pi d)) :arg-number)
-                             :udat (list :start 0 :end  (* pi 2) :len 50)
-                             :vdat (list :start d :end (- pi d) :len 50)))
+  (mjr_vtk_from-dsimp "exp-VTKcolorSpace-OUT-HSLsphere.vtk"
+                      (mjr_dsimp_make-from-func-r12-r123 (lambda (u v) (vector (* (sin v) (cos u))
+                                                                               (* (sin v) (sin u))
+                                                                               (cos v)))
+                                                         :xdat (list :start 0 :end (* pi 2) :len 50)
+                                                         :ydat (list :start d :end (- pi d) :len 50)
+                                                         :func-lab "HSLsphere"
+                                                         :xlab "h" :ylab "s"
+                                                         :ax-color-meth  #'mjr_colorizer_i2-hsl-cone
+                                                         :ax-color-lab  "c")
+                      :simplices 2))
+  

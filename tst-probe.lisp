@@ -14,6 +14,24 @@
 (in-package :MJR_PROBE-TESTS)
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_probe_epdf-int*-naive (epdf pos-int)
+  "Compute product of the EPDF and POS-INT"
+  (cond ((not (integerp pos-int)) (error "mjr_probe_epdf-int*: pos-int must be an integer"))
+        ((>= 0 pos-int)           (error "mjr_probe_epdf-int*: pos-int must be positive")))
+  (let ((epdf   (if (vectorp epdf) epdf (concatenate 'vector epdf)))
+        (newpdf (copy-seq epdf)))
+    (dotimes (i (1- pos-int) newpdf)
+      (setf newpdf (mjr_probe_epdf-+ newpdf epdf)))))
+
+(defvar ecdf1 #(1))
+(defvar ecdf2 #(1/10 3/10 1/10 1/5 1/5 1/10))
+(defvar ecdf3 #(1/45 2/45 1/15 4/45 1/9 2/15 7/45 8/45 1/5))
+(defvar ecdf4 #(1/52 3/208 5/208 7/208 9/208 1/208 5/208 7/208 3/208 7/208 3/104 1/26 3/208
+                9/208 1/104 1/208 1/26 0 0 1/52 1/208 3/208 3/208 0 5/208 1/104 0 3/104 1/208
+                0 1/52 9/208 1/104 9/208 3/208 5/208 7/208 7/208 3/104 1/26 5/208 0 1/208
+                1/26 1/52 1/104 1/208 1/52 1/104 1/26))
+
+;;----------------------------------------------------------------------------------------------------------------------------------
 (define-test mjr_probe_ewt2ecwt
   (assert-equalp #(1    3    6    11)    (mjr_probe_ewt2ecwt  #(1    2    3    5)))         ;; FREQ
   (assert-equalp #(1/11 3/11 6/11 11/11) (mjr_probe_ewt2ecwt  #(1/11 2/11 3/11 5/11)))      ;; PDF
@@ -173,6 +191,12 @@
   )
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
+(define-test mjr_probe_epdf-int*
+  (loop for i from 1 upto 10
+        do (assert-equalp (MJR_PROBE_EPDF-INT*-naive ecdf1 i) (MJR_PROBE_EPDF-INT* ecdf1 i)))
+  )
+
+;;----------------------------------------------------------------------------------------------------------------------------------
 (define-test mjr_probe_pdf2epdf
   (assert-equalp #(0 1/6 1/6 1/6 1/6 1/6 1/6)  (mjr_probe_pdf2epdf 1 6 (lambda (x) (declare (ignore x)) 1/6))) ;; 1 6-sided die
   )
@@ -195,5 +219,5 @@
   )
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(run-tests
+(run-tests 
  )

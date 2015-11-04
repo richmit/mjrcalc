@@ -328,18 +328,25 @@ Functions provided:
       (apply #'mjr_probe_epdf-+ (mapcar (lambda (x) (concatenate 'vector x)) rest))))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_probe_epdf-int* (epdf an-integer)
-  "Compute the positive integer power of EPDF.  Returns NIL if the computation can't be performed."
-  (cond ((not (integerp an-integer)) (error "mjr_probe_epdf-int*: an-integer must be an integer"))
-        ((>= 0 an-integer)           (error "mjr_probe_epdf-int*: an-integer must be positive")))
-  (let ((epdf   (if (vectorp epdf) epdf (concatenate 'vector epdf)))
-        (newpdf (copy-seq epdf)))
-    (dotimes (i (1- an-integer) newpdf)
-      (setf newpdf (mjr_probe_epdf-+ newpdf epdf)))))
+(defun mjr_probe_epdf-int* (epdf pos-int)
+  "Compute product of the EPDF and POS-INT
+
+Uses the right-to-left binary algorithm similar to the 'exponentiation by squaring' algorithm for exponentiation.
+
+References:
+  Bruce Schneier (1996); Applied Cryptography: Protocols, Algorithms, and Source Code in C 2nd; ISBN: 978-0471117094; pp224
+  David Bressoud (1989); Factorization and primality testing; ISBN: 0-387-97040-1; pp33-34"
+  (let ((result #(1)))
+    (loop while (not (zerop pos-int)) ;; == (> pos-int 0)
+          do (if (logbitp 0 pos-int)  ;; is least significant bit 1? == (not (zerop (logand pos-int 1))) == (= (logand pos-int 1) 1)
+                 (setq result (mjr_probe_epdf-+ result epdf)))
+          do (setq pos-int (ash pos-int -1)
+                   epdf    (mjr_probe_epdf-+ epdf epdf)))
+    result))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_probe_epdf-* (&rest rest)
-  "Return the sum of the given EPDFs.  Result is always an array.  Use arrays for arguments for best performance."
+  "Return the product of the given EPDFs.  Result is always an array.  Use arrays for arguments for best performance."
   (if (every #'arrayp rest)
       (let ((len (length rest)))
         (cond ((= len 1)   (first rest))

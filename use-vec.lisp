@@ -389,12 +389,12 @@ typical"
                                    when (not (= ai bi))
                                    do (return (> ai bi))
                                    finally (return nil)))
-        ((eq order :grlex)   (let ((sa (reduce #'+ a))      ;; grlex: maximal order dominates, lex breaks ties
+        ((eq order :grlex)   (let ((sa (reduce #'+ a))              ;; grlex: maximal order dominates, lex breaks ties
                                    (sb (reduce #'+ b)))
                                (cond ((< sa sb) 't)
                                      ((= sa sb) (mjr_vec_< a b :order :lex))
                                      ('t        nil))))
-        ((eq order :grevlex) (let ((sa (reduce #'+ a))      ;; grevlex: minimal order dominates, revlex breaks ties
+        ((eq order :grevlex) (let ((sa (reduce #'+ a))              ;; grevlex: minimal order dominates, revlex breaks ties
                                    (sb (reduce #'+ b)))
                                (cond ((> sa sb) 't)
                                      ((= sa sb) (mjr_vec_< a b :order :revlex))

@@ -31,7 +31,7 @@
 (defun mjr_opt_minimize-bsect (f x0 x1 xm &key (xeps 0.0001) (max-itr 1000) (show-progress nil) (use-random-position nil))
   "Optimize the function F, from R->R, via a bisection-like algorithm (minimum found will be X0 and X1).
 
-XM should be between X0 and X1, and f(XM) should be less than f(X1) and f(X0) -- it is an approximation to the acutall minimum.
+XM should be between X0 and X1, and f(XM) should be less than f(X1) and f(X0) -- it is an approximation to the actual minimum.
 If XM is NIL, then random guesses between X0 and X1 will be used until a suitable XM is found or the maximum number of
 iterations is reached.
 

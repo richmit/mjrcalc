@@ -67,20 +67,20 @@
      |-------------+-----------+------------------+---------------------------------------------+-----------------------------------------------|
      | Type        | Rep       | Description      | Parameters                                  | Sequence                                      |
      |-------------+-----------+------------------+---------------------------------------------+-----------------------------------------------|
-     | :VVT-ASEQ   | :vvr-kw   | Arithmatic Seq   | :START # :END # :LEN # :STEP #              | n_i = START+i*STEP                            |
+     | :VVT-ASEQ   | :vvr-kw   | Arithmetic Seq   | :START # :END # :LEN # :STEP #              | n_i = START+i*STEP                            |
      | :VVT-ASEQ   | :vvr-int  | Zero based Count | positive integer N (Like :LEN N)            | n_i = i                                       |
      | :VVT-ASEQ   | :vvr-int  | One based Count  | Negative integer N (Like :START 1 :LEN N)   | n_i = i+1                                     |
      | :VVT-REP    | :vvr-kw   | Repeat           | :START # :LEN # :VVEC-TYPE :VVT-REP         | n_i = START                                   |
      | :VVT-CHEB   | :vvr-kw   | Chebichev        | :START # :END :LEN # :VVEC-TYPE :VVT-CHEB   | Chebichev interpolation points                |
      | :VVT-MITCH1 | :vvr-kw   | Chebichev-like   | :START # :END :LEN # :VVEC-TYPE :VVT-MITCH1 | Chebichev-like interpolation points           |
-     | :VVT-POINTS | :vvr-kw   | Empreical Data   | :POINTS S                                   | n_i = (elt S i)                               |
-     | :VVT-POINTS | :vvr-vec  | Empreical Data   | LISP vector V (Same as :POINTS V)           | n_i = (aref V i)                              |
-     | :VVT-POINTS | :vvr-list | Empreical Data   | LISP list L (Same as :POINTS L)             | n_i = (nth L i)                               |
-     | :VVT-POINTS | :vvr-kw   | Empreical Data   | :POINTS S :LEN #                            | n_i = (elt S i) for i<LEN                     |
-     | :VVT-POINTS | :vvr-kw   | Empreical Data   | :POINTS S :START #                          | n_i = (elt S (+ START i))                     |
-     | :VVT-POINTS | :vvr-kw   | Empreical Data   | :POINTS S :END #                            | n_i = (elt S i) for i<=END                    |
-     | :VVT-POINTS | :vvr-kw   | Empreical Data   | :POINTS S :START # :END #                   | n_i = (elt S (+ START i)) for i<=END-START+1  |
-     | :VVT-POINTS | :vvr-kw   | Empreical Data   | :POINTS S :START # :LEN #                   | n_i = (elt S (+ START i)) for i<LEN           |
+     | :VVT-POINTS | :vvr-kw   | Empirical Data   | :POINTS S                                   | n_i = (elt S i)                               |
+     | :VVT-POINTS | :vvr-vec  | Empirical Data   | LISP vector V (Same as :POINTS V)           | n_i = (aref V i)                              |
+     | :VVT-POINTS | :vvr-list | Empirical Data   | LISP list L (Same as :POINTS L)             | n_i = (nth L i)                               |
+     | :VVT-POINTS | :vvr-kw   | Empirical Data   | :POINTS S :LEN #                            | n_i = (elt S i) for i<LEN                     |
+     | :VVT-POINTS | :vvr-kw   | Empirical Data   | :POINTS S :START #                          | n_i = (elt S (+ START i))                     |
+     | :VVT-POINTS | :vvr-kw   | Empirical Data   | :POINTS S :END #                            | n_i = (elt S i) for i<=END                    |
+     | :VVT-POINTS | :vvr-kw   | Empirical Data   | :POINTS S :START # :END #                   | n_i = (elt S (+ START i)) for i<=END-START+1  |
+     | :VVT-POINTS | :vvr-kw   | Empirical Data   | :POINTS S :START # :LEN #                   | n_i = (elt S (+ START i)) for i<LEN           |
      | :VVT-RFUN   | :vvr-kw   | Recurrence       | :START # :LEN # :RFUN f                     | n_i = f(n_{i-1}, ...)                         |
      |             |           |                  |                                             | If START is an n element list, f takes n args |
      | :VVT-NFUN   | :vvr-kw   | No-Arg Function  | :LEN # :NFUN f                              | n_i = f()                                     |
@@ -202,7 +202,7 @@ How the arguments are processed until ERROR or CHECK repeatedly applying the fol
 
 Note: 'CHECK' in the table above means 'success'
 
-Once the arguments are normalized, an arithmetic sequence can be generated.  We ALWAYS generate the ith (zero indexed) element with
+Once the arguments are normalized, an arithmetic sequence can be generated.  We ALWAYS generate the Ith (zero indexed) element with
 $START+i*STEP$ -- i.e. the first element is $START+0*STEP=START$.  For only sequential access we could successively add STEP to an
 initial value; however, we wish to use the same formula for random and sequential access in order to insure the same results even in
 the face of round-off error.  We never use END to generate or check for termination because we wish to avoid length 'twitter' due to
@@ -257,7 +257,7 @@ This function uses MJR_CMP_!=0 against :START, :END, :STEP, and/or :LEN."
   "Normalize a group of arguments intended to describe an vvec described by grid points.
 
 On success, a :vvr-kw vvec will be returned with the following keywords: :vvec-type, :points, :start, :end, :len, & :map-fun.  Note
-that :start, :end, & :len will be consistant."
+that :start, :end, & :len will be consistent."
   (multiple-value-bind (vvec-type points start end step len map-fun nfun rfun)
       (mjr_util_get-kwarg-vals '(:vvec-type :points :start :end :step :len :map-fun :nfun :rfun) vvec 't)
     (let* ((len       (mjr_vvec_check-len len))
@@ -399,9 +399,9 @@ On success, a :vvr-kw vvec will be returned with the following keywords: :vvec-t
 (defun mjr_vvec_normalize-all (vvec)
   "Normalize arguments describing a virtual vector.  
 
-On success, a :vvr-kw vvec will be returned with an approprate set of keywords.
+On success, a :vvr-kw vvec will be returned with an appropriate set of keywords.
 
-Uses mjr_vvec_get-vvec-type to determin the vvec-type.  If mjr_vvec_get-vvec-type is inconclusive, then
+Uses mjr_vvec_get-vvec-type to determine the vvec-type.  If mjr_vvec_get-vvec-type is inconclusive, then
 :VVT-ASEQ is assumed"
   (case (mjr_vvec_get-vvec-type vvec)
     (:vvt-aseq   (mjr_vvec_normalize-vvt-aseq   vvec))
@@ -546,10 +546,10 @@ If POINT-FUN is NIL (as in a NIL was passed to this function), then the behavior
       ((and filter-fun
             (equalp op-type :opt-map-nil))      (error "filter-fun useless for nil result map operations"))
       ((and filter-fun
-            (equalp op-type :opt-map-vector))   (error "filter-fun is incompatable with a 'vector result map operation (use 'list) "))
+            (equalp op-type :opt-map-vector))   (error "filter-fun is incompatible with a 'vector result map operation (use 'list) "))
       ((and (equalp op-type :opt-reduce) 
             (equalp op-mode :opm-pairs)
-            (not pair-fun))                     (error "pair-fun is required for a reduce opeartion on pairs")))
+            (not pair-fun))                     (error "pair-fun is required for a reduce operation on pairs")))
 
     (multiple-value-bind (vvfi vvlen) 
         (mjr_vvec_vvec2fi vvec)

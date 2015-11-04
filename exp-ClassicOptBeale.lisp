@@ -54,7 +54,14 @@ Global Minimum: $f\\left(3,\\frac{1}{2}\\right)=0$"
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (format 't "Dump VTK~%")
-(mjr_vtk_grid-from-func "exp-ClassicOptBeale-OUT.vtk" :s-func #'beale :xdat '(:start 0.5 :end 3.5 :len 500) :ydat '(:start 0.5 :end 2 :len 500))
+(mjr_vtk_from-dquad "exp-ClassicOptBeale-OUT.vtk"
+                    (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" '(:start 0.5 :end 3.5 :len 500)
+                                                                           "y" '(:start 0.5 :end 2   :len 500))
+                                                 #'beale
+                                                 :axes 't
+                                                 :ano-nam "Beale"
+                                                 :ano-typ :ano-typ-real))
+
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (format 't "DONE~%")

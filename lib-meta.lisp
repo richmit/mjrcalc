@@ -344,18 +344,35 @@ will not call MJR_META_SCAN-PACKAGES."
          (num-asdfify (loop for (pkg-name pkg-path pkg-file pkg-uses pkg-docs) in pkg-data
                             for pkg-asdf  = (concatenate 'string (string-downcase (symbol-name pkg-name)) ".asd")
                             for pkg-bfile = (subseq pkg-file 0 (- (length pkg-file) 5))
-                            do (if show-progress (format 't "Writing .asd file for package: ~a~%" pkg-name))
-                            do (with-open-file (stream pkg-asdf :direction :output :if-exists :supersede :if-does-not-exist :create)
-                                 (format stream
-                                         "(defsystem~% ~w~% :description ~w~% :version ~w~% :author ~w~% :licence ~w~% :defsystem-depends-on ~w~% :components ((:file ~w))~%)~%"
-                                         (string-downcase (symbol-name pkg-name))
-                                         (or pkg-docs "YIKES!!!")
-                                         mjr-ver
-                                         pkg-auth
-                                         pkg-lic
-                                         pkg-uses
-                                         pkg-bfile))
-                            count 1)))
+                            for new-asd-str = (format nil
+                                                      "(defsystem~% ~w~% :description ~w~% :version ~w~% :author ~w~% :licence ~w~% :defsystem-depends-on ~w~% :components ((:file ~w))~%)~%"
+                                                      (string-downcase (symbol-name pkg-name))
+                                                      (or pkg-docs "YIKES!!!")
+                                                      mjr-ver
+                                                      pkg-auth
+                                                      pkg-lic
+                                                      pkg-uses
+                                                      pkg-bfile)
+                            for old-asd-str = (and (probe-file pkg-asdf)
+                                                   (with-open-file (stream pkg-asdf :direction :input)
+                                                     (let ((seq (make-string (file-length stream))))
+                                                       (read-sequence seq stream)
+                                                       seq)))
+                            for new-old-same = (if old-asd-str
+                                                   (let* ((nas1e (search ":version \"" new-asd-str))
+                                                          (nas2b (search ":author \""  new-asd-str))
+                                                          (oas1e (search ":version \"" new-asd-str))
+                                                          (oas2b (search ":author \""  old-asd-str)))
+                                                     (and nas1e nas2b oas1e oas2b
+                                                          (string= (subseq new-asd-str 0 nas1e) (subseq old-asd-str 0 oas1e))
+                                                          (string= (subseq new-asd-str nas2b)   (subseq old-asd-str oas2b)))))
+                            sum (if new-old-same
+                                    (progn (if show-progress (format 't "Skipping (no change) .asd file for package: ~a~%" pkg-name))
+                                           0)
+                                    (progn (if show-progress (format 't "Writeing (it changed) .asd file for package: ~a~%" pkg-name))
+                                           (with-open-file (stream pkg-asdf :direction :output :if-exists :supersede :if-does-not-exist :create)
+                                             (format stream "~a" new-asd-str))
+                                           1)))))
     (with-open-file (stream "mjrcalc.asd" :direction :output :if-exists :supersede :if-does-not-exist :create)
       (format stream
               "(defsystem~% ~w~% :description ~w~% :version ~w~% :author ~w~% :licence ~w~% :defsystem-depends-on ~w~%)~%"
@@ -364,7 +381,7 @@ will not call MJR_META_SCAN-PACKAGES."
               mjr-ver
               pkg-auth
               pkg-lic
-              (mapcar #'car pkg-data)))
+              (mapcar #'car pkg-data)))    
     (format 't "ASDFify'ed ~d packages!~%" num-asdfify)
     (format 't "ASDFify'ed 1 meta package!~%")
     num-asdfify))

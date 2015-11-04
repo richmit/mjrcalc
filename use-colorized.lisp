@@ -5,7 +5,7 @@
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1996,1997,2008,2010 by Mitch Richling.  All rights reserved.
 ;; @brief     Colorization of discrete spaces (Z_n).@EOL
-;; @Keywords  lisp interactive color schemes gradient descrete Z
+;; @Keywords  lisp interactive color schemes gradient discrete Z
 ;; @Std       Common Lisp
 ;;
 ;;            TODO: Add some color brewer-like schemes (by index and pallet)
@@ -33,7 +33,7 @@
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_colorized_help ()
- "Colorize descrte spaces of dimensions one (i.e. $Z_n=\{0,1,...,n-1\}$ -- used for visulazation.
+ "Colorize desecrate spaces of dimensions one (i.e. $Z_n=\{0,1,...,n-1\}$ -- used for visualization.
 
 All colors are returned as :cs-tru (i.e. RGB components are integers in [0,255]).
 

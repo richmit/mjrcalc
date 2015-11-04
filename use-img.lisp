@@ -23,7 +23,8 @@
         :MJR_COLORIZE
         :MJR_COMBC
         :MJR_VVEC
-        :MJR_UTIL)
+        :MJR_UTIL
+        :MJR_DQUAD)
   (:DOCUMENTATION "Brief: Raster image stuff.;")
   (:EXPORT #:mjr_img_help
            ;; Image query
@@ -42,9 +43,6 @@
            #:mjr_img_coord-usr2int #:mjr_img_coord-int2usr #:mjr_img_coord-draw-point
            ;; image files
            #:mjr_img_tga-write #:mjr_img_tga-read
-           ;; Color packers & unpackers
-           #:mjr_img_cp-pack-int8x3-int24    #:mjr_img_cp-pack-int8x4-int32    #:mjr_img_cp-pack-int0x1-int
-           #:mjr_img_cp-unpack-int8x3-int24  #:mjr_img_cp-unpack-int8x4-int32  #:mjr_img_cp-unpack-num0x1-int
            ))
 
 (in-package :MJR_IMG)
@@ -63,63 +61,8 @@ Image formats:
                          - This format is intended for scientific applications requiring very high color depth,
                            floating point RGB values, or a large number of channels.
   :img-packed .......... 2D array of objects that can be 'unpacked' into a color.
-                         - Usually the objects are FIXNUMs (but a vector might also be used).
-                         - When using a FIXNUM, this is the FASTEST format and most resembles tridational image formats
-                         - The default packing is TrueColor (3 channels of 8 bits representing Red, Blue, and Green)
-                         - This format directly represents the most common method of encoding images in every day life,
-                           and is useful for such applications.
-
-For :img-packed images, three sets of standard packer/unpackers are provided:
-  * mjr_img_cp-pack-int8x3-int24 & mjr_img_cp-unpack-int8x3-int24 ---- 3 channels each with 8-bits -- tru rgb
-  * mjr_img_cp-pack-int8x4-int32 & mjr_img_cp-unpack-int8x4-int32 ---- 4 channels each with 8-bits -- tru rgba
-  * mjr_img_cp-pack-int0x1-int   & mjr_img_cp-unpack-num0x1-int   ---- 1 channels each with n-bits -- greyscale"
+                         See the section regarding color pack/unpack in MJR_COLOR_HELP for details"
   (documentation 'mjr_img_help 'function))
-
-;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_cp-pack-int8x3-int24 (color)
-  "Pack an 8-bit per pixel RGBA color into a 24bit integer"
-  (declare (type (simple-vector 3) color))
-  (+ (aref color 0)
-     (* 256 (aref color 1))
-     (* 256 256 (aref color 2))))
-
-;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_cp-unpack-int8x3-int24 (value)
-  "Unpack an 8-bit per pixel RGB color from a 24bit integer"
-  #-ecl (declare ((unsigned-byte 24) value))
-  (vector (ldb (byte 8  0) value)
-          (ldb (byte 8  8) value)
-          (ldb (byte 8 16) value)))
-
-;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_cp-pack-int8x4-int32 (color)
-  "Pack an 8-bit per pixel RGBA color into a 32bit integer"
-  (declare (type (simple-vector 4) color))
-  (+ (aref color 0)
-     (* 256 (aref color 1))
-     (* 256 256 (aref color 2))
-     (* 256 256 256 (aref color 3))))
-
-;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_cp-unpack-int8x4-int32 (value)
-  "Unpack an 8-bit per pixel RGBA color from a 32bit integer"
-  #-ecl (declare ((unsigned-byte 32) value))
-  (vector (ldb (byte 8  0) value)
-          (ldb (byte 8  8) value)
-          (ldb (byte 8 16) value)
-          (ldb (byte 8 24) value)))
-
-;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_cp-pack-int0x1-int (color)
-  "Unpack an n-bit per pixel greyscale color into an integer"
-  (declare (type (simple-vector 1) color))
-  (aref color 0))
-
-;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_cp-unpack-num0x1-int (value)
-  "Unpack an n-bit per pixel greyscale color from an integer"
-  (declare (fixnum value))
-  (vector value))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_img_stacked? (img)
@@ -132,7 +75,7 @@ For :img-packed images, three sets of standard packer/unpackers are provided:
   (subseq (array-dimensions img) 0 2))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_num-chan (img &optional (color-unpacker #'mjr_img_cp-unpack-int8x3-int24))
+(defun mjr_img_num-chan (img &optional (color-unpacker #'mjr_color_cp-unpack-int8x3-int24))
   "Number of channels"
   (if (mjr_img_stacked? img)
       (array-dimension img 2)
@@ -147,7 +90,7 @@ For :img-packed images, three sets of standard packer/unpackers are provided:
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_img_get-px-value (img x y)
-  "Get the pixel value at the coordinates (x, y). No conversions, but vectors are reutnred for :img-stacked"
+  "Get the pixel value at the coordinates (x, y). No conversions, but vectors are returned for :img-stacked"
   (if (mjr_img_stacked? img)
       (let* ((nchan (array-dimension img 2))
              (value (make-array nchan)))
@@ -156,7 +99,7 @@ For :img-packed images, three sets of standard packer/unpackers are provided:
       (aref img x y)))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_get-px-color (img x y &optional (color-unpacker #'mjr_img_cp-unpack-int8x3-int24))
+(defun mjr_img_get-px-color (img x y &optional (color-unpacker #'mjr_color_cp-unpack-int8x3-int24))
   "Get the color at the coordinates (x, y)"
   (if (mjr_img_stacked? img)
       (let* ((nchan (array-dimension img 2))
@@ -175,7 +118,7 @@ For :img-packed images, three sets of standard packer/unpackers are provided:
       (setf (aref img x y) value)))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_set-px-color (img x y color &optional (color-packer #'mjr_img_cp-pack-int8x3-int24))
+(defun mjr_img_set-px-color (img x y color &optional (color-packer #'mjr_color_cp-pack-int8x3-int24))
   "Set the image pixel.  Color MUST be an valid color (i.e. an array) -- Pseudo-Color images are not supported."
   (if (mjr_img_stacked? img)
       (loop for i from 0
@@ -184,7 +127,7 @@ For :img-packed images, three sets of standard packer/unpackers are provided:
       (setf (aref img x y) (mjr_util_funcall-one-if color-packer color))))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_clear (img color &optional (color-packer #'mjr_img_cp-pack-int8x3-int24))
+(defun mjr_img_clear (img color &optional (color-packer #'mjr_color_cp-pack-int8x3-int24))
   "Set the image pixel.  Color MUST be an valid color (i.e. an array) -- Pseudo-Color images are not supported."
   (let ((value (if color-packer
                    (funcall color-packer color)
@@ -196,17 +139,17 @@ For :img-packed images, three sets of standard packer/unpackers are provided:
                      do (mjr_img_set-px-value img x y value))))))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_set-px-tru-color-spec (img x y spec &optional (color-packer #'mjr_img_cp-pack-int8x3-int24))
+(defun mjr_img_set-px-tru-color-spec (img x y spec &optional (color-packer #'mjr_color_cp-pack-int8x3-int24))
   "Set the image pixel.  Color MUST be an valid color (i.e. an array)."
   (mjr_img_set-px-color img x y (mjr_color_make-tru-from-spec spec) color-packer))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_set-px-rgb-color-spec (img x y spec &optional (color-packer #'mjr_img_cp-pack-int8x3-int24))
+(defun mjr_img_set-px-rgb-color-spec (img x y spec &optional (color-packer #'mjr_color_cp-pack-int8x3-int24))
   "Set the image pixel.  Color MUST be an valid color (i.e. an array)."
   (mjr_img_set-px-color img x y (mjr_color_make-rgb-from-spec spec) color-packer))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_homo-filter-channel (img chan-filter &optional (color-packer #'mjr_img_cp-pack-int8x3-int24) (color-unpacker #'mjr_img_cp-unpack-int8x3-int24))
+(defun mjr_img_homo-filter-channel (img chan-filter &optional (color-packer #'mjr_color_cp-pack-int8x3-int24) (color-unpacker #'mjr_color_cp-unpack-int8x3-int24))
   "Apply a filter to each pixel of the image"
   (destructuring-bind (x-wid y-wid) (mjr_img_size img)
     (dotimes (y y-wid img)
@@ -214,7 +157,7 @@ For :img-packed images, three sets of standard packer/unpackers are provided:
         (mjr_img_set-px-color img x y (map 'vector chan-filter (mjr_img_get-px-color img x y color-unpacker)) color-packer)))))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_homo-filter-color (img color-filter &optional (color-packer #'mjr_img_cp-pack-int8x3-int24) (color-unpacker #'mjr_img_cp-unpack-int8x3-int24))
+(defun mjr_img_homo-filter-color (img color-filter &optional (color-packer #'mjr_color_cp-pack-int8x3-int24) (color-unpacker #'mjr_color_cp-unpack-int8x3-int24))
   "Apply a filter to each pixel of the image"
   (destructuring-bind (x-wid y-wid) (mjr_img_size img)
     (dotimes (y y-wid img)
@@ -230,7 +173,7 @@ For :img-packed images, three sets of standard packer/unpackers are provided:
         (mjr_img_set-px-value img x y (funcall value-filter (mjr_img_get-px-value img x y)))))))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_convolution-filter-channel (img chan-filter &optional (color-packer #'mjr_img_cp-pack-int8x3-int24) (color-unpacker #'mjr_img_cp-unpack-int8x3-int24))
+(defun mjr_img_convolution-filter-channel (img chan-filter &optional (color-packer #'mjr_color_cp-pack-int8x3-int24) (color-unpacker #'mjr_color_cp-unpack-int8x3-int24))
   ;; MJR TODO NOTE <2012-08-02 00:18:29 CDT> mjr_img_convolution-filter-channel: IMPLEMENT!!
   "Apply a convolution filter to the image"
   (declare (ignore img chan-filter color-packer color-unpacker)))
@@ -304,7 +247,7 @@ The kind of image created is determined as follows:
               (+ (* y yw) y0)))))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_img_coord-draw-point (img x y color img-coord &optional (color-packer #'mjr_img_cp-pack-int8x3-int24))
+(defun mjr_img_coord-draw-point (img x y color img-coord &optional (color-packer #'mjr_color_cp-pack-int8x3-int24))
   "Draw a point at the given 'usr' coords."
   (destructuring-bind (x-wid y-wid) (mjr_img_size img)
     (let* ((x0 (aref img-coord 0))
@@ -318,7 +261,7 @@ The kind of image created is determined as follows:
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_img_make-from-func (f &key xdat ydat arg-mode
                                img-format num-chan chan-depth chan-type
-                               (color-packer #'mjr_img_cp-pack-int8x3-int24) show-progress)
+                               (color-packer #'mjr_color_cp-pack-int8x3-int24) show-progress)
   "Sample a function (f:RxR->COLOR) on a regular 2D grid, and create an image.
 
 Image is created with MJR_IMG_FROM-NIL, and the color returned by F must be compatible with the image created."
@@ -398,7 +341,7 @@ Image is created with MJR_IMG_FROM-NIL, and the color returned by F must be comp
                                (:out    (funcall colf z))
                                (:in     (funcall colf x y))
                                (:in-out (funcall colf x y z)))
-                     do (mjr_img_set-px-color img xi yi c #'mjr_img_cp-pack-int8x3-int24)))
+                     do (mjr_img_set-px-color img xi yi c #'mjr_color_cp-pack-int8x3-int24)))
       img)))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
@@ -416,7 +359,7 @@ The argument :arg-mode defaults to :arg-number. See mjr_img_make-from-gndata for
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_img_tga-write (out-file img &key
                           x-min x-max y-min y-max
-                          (color-unpacker #'mjr_img_cp-unpack-int8x3-int24) (color-space :cs-tru)
+                          (color-unpacker #'mjr_color_cp-unpack-int8x3-int24) (color-space :cs-tru)
                           show-progress)
   "Write IMG to a 24-bit TGA image file named OUT-FILE.
 
@@ -497,12 +440,12 @@ to zero."
                        do (let* ((b (read-byte stream))
                                  (g (read-byte stream))
                                  (r (read-byte stream)))
-                            (mjr_img_set-px-color img x y (vector r g b) #'mjr_img_cp-pack-int8x3-int24))))))))
+                            (mjr_img_set-px-color img x y (vector r g b) #'mjr_color_cp-pack-int8x3-int24))))))))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_img_ppm-write (out-file img &key
                           (x-min 0) (x-max nil) (y-min 0) (y-max nil)
-                          (color-unpacker #'mjr_img_cp-unpack-int8x3-int24) (color-space :cs-tru)
+                          (color-unpacker #'mjr_color_cp-unpack-int8x3-int24) (color-space :cs-tru)
                           show-progress)
   "Write IMG to a 24-bit PPM image file named OUT-FILE."
   (if show-progress

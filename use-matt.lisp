@@ -30,7 +30,7 @@
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_matt_help ()
-  "Help for MJR_MATTT: Test MATrix 
+  "Help for MJR_MATT: Test MATrix 
 
 This package focuses on various 'test' matrices -- i.e. matrices that have an exploitable structure allowing specialized algorithms.
 This code is not in a -test package because these matrices frequently come up in applications, and because they are very handy

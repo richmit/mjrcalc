@@ -432,7 +432,7 @@ Note that if EXPR is not a composite expression, then the return is NIL."
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_mxp_copy-expr (expr)
-  "Copy an expresion."
+  "Copy an expression."
   (typecase expr
     (list       (copy-tree expr))
     (string     (copy-seq  expr))
