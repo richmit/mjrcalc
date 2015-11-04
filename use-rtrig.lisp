@@ -1,11 +1,11 @@
 ;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;; @file      pre-rtrig.lisp
+;; @file      use-rtrig.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Rational Approximations For Irrational Functions.@EOL
 ;; @std       Common Lisp
-;; @see       
+;; @see       tst-rtrig.lisp
 ;; @copyright 
 ;;  @parblock
 ;;  Copyright (c) 1992, 1996, 2008, 2013, 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
@@ -54,7 +54,7 @@
 (defun mjr_rtrig_help ()
   "Help for MJR_RTRIG: Rational Approximations For Trigonometric Functions.
 
-This library implements completely deterministic, rational approximations for the trigonometric functions sin, cos, and tan .  By 'deterministic' we mean that
+This library implements completely deterministic, rational approximations for the trigonometric functions sin, cos, and tan.  By 'deterministic' we mean that
 a finite sequence of rational arithmetic operations are used to compute the approximation resulting in consistent results across conforming platforms. By
 rational we mean that rational inputs result in rational outputs, and the functions have a rational period.  For the sin approximations implemented here, this
 means that the following are true ($\widetilde{\sin}$ is the approximation):
@@ -62,6 +62,9 @@ means that the following are true ($\widetilde{\sin}$ is the approximation):
         $\widetilde{\sin}$ is $C^\infty$.
 
         $\widetilde{\sin}(\mathbb{Q})\subset\mathbb{Q}$.
+
+        Mirror symmetry across any vertical line intersecting a local extrema -- i.e. 
+        $\widetilde{\sin}\left(pn+\frac{p}{2}-y\right)=\widetilde{\sin}\left(pn+\frac{p}{2}+y\right)$ for all $n\in\mathbb{Z}$ and $y\in\mathbb{R}$.
 
         $\widetilde{\sin}$ is odd and periodic with period $2p\in\mathbb{Q}$ -- i.e. $-\widetilde{\sin}\left(x\right)=\widetilde{\sin}(-x)$,
         $\widetilde{\sin}\left(x\right)=\widetilde{\sin}(x+2p)$, and $p\in\mathbb{Q}$.
@@ -80,6 +83,8 @@ means that the following are true ($\widetilde{\sin}$ is the approximation):
 
         $\widetilde{\sin}$ has local minima at $2pn+\frac{3p}{2}$ for all $n\in\mathbb{Z}$ -- i.e. $\widetilde{\sin}'\left(2pn+\frac{3p}{2}\right)=0$ and
         $\widetilde{\sin}\left(2pn+\frac{3p}{2}\right)=1$ for all $n\in\mathbb{Z}$.
+
+See the exp-ratTrig.lisp example code for some insight into how the polynomial approximations in this code were developed.
 
 Some Use Cases:
 

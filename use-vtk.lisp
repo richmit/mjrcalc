@@ -37,6 +37,7 @@
         :MJR_MXP
         :MJR_ARR
         :MJR_ANNOT
+        :MJR_COLOR
         :MJR_NUMU
         :MJR_DQUAD
         :MJR_DSIMP)
@@ -63,53 +64,56 @@ The goal is to provide some basic functionality for transforming mathematical da
   "Dump a data set from a dquad list to DEST using VTK syntax."
   (let ((data-type (mjr_annot_get-value :ano-typ data-anno))
         (data-name (mjr_annot_get-value :ano-nam data-anno)))
-    (case data-type
-      ((:ano-typ-ivec :ano-typ-rvec)    (progn (format dest "VECTORS ~a float~%" data-name)
+    (cond ((mjr_annot_typ-numberp data-type) (if (mjr_annot_typ-nums-real data-type)
+                                                 (progn (format dest "SCALARS ~a float 1~%" data-name)
+                                                        (format dest "LOOKUP_TABLE default~%")
+                                                        (loop for i from 0 upto (1- npts)
+                                                              for v = (mjr_arr_aref-col-major data-array i)
+                                                              do (format dest "~a " (mjr_numu_code v :lang :lang-vtk)))
+                                                        (format dest "~%"))
+                                                 (progn (format dest "SCALARS ~a float 1~%" (format nil "~a_real" data-name))
+                                                        (format dest "LOOKUP_TABLE default~%")
+                                                        (loop for i from 0 upto (1- npts)
+                                                              for v = (mjr_arr_aref-col-major data-array i)
+                                                              do (format dest "~a " (mjr_numu_code (realpart v) :lang :lang-vtk)))
+                                                        (format dest "~%")
+                                                        (format dest "SCALARS ~a float 1~%" (format nil "~a_imag" data-name))
+                                                        (format dest "LOOKUP_TABLE default~%")
+                                                        (loop for i from 0 upto (1- npts)
+                                                              for v = (mjr_arr_aref-col-major data-array i)
+                                                              do (format dest "~a " (mjr_numu_code (imagpart v) :lang :lang-vtk)))
+                                                        (format dest "~%"))))
+          ((mjr_annot_typ-vectorp data-type) (if (mjr_annot_typ-nums-real data-type)
+                                                 (progn (format dest "VECTORS ~a float~%" data-name)
+                                                        (loop for i from 0 upto (1- npts)
+                                                              for v = (mjr_arr_aref-col-major data-array i)
+                                                              do (format dest "~a ~a ~a~%"
+                                                                         (mjr_numu_code (aref v 0)                         :lang :lang-vtk)
+                                                                         (mjr_numu_code (if (< 1 (length v)) (aref v 1) 0) :lang :lang-vtk)
+                                                                         (mjr_numu_code (if (< 2 (length v)) (aref v 2) 0) :lang :lang-vtk))))
+                                                 (error "mjr_vtk_print-data-set: Complex vectors are not supported! ~s" data-type)))
+          ((mjr_annot_typ-colorp data-type)  (let ((cuc (mjr_color_make-unpacker-color-space-converter-and-packer (mjr_annot_get-colorpacking data-type)
+                                                                                                                  (mjr_annot_get-colorspace data-type)
+                                                                                                                  :cs-rgb
+                                                                                                                  :cp-none)))
+                                               (format dest "COLOR_SCALARS ~a 3~%" data-name)
                                                (loop for i from 0 upto (1- npts)
-                                                     for v = (mjr_arr_aref-col-major data-array i)
+                                                     for v = (funcall cuc (mjr_arr_aref-col-major data-array i))
                                                      do (format dest "~a ~a ~a~%"
-                                                                (mjr_numu_code (aref v 0)                         :lang :lang-vtk)
-                                                                (mjr_numu_code (if (< 1 (length v)) (aref v 1) 0) :lang :lang-vtk)
-                                                                (mjr_numu_code (if (< 2 (length v)) (aref v 2) 0) :lang :lang-vtk)))))
-      ((:ano-typ-integer :ano-typ-real) (progn (format dest "SCALARS ~a float 1~%" data-name)
-                                               (format dest "LOOKUP_TABLE default~%")
-                                               (loop for i from 0 upto (1- npts)
-                                                     for v = (mjr_arr_aref-col-major data-array i)
-                                                     do (format dest "~a " (mjr_numu_code v :lang :lang-vtk)))
-                                               (format dest "~%")))
-      (:ano-typ-color                   (let ((cunpacker (mjr_annot_make-cunpacker (mjr_annot_get-value :ano-colorspace data-anno)
-                                                                                   (mjr_annot_get-value :ano-cpacking   data-anno)
-                                                                                   :cs-rgb)))
-                                          (format dest "COLOR_SCALARS ~a 3~%" data-name)
-                                          (loop for i from 0 upto (1- npts)
-                                                for v = (funcall cunpacker (mjr_arr_aref-col-major data-array i))
-                                                do (format dest "~a ~a ~a~%"
-                                                           (mjr_numu_code (aref v 0) :lang :lang-vtk)
-                                                           (mjr_numu_code (aref v 1) :lang :lang-vtk)
-                                                           (mjr_numu_code (aref v 2) :lang :lang-vtk)))))
-      (:ano-typ-complex                 (progn (format dest "SCALARS ~a float 1~%" (format nil "~a_real" data-name))
-                                               (format dest "LOOKUP_TABLE default~%")
-                                               (loop for i from 0 upto (1- npts)
-                                                     for v = (mjr_arr_aref-col-major data-array i)
-                                                     do (format dest "~a " (mjr_numu_code (realpart v) :lang :lang-vtk)))
-                                               (format dest "~%"))
-                                        (format dest "SCALARS ~a float 1~%" (format nil "~a_imag" data-name))
-                                        (format dest "LOOKUP_TABLE default~%")
-                                        (loop for i from 0 upto (1- npts)
-                                              for v = (mjr_arr_aref-col-major data-array i)
-                                              do (format dest "~a " (mjr_numu_code (imagpart v) :lang :lang-vtk)))
-                                        (format dest "~%"))
-      (otherwise                       (error "mjr_vtk_from-dquad: Unsupported :ANO-TYPE!")))))
+                                                                (mjr_numu_code (aref v 0) :lang :lang-vtk)
+                                                                (mjr_numu_code (aref v 1) :lang :lang-vtk)
+                                                                (mjr_numu_code (aref v 2) :lang :lang-vtk)))))
+          ('t                                (error "mjr_vtk_from-dquad: mjr_vtk_print-data-set :ANO-TYPE!")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_vtk_from-dquad (out-file dquad &key axes data-arrays file-note)
+(defun mjr_vtk_from-dquad (out-file dquad &key axes data file-note)
   "Write an ASCII VTK file with the contents of a DQUAD list.
 
-The 0-simplices (the points in VTK speak) are always put in the file.  DATA-ARRAYS specifies which point data sets should be put in the file -- it is a data
-index, data name, or a list of same.  When missing, DATA-ARRAYS defaults to every point data set in the DQUAD list.  SIMPLICES is an integer, or list of
+The 0-simplices (the points in VTK speak) are always put in the file.  DATA specifies which point data sets should be put in the file -- it is a data
+index, data name, or a list of same.  When missing, DATA defaults to every point data set in the DQUAD list.  SIMPLICES is an integer, or list of
 integers, specifying which sets of simplices should be put in the file -- ex: 2 means put the 2-simplices (triangles) in the file.  This argument has no
 default behavour when NIL."
-  (let* ((data-arrays (sort (or (mjr_util_non-list-then-list data-arrays) ;; Some apps (like VisIT) need colors first, scalars next, vectors last
+  (let* ((data (sort (or (mjr_util_non-list-then-list data) ;; Some apps (like VisIT) need colors first, scalars next, vectors last
                                 (concatenate 'list (mjr_vvec_to-vec-maybe (mjr_dquad_data-count dquad))))
                             (lambda (x y)
                               (mjr_annot_ano-typ< (mjr_dquad_get-data-ano dquad x :ano-typ)
@@ -137,9 +141,9 @@ default behavour when NIL."
                      do (format dest "~a " (mjr_numu_code v :lang :lang-vtk)))
             do (format dest "~%"))
       ;; Dump data sets
-      (if data-arrays
+      (if data
           (progn (format dest "POINT_DATA ~d~%" npts)
-                 (dolist (da-dat data-arrays)
+                 (dolist (da-dat data)
                    (mjr_vtk_print-data-set dest
                                            (mjr_dquad_get-data-array dquad da-dat)
                                            (mjr_dquad_get-data-ano  dquad da-dat)

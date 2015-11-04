@@ -37,7 +37,6 @@
   (:DOCUMENTATION "Brief: Geometric Data Sets: Supporting :MJR_DSIMP and :MJR_DQUAD.;")
   (:EXPORT #:mjr_annot_help ()
            
-           #:mjr_annot_check-ano-colorspace
            #:mjr_annot_check-ano-typ
            #:mjr_annot_check-ano-nam
 
@@ -50,8 +49,9 @@
 
            #:mjr_annot_ano-typ<
 
-           #:mjr_annot_make-cunpacker
-           #:mjr_annot_make-cpacker
+           #:mjr_annot_get-colorpacking #:mjr_annot_get-colorspace
+
+           #:mjr_annot_typ-colorp #:mjr_annot_typ-vectorp #:mjr_annot_typ-numberp #:mjr_annot_typ-nums-real
            ))
 
 (in-package :MJR_ANNOT)
@@ -65,44 +65,28 @@ of the following possible annotation keys:
 
     * :ano-typ -- the element type for the array/array.  Values for the :ano-typ key may be any of the following:
 
-         |------------------+-----------------------------+---------------|
-         | :ano-typ Value   | Description                 | VTK supported |
-         |------------------+-----------------------------+---------------|
-         | :ano-typ-real    | real numbers                | YES           |
-         | :ano-typ-integer | integers                    | YES'ish       |
-         | :ano-typ-complex | complex numbers             | NO            |
-         | :ano-typ-color   | A vector representing color | YES           |
-         | :ano-typ-ivec    | integer vector              | YES'ish       |
-         | :ano-typ-rvec    | real vector                 | YES           |
-         | :ano-typ-cvec    | complex vector              | NO            |
-         |------------------+-----------------------------+---------------|
+         |------------------+----------------------+---------+-----------+-----------+---------|
+         | :ano-typ Value   | Data Type            | MJR_VTK | MJR_GNUPL | MJR_COLOR | MJR_POV |
+         |------------------+----------------------+---------+-----------+-----------+---------|
+         | :ano-typ-real    | floating             | YES     | YES       | N/A       | YES     |
+         | :ano-typ-integer | integer              | YES (1) | YES (1)   | N/A       | YES (1) |
+         | :ano-typ-complex | complex              | NO      | NO        | N/A       | NO      |
+         |------------------+----------------------+---------+-----------+-----------+---------|
+         | :ano-typ-ivec    | vector of integers   | YES (1) | YES (1)   | N/A       | YES (1) |
+         | :ano-typ-rvec    | vector of floats     | YES     | YES       | N/A       | YES     |
+         | :ano-typ-cvec    | vector of complexs   | NO      | NO        | N/A       | NO      |
+         |------------------+----------------------+---------+-----------+-----------+---------|
+         | :ano-typ-truint  | :cs-tru & :cp-int8x3 | NO (4)  | YES (2)   | YES       | NO (4)  |
+         | :ano-typ-truvec  | :cs-tru & :cp-none   | NO (4)  | YES       | YES       | NO (4)  |
+         | :ano-typ-rgbvec  | :cs-rgb & :cp-none   | YES     | YES (2)   | YES       | YES     |
+         | :ano-typ-hsvvec  | :cs-hsv & :cp-none   | NO (4)  | YES (2)   | YES       | NO (4)  |
+         | :ano-typ-hslvec  | :cs-hsl & :cp-none   | NO (4)  | YES (2)   | YES       | NO (4)  |
+         |------------------+----------------------+---------+-----------+-----------+---------|
 
-      YES'ish for 'VTK supported' means that integers are treated as real numbers by VKT.
-
-    * :ano-colorspace -- May only be present if :ano-typ is :ano-typ-color.  The value of this item indicates the color space used,
-      and defaults to :cs-rgb if missing.  If present, it must be a valid colorspace value from the :MJR_COLOR package:
-
-         |-----------------------+----------------+-----------+---------------|
-         | :ano-colorspace Value | Component Type | ranges    | VTK Supported |
-         |-----------------------+----------------+-----------+---------------|
-         | :cs-tru               | integer        | [0,255]^3 | NO            |
-         | :cs-rgb               | float          | [0,1]^3   | YES           |
-         | :cs-hsv               | float          | [0,1]^3   | NO            |
-         | :cs-hsl               | float          | [0,1]^3   | NO            |
-         |-----------------------+----------------+-----------+---------------|
-
-    * :ano-cpacking -- Indicates how color values are packed into each data cell.  Note that arbitrary pack/unpack functions are NOT
-      supported here as they are in the :MJR_IMG library.  Rather, the possibilities are restricted to the most useful combinations
-      of packing options. If missing, a value of :CP-IDENTITY is assumed.
-
-         |---------------------+----------+------------+-----------------+----------------|
-         | :ano-cpacking Value | Channels | Chan Depth | Colorspace      | VTK Supported  |
-         |---------------------+----------+------------+-----------------+----------------|
-         | :cp-identity        |      N/A | N/A        | :CS-RGB :CS-TRU | Yes if :CS-RGB |
-         | :cp-int8x3          |        3 | 8          | :CS-TRU         | NO             |
-         | :cp-int8x4          |        4 | 8          | :CS-TRU         | NO             |
-         | :cp-int0x1          |        1 | N/A        | N/A             | NO             |
-         |---------------------+----------+------------+-----------------+----------------|
+                   (1) .. Treated as floats
+                   (2) .. Automatically converted before used by external tool
+                   (3) .. NOP
+                   (4) .. Could be supported via conversion -- like (2).  Will probably add support in the future.
 
     * :ano-nam -- a name for following array.  The value for this key is a string.
 
@@ -113,8 +97,6 @@ of the following possible annotation keys:
 (defun mjr_annot_get-default-value (ano-key)
   "Return the default value for an ano-key"
   (case ano-key
-    (:ano-cpacking   :cp-identity)
-    (:ano-colorspace :cs-rgb)
     (:ano-typ        :ano-typ-real)
     (otherwise       nil)))
 
@@ -128,9 +110,9 @@ of the following possible annotation keys:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_check-ano-key (ano-key)
-  "Error if ano-key is not a supported value (:ano-typ :ano-colorspace :ano-cpacking :ano-nam :ano-units)"
-  (if (not (member ano-key '(:ano-typ :ano-colorspace :ano-cpacking :ano-nam :ano-units)))
-      (error "mjr_annot_check-ano-key: :ano-key must be one of :ano-typ, :ano-colorspace, :ano-cpacking, :ano-nam, or :ano-units")))
+  "Error if ano-key is not a supported value (:ano-typ :ano-nam :ano-units)"
+  (if (not (member ano-key '(:ano-typ :ano-nam :ano-units)))
+      (error "mjr_annot_check-ano-key: :ano-key must be one of :ano-typ, :ano-nam, or :ano-units")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_check-ano-units (ano-units)
@@ -143,8 +125,10 @@ of the following possible annotation keys:
 (defun mjr_annot_check-ano-typ (ano-typ)
   "ERROR if ano-typ is non-NIL and invalid."
   (if ano-typ
-      (if (not (member ano-typ '(:ano-typ-real :ano-typ-integer :ano-typ-complex :ano-typ-color :ano-typ-ivec :ano-typ-rvec :ano-typ-cvec)))
-          (error "mjr_annot_check-ano-typ: :ano-typ must be one of :ano-typ-real, :ano-typ-integer, :ano-typ-complex, :ano-typ-color, :ano-typ-ivec, :ano-typ-rvec, or :ano-typ-cvec"))
+      (if (not (member ano-typ '(:ano-typ-real :ano-typ-integer :ano-typ-complex
+                                 :ano-typ-truvec :ano-typ-truint :ano-typ-rgbvec :ano-typ-hsvvec :ano-typ-hslvec
+                                 :ano-typ-ivec :ano-typ-rvec :ano-typ-cvec)))
+          (error "mjr_annot_check-ano-typ: invalid :ano-typ!"))
       (warn "mjr_annot_make-alist: ano-typ is NIL!")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -154,42 +138,6 @@ of the following possible annotation keys:
           ((not (stringp ano-nam))       (error "mjr_annot_check-ano-nam: :ano-nam must be a string"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_annot_check-ano-colorspace (ano-typ ano-colorspace)
-  "ERROR if :ano-colorspace is invalid."
-  (let ((ano-typ        (or ano-typ
-                            (mjr_annot_get-default-value :ano-typ))))
-    (if (equalp :ano-typ-color ano-typ)
-        (cond ((null ano-colorspace)                              (warn "mjr_annot_check-ano-colorspace: :ano-colorspace should be non-NIL :ano-typ is :ano-typ-color"))
-              ((not (member ano-colorspace
-                            '(:cs-tru :cs-rgb :cs-hsv :cs-hsl))) (error "mjr_annot_check-ano-colorspace: :ano-colorspace must be one of :cs-tru, :cs-rgb, :cs-hsv, or :cs-hsl")))
-        (if ano-colorspace
-            (error "mjr_annot_check-ano-colorspace: :ano-colorspace must be NIL if :ano-typ is NOT :ano-typ-color")))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_annot_check-ano-cpacking (ano-typ ano-colorspace ano-cpacking)
-  "ERROR if :ano-cpacking is invalid."
-  (let ((ano-typ        (or ano-typ
-                            (mjr_annot_get-default-value :ano-typ)))
-        (ano-colorspace (or ano-colorspace
-                            (mjr_annot_get-default-value :ano-colorspace))))
-    (if (equalp :ano-typ-color ano-typ)
-        (if ano-cpacking
-            (if (member ano-cpacking
-                        '(:cp-identity :cp-int8x3 :cp-int8x4 :cp-int0x1))
-                (if (equalp ano-cpacking :cp-identity)
-                    (if (not (or (equalp ano-colorspace :CS-RGB)
-                                 (equalp ano-colorspace :CS-TRU)))
-                        (error "mjr_annot_check-ano-cpacking: :ano-cpacking & :ano-colorspace have incompatible values!"))
-                    (if (or (equalp ano-cpacking :cp-int8x3)
-                            (equalp ano-cpacking :cp-int8x4))
-                        (if (not (equalp ano-colorspace :CS-TRU))
-                            (error "mjr_annot_check-ano-cpacking: :ano-cpacking & :ano-colorspace have incompatible values!"))))
-                (error "mjr_annot_check-ano-cpacking: :ano-cpacking must be one of :cp-identity, :cp-int8x3, :cp-int8x4, or :cp-int0x1"))
-            (warn "mjr_annot_check-ano-cpacking: :ano-cpacking should be non-NIL when :ano-typ is :ano-typ-color"))
-        (if ano-cpacking
-            (error "mjr_annot_check-ano-cpacking: :ano-cpacking must be NIL if :ano-typ is NOT :ano-typ-color")))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_ano-typ< (key1 key2)
   "A comparison function on possible :ano-typ values.
 
@@ -197,32 +145,58 @@ Order definition:
   :ano-typ-color < :ano-typ-real = :ano-typ-integer < everything else
 
 The order is compatible with the order in which data sets are required to appear in some software (like VisIT)"
-                               (or (equalp key1 key2)
-                                   (equalp key1 :ano-typ-color)
-                                   (and (or (equalp key1 :ano-typ-real)
-                                            (equalp key1 :ano-typ-integer))
-                                        (not (equalp key2 :ano-typ-color)))))
+  (or (equalp key1 key2)
+      (mjr_annot_typ-colorp key1)
+      (and (or (equalp key1 :ano-typ-real)
+               (equalp key1 :ano-typ-integer))
+           (not (mjr_annot_typ-colorp key2)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_annot_make-alist (&optional ano-nam ano-typ ano-colorspace ano-cpacking ano-units)
+(defun mjr_annot_make-alist (&optional ano-nam ano-typ ano-units)
   "Stuff arguments into an alist."
   (mjr_annot_check-ano-nam ano-nam)
   (mjr_annot_check-ano-typ ano-typ)
-  (mjr_annot_check-ano-colorspace ano-typ ano-colorspace)
-  (mjr_annot_check-ano-cpacking ano-typ ano-colorspace ano-cpacking)
-  (loop for da-key in (list :ano-nam :ano-typ :ano-colorspace :ano-cpacking :ano-units)
-        for da-val in (list  ano-nam  ano-typ  ano-colorspace  ano-cpacking  ano-units)
+  (loop for da-key in (list :ano-nam :ano-typ :ano-units)
+        for da-val in (list  ano-nam  ano-typ  ano-units)
         when da-val
         collect (cons da-key da-val)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_annot_make-cunpacker (ano-colorspace ano-cpacking &optional (output-colorspace :cs-rgb))
-  "Helper function to unpack a color vector from a value given annotations for colorspace and cpacking"
-  (lambda (v) (mjr_color_convert-xxx2xxx (mjr_color_cp-unpack v ano-cpacking) ano-colorspace output-colorspace)))
+(defun mjr_annot_typ-colorp (ano-typ)
+  "Return non-NIL if ano-type is a color type."
+  (member ano-typ '(:ano-typ-truvec :ano-typ-truint :ano-typ-rgbvec :ano-typ-hsvvec :ano-typ-hslvec)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_annot_make-cpacker (ano-colorspace ano-cpacking &optional (input-colorspace :cs-rgb))
-  "Helper function to pack a color vector into a value given annotations for colorspace and cpacking"
-  (lambda (c) (mjr_color_cp-pack (mjr_color_convert-xxx2xxx c input-colorspace ano-colorspace) ano-cpacking)))
+(defun mjr_annot_typ-vectorp (ano-typ)
+  "Return non-NIL if ano-type is a vector type (not a color)."
+  (member ano-typ '(:ano-typ-ivec :ano-typ-rvec :ano-typ-cvec)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_annot_typ-numberp (ano-typ)
+  "Return non-NIL if ano-type is a vector type (not a color)."
+  (member ano-typ '(:ano-typ-real :ano-typ-integer :ano-typ-complex)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_annot_typ-nums-real (ano-typ)
+  "Return non-NIL if ano-type is a non-color data type that contains real (not complex) numers"
+  (member ano-typ '(:ano-typ-real :ano-typ-integer :ano-typ-rvec :ano-typ-ivec)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_annot_get-colorspace (ano-typ)
+  "Returns one of :cs-tru, :cs-tru, :cs-rgb, :cs-hsv, :cs-hsl, or NIL."
+  (case ano-typ
+    (:ano-typ-truvec  :cs-tru)
+    (:ano-typ-truint  :cs-tru)
+    (:ano-typ-rgbvec  :cs-rgb)
+    (:ano-typ-hsvvec  :cs-hsv)
+    (:ano-typ-hslvec  :cs-hsl)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_annot_get-colorpacking (ano-typ)
+  "Returns one of :cp-int8x3, :cp-none, or NIL."
+  (case ano-typ
+    (:ano-typ-truint :cp-int8x3)
+    (:ano-typ-truvec :cp-none)  
+    (:ano-typ-rgbvec :cp-none)  
+    (:ano-typ-hsvvec :cp-none)  
+    (:ano-typ-hslvec :cp-none)))

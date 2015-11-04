@@ -26,8 +26,6 @@
 ;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 ;;  DAMAGE.
 ;;  @endparblock
-;; @todo      a-dquad: Need an easy way to pull out an image from a dquad, and dump it into a file or manipulate it.@EOL@EOL
-;; @todo      exp-PovWaveGraph.lisp: Perhaps 'mjr_img' should be subordinate to mjr_dquad -- i.e. only work with images in a dquad?@EOL@EOL
 ;; @filedetails
 ;;
 ;;  Render with the following
@@ -44,10 +42,10 @@
                (setq a-dquad (mjr_fsamp_dq-func-r123-r123 (lambda (x y) (+ (sin x) (cos y)))
                                                                  :xdat '(:start -7.0 :end 7.0 :len 1024)
                                                                  :ydat '(:start -7.0 :end 7.0 :len 1024)))
-               (mjr_dquad_colorize a-dquad :data 0 :color-method "BCGYR"                                                          :ano-nam "i")
-               (mjr_dquad_colorize a-dquad :data 0 :color-method #'mjr_colorized_povray :ano-colorspace :cs-tru :max-color #xFFFF :ano-nam "h")))
+               (mjr_dquad_colorize a-dquad :data 0 :color-method "BCGYR"                                                           :ano-nam "i")
+               (mjr_dquad_colorize a-dquad :data 0 :color-method #'mjr_colorized_povray :ano-typ :ano-typ-truvec :max-color #xFFFF :ano-nam "h")))
   (time (progn (format 't "Write Color Height Field~%")
-               (mjr_img_tga-write "exp-PovWaveGraph-OUT-h.tga" (mjr_dquad_get-data-array a-dquad "h") :color-space :cs-tru :color-unpacker #'identity)
+               (mjr_tga_from-dquad "exp-PovWaveGraph-OUT-h.tga" a-dquad :data "h")
                (format 't "Write Color Scheme~%")
-               (mjr_img_tga-write "exp-PovWaveGraph-OUT-i.tga" (mjr_dquad_get-data-array a-dquad "i") :color-space :cs-rgb :color-unpacker #'identity))))
+               (mjr_tga_from-dquad "exp-PovWaveGraph-OUT-i.tga" a-dquad :data "i"))))
 

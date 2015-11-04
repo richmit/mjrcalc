@@ -37,7 +37,7 @@
 (declaim (optimize (speed 3) (safety 0) ( debug 0) (compilation-speed 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(time (let ((numx 200)          ;; Set to 200 for triangular geometry (GNUplot, VTK, Povray), and 1536 for image based geometry
+(time (let ((numx 200)          ;; Set to <500 for triangular geometry (GNUplot, VTK, Povray), and 1536 for image based geometry
             (numy 200))
         (flet ((pot-fun (x y)
                (multiple-value-bind
@@ -52,7 +52,7 @@
         (print "Compute dquad...")
         (mjr_dquad_add-data-from-map daData #'pot-fun :axes 't :ano-nam "Mandelbrot-Pot" :ano-typ :ano-typ-real)
         (print "Add image to dquad...")
-        (mjr_dquad_colorize daData :data 0 :color-method #'mjr_colorized_povray :max-color #xFFFF :auto-scale 't :ano-nam "Mandelbrot-Pot-Img" :ano-colorspace :cs-tru)
+        (mjr_dquad_colorize daData :data 0 :color-method #'mjr_colorized_povray :max-color #xFFFF :auto-scale 't :ano-nam "Mandelbrot-Pot-Img" :ano-typ :ano-typ-truvec)
 
         (if (> 500 (max numx numy))
             (progn (print "VTK...")
@@ -62,10 +62,10 @@
                    (format 't "~%Press [ENTER] to continue.~%")
                    (read-char)
                    (print "gnuplot image")
-                   (mjr_gnupl_dquad daData :data-arrays 1 :type :rgb)
+                   (mjr_gnupl_dquad daData :data 1 :type :rgb)
                    (print "povray geom")
                    (mjr_pov_make-from-dsimp "exp-MandelbrotPot-OUT.pov"
                                             (mjr_dsimp_make-from-dquad daData '(0 1) 0 :surface-grid nil :surface-normal-name "normals")
                                             :simplices 2 :draw-2-simplex-vertexes nil :draw-2-simplex-edges nil :draw-2-simplex-triangles 't))
             (progn (print "povray TGA")
-                   (mjr_img_tga-write "exp-MandelbrotPot-OUT.tga" (mjr_dquad_get-data-array daData 1) :color-unpacker #'identity)))))))
+                   (mjr_tga_from-dquad "exp-MandelbrotPot-OUT.tga" daData :data 1)))))))

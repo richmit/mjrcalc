@@ -87,7 +87,7 @@ This is the one package that tools consuming colorization specifications need to
   (documentation 'mjr_colorize_help 'function))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_colorize_make-colorize-function (color-method color-space max-color data-range auto-scale)
+(defun mjr_colorize_make-colorize-function (color-method color-space max-color data-range auto-scale packer)
   "Return a colorize function from a function, gradient, or pallet with optional argument scaling.
 Arguments:
      * color-method .. Function, gradient, multi-gradient, pallet
@@ -132,16 +132,19 @@ Examples
                                            (string    1.0)
                                            (vector    1.0)
                                            (otherwise (error "mjr_colorize_make-colorize-function: max-color must be provided for auto-scale when color-method is not a string or vector!"))))
-                                (otherwise (error "mjr_colorize_make-colorize-function: max-color must be provided for auto-scale when color-space is not :cs-tru or :cs-rgb!")))))))
-    (if (and auto-scale data-range max-color)
-        (lambda (&rest rest) (apply fun (loop for vval in rest
-                                              for vidx from 0 by 2
-                                              for vmin = (aref data-range vidx)
-                                              for vmax = (aref data-range (1+ vidx))
-                                              for invm = (- vmax vmin)
-                                              for sval = (if (zerop invm) 0 (/ (* max-color (- vval vmin)) invm))
-                                              collect (if (eq color-space :cs-tru)
-                                                          (truncate sval)
-                                                          sval))))
-        (lambda (&rest rest) (apply fun rest)))))
-
+                                (otherwise (error "mjr_colorize_make-colorize-function: max-color must be provided for auto-scale when color-space is not :cs-tru or :cs-rgb!"))))))
+         (colfun      (if (and auto-scale data-range max-color)
+                          (lambda (&rest rest) (apply fun (loop for vval in rest
+                                                                for vidx from 0 by 2
+                                                                for vmin = (aref data-range vidx)
+                                                                for vmax = (aref data-range (1+ vidx))
+                                                                for invm = (- vmax vmin)
+                                                                for sval = (if (zerop invm) 0 (/ (* max-color (- vval vmin)) invm))
+                                                                collect (if (eq color-space :cs-tru)
+                                                                            (truncate sval)
+                                                                            sval))))
+                          (lambda (&rest rest) (apply fun rest)))))
+    (if (and packer (not (equalp packer #'identity)))
+        (lambda (&rest rest) (funcall packer (apply colfun rest)))
+        colfun)))
+  

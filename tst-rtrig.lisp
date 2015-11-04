@@ -30,7 +30,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defpackage :MJR_RTRIG-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_RTRIG :MJR_PRNG))
+(defpackage :MJR_RTRIG-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_RTRIG :MJR_EPS :MJR_PRNG))
 
 (in-package :MJR_RTRIG-TESTS)
 
@@ -50,7 +50,10 @@
           do (assert-equal  0 (mjr_rtrig_sin-f (* n p)))                          ;; zeros
           do (assert-equal  1 (mjr_rtrig_sin-f (+ (/ p 2) (* 2 n p))))            ;; max
           do (assert-equal -1 (mjr_rtrig_sin-f (+ (* 3 (/ p 2)) (* 2 n p)))))     ;; min
-          )
+    )
+  (dotimes (i 5000)
+    (let* ((r (mjr_prng_float-cc -100d0 100d0)))
+      (assert-equality (mjr_eps_make-fixed= 0.00007) (mjr_rtrig_sin-f r nil) (sin r))))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -86,6 +89,9 @@
           do (assert-equal  1 (mjr_rtrig_cos-f (* 2 n p)))                        ;; max
           do (assert-equal -1 (mjr_rtrig_cos-f (+ p (* 2 n p)))))                 ;; min
     )
+  (dotimes (i 5000)
+    (let* ((r (mjr_prng_float-cc -100d0 100d0)))
+      (assert-equality (mjr_eps_make-fixed= 0.0003) (mjr_rtrig_cos-f r nil) (cos r))))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -105,6 +111,9 @@
           do (assert-equal  1 (mjr_rtrig_sin-q (+ (/ p 2) (* 2 n p))))            ;; max
           do (assert-equal -1 (mjr_rtrig_sin-q (+ (* 3 (/ p 2)) (* 2 n p)))))     ;; min
           )
+  (dotimes (i 5000)
+    (let* ((r (mjr_prng_float-cc -100d0 100d0)))
+      (assert-equality (mjr_eps_make-fixed= 0.0007) (mjr_rtrig_sin-q r nil) (sin r))))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -124,6 +133,9 @@
           do (assert-equal  1 (mjr_rtrig_cos-q (* 2 n p)))                        ;; max
           do (assert-equal -1 (mjr_rtrig_cos-q (+ p (* 2 n p)))))                 ;; min
     )
+  (dotimes (i 5000)
+    (let* ((r (mjr_prng_float-cc -100d0 100d0)))
+      (assert-equality (mjr_eps_make-fixed= 0.001) (mjr_rtrig_cos-q r nil) (cos r))))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

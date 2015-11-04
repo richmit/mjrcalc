@@ -36,6 +36,7 @@
         :MJR_UTIL
         :MJR_COLOR
         :MJR_DQUAD
+        :MJR_ANNOT
         :MJR_VVEC
         :MJR_ARR)
   (:DOCUMENTATION "Brief: Plotting dquads with GNUPlot.;")
@@ -115,7 +116,7 @@ See the gnuplotGO.sh script for one way to make sure that a gnuplot process is a
   (mjr_gnupl_send-command "reset"        alternate-gnuplot-stream))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_gnupl_dquad (dquad &key data-arrays
+(defun mjr_gnupl_dquad (dquad &key data
                                 (type :l) (pal "default") col
                                 title xlab ylab zlab main
                                 xlim ylim zlim
@@ -123,31 +124,28 @@ See the gnuplotGO.sh script for one way to make sure that a gnuplot process is a
   "Plot a dquad object with GNUplot.
 
 If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppress titles entirely, set :TITLE to '(NIL) -- a list containing a NIL."
-  (let* ((data-idxs   (or (mjr_util_non-list-then-list data-arrays)
+  (let* ((data-idxs   (or (mjr_util_non-list-then-list data)
                                   (concatenate 'list (mjr_vvec_to-vec-maybe (mjr_dquad_data-count dquad)))))
-         (data-arrays (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x       )) data-idxs))
+         (data (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x       )) data-idxs))
          (data-types  (mapcar (lambda (x) (mjr_dquad_get-data-ano dquad x :ano-typ)) data-idxs))
          (data-names  (mapcar (lambda (x) (mjr_dquad_get-data-ano dquad x :ano-nam)) data-idxs))
-         (num-plots   (length data-arrays))
+         (num-plots   (length data))
          (title       (mjr_util_non-list-then-list title))
          (type        (mjr_util_non-list-then-list type))
          (rng-dim     (loop for plt-idx from 0 upto (1- num-plots)
-                            for daElm = (mjr_arr_aref-col-major (mjr_util_elt-mod data-arrays plt-idx) 0)
+                            for daElm = (mjr_arr_aref-col-major (mjr_util_elt-mod data plt-idx) 0)
                             for dtyp in data-types
                             for ptyp = (mjr_util_elt-mod type plt-idx)
-                            collect (case dtyp
-                                      (:ano-typ-real    1)
-                                      (:ano-typ-integer 1)
-                                      (:ano-typ-complex 2)
-                                      (:ano-typ-color   (if (string-equal ptyp :rgb) (length daElm)))
-                                      (:ano-typ-ivec    (length daElm))
-                                      (:ano-typ-rvec    (length daElm))
-                                      (:ano-typ-cvec    (error "mjr_gnupl_dquad: Complex vector range not supported"))
-                                      (otherwise        (error "mjr_gnupl_dquad: Invalid range data type (~a)" dtyp)))))
+                            for dim  = (cond ((equalp dtyp :ano-typ-complex)         2)
+                                             ((and (mjr_annot_typ-numberp dtyp))     1)
+                                             ((and (mjr_annot_typ-vectorp dtyp)
+                                                   (mjr_annot_typ-nums-real dtyp))   (length daElm))
+                                             ((mjr_annot_typ-colorp dtyp)            1))
+                            collect (or dim (error "mjr_gnupl_dquad: Unsupported range data type (~a)" dtyp))))
          (axes        (mapcar (lambda (x) (mjr_dquad_get-axis-vector dquad x))
                               (concatenate 'list (mjr_vvec_to-vec-maybe (mjr_dquad_axis-count dquad)))))
          (col         (mjr_util_non-list-then-list col))
-         (num-plt     (length data-arrays))
+         (num-plt     (length data))
          (dat3d       (or (< 1 (length axes))
                           (some (lambda (x) (= 3 x)) rng-dim)))
          (plt3d       (and dat3d
@@ -207,20 +205,27 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
                       (dtyp (elt data-types plt-idx)))
                  (case rdim
                    (1 (loop for x across xaxis
-                            for d across (nth plt-idx data-arrays)
+                            for d across (nth plt-idx data)
                             do (mjr_gnupl_send-command (format nil "~F ~F " x d) alternate-gnuplot-stream)))
                    (2 (case dtyp
-                        (:ano-typ-complex (loop for d across (nth plt-idx data-arrays)
+                        (:ano-typ-complex (loop for d across (nth plt-idx data)
                                                 do (mjr_gnupl_send-command (format nil "~F ~F " (realpart d) (imagpart d)) alternate-gnuplot-stream)))
-                        (otherwise        (loop for d across (nth plt-idx data-arrays)
+                        (otherwise        (loop for d across (nth plt-idx data)
                                                 do (mjr_gnupl_send-command (format nil "~F ~F " (aref d 0) (aref d 1)) alternate-gnuplot-stream)))))
-                   (3 (loop for d across (nth plt-idx data-arrays)
+                   (3 (loop for d across (nth plt-idx data)
                             do (mjr_gnupl_send-command (format nil "~F ~F ~F " (aref d 0) (aref d 1) (aref d 2)) alternate-gnuplot-stream)))
                    (otherwise (error "mjr_gnupl_dquad: Range dimension ~d is not support with domain dimension of 1" rdim)))
                  (mjr_gnupl_send-command  "e" alternate-gnuplot-stream))))
           (2 (dotimes (plt-idx num-plt)
                (let* ((rdim (elt rng-dim plt-idx))
-                      (cdat (elt data-arrays plt-idx)))
+                      (cdat (elt data plt-idx))
+                      (datt (elt data-types plt-idx))
+                      (colp (string-equal (mjr_util_elt-mod type plt-idx) :rgb))
+                      (cuc  (if colp
+                                (mjr_color_make-unpacker-color-space-converter-and-packer (mjr_annot_get-colorpacking datt)
+                                                                                          (mjr_annot_get-colorspace datt)
+                                                                                          :cs-tru
+                                                                                          :cp-none))))
                  (case rdim
                    (1 (loop for xi from 0
                             for x across xaxis
@@ -228,10 +233,8 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
                                      for y across yaxis
                                      for d = (aref cdat xi yi)
                                      do (mjr_gnupl_send-command
-                                         (if (string-equal (mjr_util_elt-mod type plt-idx) :rgb)
-                                             (let ((pcol (if (vectorp d)
-                                                             d
-                                                             (mjr_color_cp-unpack-int8x3-int24 d))))
+                                         (if colp
+                                             (let ((pcol  (funcall cuc d)))
                                                (format nil "~F ~F ~F ~F ~F " x y (aref pcol 0) (aref pcol 1) (aref pcol 2)))
                                              (format nil "~F ~F ~F " x y d)) alternate-gnuplot-stream))
                             do (mjr_gnupl_send-command "" alternate-gnuplot-stream)))

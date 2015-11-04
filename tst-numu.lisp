@@ -360,6 +360,59 @@
  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_numu_abs-max
+  (assert-equal  2 (mjr_numu_abs-max  2))
+  (assert-equal -2 (mjr_numu_abs-max -2))
+  (assert-equal  0 (mjr_numu_abs-max  0))
+  
+  (assert-equal -2 (mjr_numu_abs-max -2  2)) ;; Stable -- find FIRST biggest one
+  (assert-equal  2 (mjr_numu_abs-max  2 -2))
+
+  (assert-equal -3 (mjr_numu_abs-max -3   2))
+  (assert-equal  3 (mjr_numu_abs-max  3   2))
+  (assert-equal -3 (mjr_numu_abs-max -3  -2))
+  (assert-equal  3 (mjr_numu_abs-max  3  -2))
+
+  (assert-equal  5 (mjr_numu_abs-max  1 2 3 4 5))
+  (assert-equal  5 (mjr_numu_abs-max  5 4 3 2 1))
+  (assert-equal  5 (mjr_numu_abs-max  1 2 3 4 5 -5))
+  (assert-equal  5 (mjr_numu_abs-max  5 4 3 2 1 -5))
+  (assert-equal -6 (mjr_numu_abs-max  1 2 3 4 5 -6))
+  (assert-equal -6 (mjr_numu_abs-max  5 4 3 2 1 -6))
+  (assert-equal -6 (mjr_numu_abs-max  1 2 3 -6 4 5))
+  (assert-equal -6 (mjr_numu_abs-max  5 4 3 -6 2 1))
+  (assert-equal -6 (mjr_numu_abs-max  -6 1 2 3 4 5))
+  (assert-equal -6 (mjr_numu_abs-max  -6 5 4 3 2 1))
+ )
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_numu_abs-min
+  (assert-equal  2 (mjr_numu_abs-min  2))
+  (assert-equal -2 (mjr_numu_abs-min -2))
+  (assert-equal  0 (mjr_numu_abs-min  0))
+  
+  (assert-equal -2 (mjr_numu_abs-min -2  2)) ;; Stable -- find FIRST biggest one
+  (assert-equal  2 (mjr_numu_abs-min  2 -2))
+
+  (assert-equal -2 (mjr_numu_abs-min -2   3))
+  (assert-equal  2 (mjr_numu_abs-min  2   3))
+  (assert-equal -2 (mjr_numu_abs-min -2  -3))
+  (assert-equal  2 (mjr_numu_abs-min  2  -3))
+
+  (assert-equal  1 (mjr_numu_abs-min  1 2 3 4 5))
+  (assert-equal  1 (mjr_numu_abs-min  5 4 3 2 1))
+  (assert-equal  1 (mjr_numu_abs-min  1 2 3 4 5 -1))  ;; stable
+  (assert-equal  1 (mjr_numu_abs-min  5 4 3 2 1 -1))  ;; stable
+  (assert-equal -1 (mjr_numu_abs-min  2 3 4 5 6 -1))
+  (assert-equal -1 (mjr_numu_abs-min  6 5 4 3 2 -1))
+  (assert-equal -1 (mjr_numu_abs-min  2 3 4 -1 5 6))
+  (assert-equal -1 (mjr_numu_abs-min  6 5 4 -1 3 2))
+  (assert-equal -1 (mjr_numu_abs-min  -1 2 3 4 5 6))
+  (assert-equal -1 (mjr_numu_abs-min  -1 6 5 4 3 2))
+  
+ )
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests
-;; '(mjr_numu_gamma-lanczos)
+ ;'(mjr_numu_abs-min mjr_numu_abs-max)
  )

@@ -100,7 +100,7 @@
                                    :ano-nam (concatenate 'string cas "-delta")
                                    :ano-typ :ano-typ-real)
       ;; Step 6a) Graph the difference
-      (mjr_gnupl_dquad dqd :data-arrays (concatenate 'string cas "-delta") :type type)
+      (mjr_gnupl_dquad dqd :data (concatenate 'string cas "-delta") :type type)
       ;; Step 6b) Graph the difference
       (mjr_vtk_from-dquad (concatenate 'string path "exp-compareComplexFunction-OUT-" cas "-delta.vtk") dqd))))
 
@@ -119,8 +119,8 @@
 ;;        (dq    (mjr_fsamp_dq-func-r123-r123 (list func func2) :xdat (list :start 0.d0 :end (* range 2 pi) :len 10000))))
 ;;            (mjr_dquad_add-data-from-map dq #'-   :data '(0 1)  :ano-nam "delta")
 ;;            (mjr_dquad_add-data-from-map dq (lambda (x y) (if (zerop x) 0 (min 100 (abs (* 100 (/ (- y x) x)))))) :data '(0 1) :ano-nam "pdelta")
-;;            (mjr_gnupl_dquad dq :data-arrays '(0 1) :ylim '(-10 10))
-;;            ;(mjr_gnupl_dquad dq :data-arrays "pdelta" :ylim '(-1 101))
-;;            ;(mjr_gnupl_dquad dq :data-arrays "delta" :ylim '(-.001 .001))
+;;            (mjr_gnupl_dquad dq :data '(0 1) :ylim '(-10 10))
+;;            ;(mjr_gnupl_dquad dq :data "pdelta" :ylim '(-1 101))
+;;            ;(mjr_gnupl_dquad dq :data "delta" :ylim '(-.001 .001))
 ;;            (format 't "Range: ~a~%" range)
 ;;            (format 't "Max Err: ~f~%" (abs (reduce #'mjr_numu_abs-max (mjr_dquad_get-data-array dq "delta")))))

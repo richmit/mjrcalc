@@ -27,35 +27,24 @@
 ;;  DAMAGE.
 ;;  @endparblock
 ;; @filedetails
-;;
-;;  Note that this example uses an RGB image while most of the others use TrueColor ones.
-;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (declaim (optimize (speed 3) (safety 0) ( debug 0) (compilation-speed 0)))
 
-(let* ((n   11)
-       (xmax (expt 2 n))
-       (ymax (expt 2 n))
-       (smax  20)
-       (img1 (mjr_img_make xmax ymax :color-space :cs-rgb)))
-  (declare (fixnum xmax ymax smax))
-  (loop with left   short-float =  -1.2
-        with top    short-float =   1.2
-        with xside  short-float =   2.4
-        with yside  short-float =   2.4
-        with xscale short-float = (/ xside xmax)
-        with yscale short-float = (/ yside ymax)
-        for y fixnum from 0 upto (1- ymax)
-        for cy short-float = (- top (* y yscale) )
-        do (print y)
-        do (loop for x fixnum from 0 upto (1- xmax)
-                 for cx short-float = (+ (* x xscale) left)
-                 do (loop for   z = (complex cx cy) then (if (mjr_chk_!=0 (abs z)) (- z (* 1         (/ (- (* z z z) 1.0) (* z z 3.0)))) 0.0) ;; STD
-                          ;;for z = (complex cx cy) then (if (mjr_chk_!=0 (abs z)) (- z (* -.5       (/ (- (* z z z) 1.0) (* z z 3.0)))) 0.0) ;; A = -.5
-                          ;;for z = (complex cx cy) then (if (mjr_chk_!=0 (abs z)) (- z (* 2.0       (/ (- (* z z z) 1.0) (* z z 3.0)))) 0.0) ;; A =  2.0
-                          ;;for z = (complex cx cy) then (if (mjr_chk_!=0 (abs z)) (- z (* #C(-.5 2) (/ (- (* z z z) 1.0) (* z z 3.0)))) 0.0) ;; A = -.5+2i
-                          for cnt fixnum from 1 upto smax
-                          finally (mjr_img_set-px-color img1 x y (mjr_colorizer_ut-rgb-from-gradient (/ (abs (+ pi (phase z))) (* 2 pi)) "RYGCBMR" )))))
-  (mjr_img_tga-write "exp-Newton2-OUT.tga" img1 :color-space :cs-rgb))
+(time
+ (let* ((n   11)
+        (xmax (expt 2 n))
+        (ymax (expt 2 n))
+        (dquad (mjr_fsamp_dq-func-r123-r123 (lambda (x y)
+                                              (loop with smax = 20 
+                                                    ;;for z = (complex x y) then (if (mjr_chk_!=0 (abs z)) (- z (* 1         (/ (- (* z z z) 1.0) (* z z 3.0)))) 0.0) ;; STD
+                                                    ;;for z = (complex x y) then (if (mjr_chk_!=0 (abs z)) (- z (* -.5       (/ (- (* z z z) 1.0) (* z z 3.0)))) 0.0) ;; A = -.5
+                                                    ;;for z = (complex x y) then (if (mjr_chk_!=0 (abs z)) (- z (* 2.0       (/ (- (* z z z) 1.0) (* z z 3.0)))) 0.0) ;; A =  2.0
+                                                      for z = (complex x y) then (if (mjr_chk_!=0 (abs z)) (- z (* #C(-.5 2) (/ (- (* z z z) 1.0) (* z z 3.0)))) 0.0) ;; A = -.5+2i
+                                                    for cnt fixnum from 1 upto smax
+                                                    finally (return (/ (abs (+ pi (phase z))) (* 2 pi)))))
+                                            :xdat (list :start -1.2 :end 1.2 :len xmax)
+                                            :ydat (list :start -1.2 :end 1.2 :len ymax))))
+   (mjr_dquad_colorize dquad :data "f" :color-method "RYGCBMR" :ano-nam "c")
+   (mjr_tga_from-dquad "exp-Newton2-OUT-3.tga" dquad :data "c")))

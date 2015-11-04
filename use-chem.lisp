@@ -70,34 +70,54 @@ Vocabulary:
 
 Element properties are as follows:
 
- +--------------------------+---------+------------------+
+ |--------------------------+---------+------------------|
  | Property                 | Type    | Unit             |
- +--------------------------+---------+------------------+
+ |--------------------------+---------+------------------|
  | name                     | string  | N/A              |
- | electronicConfiguration  | string  | N/A              |
- | boilingpoint             | float   | Kelvin           |
- | meltingpoint             | float   | Kelvin           |
- | atomicNumber             | integer | N/A              |
- | family                   | integer | N/A              |
- | group                    | integer | N/A              |
- | period                   | integer | N/A              |
- | electronAffinity         | float   | ev               |
- | ionization               | float   | ev               |
- | electronegativityPauling | float   | paulingScaleUnit |
- | exactMass                | float   | atmass           |
- | mass                     | float   | atmass           |
- | radiusVDW                | float   | ang              |
- | radiusCovalent           | float   | ang              |
- | solidDensity             | float   | g/cm^3           |
- | liquidDensity            | float   | g/cm^3           |
- | gasDensity (STP)         | float   | g/L              |
- | HeatCapacityMol          | float   | J/(mol*K)        |
  | HeatCapacity             | float   | J/(g*K)          |
- | thermalExpansion         | float   | m/(m*K)          |
+ | HeatCapacityMol          | float   | J/(mol*K)        |
+ | atomicNumber             | integer | N/A              |
+ | boilingpoint             | float   | Kelvin           |
+ | electronAffinity         | float   | ev               |
+ | electronegativityPauling | float   | paulingScaleUnit |
+ | electronicConfiguration  | string  | N/A              |
+ | exactMass                | float   | atmass           |
+ | family                   | integer | N/A              |
+ | gasDensity (STP)         | float   | g/L              |
+ | group                    | integer | N/A              |
+ | ionization               | float   | ev               |
+ | liquidDensity            | float   | g/cm^3           |
+ | mass                     | float   | atmass           |
+ | meltingpoint             | float   | Kelvin           |
+ | period                   | integer | N/A              |
+ | radiusCovalent           | float   | ang              |
+ | radiusVDW                | float   | ang              |
+ | solidDensity             | float   | g/cm^3           |
  | thermalConductivity      | float   | W/(m*K)          |
- +--------------------------+---------+------------------+"
+ | thermalExpansion         | float   | m/(m*K)          |
+ |--------------------------+---------+------------------|"
   (documentation 'mjr_ia_help 'function))
 
+
+
+(defvar *element-property-units-db*
+  '(("HeatCapacity"             . "J/(g*K)")
+    ("HeatCapacityMol"          . "J/(mol*K)")
+    ("boilingpoint"             . "K")
+    ("electronAffinity"         . "ev")                ;; Not in :MJR_UNITS
+    ("electronegativity"        . "paulingScaleUnit")  ;; Not in :MJR_UNITS
+    ("exactMass"                . "atmass")            ;; Not in :MJR_UNITS
+    ("gasDensity"               . "g/L")
+    ("ionization"               . "ev")                ;; Not in :MJR_UNITS
+    ("liquidDensity"            . "g/cm^3")
+    ("mass"                     . "atmass")            ;; Not in :MJR_UNITS
+    ("melingpoint"              . "K")
+    ("radiusCovalent"           . "ang")               ;; Not in :MJR_UNITS
+    ("radiusVDW"                . "ang")               ;; Not in :MJR_UNITS
+    ("solidDensity"             . "g/cm^3")
+    ("thermalConductivity"      . "W/(m*K)")
+    ("thermalExpansion"         . "m/(m*K)"))
+  "Units for each of the properties")
 
 (defvar *element-property-db*
   '(("name"                     . (("H"."Hydrogen") ("He"."Helium") ("Li"."Lithium") ("Be"."Beryllium") ("B"."Boron") ("C"."Carbon") ("N"."Nitrogen") ("O"."Oxygen") ("F"."Fluorine") ("Ne"."Neon") ("Na"."Sodium") ("Mg"."Magnesium") ("Al"."Aluminium") ("Si"."Silicon") ("P"."Phosphorus") ("S"."Sulfur") ("Cl"."Chlorine") ("Ar"."Argon") ("K"."Potassium") ("Ca"."Calcium") ("Sc"."Scandium") ("Ti"."Titanium") ("V"."Vanadium") ("Cr"."Chromium")   ("Mn"."Manganese") ("Fe"."Iron") ("Co"."Cobalt") ("Ni"."Nickel") ("Cu"."Copper") ("Zn"."Zinc") ("Ga"."Gallium") ("Ge"."Germanium") ("As"."Arsenic")  ("Se"."Selenium") ("Br"."Bromine") ("Kr"."Krypton") ("Rb"."Rubidium") ("Sr"."Strontium") ("Y"."Yttrium") ("Zr"."Zirconium") ("Nb"."Niobium")   ("Mo"."Molybdenum") ("Tc"."Technetium") ("Ru"."Ruthenium") ("Rh"."Rhodium") ("Pd"."Palladium") ("Ag"."Silver") ("Cd"."Cadmium") ("In"."Indium")   ("Sn"."Tin") ("Sb"."Antimony") ("Te"."Tellurium") ("I"."Iodine") ("Xe"."Xenon") ("Cs"."Caesium") ("Ba"."Barium") ("La"."Lanthanum") ("Ce"."Cerium")  ("Pr"."Praseodymium") ("Nd"."Neodymium") ("Pm"."Promethium") ("Sm"."Samarium") ("Eu"."Europium") ("Gd"."Gadolinium") ("Tb"."Terbium") ("Dy"."Dysprosium")   ("Ho"."Holmium") ("Er"."Erbium") ("Tm"."Thulium") ("Yb"."Ytterbium") ("Lu"."Lutetium") ("Hf"."Hafnium") ("Ta"."Tantalum") ("W"."Tungsten") ("Re"."Rhenium")   ("Os"."Osmium") ("Ir"."Iridium") ("Pt"."Platinum") ("Au"."Gold") ("Hg"."Mercury") ("Tl"."Thallium") ("Pb"."Lead") ("Bi"."Bismuth") ("Po"."Polonium") ("At"."Astatine") ("Rn"."Radon") ("Fr"."Francium") ("Ra"."Radium") ("Ac"."Actinium") ("Th"."Thorium") ("Pa"."Protactinium") ("U"."Uranium") ("Np"."Neptunium") ("Pu"."Plutonium") ("Am"."Americium") ("Cm"."Curium") ("Bk"."Berkelium") ("Cf"."Californium") ("Es"."Einsteinium") ("Fm"."Fermium") ("Md"."Mendelevium") ("No"."Nobelium") ("Lr"."Lawrencium") ("Rf"."Rutherfordium") ("Db"."Dubnium") ("Sg"."Seaborgium") ("Bh"."Bohrium") ("Hs"."Hassium") ("Mt"."Meitnerium") ("Ds"."Darmstadtium") ("Rg"."Roentgenium") ("Cn"."Copernicium") ("Uut"."Ununtrium") ("Uuq"."Ununquadium") ("Uup"."Ununpentium") ("Uuh"."Ununhexium") ("Uus"."Ununseptium") ("Uuo"."Ununoctium")))
