@@ -262,22 +262,28 @@ Artjuhov (1967)"
 (defun mjr_prime_pimep-miller-rabin-deterministic (n &optional assume-riemann-hypothesis)
   "Deterministic Miller-Rabin primality test.  Return is non-NIL if n is PROVED prime, and NIL otherwise.
 
-For n<341550071728321, n will be tested via mjr_prime_strong-probable-primep on one to 7 basis values known to prove primality.  For larger n,
+For n<3825123056546413051, n will be tested via mjr_prime_strong-probable-primep on basis values known to prove primality.  For larger n,
 mjr_prime_strong-probable-primep will still be used but for all bases in the interval [2, min(2*(ln(N))^2, N-1)] if assume-riemann-hypothesis is NIL and in
-the interval [2, min(isqrt(N), N-1)] otherwise.  Note that things get quite slow when n>=341550071728321.
+the interval [2, min(isqrt(N), N-1)] otherwise.  Note that things get quite slow when n>=3825123056546413051.
 
 References:
+  Jonathan P. Sorenson and Jonathan Webster (2015); Strong Pseudoprimes to Twelve Prime Bases; arXiv:1509.00864
+  Yupeng Jiang and Yingpu Deng (2012); Strong pseudoprimes to the first 9 prime bases; arXiv:1207.0063v1
+  Zhenxiang Zhang and Min Tang (2003); Finding strong pseudoprimes to several bases. II; Mathematics of Computation
   Crandall and Pomerance (2005); Prime numbers: A computational perspective 2nd Ed; ISBN: 0387252827; p230
   Gary Miller (1976); Riemann's Hypothesis and Tests for Primality; Journal of Computer and System Sciences 13; DOI: 10.1145/800116.803773
   Pomerance, Selfridge, and Wagstaff (1980); The pseudoprimes to 25*10^9; Mathematics of Computation 35; DOI: 10.2307/2006210
   Gerhard Jaeschke (1993); On strong pseudoprimes to several bases; Mathematics of Computation 61; DOI: 10.2307/2153262"
-  (mjr_prime_strong-probable-primep n (cond ((< n 2047)                (list 2))                ; ?       <=10-bits
-                                            ((< n 1373653)             (list 2 3))              ; PSW1980 <=20-bits n!=3
-                                            ((< n 9080191)             (list 31 73))            ; J1993   <=23-bits n!=31 & n!=73
-                                            ((< n 4759123141)          (list 2 7 61))           ; J1993   <=32-bits
-                                            ((< n 2152302898747)       (list 2 3 5 7 11))       ; J1993   <=40-bits
-                                            ((< n 3474749660383)       (list 2 3 5 7 11 13))    ; J1993   <=41-bits
-                                            ((< n 341550071728321)     (list 2 3 5 7 11 13 17)) ; J1993   <=48-bits
+  (mjr_prime_strong-probable-primep n (cond ((< n 2047)                      (list 2))                                  ;; ?       <=10-bits
+                                            ((< n 1373653)                   (list 2 3))                                ;; PSW1980 <=20-bits n!=3
+                                            ((< n 9080191)                   (list 31 73))                              ;; J1993   <=23-bits n!=31 & n!=73
+                                            ((< n 4759123141)                (list 2 7 61))                             ;; J1993   <=32-bits
+                                            ((< n 2152302898747)             (list 2 3 5 7 11))                         ;; J1993   <=40-bits
+                                            ((< n 3474749660383)             (list 2 3 5 7 11 13))                      ;; J1993   <=41-bits
+                                            ((< n 341550071728321)           (list 2 3 5 7 11 13 17))                   ;; J1993   <=48-bits
+                                            ((< n 3825123056546413051)       (list 2 3 5 7 11 13 17 19 23 29 31))       ;; ZT2003  <=61-bits                                            
+                                          ;;((< n 318665857834031151167461)  (list 2 3 5 7 11 13 17 19 23 29 31 37)     ;; SW2015  <=78-bits  Result too new to trust. ;)
+                                          ;;((< n 3317044064679887385961981) (list 2 3 5 7 11 13 17 19 23 29 31 37 41)  ;; SW2015  <=81-bits  Result too new to trust. ;)
                                             (assume-riemann-hypothesis (- (min (ceiling (* 2 (expt (log n) 2))) (1- n))))
                                             ('t                        (- (min (ceiling (isqrt n)) (1- n)))))))
 

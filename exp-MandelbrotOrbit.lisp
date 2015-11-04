@@ -1,7 +1,7 @@
 ;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;; @file      exp-MandelbrotTGA3.lisp
+;; @file      exp-MandelbrotOrbit.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Compute Mandelbrot set, and dump it to a TGA file using unique coloring scheme.@EOL
 ;; @std       Common Lisp
@@ -77,16 +77,16 @@
           (format 't "rainbow colorize ocount-log-max~%")
           (mjr_dquad_colorize daData :data "ocount-log-max" :ano-nam "c-gl" :color-method "0RMGY1CB0")
           (format 't "Dump GL TGA~%")
-          (mjr_tga_from-dquad "exp-MandelbrotTGA3-OUT-gl.tga" daData :data "c-gl")
+          (mjr_tga_from-dquad "exp-MandelbrotOrbit-OUT-gl.tga" daData :data "c-gl")
           (format 't "pov colorize ocount~%")
           (mjr_dquad_colorize daData :data "ocount-log-max" :ano-nam "c-p" :color-method #'mjr_colorized_povray :max-color #xFFFF)
           (format 't "Dump P TGA~%")
-          (mjr_tga_from-dquad "exp-MandelbrotTGA3-OUT-p.tga" daData :data "c-p")
+          (mjr_tga_from-dquad "exp-MandelbrotOrbit-OUT-p.tga" daData :data "c-p")
           (format 't "rainbow colorize ocount~%")
           (mjr_dquad_colorize daData :data "ocount" :ano-nam "c-g" :color-method "0RMGY1CB0")
           (format 't "Dump G TGA~%")
-          (mjr_tga_from-dquad "exp-MandelbrotTGA3-OUT-g.tga" daData :data "c-g")
+          (mjr_tga_from-dquad "exp-MandelbrotOrbit-OUT-g.tga" daData :data "c-g")
           (format 't "wacky scale compute (c-r)~%")
           (mjr_dquad_add-data-from-map daData (lambda (c) (* (truncate #xFFFFFF maxv) c)) :data 0 :ano-nam "c-r" :ano-typ :ano-typ-truint)
           (format 't "Dump R TGA~%")
-          (mjr_tga_from-dquad "exp-MandelbrotTGA3-OUT-r.tga" daData :data "c-r"))))
+          (mjr_tga_from-dquad "exp-MandelbrotOrbit-OUT-r.tga" daData :data "c-r"))))

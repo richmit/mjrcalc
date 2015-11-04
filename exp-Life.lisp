@@ -29,10 +29,9 @@
 ;; @filedetails
 ;;
 ;;  Render a movie like this:
-;;     for f in exp-Life-OUT-???.tga; do convert -colorspace RGB -sample 800% -type TrueColor $f `echo $f | sed 's/.tga$/.png/'`; done
-;;     convert exp-Life-OUT-*.png exp-Life-ART.gif  
+;;     convert exp-Life-OUT-*.tga -sample 800% exp-Life-ART.gif  
 ;;     convert -define gif:size=200x200 exp-Life-ART.gif -thumbnail '200x200>' -background white -gravity Center -extent 190x190 exp-Life-ART-t.gif
-;;     rm exp-Life-exp-Life-OUT-???d.png
+;;     rm exp-Life-OUT-???.tga
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -62,19 +61,18 @@
                                   (y   0)
                                   (len 1)
                                   (p   0)
-                                  (img (make-array (list xwid ywid) :element-type 'bit)))
+                                  (img (make-array (list xwid ywid) :initial-element 0)))
                               (flet ((don (live num)
                                        (loop for i from 1 upto num
                                              do (setf (aref img x y) (if live 1 0))
                                              do (incf x))
                                        (setf len 1)
                                        (incf p)))
-
                                 (loop for c = (aref rledata p)
                                       do (if shop (format 't "~5a ~5a ~5a ~5a ~5a ~15a ~%" x y p c len (subseq rledata p (min (+ 15 p) (1- (length rledata))))))
                                       do (cond ((equal c #\b)       (don nil len))
                                                ((equal c #\o)       (don 't len))
-                                               ((equal c #\$)       (progn (setf x 0) (incf y) (incf p)))
+                                               ((equal c #\$)       (progn (setf x 0) (incf y len) (incf p) (setf len 1)))
                                                ((mjr_char_digitsp c) (multiple-value-bind (nlen npos) (parse-integer rledata :start p :junk-allowed 't)
                                                                        (setf p   npos
                                                                              len nlen))))
@@ -82,19 +80,20 @@
                                       finally (return img)))))))))
              (xmax  (+ padn padn (first (array-dimensions shap))))
              (ymax  (+ padn padn (second (array-dimensions shap))))
-             (seed  (make-array (list xmax ymax) :element-type 'bit))
-             (img1  (make-array (list xmax ymax) :element-type 'bit))
-             (img2  (make-array (list xmax ymax) :element-type 'bit)))
+             (seed  (make-array (list xmax ymax)))
+             (img1  (make-array (list xmax ymax)))
+             (img2  (make-array (list xmax ymax))))
         (declare (fixnum xmax ymax))
         (dotimes (y (- ymax padn padn))
           (dotimes (x (- xmax padn padn))
             (setf (aref seed (+ padn x) (+ padn y)) (aref shap x y)
                   (aref img1 (+ padn x) (+ padn y)) (aref shap x y))))
-        (loop with imgeq = nil
-              for i from 1 upto 200
+
+        (mjr_tga_from-array "exp-Life-OUT-000.tga" seed :color-space :cs-bit :color-packing :cp-none)
+        
+        (loop for i from 1 upto 200
               for old-img = (if (evenp i) img2 img1)
               for new-img = (if (evenp i) img1 img2)
-              do (setq imgeq 't)
               do (if shop (format 't "CYCLE: ~10a~%" i))
               do (loop for y fixnum from 0 upto (1- ymax)
                        do (loop for x fixnum from 0 upto (1- xmax)
@@ -107,7 +106,11 @@
                                            (setf (aref new-img x y) 0))
                                        (if (or (< nc 2) (> nc 3))
                                            (setf (aref new-img x y) 0)
-                                           (setf (aref new-img x y) 1)))
-                                do (if (not (equal (aref new-img x y) (aref seed x y)))
-                                       (setq imgeq nil))))
-              do (mjr_tga_from-array (format nil "exp-Life-OUT-~3,'0d.tga" i) new-img :color-space :cs-bit :color-packing :cp-none))))
+                                           (setf (aref new-img x y) 1)))))
+              do (mjr_tga_from-array (format nil "exp-Life-OUT-~3,'0d.tga" i) new-img :color-space :cs-bit :color-packing :cp-none)
+              until (if (equalp new-img old-img)
+                        (progn (format 't "STABLE STATE FOUND: ~d~%" i)
+                               't))
+              until (if (equalp new-img seed)
+                        (progn (format 't "PERIOD FOUND: ~d~%" i)
+                               't)))))

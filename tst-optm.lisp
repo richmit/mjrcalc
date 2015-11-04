@@ -30,7 +30,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defpackage :MJR_OPTM-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_OPTM :MJR_CMP))
+(defpackage :MJR_OPTM-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_OPTM :MJR_EPS))
 
 (in-package :MJR_OPTM-TESTS)
 
@@ -135,9 +135,10 @@ Global Minimum: f(3,1/2)=0"
     (let ((x (aref v 0))
           (y (aref v 1)))
       (assert-equalp r "X-EPS")
-      (assert-equality (lambda (x y) (mjr_cmp_= x y 0.00001)) 1 x)
-      (assert-equality (lambda (x y) (mjr_cmp_= x y 0.00001)) 1 y)
-      (assert-equality (lambda (x y) (mjr_cmp_= x y 0.00001)) 0 f)))
+      (assert-equality (mjr_eps_make-fixed= 0.00001) 1 x)
+      (assert-equality (mjr_eps_make-fixed= 0.00001) 1 y)
+      (assert-equality (mjr_eps_make-fixed= 0.00001) 0 f)))
+   
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -150,9 +151,9 @@ Global Minimum: f(3,1/2)=0"
   (multiple-value-bind (x f i r) (mjr_optm_minimize-random-delta #'rosenbrock-banana #(2.123456 2.654321) :max-itr 1000000 :arg-mode :arg-number)
     (declare (ignore i))
     (assert-equalp r "X-EPS")
-    (assert-equality (lambda (x y) (mjr_cmp_= x y 0.1))   1 (aref x 0))
-    (assert-equality (lambda (x y) (mjr_cmp_= x y 0.1))   1 (aref x 1))
-    (assert-equality (lambda (x y) (mjr_cmp_= x y 0.001)) 0 f))
+    (assert-equality (mjr_eps_make-fixed= 0.1)   1 (aref x 0))
+    (assert-equality (mjr_eps_make-fixed= 0.1)   1 (aref x 1))
+    (assert-equality (mjr_eps_make-fixed= 0.001) 0 f))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -165,15 +166,15 @@ Global Minimum: f(3,1/2)=0"
   (multiple-value-bind (x f i r) (mjr_optm_minimize-hooke-jeeves #'rosenbrock-banana #(2 2) :arg-mode :arg-number)
     (declare (ignore i))
     (assert-equalp r "X-EPS")
-    (assert-equality (lambda (x y) (mjr_cmp_= x y 0.00000001)) 1 (aref x 0))
-    (assert-equality (lambda (x y) (mjr_cmp_= x y 0.00000001)) 1 (aref x 1))
-    (assert-equality (lambda (x y) (mjr_cmp_= x y 0.00001))    0 f))
+    (assert-equality (mjr_eps_make-fixed= 0.00000001) 1 (aref x 0))
+    (assert-equality (mjr_eps_make-fixed= 0.00000001) 1 (aref x 1))
+    (assert-equality (mjr_eps_make-fixed= 0.00001)    0 f))
   (multiple-value-bind (x f i r) (mjr_optm_minimize-hooke-jeeves #'rosenbrock-banana #(2.123456 2.654321) :max-itr 2000 :arg-mode :arg-number)
     (declare (ignore i))
     (assert-equalp r "X-EPS")
-    (assert-equality (lambda (x y) (mjr_cmp_= x y 0.01))  1 (aref x 0))
-    (assert-equality (lambda (x y) (mjr_cmp_= x y 0.01))  1 (aref x 1))
-    (assert-equality (lambda (x y) (mjr_cmp_= x y 0.001)) 0 f))
+    (assert-equality (mjr_eps_make-fixed= 0.01)  1 (aref x 0))
+    (assert-equality (mjr_eps_make-fixed= 0.01)  1 (aref x 1))
+    (assert-equality (mjr_eps_make-fixed= 0.001) 0 f))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -220,55 +220,69 @@ This is useful for finding special points (discontinuities, extrema, etc) for pe
   "Return a string using the syntax of the selected programming language or computational environment."
   (if (not (numberp the-number))
       (error "mjr_numu_code: Argument must be a number!"))
-  (labels ((fmtFloat (x) (if (or (> (abs x) 1000000)
-                                 (and (not (zerop x)) (< (abs x) 1/1000000)))
-                             (format nil "~e" x)
-                             (format nil "~f" x)))
-           (fmtRatFlt   (x) (fmtFloat (float x 1.0d0)))
-           (fmtSgnInt32 (x) (if (> (abs x) 2147483647)                              
+  (labels ((fmtFloat     (x) (substitute #\e #\d (if (or (> (abs x) 1000000)
+                                                        (and (not (zerop x)) (< (abs x) 1/1000000)))
+                                                    (format nil "~e" x)
+                                                    (format nil "~f" x))))
+           (fmtFloatSgl  (x) (let* ((x   (float x 1.0e0))
+                                    (y   (or (if (<= (abs x) 1.2d-38)  ;; Really make sure we have something in the IEEE single float range
+                                                 0.0e0
+                                                 (if (>= x 3.4e38)
+                                                     3.4e38
+                                                     (if (<= x -3.4e38)
+                                                         -3.4e38)))
+                                             x)))
+                                    (if (or (> (abs y) 1000000)
+                                      (and (not (zerop y)) (< (abs y) 1/1000000)))
+                                  (format nil "~e" y)
+                                  (format nil "~f" y))))
+           (fmtRatFlt    (x) (fmtFloat (float x 1.0d0)))
+           (fmtRatFltSgl (x) (fmtFloatSgl x))
+           (fmtSgnInt32  (x) (if (> (abs x) 2147483647)                              
                                 (mjr_numu_code (float the-number 1.0d0) :lang lang)
                                 (format nil "~D" x)))
-           (fmtSgnInt64 (x) (if (> (abs x) 9223372036854775808)
+           (fmtSgnInt64  (x) (if (> (abs x) 9223372036854775808)
                                 (mjr_numu_code (float the-number 1.0d0) :lang lang)
                                 (format nil "~D" x)))
-           (fmtSgnIntC  (x) (cond ((> (abs x) 9223372036854775808) (mjr_numu_code (float the-number 1.0d0) :lang lang))
+           (fmtSgnIntC   (x) (cond ((> (abs x) 9223372036854775808) (mjr_numu_code (float the-number 1.0d0) :lang lang))
                                   ((> (abs x) 2147483647)          (format nil "~DL" x))
                                   ('t                              (format nil "~D" x)))))
-    (let* ((bams (case lang            ;;    rea        cplx                      int           rat
-                   (:lang-vtk          (list #'fmtFloat nil                       #'fmtSgnInt32 #'fmtRatFlt))
-                   (:lang-povray       (list #'fmtFloat  "<~a,~a>"                #'fmtSgnInt64 #'fmtRatFlt))
+    (let* ((bams (case lang            ;;    rea           cplx                      int           rat
+                   (:lang-vtk          (list #'fmtFloatSgl nil                       #'fmtSgnInt32 #'fmtFloatSgl))  ;; Some VTK readers won't read doubles!!
+                   (:lang-gnuplot      (list #'fmtFloatSgl nil                       #'fmtSgnInt32 #'fmtFloatSgl))
+                   (:lang-povray       (list #'fmtFloatSgl "<~a,~a>"                 #'fmtSgnInt64 #'fmtRatFltSgl))
                    ((:lang-matlab
                      :lang-octave
                      :lang-scilab
                      :lang-euler
-                     :lang-r)          (list #'fmtFloat  "(~a+~ai)"                #'fmtSgnInt32 #'fmtRatFlt))
-                   ((:lang-gap)        (list #'fmtFloat  "(~a+~ai)"                "~D"          "~S"))
-                   (:lang-mathematica  (list #'fmtFloat  "(~a+I~a)"                "~D"          "~S"))
-                   (:lang-maple        (list #'fmtFloat  "(~a+i*~a)"               "~D"          "~S"))
+                     :lang-r)          (list #'fmtFloat    "(~a+~ai)"                #'fmtSgnInt32 #'fmtRatFlt))
+                   ((:lang-gap)        (list #'fmtFloat    "(~a+~ai)"                "~D"          "~S"))
+                   (:lang-mathematica  (list #'fmtFloat    "(~a+I~a)"                "~D"          "~S"))
+                   (:lang-maple        (list #'fmtFloat    "(~a+i*~a)"               "~D"          "~S"))
                    ((:lang-maxima
                      :lang-axiom
-                     :lang-open-axiom) (list #'fmtFloat  "(~a+~a*%i)"              "~D"          "~S"))
-                   (:lang-M2           (list #'fmtFloat  "(~a+~a*ii)"              "~D"          "~S"))
+                     :lang-open-axiom) (list #'fmtFloat    "(~a+~a*%i)"              "~D"          "~S"))
+                   (:lang-M2           (list #'fmtFloat    "(~a+~a*ii)"              "~D"          "~S"))
                    ((:lang-latex
                      :lang-pdflatex
                      :lang-amstex
-                     :lang-tex)        (list #'fmtFloat  "(~a+~a i)"               "~D"          "\\frac{~a}{~a}"))
+                     :lang-tex)        (list #'fmtFloat    "(~a+~a i)"               "~D"          "\\frac{~a}{~a}"))
                    ((:lang-c99
-                     :lang-c)          (list #'fmtFloat  "(~a+~aI)"                #'fmtSgnIntC  #'fmtRatFlt))
+                     :lang-c)          (list #'fmtFloat    "(~a+~aI)"                #'fmtSgnIntC  #'fmtRatFlt))
                    ((:lang-gp
                      :lang-pari
-                     :lang-pari/gp)    (list #'fmtFloat  "(~a+~a*I)"               "~D"          #'fmtRatFlt))
-                   (:lang-c++          (list #'fmtFloat  "complex<double>(~a,~a)"  #'fmtSgnIntC  #'fmtRatFlt))
-                   (:lang-ruby         (list #'fmtFloat  "Complex(~a,~a)"          "~D"          "Rational(~a,~a)"))
-                   (:lang-idl          (list #'fmtFloat  "complex(~a,~a)"          #'fmtSgnInt32 #'fmtRatFlt))
+                     :lang-pari/gp)    (list #'fmtFloat    "(~a+~a*I)"               "~D"          #'fmtRatFlt))
+                   (:lang-c++          (list #'fmtFloat    "complex<double>(~a,~a)"  #'fmtSgnIntC  #'fmtRatFlt))
+                   (:lang-ruby         (list #'fmtFloat    "Complex(~a,~a)"          "~D"          "Rational(~a,~a)"))
+                   (:lang-idl          (list #'fmtFloat    "complex(~a,~a)"          #'fmtSgnInt32 #'fmtRatFlt))
                    ((:lang-hp48
                      :lang-f77   
                      :lang-r90     
-                     :lang-fortran)    (list #'fmtFloat  "(~a,~a)"                 "~D"          #'fmtRatFlt))
-                   (:lang-python       (list #'fmtFloat  "(~a+~aj)"                "~D"          #'fmtRatFlt))
-                   (:lang-csv          (list #'fmtFloat  "(~a+i~a)"                "~D"          #'fmtRatFlt))
-                   (:lang-csvl         (list #'fmtFloat  "~s"                      "~D"          "~S"))
-                   (:lang-lisp         (list #'fmtFloat  "~s"                      "~D"          "~S"))
+                     :lang-fortran)    (list #'fmtFloat    "(~a,~a)"                 "~D"          #'fmtRatFlt))
+                   (:lang-python       (list #'fmtFloat    "(~a+~aj)"                "~D"          #'fmtRatFlt))
+                   (:lang-csv          (list #'fmtFloat    "(~a+i~a)"                "~D"          #'fmtRatFlt))
+                   (:lang-csvl         (list #'fmtFloat    "~s"                      "~D"          "~S"))
+                   (:lang-lisp         (list #'fmtFloat    "~s"                      "~D"          "~S"))
                    ('t                 (error "mjr_numu_code: Language unsupported!")))))
       (typecase the-number
         (complex   (if (= 1 (count #\~ (nth 1 bams)))
@@ -324,7 +338,7 @@ The aggressiveness of the algorithm varies according the the value of :AGGRESSIV
                                  (/ numerator-sqrt denominator-sqrt)
                                  (sqrt x))))
             ((complexp x)  (let* ((sqrtx  (sqrt x))
-                                  (sqrtxi (complex (truncate (realpart sqrtx)) (truncate (imagpart sqrtx)))))
+                                  (sqrtxi (complex (round (realpart sqrtx)) (round (imagpart sqrtx)))))
                              (if (= (* sqrtxi sqrtxi) x)
                                  sqrtxi
                                  sqrtx)))
@@ -345,13 +359,12 @@ The aggressiveness of the algorithm varies according the the value of :AGGRESSIV
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_argument (z)
-  "The phase of the complex number z.  #C(1,0)=0, #C(0,1)=pi/2, #C(-1,0)=pi, #C(0,-1)=3*pi/2"
+  "The POSITIVE phase of the complex number z.  #C(1,0)=0, #C(0,1)=pi/2, #C(-1,0)=pi, #C(0,-1)=3*pi/2"
   (cond  ((not (numberp z)) (error "mjr_numu_argument: Input must be a number!")))
     (let ((p (phase z)))
-      (if (< p 0)
+      (if (minusp p)
           (+ (* 2 pi) p)
           p)))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_gamma-domain-check (z)

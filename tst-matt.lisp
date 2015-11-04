@@ -30,7 +30,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defpackage :MJR_MATT-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_MAT :MJR_CMP :MJR_VEC :MJR_PRNG :MJR_MATT))
+(defpackage :MJR_MATT-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_MAT :MJR_EPS :MJR_VEC :MJR_PRNG :MJR_MATT))
 
 (in-package :MJR_MATT-TESTS)
 
@@ -142,12 +142,12 @@
           (progn
             (assert-true (mjr_mat_test-property-struct hm :mp-symmetric))  ;; Householder are hermitian
             (assert-true (mjr_mat_test-property-math hm :mp-orthogonal)))) ;; Householder are orthogonal
-      (assert-true (mjr_cmp_= -1 (mjr_mat_det hm) 1e-5))                   ;; Householder are det=-1
-      (assert-true (mjr_cmp_=  1 (mjr_mat_det g2) 1e-5))                   ;; Givens are det=1
-      (assert-true (mjr_cmp_= -1 (mjr_mat_det h2) 1e-5))                   ;; Householder are det=-1
-      (assert-true (mjr_cmp_= -1 (mjr_mat_det e1) 1e-5))                   ;; Gauss type 1 are det=-1
-      (assert-true (mjr_cmp_=  f (mjr_mat_det e2) 1e-5))                   ;; Gauss type 2 are det=f
-      (assert-true (mjr_cmp_=  1 (mjr_mat_det e3) 1e-5))                   ;; Gauss type 3 are det=1
+      (assert-equality (mjr_eps_make-fixed= 0.00001) -1 (mjr_mat_det hm))  ;; Householder are det=-1
+      (assert-equality (mjr_eps_make-fixed= 0.00001)  1 (mjr_mat_det g2))  ;; Givens are det=1
+      (assert-equality (mjr_eps_make-fixed= 0.00001) -1 (mjr_mat_det h2))  ;; Householder are det=-1
+      (assert-equality (mjr_eps_make-fixed= 0.00001) -1 (mjr_mat_det e1))  ;; Gauss type 1 are det=-1
+      (assert-equality (mjr_eps_make-fixed= 0.00001)  f (mjr_mat_det e2))  ;; Gauss type 2 are det=f
+      (assert-equality (mjr_eps_make-fixed= 0.00001)  1 (mjr_mat_det e3))  ;; Gauss type 3 are det=1
       ))
 
   ;; Verify matrix size and element data types for 50 random cases

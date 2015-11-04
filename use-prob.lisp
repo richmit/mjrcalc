@@ -65,7 +65,7 @@ While this package provides some genuinely useful PDFs; The primary point of thi
 
 It augments it by providing traditionally parametrized versions of some of the PDFs (bernoulli, binomial, geometric, negative-binomial) in :MJR_PROBAU, and it
 supports it by providing PDFs (exponential, std-normal, normal, & poisson) useful for approximating the PDFs in :MJR_PROBAU."
-  (documentation 'mjr_probu_help 'function))
+  (documentation 'mjr_prob_help 'function))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

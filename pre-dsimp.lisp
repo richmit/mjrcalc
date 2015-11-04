@@ -37,7 +37,6 @@
 (defpackage :MJR_DSIMP
   (:USE :COMMON-LISP
         :MJR_VVEC
-        :MJR_COMBC
         :MJR_DQUAD
         :MJR_UTIL
         :MJR_ARR

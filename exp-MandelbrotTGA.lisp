@@ -1,7 +1,7 @@
 ;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;; @file      exp-MandelbrotTGA2.lisp
+;; @file      exp-MandelbrotTGA.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Compute Mandelbrot set, and dump it to a TGA file using a nice pallet.@EOL
 ;; @std       Common Lisp
@@ -47,7 +47,7 @@
       for y0 float  in '(-2.0  -2.0  -0.50  -0.40  -0.394)
       for y1 float  in '( 2.0   2.0  -0.40  -0.37  -0.373)
       for i from 1
-      for fname = (format nil "exp-MandelbrotTGA2-OUT-~d.tga" i)
+      for fname = (format nil "exp-MandelbrotTGA-OUT-~d.tga" i)
       do (format 't "~%Compute ~a~%" fname)
       do (time (let ((daData (mjr_fsamp_dq-func-r123-r123 (lambda (cx cy)
                                                             (mod (* cf (loop with lcx short-float = (float cx 1.0e0)

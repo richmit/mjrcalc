@@ -30,7 +30,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defpackage :MJR_VEC-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_CMP :MJR_VEC :MJR_PRNG))
+(defpackage :MJR_VEC-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_EPS :MJR_VEC :MJR_PRNG))
 
 (in-package :MJR_VEC-TESTS)
 
@@ -117,7 +117,7 @@
   (dotimes (i 200)
     (let* ((len (mjr_prng_int-co 1 20))
            (p1  (mjr_prng_vector len #'mjr_prng_float-co -1 1)))
-      (assert-true (mjr_cmp_= (mjr_vec_norm-two p1) (sqrt (reduce #'+ (map 'list (lambda (x) (* x x)) p1)))))))
+      (assert-equality (mjr_eps_make-fixed= 0.00001) (mjr_vec_norm-two p1) (sqrt (reduce #'+ (map 'list (lambda (x) (* x x)) p1))))))
 
   (assert-equal 3.7416573 (mjr_vec_norm-two #(1 2 3)))
   (assert-equal 3.1622777 (mjr_vec_norm-two #(1 3)))
@@ -141,7 +141,7 @@
   (dotimes (i 200)
     (let* ((len (mjr_prng_int-co 1 20))
            (p1  (mjr_prng_vector len #'mjr_prng_float-co -1 1)))
-      (assert-true (mjr_cmp_= (mjr_vec_norm-two-squared p1) (reduce #'+ (map 'list (lambda (x) (* x x)) p1))))))
+      (assert-equality (mjr_eps_make-fixed= 0.00001) (mjr_vec_norm-two-squared p1) (reduce #'+ (map 'list (lambda (x) (* x x)) p1)))))
 
   (assert-equal 14 (mjr_vec_norm-two-squared #(1 2 3)))
   (assert-equal 10 (mjr_vec_norm-two-squared #(1 3)))
@@ -165,7 +165,7 @@
   (dotimes (i 200)
     (let* ((len (mjr_prng_int-co 1 20))
            (p1  (mjr_prng_vector len #'mjr_prng_float-co -1 1)))
-      (assert-true (mjr_cmp_= (mjr_vec_norm-infinity p1) (reduce #'max (map 'list (lambda (x) (abs x)) p1))))))
+      (assert-equality (mjr_eps_make-fixed= 0.00001) (mjr_vec_norm-infinity p1) (reduce #'max (map 'list (lambda (x) (abs x)) p1)))))
 
   (assert-equal 3 (mjr_vec_norm-infinity #(1 2 3)))
   (assert-equal 3 (mjr_vec_norm-infinity #(1 3)))
@@ -189,7 +189,7 @@
   (dotimes (i 200)
     (let* ((len (mjr_prng_int-co 1 20))
            (p1  (mjr_prng_vector len #'mjr_prng_float-co -1 1)))
-      (assert-true (mjr_cmp_= (mjr_vec_norm-one p1) (reduce #'+ (map 'list (lambda (x) (abs x)) p1))))))
+      (assert-equality (mjr_eps_make-fixed= 0.00001) (mjr_vec_norm-one p1) (reduce #'+ (map 'list (lambda (x) (abs x)) p1)))))
 
   (assert-equal 6 (mjr_vec_norm-one #(1 2 3)))
   (assert-equal 4 (mjr_vec_norm-one #(1 3)))
@@ -222,11 +222,11 @@
         ;; en is already normalized
         do (assert-equalp v2 (mjr_vec_normalize v2))
         ;; Default norm function is mjr_vec_norm-two
-        do (assert-true (mjr_cmp_= 1 (mjr_vec_norm-two (mjr_vec_normalize v1))))
+        do (assert-equality (mjr_eps_make-fixed= 0.00001) 1 (mjr_vec_norm-two (mjr_vec_normalize v1)))
         ;; Explicit norm function
-        do (assert-true (mjr_cmp_= 1 (mjr_vec_norm-two      (mjr_vec_normalize v1 #'mjr_vec_norm-two))))
-        do (assert-true (mjr_cmp_= 1 (mjr_vec_norm-infinity (mjr_vec_normalize v1 #'mjr_vec_norm-infinity))))
-        do (assert-true (mjr_cmp_= 1 (mjr_vec_norm-one      (mjr_vec_normalize v1 #'mjr_vec_norm-one)))))
+        do (assert-equality (mjr_eps_make-fixed= 0.00001) 1 (mjr_vec_norm-two      (mjr_vec_normalize v1 #'mjr_vec_norm-two)))
+        do (assert-equality (mjr_eps_make-fixed= 0.00001) 1 (mjr_vec_norm-infinity (mjr_vec_normalize v1 #'mjr_vec_norm-infinity)))
+        do (assert-equality (mjr_eps_make-fixed= 0.00001) 1 (mjr_vec_norm-one      (mjr_vec_normalize v1 #'mjr_vec_norm-one))))
   ;; Error cases
   (assert-error 'error    (mjr_vec_normalize #()))
   (assert-error 'error    (mjr_vec_normalize #(0)))

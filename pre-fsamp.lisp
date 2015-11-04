@@ -38,11 +38,9 @@
         :MJR_COMBC
         :MJR_ARR
         :MJR_UTIL
-        :MJR_COLORIZE
         :MJR_DQUAD
         :MJR_DSIMP
-        :MJR_POLY
-        :MJR_ANNOT)
+        :MJR_POLY)
   (:DOCUMENTATION "Brief: Data sets on QUADrilateral (rectilinear) grids.;")
   (:EXPORT #:mjr_fsamp_help
            ;; Real and complex polynomials
