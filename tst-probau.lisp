@@ -1,40 +1,64 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      tst-probau.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 2012 by Mitch Richling.  All rights reserved.
-;; @brief     Test package for use-probau.lisp.@EOL
-;; @Keywords
-;; @Std       Common Lisp
+;; @brief     Unit Tests.@EOL
+;; @std       Common Lisp
+;; @see       use-probau.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2010,2011,2012,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            Status:
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
-;;              Well tested:
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
 ;;
-;;                mjr_probau_help mjr_probau_hypergeometric-pdf
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
 ;;
-;;              Suspect (Basic computation tested in :mjr_prob-tests, just need sanity checks here)
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
 ;;
-;;                mjr_probau_bernoulli-pdf mjr_probau_binomial-pdf mjr_probau_geometric-pdf 
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @filedetails
 ;;
-;;              Suspect:
+;;  Status:
 ;;
-;;                mjr_probau_negative-binomial-pdf mjr_probau_hypergeometric-pdf mjr_probau_negative-hypergeometric-pdf
-;;                mjr_probau_multi-hypergeometric-pdf mjr_probau_multinomial-pdf
+;;    Well tested:
 ;;
-;;              Dep on PDF and pdf2ccdf:
+;;      mjr_probau_help mjr_probau_hypergeometric-pdf
 ;;
-;;                 mjr_probau_bernoulli-cdf mjr_probau_binomial-cdf mjr_probau_geometric-cdf mjr_probau_negative-binomial-cdf
-;;                 mjr_probau_hypergeometric-cdf mjr_probau_negative-hypergeometric-cdf
+;;    Suspect (Basic computation tested in :mjr_prob-tests, just need sanity checks here)
 ;;
-;;              Dep on PDF and pdf2cdf:
+;;      mjr_probau_bernoulli-pdf mjr_probau_binomial-pdf mjr_probau_geometric-pdf 
 ;;
-;;                 mjr_probau_bernoulli-ccdf mjr_probau_binomial-ccdf mjr_probau_geometric-ccdf mjr_probau_negative-binomial-ccdf
-;;                 mjr_probau_hypergeometric-ccdf mjr_probau_negative-hypergeometric-ccdf
+;;    Suspect:
 ;;
-;;              Seem to work, but testing random number generators is hard. :)
+;;      mjr_probau_negative-binomial-pdf mjr_probau_hypergeometric-pdf mjr_probau_negative-hypergeometric-pdf
+;;      mjr_probau_multi-hypergeometric-pdf mjr_probau_multinomial-pdf
 ;;
-;;                 mjr_probau_bernoulli-prng mjr_probau_binomial-prng mjr_probau_geometric-prng mjr_probau_negative-binomial-prng
-;;                 mjr_probau_hypergeometric-prng mjr_probau_negative-hypergeometric-prng
+;;    Dep on PDF and pdf2ccdf:
+;;
+;;       mjr_probau_bernoulli-cdf mjr_probau_binomial-cdf mjr_probau_geometric-cdf mjr_probau_negative-binomial-cdf
+;;       mjr_probau_hypergeometric-cdf mjr_probau_negative-hypergeometric-cdf
+;;
+;;    Dep on PDF and pdf2cdf:
+;;
+;;       mjr_probau_bernoulli-ccdf mjr_probau_binomial-ccdf mjr_probau_geometric-ccdf mjr_probau_negative-binomial-ccdf
+;;       mjr_probau_hypergeometric-ccdf mjr_probau_negative-hypergeometric-ccdf
+;;
+;;    Seem to work, but testing random number generators is hard. :)
+;;
+;;       mjr_probau_bernoulli-prng mjr_probau_binomial-prng mjr_probau_geometric-prng mjr_probau_negative-binomial-prng
+;;       mjr_probau_hypergeometric-prng mjr_probau_negative-hypergeometric-prng
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_PROBAU-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_PROBAU :MJR_PRNG :MJR_EPS))
@@ -191,7 +215,7 @@
   (assert-equal 8/143              (mjr_probau_negative-hypergeometric-pdf 5  4 10 1))
   (assert-equal 20/253             (mjr_probau_negative-hypergeometric-pdf 6  4 20 2))
   (assert-equal 14766367/589559541 (mjr_probau_negative-hypergeometric-pdf 5 12 74 3))
-  ;; MJR SCM NOTE mjr_probau_negative-binomial-pdf: MORE!!
+  ;; MJR TODO NOTE mjr_probau_negative-binomial-pdf: MORE!!
   )
 
 

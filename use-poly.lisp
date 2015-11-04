@@ -32,6 +32,12 @@
 ;; @todo      Better way to find solutions that are in radical extension fields -- i.e. $a,b,c\in\mathbb{Q}$ but $a+b\sqrt{c}\not\in\mathbb{Q}$.@EOL@EOL
 ;; @todo      Better control/seporation/deliniation of Z[x], Q[x], & R[x] across functions.  Make this uniform.@EOL@EOL
 ;; @todo      Update unit tests for new functionality.@EOL@EOL
+;; @todo      mjr_poly_decompose.@EOL@EOL
+;; @todo      mjr_poly_factor-irreducible.@EOL@EOL
+;; @todo      mjr_poly_root-solve-jenkins-traub.@EOL@EOL
+;; @todo      mjr_poly_root-solve-continued-fraction.@EOL@EOL
+;; @todo      mjr_poly_root-solve-descartes-bisection.@EOL@EOL
+;; @todo      mjr_poly_root-separate-real.@EOL@EOL
 ;; @warning   Much of this code has become quite experimental!  Use the old version if you want to be carefull.@EOL@EOL
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -93,6 +99,8 @@
            #:mjr_poly_2monic
 
            #:mjr_poly_root-search-bsect #:mjr_poly_root-search-newton #:mjr_poly_root-search-laguerre #:mjr_poly_root-search-largest-real
+
+           #:mjr_poly_root-separate-largest-real
 
            #:mjr_poly_make-from-roots
 
@@ -156,7 +164,6 @@ replacing 'mjr_poly_' with 'MP_'.
   ** MP_coeff(G) MP_leading-coeff(G) MP_constant-coeff(G)
   * Recognizing special polynomials
   ** MP_onep(G) MP_constantp(G) MP_zerop(G)
-  * Partial Fraction
   * Polynomial factorization
   ** MP_decompose(!) MP_factor-square-free MP_factor-irreducible(!)
   * Things we do with roots:
@@ -183,7 +190,7 @@ replacing 'mjr_poly_' with 'MP_'.
   *** MP_scount-descartes MP_scount-sturm MP_scount-fourier MP_scount-budan
   ** Other
   *** MP_height MP_length MP_density(G) MP_index(G) MP_degree(G) MP_discriminant-low-degree 
-      MP_discriminant-high-degree MP_discriminant MP_content
+      MP_discriminant-high-degree MP_discriminant MP_content MP_mahler-measure
   * Other Stuff
   ** mjr_poly_resultant
   * Polynomial xforms
@@ -989,7 +996,7 @@ See the documentation for MJR_NLEQ_ROOT-LAGUERRE"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_root-separate-largest-real (poly &key (xeps 1) max-itr yeps show-progress)
-  "Use the canonical sturm-sequence find an interval containing the largest real root and no other roots.
+  "Use the canonical sturm-sequence to find an interval containing the largest real root and no other roots.
 
 An open interval $(a,b)$ containing the largest real root (and no other roots) is found.  This interval will be no wider than :XEPS, and will contain no roots
 other than the largest real one.  The return of this function will two values corresponding to the left and right endpoints of the interval.  In the case of a
@@ -1514,6 +1521,7 @@ This is not a fast function, but it sure is handy.  A few property tests exist a
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_cubic-depress (poly)
   "Return the depressed form of the given cubic polynomial.
+
 If $p(x)=ax^3+bx^2+cx+d$, then divide $p$ by $a$ and substitute $t=\frac{b}{-3a}$."
   (let* ((cpoly (mjr_poly_simplify poly))
          (deg   (1- (length cpoly))))
@@ -1533,8 +1541,9 @@ If $p(x)=ax^3+bx^2+cx+d$, then divide $p$ by $a$ and substitute $t=\frac{b}{-3a}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_tschirnhaus-3-2 (poly)
   "Tschirnhaus transformation (wipe out the power 2 term of a degree 3 polynomial)
-If $p(x)=ax^3+bx^2+cx+d$, then substitute $t=\frac{b}{-3a}$."
-  (mjr_poly_simplify (mjr_poly_subst (vector 1 (/ (mjr_poly_coeff poly 2) (* -3 (mjr_poly_leading-coeff poly)))) poly)))
+
+If $p(x)=ax^3+bx^2+cx+d$, then substitute $t=\frac{b}{3a}$."
+  (mjr_poly_simplify (mjr_poly_subst (vector 1 (/ (mjr_poly_coeff poly 2) (* -3 (mjr_poly_coeff poly 3)))) poly)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_poly_discriminant-low-degree (poly)

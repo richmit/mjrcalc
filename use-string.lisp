@@ -1,20 +1,47 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-string.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1998,2008,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     String utilities.@EOL
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-string.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1998,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      
+;; @todo      mjr_string_match-integer: Add :START and :END.@EOL@EOL
+;; @todo      mjr_string_match-float: Add :START and :END.@EOL@EOL
+;; @todo      mjr_string_match-rational: Add :START and :END.@EOL@EOL
+;; @todo      mjr_string_trim: optimize.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_STRING
   (:USE :COMMON-LISP
         :MJR_CHAR)
   (:DOCUMENTATION "Brief: String utilities.;")
-  (:EXPORT #:mjr_string_starts-with
+  (:EXPORT #:mjr_string_help
+
+           #:mjr_string_starts-with
 
            #:mjr_string_match-integer #:mjr_string_match-float #:mjr_string_match-rational
 
@@ -30,6 +57,11 @@
            ))
 
 (in-package :MJR_STRING)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_string_help ()
+  "Help for MJR_STRING:  String utilities."
+  (documentation 'mjr_string_help 'function))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_read-as-lisp (the-string)
@@ -51,7 +83,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_match-integer (the-string)
   "Is the-string an integer (possibly signed)"
-; MJR TODO NOTE <2011-10-30 17:09:12 CDT> mjr_string_match-integer: Add :START and :END
   (if (> (length the-string) 0)
       (if (find (aref the-string 0) "-+")
           (and (mjr_char_digitsp (subseq the-string 1))
@@ -98,7 +129,6 @@ SEE: cl-ppcre:split for an equivalent using a RegEx"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_match-float (the-string)
-; MJR TODO NOTE <2011-10-30 17:09:12 CDT> mjr_string_match-float: Add :START and :END
   "Is the-string a floating point number (possibly signed)"
   (let* ((the-string (substitute #\E #\D (substitute #\E #\L (string-upcase the-string))))
          (tmp1 (mjr_string_split the-string #\E)))
@@ -116,7 +146,6 @@ SEE: cl-ppcre:split for an equivalent using a RegEx"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_match-rational (the-string)
-; MJR TODO NOTE <2011-10-30 17:09:12 CDT> mjr_string_match-rational: Add :START and :END
   "Is the-string a rational number (possibly signed)"
   (let ((tmp1 (mjr_string_split the-string #\/)))
     (cond ((= 1 (length tmp1)) (mjr_string_match-integer the-string))         ;;   no /
@@ -147,7 +176,6 @@ SEE: cl-ppcre:split for an equivalent using a RegEx"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_string_trim (the-string &optional (chars-to-trim #'mjr_char_whitespacep))
-  ;; MJR TODO NOTE <2011-10-25 20:58:30 CDT> mjr_string_trim: optimize
   "Trim THE-STRING on the right and left"
   (mjr_string_rtrim (mjr_string_ltrim the-string chars-to-trim) chars-to-trim))
 

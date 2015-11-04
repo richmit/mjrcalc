@@ -1,13 +1,33 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      tst-numu.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,2008,2013 by Mitch Richling.  All rights reserved.
-;; @brief     Tests for mjr_numu.@EOL
-;; @Std       Common Lisp
+;; @brief     Unit Tests.@EOL
+;; @std       Common Lisp
+;; @see       use-numu.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_NUMU-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_NUMU :MJR_PRNG :MJR_EPS))
@@ -259,13 +279,66 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_numu_gamma-lanczos
-  (assert-equality (mjr_eps_make-fixed= 0.001) 38.07798916127097d0                              (mjr_numu_gamma-lanczos  5.3))
-  (assert-equality (mjr_eps_make-fixed= 0.001) 2.991568288826125d0                              (mjr_numu_gamma-lanczos  0.3))
-  (assert-equality (mjr_eps_make-fixed= 0.001) -4.326851832224322d0                             (mjr_numu_gamma-lanczos -0.3))
-  (assert-equality (mjr_eps_make-fixed= 0.001) 0.01924164378130862d0                            (mjr_numu_gamma-lanczos -5.3))
-  (assert-equality (mjr_eps_make-fixed= 0.001) 24.000000580991518d0                             (mjr_numu_gamma-lanczos  5))
-  (assert-equality (mjr_eps_make-fixed= 0.001) #C(-2.3878289511977946d-5 -9.465856921572284d-5) (mjr_numu_gamma-lanczos #C(-5.2 2)))
-  (assert-equality (mjr_eps_make-fixed= 0.001) #C(-21.57091213945344d0 -0.3030059198057167d0)   (mjr_numu_gamma-lanczos #C(5.2 2)))
+  ;; Maxima
+  ;;   gamma(5.3);       => 38.07797644995235
+  ;;   gamma(0.3);       => 2.99156898768759
+  ;;   gamma(-0.3);      => -4.326851108825193
+  ;;   gamma(-5.3);      => 0.0192416582798931
+  ;;   gamma(5);         => 24
+  ;;   gamma(-5.2+2*%i); => (-9.465845276366529e-5 %i) -2.387829915766869e-5
+  ;;   gamma(5.2+2*%i);  => (-0.3030012629029413 %i) -21.57090971944615
+  ;;   gamma(5.2-2*%i);  => 0.3030012629029413 %i -21.57090971944615
+  ;;   gamma(-5.2-2*%i)  => 9.465845276366529e-5 %i -2.387829915766869e-5
+
+  (assert-equality (mjr_eps_make-fixed= 0.0001) 38.07797644995235                               (mjr_numu_gamma-lanczos  5.3))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) 2.99156898768759                                (mjr_numu_gamma-lanczos  0.3))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) -4.326851108825193                              (mjr_numu_gamma-lanczos -0.3))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) 0.0192416582798931                              (mjr_numu_gamma-lanczos -5.3))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) 24                                              (mjr_numu_gamma-lanczos  5))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) #C(-2.387829915766869e-5 -9.465845276366529e-5) (mjr_numu_gamma-lanczos #C(-5.2 2)))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) #C(-21.57090971944615 -0.3030012629029413)      (mjr_numu_gamma-lanczos #C(5.2 2)))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) #C(-21.57090971944615 0.3030012629029413)       (mjr_numu_gamma-lanczos #C(5.2 -2)))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) #C(-2.387829915766869e-5 9.465845276366529e-5)  (mjr_numu_gamma-lanczos #C(-5.2 -2)))
+  (assert-error 'error                                                                          (mjr_numu_gamma-lanczos 0))
+  (assert-error 'error                                                                          (mjr_numu_gamma-lanczos -1))
+  ;; Check mirror sym (should be identical)
+  (loop for x from -20.5 upto 20.5 by 1.0
+        do (loop for y from -20.5 upto 20.5 by 1.0
+                 for z = (complex x y)
+                 do (assert-equality (mjr_eps_make-fixed= 0.000001) (conjugate (mjr_numu_gamma-lanczos z)) (mjr_numu_gamma-lanczos (conjugate z)) z))) 
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_numu_gamma-spouge
+  (assert-equality (mjr_eps_make-fixed= 0.0001) 38.07797644995235                               (mjr_numu_gamma-spouge  5.3))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) 2.99156898768759                                (mjr_numu_gamma-spouge  0.3))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) -4.326851108825193                              (mjr_numu_gamma-spouge -0.3))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) 0.0192416582798931                              (mjr_numu_gamma-spouge -5.3))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) 24                                              (mjr_numu_gamma-spouge  5))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) #C(-2.387829915766869e-5 -9.465845276366529e-5) (mjr_numu_gamma-spouge #C(-5.2 2)))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) #C(-21.57090971944615 -0.3030012629029413)      (mjr_numu_gamma-spouge #C(5.2 2)))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) #C(-21.57090971944615 0.3030012629029413)       (mjr_numu_gamma-spouge #C(5.2 -2)))
+  (assert-equality (mjr_eps_make-fixed= 0.0001) #C(-2.387829915766869e-5 9.465845276366529e-5)  (mjr_numu_gamma-spouge #C(-5.2 -2)))
+  (assert-error 'error                                                                          (mjr_numu_gamma-spouge 0))
+  (assert-error 'error                                                                          (mjr_numu_gamma-spouge -1))
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_numu_gamma
+  ;; This function is tested by mjr_numu_gamma-lanczos
+
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_numu_gamma-spouge-lanczos
+  ;; Positive, real
+  (loop for x from 0.0001d0 upto 120.0d0 by 0.002d0
+        do (assert-equality (mjr_eps_make-fixed= -0.10)  (mjr_numu_gamma-spouge x) (mjr_numu_gamma-lanczos x) x)) ;; Good to .1%
+  ;; Complex plane
+  (loop for x from -20.11 upto 20.110 by 0.2d0
+        do (loop for y from -20.11d0 upto 20.11d0 by 0.2d0
+                 for z = (complex x y)
+                 do (assert-equality (mjr_eps_make-fixed= -0.010)  (mjr_numu_gamma-spouge z) (mjr_numu_gamma-lanczos z) z))) ;; Good to .1%
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -288,4 +361,5 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests
+;; '(mjr_numu_gamma-lanczos)
  )

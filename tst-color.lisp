@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-color.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Tests for :mjr_color.@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-color.lisp
 ;; @copyright 

@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-dft.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Tests for DFT package.@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-dft.lisp
 ;; @copyright 

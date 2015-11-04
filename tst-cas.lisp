@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-cas.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Unit tests for :mjr_cas.@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-cas.lisp
 ;; @copyright 
@@ -42,7 +42,16 @@
   (assert-equal '("*" 2 "x")            (mjr_cas_canonize (mjr_cas_diff (mjr_mxp_infix-to-tree "x*x") "x")))
   (assert-equal '("cos" "x")            (mjr_cas_canonize (mjr_cas_diff (mjr_mxp_infix-to-tree "sin(x)") "x")))
   (assert-equal '("*" -1 ("sin" "x"))   (mjr_cas_canonize (mjr_cas_diff (mjr_mxp_infix-to-tree "cos(x)") "x")))
-)
+  )
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_cas_diff-list
+  (assert-equal '(("sin" "x") ("cos" "x") ("*" -1 ("sin" "x")) ("*" -1 ("cos" "x")) ("sin" "x"))
+                (mjr_cas_diff-list (mjr_mxp_infix-to-tree "sin(x)") "x" 4))
+  (assert-equal '(("^" "x" 5) ("*" 5 ("^" "x" 4)) ("*" 20 ("^" "x" 3)) ("*" 60 ("^" "x" 2)) ("*" 120 "x") 120 0)
+                (mjr_cas_diff-list (mjr_mxp_infix-to-tree "x^5") "x" 6))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_cas_canonize
@@ -52,7 +61,7 @@
   (assert-equal '("*" 6 "x")                   (mjr_cas_canonize (mjr_mxp_infix-to-tree "2*x+x+3*x")))
   (assert-equal '("+" ("*" 2 "y") ("*" 4 "x")) (mjr_cas_canonize (mjr_mxp_infix-to-tree "2*y+x+3*x")))
   (assert-equal '("+" ("*" 2 "y") ("*" 4 "x")) (mjr_cas_canonize (mjr_mxp_infix-to-tree "x+2*y+3*x")))
-)
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests)

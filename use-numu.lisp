@@ -36,7 +36,9 @@
         :MJR_CHK
         :MJR_VVEC)
   (:DOCUMENTATION "Brief: Numerical utilities.;")
-  (:EXPORT #:mjr_numu_max-accuracy
+  (:EXPORT #:mjr_numu_help
+           
+           #:mjr_numu_max-accuracy
 
            #:mjr_numu_abssqr
            
@@ -58,7 +60,7 @@
            #:mjr_numu_argument
 
            #:mjr_numu_log!
-           #:mjr_numu_gamma-lanczos
+           #:mjr_numu_gamma-lanczos #:mjr_numu_gamma-lanczos-15 #:mjr_numu_gamma-lanczos-9
            #:mjr_numu_gamma-spouge
            #:mjr_numu_gamma
            #:mjr_numu_log-gamma
@@ -71,10 +73,38 @@
            #:mjr_numu_sum
            #:mjr_numu_prod
 
+           #:mjr_numu_abs-max
+           #:mjr_numu_abs-min
+
            #:mjr_numu_complex-to-vector
+           ;; Not exported
+           ;;#:mjr_numu_gamma-domain-check
            ))
 
 (in-package :MJR_NUMU)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_numu_help ()
+  "Help for MJR_NUMU:  Numerical utilities."
+  (documentation 'mjr_numu_help 'function))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_numu_abs-max   (&rest rest)
+  "Returns the argument that is the largest in absolute value"
+  (let ((maxx (car rest)))
+    (dolist (x rest maxx)
+      (if (< (abs maxx) (abs x))
+          (setq maxx x)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_numu_abs-min   (&rest rest)
+  "Returns the argument that is the smallest in absolute value"
+  (let ((minx (car rest)))
+    (dolist (x rest minx)
+      (if (> (abs minx) (abs x))
+          (setq minx x)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_sum (&key start end step len seq-fun)
@@ -190,51 +220,74 @@ This is useful for finding special points (discontinuities, extrema, etc) for pe
   "Return a string using the syntax of the selected programming language or computational environment."
   (if (not (numberp the-number))
       (error "mjr_numu_code: Argument must be a number!"))
-  (let* ((bams (case lang            ;;    rea            cplx                      int  rat
-                 (:lang-vtk          (list "~,15,,,,,'eG" nil                       "~D" "~,15,,,,,'eG"))
-                 (:lang-povray       (list "~,15,,,,,'eG" "<~a,~a>"                 "~D" "~,15,,,,,'eG"))
-                 ((:lang-matlab
-                   :lang-octave
-                   :lang-scilab
-                   :lang-euler
-                   :lang-r
-                   :lang-gap)        (list "~,15,,,,,'eG" "(~a+~ai)"                "~D" "~,15,,,,,'eG"))
-                 (:lang-mathematica  (list "~,15,,,,,'eG" "(~a+I~a)"                "~D" "~S"))
-                 (:lang-maple        (list "~,15,,,,,'eG" "(~a+i*~a)"               "~D" "~S"))
-                 ((:lang-maxima
-                   :lang-axiom
-                   :lang-open-axiom) (list "~,15,,,,,'eG" "(~a+~a*%i)"              "~D" "~S"))
-                 (:lang-M2           (list "~,15,,,,,'eG" "(~a+~a*ii)"              "~D" "~S"))
-                 ((:lang-latex
-                   :lang-pdflatex
-                   :lang-amstex
-                   :lang-tex)        (list "~,15,,,,,'eG" "(~a+~a i)"               "~D" "\\frac{~a}{~a}"))
-                 ((:lang-c99
-                   :lang-c)          (list "~,15,,,,,'eG" "(~a+~aI)"                "~D" "~,15,,,,,'eG"))
-                 ((:lang-gp
-                   :lang-pari
-                   :lang-pari/gp)    (list "~,15,,,,,'eG" "(~a+~a*I)"               "~D" "~,15,,,,,'eG"))
-                 (:lang-c++          (list "~,15,,,,,'eG" "complex<double>(~a,~a)"  "~D" "~,15,,,,,'eG"))
-                 (:lang-ruby         (list "~,15,,,,,'eG" "Complex(~a,~a)"          "~D" "~,15,,,,,'eG"))
-                 (:lang-idl          (list "~,15,,,,,'eG" "complex(~a,~a)"          "~D" "~,15,,,,,'eG"))
-                 ((:lang-hp48
-                   :lang-f77   
-                   :lang-r90     
-                   :lang-fortran)    (list "~,15,,,,,'eG" "(~a,~a)"                 "~D" "~,15,,,,,'eG"))
-                 (:lang-python       (list "~,15,,,,,'eG" "(~a+~aj)"                "~D" "~,15,,,,,'eG"))
-                 (:lang-csv          (list "~,15,,,,,'eG" "(~a+i~a)"                "~D" "~,15,,,,,'eG"))
-                 (:lang-csvl         (list "~,15,,,,,'eG" "~s"                      "~D" "~S"))
-                 (:lang-lisp         (list "~,15,,,,,'eG" "~s"                      "~D" "~S"))
-                 ('t                 (error "mjr_numu_code: Language unsupported!")))))
-    (typecase the-number
-      (complex   (if (= 1 (count #\~ (nth 1 bams)))
-                     (format nil (nth 1 bams) the-number)
-                     (format nil (nth 1 bams) (mjr_numu_code (realpart the-number) :lang lang) (mjr_numu_code (imagpart the-number) :lang lang))))
-      (integer   (format nil (nth 2 bams) the-number))
-      (rational  (if (= 1 (count #\~ (nth 3 bams)))
-                     (format nil (nth 3 bams) the-number)
-                     (format nil (nth 3 bams) (mjr_numu_code (numerator the-number) :lang lang) (mjr_numu_code (denominator the-number) :lang lang))))
-      (otherwise (format nil (nth 0 bams) the-number)))))
+  (labels ((fmtFloat (x) (if (or (> (abs x) 1000000)
+                                 (and (not (zerop x)) (< (abs x) 1/1000000)))
+                             (format nil "~e" x)
+                             (format nil "~f" x)))
+           (fmtRatFlt   (x) (fmtFloat (float x 1.0d0)))
+           (fmtSgnInt32 (x) (if (> (abs x) 2147483647)                              
+                                (mjr_numu_code (float the-number 1.0d0) :lang lang)
+                                (format nil "~D" x)))
+           (fmtSgnInt64 (x) (if (> (abs x) 9223372036854775808)
+                                (mjr_numu_code (float the-number 1.0d0) :lang lang)
+                                (format nil "~D" x)))
+           (fmtSgnIntC  (x) (cond ((> (abs x) 9223372036854775808) (mjr_numu_code (float the-number 1.0d0) :lang lang))
+                                  ((> (abs x) 2147483647)          (format nil "~DL" x))
+                                  ('t                              (format nil "~D" x)))))
+    (let* ((bams (case lang            ;;    rea        cplx                      int           rat
+                   (:lang-vtk          (list #'fmtFloat nil                       #'fmtSgnInt32 #'fmtRatFlt))
+                   (:lang-povray       (list #'fmtFloat  "<~a,~a>"                #'fmtSgnInt64 #'fmtRatFlt))
+                   ((:lang-matlab
+                     :lang-octave
+                     :lang-scilab
+                     :lang-euler
+                     :lang-r)          (list #'fmtFloat  "(~a+~ai)"                #'fmtSgnInt32 #'fmtRatFlt))
+                   ((:lang-gap)        (list #'fmtFloat  "(~a+~ai)"                "~D"          "~S"))
+                   (:lang-mathematica  (list #'fmtFloat  "(~a+I~a)"                "~D"          "~S"))
+                   (:lang-maple        (list #'fmtFloat  "(~a+i*~a)"               "~D"          "~S"))
+                   ((:lang-maxima
+                     :lang-axiom
+                     :lang-open-axiom) (list #'fmtFloat  "(~a+~a*%i)"              "~D"          "~S"))
+                   (:lang-M2           (list #'fmtFloat  "(~a+~a*ii)"              "~D"          "~S"))
+                   ((:lang-latex
+                     :lang-pdflatex
+                     :lang-amstex
+                     :lang-tex)        (list #'fmtFloat  "(~a+~a i)"               "~D"          "\\frac{~a}{~a}"))
+                   ((:lang-c99
+                     :lang-c)          (list #'fmtFloat  "(~a+~aI)"                #'fmtSgnIntC  #'fmtRatFlt))
+                   ((:lang-gp
+                     :lang-pari
+                     :lang-pari/gp)    (list #'fmtFloat  "(~a+~a*I)"               "~D"          #'fmtRatFlt))
+                   (:lang-c++          (list #'fmtFloat  "complex<double>(~a,~a)"  #'fmtSgnIntC  #'fmtRatFlt))
+                   (:lang-ruby         (list #'fmtFloat  "Complex(~a,~a)"          "~D"          "Rational(~a,~a)"))
+                   (:lang-idl          (list #'fmtFloat  "complex(~a,~a)"          #'fmtSgnInt32 #'fmtRatFlt))
+                   ((:lang-hp48
+                     :lang-f77   
+                     :lang-r90     
+                     :lang-fortran)    (list #'fmtFloat  "(~a,~a)"                 "~D"          #'fmtRatFlt))
+                   (:lang-python       (list #'fmtFloat  "(~a+~aj)"                "~D"          #'fmtRatFlt))
+                   (:lang-csv          (list #'fmtFloat  "(~a+i~a)"                "~D"          #'fmtRatFlt))
+                   (:lang-csvl         (list #'fmtFloat  "~s"                      "~D"          "~S"))
+                   (:lang-lisp         (list #'fmtFloat  "~s"                      "~D"          "~S"))
+                   ('t                 (error "mjr_numu_code: Language unsupported!")))))
+      (typecase the-number
+        (complex   (if (= 1 (count #\~ (nth 1 bams)))
+                       (format nil (nth 1 bams) the-number)
+                       (format nil (nth 1 bams) (mjr_numu_code (realpart the-number) :lang lang) (mjr_numu_code (imagpart the-number) :lang lang))))
+        (integer   (let ((fmt (nth 2 bams)))
+                     (if (stringp fmt)
+                         (format nil fmt the-number)
+                         (funcall fmt the-number))))
+        (rational  (let ((fmt (nth 3 bams)))
+                     (if (stringp fmt)
+                         (if (= 1 (count #\~ fmt))
+                             (format nil fmt the-number)
+                             (format nil fmt (mjr_numu_code (numerator the-number) :lang lang) (mjr_numu_code (denominator the-number) :lang lang)))
+                         (funcall fmt the-number))))
+        (otherwise (let ((fmt (nth 0 bams)))
+                     (if (stringp fmt)
+                         (format nil fmt the-number)
+                         (funcall fmt the-number))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_cubert (x &key (aggressive-conversion nil))
@@ -299,21 +352,46 @@ The aggressiveness of the algorithm varies according the the value of :AGGRESSIV
           (+ (* 2 pi) p)
           p)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_numu_gamma-lanczos (z &optional ln)
-  "Lanczos approximation with g=7.  Generally good to about 4 digits.
+(defun mjr_numu_gamma-domain-check (z)
+  "Check that z is in the domain of the gamma function.  Error if z is a pole, and warn if it is near a pole."
+  (let ((x (realpart z))
+        (y (imagpart z)))
+    (if (zerop y)
+        (cond ((zerop x)                              (error "mjr_numu_gamma-domain-check: Gamma undefied at 0"))
+              ((and (< x 0) (integerp x))             (error "mjr_numu_gamma-domain-check: Gamma undefied on negative integers (~a)!" z))
+              ((and (< x 0) (zerop (- x (round x))))  (error "mjr_numu_gamma-domain-check: Gamma undefied on negative integers (~a)!" z))))
+    (if (mjr_cmp_zerop y)
+        (cond ((mjr_cmp_zerop x)                  (warn "mjr_numu_gamma-domain-check: Gamma undefied at 0. Argument near zero: ~a" z))
+              ((and (< x 0) (mjr_cmp_integerp x)) (warn "mjr_numu_gamma-domain-check: Gamma undefied on negative integers. Argument near integer: ~a" z))))))
+  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_numu_gamma-lanczos-9 (z &optional ln)
+  "Lanczos approximation with $g=7$ and $n=9.  Generally good to about 4 digits. Euler's reflection formula is used when $\\Re(z)<\\frac{1}{2}$.
+
+Euler's reflection formula: $$\\Gamma(1-z)\\Gamma(z)=\\frac{\\pi}{\\sin{(\\pi z)}} \\,\\,\\, \\forall z \\notin \\mathbb{Z}$$
 
 References:
   Cornelius Lanczos (1964); A Precision Approximation of the Gamma Function; SIAM Journal on Numerical Analysis series B; p86-96"
+  (mjr_numu_gamma-domain-check z)
   (if (< (realpart z) 1/2)
       (if ln
           (- (log pi) (+ (log (sin (* pi z))) (mjr_numu_gamma-lanczos (- 1 z) 't)))
-          (/ pi (* (sin (* pi z)) (mjr_numu_gamma-lanczos (- 1 z)))))
+          (/ pi (* (sin (* pi z)) (mjr_numu_gamma-lanczos-9 (- 1 z)))))
       (let* ((g  7)
-             (p  #(0.99999999999980993d0 676.5203681218851d0    -1259.1392167224028d0 771.32342877765313d0 -176.61502916214059d0
-                   12.507343278686905d0  -0.13857109526572012d0 9.9843695780195716d-6 1.5056327351493116d-7))
+             (p #( 0.999999999999809932276847004734780d+0
+                   0.676520368121885098567009190444019d+3
+                  -0.125913921672240287047156078755283d+4
+                   0.771323428777653078848652825889400d+3
+                  -0.176615029162140599065845513540000d+3
+                   0.125073432786869048144589368530000d+2
+                  -0.138571095265720116895547070000000d+0
+                   0.998436957801957085956300000000000d-5
+                   0.150563273514931155834000000000000d-6))
+             (n  9) ;; (length p)
              (z  (- z 1))
-             (x  (mjr_numu_sum :start 1 :end (1+ g) :seq-fun (lambda (i) (/ (aref p i) (+ z i)))))
+             (x  (mjr_numu_sum :start 1 :end (1- n) :seq-fun (lambda (i) (/ (aref p i) (+ z i)))))
              (tm (+ z g 1/2)))
         (if ln
             (+ (* 1/2 (log (* 2 pi)))
@@ -326,8 +404,69 @@ References:
                (+ x (aref p 0)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_numu_gamma-lanczos-15 (z &optional ln)
+  "Lanczos approximation with $g=4.7421875d0$ and $n=15.  Generally good to about 4 digits. Euler's reflection formula is used when $\\Re(z)<\\frac{1}{2}$.
+
+Euler's reflection formula: $$\\Gamma(1-z)\\Gamma(z)=\\frac{\\pi}{\\sin{(\\pi z)}} \\,\\,\\, \\forall z \\notin \\mathbb{Z}$$
+
+References:
+  Cornelius Lanczos (1964); A Precision Approximation of the Gamma Function; SIAM Journal on Numerical Analysis series B; p86-96
+  Paul Godfrey (2001); A note on the computation  of the convergent Lanczos complexa gamma approximation; http://my.fit.edu/~gabdo/gamma.txt"
+  (mjr_numu_gamma-domain-check z)
+  (if (< (realpart z) 1/2)
+      (if ln
+          (- (log pi) (+ (log (sin (* pi z))) (mjr_numu_gamma-lanczos (- 1 z) 't)))
+          (/ pi (* (sin (* pi z)) (mjr_numu_gamma-lanczos-15 (- 1 z)))))
+      (let* ((g  607/128)
+             (p #( 0.99999999999999709182d+0 
+                   0.57156235665862923517d+2 
+                  -0.59597960355475491248d+2 
+                   0.14136097974741747174d+2  
+                  -0.49191381609762019978d+0  
+                   0.33994649984811888699d-4 
+                   0.46523628927048575665d-4 
+                  -0.98374475304879564677d-4 
+                   0.15808870322491248884d-3 
+                  -0.21026444172410488319d-3 
+                   0.21743961811521264320d-3 
+                  -0.16431810653676389022d-3 
+                   0.84418223983852743293d-4 
+                  -0.26190838401581408670d-4 
+                  0.36899182659531622704d-5))
+             (n 15) ;; (length p)
+             (z  (- z 1))
+             (x  (mjr_numu_sum :start 1 :end (1- n) :seq-fun (lambda (i) (/ (aref p i) (+ z i)))))
+             (tm (+ z g 1/2)))
+        (if ln
+            (+ (* 1/2 (log (* 2 pi)))
+               (* (+ z 1/2) (log tm))
+               (- tm)
+               (log (+ x (aref p 0))))
+            (* (sqrt (* 2 pi))
+               (expt tm (+ z 1/2))
+               (exp (- tm))
+               (+ x (aref p 0)))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_numu_gamma-lanczos (z &optional ln)
+  "See: MJR_NUMU_GAMMA-LANCZOS-15"
+  (mjr_numu_gamma-lanczos-15 z ln))
+
+;; May get better accuracy when $x\in\mathbb{R}$ and $x$ is small:
+;; $$\Gamma(x) = \Gamma(1+x)/x$$
+
+;; Euler's reflection formula: 
+;; $$\\Gamma(1-z)\\Gamma(z)=\\frac{\\pi}{\\sin{(\\pi z)}} \\,\\,\\, \\forall z \\notin \\mathbb{Z}$$
+;; Basic Gamma property
+;; $$\\Gamma(z+1)=z\\Gamma(z)$$
+;; Combine them:
+;; $$z\\Gamma(z)\\Gamma(-z) = \\frac{-\\pi}{\\sin(\\pi z)}$$
+;; Solve for $\\Gamma(-z)$
+;; $$\\Gamma(-z) = \\frac{-\\pi}{z\\Gamma(z)\\sin(\\pi z)}$$
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_gamma-spouge (z &optional a)
-  "Spouge approximation (a=9 by default).
+  "Spouge approximation (a=9 by default). Euler's reflection formula is used when $\\Re(z)<1/2$.
 
      $$\\Gamma(z+1) = (z+a)^{z+1/2} e^{-(z+a)} \\left[ c_0 + \\sum_{k=1}^{a-1} \\frac{c_k}{z+k} + \\varepsilon_a(z) \\right]$$
      
@@ -340,11 +479,24 @@ References:
      
      $$a^{-1/2} (2 \\pi)^{-(a+1/2)}$$
 
+     Euler's reflection formula: $$\\Gamma(1-z)\\Gamma(z)=\\frac{\\pi}{\\sin{(\\pi z)}} \\,\\,\\, \\forall z \\notin \\mathbb{Z}$$
+
 References:
   John L. Spouge (1994); Computation of the gamma, digamma, and trigamma functions; SIAM Journal on Numerical Analysis; p931-944"
+  ;(cond ((<= (realpart z) 0) (error "mjr_numu_gamma-spouge: Re(z) must be positive!!")))
+  (mjr_numu_gamma-domain-check z)
+  (if (< (realpart z) 1/2)
+      (/ pi (* (sin (* pi z)) (mjr_numu_gamma-spouge (- 1 z) a)))
   (let ((a (or a 9))
-        (c #(2.5066282746310002d0 8431.422428277627d0 -20309.93031668298d0 17787.504448869255d0 -6913.789843934436d0
-             1164.7605340404104d0 -70.44807015772994d0 0.9288625198438543d0 -5.393416326307629d-4))
+        (c #( 0.25066282746310002d+1
+              0.84314224282776270d+4
+             -0.20309930316682980d+5
+              0.17787504448869255d+5
+             -0.69137898439344360d+4
+              0.11647605340404104d+4
+             -0.70448070157729940d+2
+              0.92886251984385430d+0
+             -0.53934163263076290d-3))
         (z (1- z)))
     (* (expt (+ z a) (+ z 1/2))
        (exp (- (+ z a)))
@@ -357,7 +509,7 @@ References:
                               (expt (- a k) (- k 1/2))
                               (exp (- a k)))
                            (* kf
-                              (+ z k)))))))))
+                              (+ z k))))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_gamma (z)

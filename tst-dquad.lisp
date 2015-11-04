@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-dquad.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     @EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-dquad.lisp
 ;; @copyright 

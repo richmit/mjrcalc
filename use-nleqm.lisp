@@ -1,22 +1,38 @@
 ;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      use-nleqm.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 2015 by Mitch Richling.  All rights reserved.
 ;; @brief     Multiple Non-linear EQuation root location.@EOL
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-nleqm.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1995-2010,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            TODO: * Add newton/chord hybrid
-;;            TODO:   * Parameter, m: Max number of 'chord-steps' per 'newton iteration' (m=1 => algorithm is Newton's algorithm)
-;;            TODO:   * Pick factorization function (QR, SVD, LU, Cholesky, etc...)
-;;            TODO: * Add Newton-Krylov
-;;            TODO:   * GMRES
-;;            TODO: * Build hybrid algorithms from parts.
-;;            TODO:   * Provide the solvers for linear system solution, and how to switch between them
-;;            TODO:   * Provide logic for how to switch from chord <-> newton <-> quazi-newtion
-;;            
-
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      Add newton/chord hybrid. Parameter, m: Max number of 'chord-steps' per 'newton iteration' (m=1 => algorithm is Newton's algorithm). Pick
+;;            factorization function (QR, SVD, LU, Cholesky, etc...).@EOL@EOL
+;; @todo      Add Newton-Krylov: GMRES.@EOL@EOL
+;; @todo      Build hybrid algorithms from parts.  Provide the solvers for linear system solution, and how to switch between them. Provide logic for
+;;            how to switch from chord <-> newton <-> quazi-newtion.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_NLEQM
@@ -28,12 +44,18 @@
         :MJR_UTIL
         :MJR_COMBC)
   (:DOCUMENTATION "Brief: Multiple Non-linear EQuation root location.;")
-  (:EXPORT #:mjr_nleqm_root-newton
+  (:EXPORT #:mjr_nleqm_help
+           #:mjr_nleqm_root-newton
            #:mjr_nleqm_fixed-point-itr
            #:mjr_nleqm_root-comb-search
            ))
 
 (in-package :MJR_NLEQM)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_nleqm_help ()
+  "Help for MJR_NLEQM:  Multiple Non-linear EQuation root location."
+  (documentation 'mjr_nleqm_help 'function))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_nleqm_root-newton (fdf x0 &key (df-is-inverse nil) (xeps 0.0001) (yeps 0.0001) (max-itr 1000) arg-mode (show-progress nil))

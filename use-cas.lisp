@@ -464,8 +464,8 @@ Example: (* (expt a 2) (+ b a)) => (+ (* b (expt a 2)) (* a (expt a 2)))"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_cas_diff-list (expr var num-diff)
   "Return a list with original expression and NUM-DIFF derivatives"
-  (loop for i from 1 upto (1+ num-diff)
-        for e = expr then (mjr_cas_diff expr var)
+  (loop for i from 0 upto num-diff
+        for e = (mjr_cas_canonize expr) then (mjr_cas_canonize (mjr_cas_diff e var))
         collect e))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

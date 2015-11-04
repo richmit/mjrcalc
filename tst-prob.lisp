@@ -1,38 +1,60 @@
 ;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      tst-prob.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 2012 by Mitch Richling.  All rights reserved.
-;; @brief     Test package for use-prob.lisp.@EOL
-;; @Keywords
-;; @Std       Common Lisp
+;; @brief     Unit Tests.@EOL
+;; @std       Common Lisp
+;; @see       use-prob.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2010,2011,2012,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            Status:
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
-;;              Well tested:
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
 ;;
-;;               mjr_prob_help mjr_prob_exponential-pdf mjr_prob_exponential-icdf mjr_prob_std-normal-pdf mjr_prob_std-normal-icdf
-;;               mjr_prob_normal-pdf mjr_prob_poisson-pdf mjr_prob_binomial-pdf
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
 ;;
-;;              Suspect:
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
 ;;
-;;               mjr_prob_bernoulli-pdf mjr_prob_geometric-pdf mjr_prob_negative-binomial-pdf
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @filedetails
 ;;
-;;              Dep on PDF and pdf2ccdf:
+;;  Status:
 ;;
-;;               mjr_prob_exponential-ccdf mjr_prob_std-normal-ccdf mjr_prob_normal-ccdf mjr_prob_poisson-ccdf
-;;               mjr_prob_bernoulli-ccdf mjr_prob_binomial-ccdf mjr_prob_geometric-ccdf mjr_prob_negative-binomial-ccdf
+;;    Well tested:
 ;;
-;;              Dep on PDF and pdf2cdf:
+;;     mjr_prob_help mjr_prob_exponential-pdf mjr_prob_exponential-icdf mjr_prob_std-normal-pdf mjr_prob_std-normal-icdf
+;;     mjr_prob_normal-pdf mjr_prob_poisson-pdf mjr_prob_binomial-pdf
 ;;
-;;               mjr_prob_exponential-cdf mjr_prob_std-normal-cdf mjr_prob_normal-cdf mjr_prob_poisson-cdf mjr_prob_bernoulli-cdf
-;;               mjr_prob_binomial-cdf mjr_prob_geometric-cdf mjr_prob_negative-binomial-cdf
+;;    Suspect:
 ;;
-;;              Seem to work, but testing random number generators is hard. :)
+;;     mjr_prob_bernoulli-pdf mjr_prob_geometric-pdf mjr_prob_negative-binomial-pdf
 ;;
-;;               mjr_prob_exponential-prng mjr_prob_std-normal-prng mjr_prob_normal-prng mjr_prob_poisson-prng
-;;               mjr_prob_bernoulli-prng mjr_prob_binomial-prng mjr_prob_geometric-prng mjr_prob_negative-binomial-prng
-;;               
+;;    Dep on PDF and pdf2ccdf:
+;;
+;;     mjr_prob_exponential-ccdf mjr_prob_std-normal-ccdf mjr_prob_normal-ccdf mjr_prob_poisson-ccdf
+;;     mjr_prob_bernoulli-ccdf mjr_prob_binomial-ccdf mjr_prob_geometric-ccdf mjr_prob_negative-binomial-ccdf
+;;
+;;    Dep on PDF and pdf2cdf:
+;;
+;;     mjr_prob_exponential-cdf mjr_prob_std-normal-cdf mjr_prob_normal-cdf mjr_prob_poisson-cdf mjr_prob_bernoulli-cdf
+;;     mjr_prob_binomial-cdf mjr_prob_geometric-cdf mjr_prob_negative-binomial-cdf
+;;
+;;    Seem to work, but testing random number generators is hard. :)
+;;
+;;     mjr_prob_exponential-prng mjr_prob_std-normal-prng mjr_prob_normal-prng mjr_prob_poisson-prng
+;;     mjr_prob_bernoulli-prng mjr_prob_binomial-prng mjr_prob_geometric-prng mjr_prob_negative-binomial-prng
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_PROB-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_PROB :MJR_PRNG :MJR_EPS))

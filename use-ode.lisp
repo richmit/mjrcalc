@@ -3,14 +3,12 @@
 ;;;
 ;; @file      use-ode.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @date      2015-MM-DD
-;; @version   VERSION
 ;; @brief     ODE (Ordinary Differential Equation) IVP (Initial Value Problem) solvers.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-ode.lisp
 ;; @copyright 
 ;;  @parblock
-;;  Copyright (c) 1997, 1998, 2004, 2013, 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
+;;  Copyright (c) 1997,1998,2004,2010, 2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
 ;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;

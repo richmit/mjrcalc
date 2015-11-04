@@ -1,13 +1,36 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-combe.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,1998,2004,2008,2011,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Enumerative Combinatorics: Counting combinatorial objects.@EOL
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-combe.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2008,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      Add a "falling power" version of this function that takes non-integer N.@EOL@EOL
+;; @todo      mjr_combe_comb: Add a version of this function that takes non-integer arguments.  Call it "mjr_combe_binom".@EOL@EOL
+;; @todo      mjr_combe_12way-lu-all: CHECK THIS!!.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_COMBE
@@ -140,7 +163,6 @@ Interpretations:
   * mjr_combe_12way-ll-le1
   * The number ways of placing N labeled balls into K labeled urns such that each urn has no more than one ball
   * Ways to select K items from N items where order matters"
-  ;; MJR TODO NOTE mjr_combe_perm: Add a "falling power" version of this function that takes non-integer N
   (cond ((not (integerp n))   (error "mjr_combe_perm: First argument must be an integer!"))
         ((< n 0)              (error "mjr_combe_perm: First argument must be non-negative!"))
         ((not (integerp k))   (error "mjr_combe_perm: Second argument must be an integer!"))
@@ -175,7 +197,6 @@ Interpretations:
 
 NOTE: This is the same as the binomial coefficient for integer arguments
 NOTE: This function is relatively fast, and avoids large intermediate values during the computation"
-                                        ; MJR TODO NOTE mjr_combe_comb: Add a version of this function that takes non-integer arguments.  Call it "mjr_combe_binom"
   (cond ((not (integerp n))   (error "mjr_combe_comb: First argument must be an integer!"))
         ((< n 0)              (error "mjr_combe_comb: First argument must be non-negative!"))
         ((not (integerp k))   (error "mjr_combe_comb: Second argument must be an integer!")))
@@ -238,7 +259,7 @@ Interpretations:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_stirling2nd (n k)
-  "Compute the Stirling numbers of the second kind, $S(n,k)$
+  "Compute the Stirling numbers of the second kind, $S(n,k)$ or $\\genfrac\\{\\}{0pt}{}{a}{b}$
 
 Interpretations:
   * The number of ways to partition a set of N objects into K non-empty subsets
@@ -291,7 +312,7 @@ References:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_stirling1st (n k)
-  "Compute the Stirling numbers of the first kind, $s(n,k)$
+  "Compute the Stirling numbers of the first kind, $s(n,k)$ or $\\genfrac{[}{]}{0pt}{}{a}{b}$.
 
 Interpretations:
   * ???
@@ -350,7 +371,7 @@ Interpretations:
 
 Interpretations:
   * The number of vectors $(a_1,...,a_{2n})\\in\\{1,-1\\}^{2n}$ such that $\\sum_1^k a_k\\ge0$ for $k\\in\\{1,...,2n\\}$
-  * The number of non-negative integer vectors $(a_1,...,a_n)$ such that $\\sum_1^n a_n=n$ and $\\sum_1^k a_k\\le k$ for $0\\le k<n$
+  * The number of non-negative integer vectors $(a_1,...,a_n)$ such that $\\sum_1^n a_n=n$ sand $\\sum_1^k a_k\\le k$ for $0\\le k<n$
 
 References:
   Allenby and Slomson (2010); How to Count: An Introduction to Combinatorics; p72,80"
@@ -362,7 +383,6 @@ References:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_12way-lu-all (n k)
-  ;; MJR TODO NOTE <2011-11-11 13:54:55 CST> mjr_combe_12way-lu-all: CHECK THIS!!
   "Number of ways to put N labeled balls into K unlabeled urns.
 
 Interpretations:

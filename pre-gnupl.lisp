@@ -125,21 +125,25 @@ See the gnuplotGO.sh script for one way to make sure that a gnuplot process is a
 If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppress titles entirely, set :TITLE to '(NIL) -- a list containing a NIL."
   (let* ((data-idxs   (or (mjr_util_non-list-then-list data-arrays)
                                   (concatenate 'list (mjr_vvec_to-vec-maybe (mjr_dquad_data-count dquad)))))
-         (data-arrays (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x)) data-idxs))
-         (num-plots   (length data-arrays))
+         (data-arrays (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x       )) data-idxs))
+         (data-types  (mapcar (lambda (x) (mjr_dquad_get-data-ano dquad x :ano-typ)) data-idxs))
          (data-names  (mapcar (lambda (x) (mjr_dquad_get-data-ano dquad x :ano-nam)) data-idxs))
+         (num-plots   (length data-arrays))
          (title       (mjr_util_non-list-then-list title))
          (type        (mjr_util_non-list-then-list type))
          (rng-dim     (loop for plt-idx from 0 upto (1- num-plots)
                             for daElm = (mjr_arr_aref-col-major (mjr_util_elt-mod data-arrays plt-idx) 0)
+                            for dtyp in data-types
                             for ptyp = (mjr_util_elt-mod type plt-idx)
-                            collect (if (string-equal ptyp :rgb)
-                                        1
-                                        (typecase daElm
-                                          (complex   (error "mjr_gnupl_dquad: Complex domain not yet supported"))
-                                          (number    1)
-                                          (vector    (length daElm))
-                                          (otherwise (error "mjr_gnupl_dquad: Unsupported data in data-array"))))))
+                            collect (case dtyp
+                                      (:ano-typ-real    1)
+                                      (:ano-typ-integer 1)
+                                      (:ano-typ-complex 2)
+                                      (:ano-typ-color   (if (string-equal ptyp :rgb) (length daElm)))
+                                      (:ano-typ-ivec    (length daElm))
+                                      (:ano-typ-rvec    (length daElm))
+                                      (:ano-typ-cvec    (error "mjr_gnupl_dquad: Complex vector range not supported"))
+                                      (otherwise        (error "mjr_gnupl_dquad: Invalid range data type (~a)" dtyp)))))
          (axes        (mapcar (lambda (x) (mjr_dquad_get-axis-vector dquad x))
                               (concatenate 'list (mjr_vvec_to-vec-maybe (mjr_dquad_axis-count dquad)))))
          (col         (mjr_util_non-list-then-list col))
@@ -199,13 +203,17 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
              (ddim  (if yaxis 2 1)))
         (case ddim
           (1 (dotimes (plt-idx num-plt)
-               (let* ((rdim (elt rng-dim plt-idx)))
+               (let* ((rdim (elt rng-dim    plt-idx))
+                      (dtyp (elt data-types plt-idx)))
                  (case rdim
                    (1 (loop for x across xaxis
                             for d across (nth plt-idx data-arrays)
                             do (mjr_gnupl_send-command (format nil "~F ~F " x d) alternate-gnuplot-stream)))
-                   (2 (loop for d across (nth plt-idx data-arrays)
-                            do (mjr_gnupl_send-command (format nil "~F ~F " (aref d 0) (aref d 1)) alternate-gnuplot-stream)))
+                   (2 (case dtyp
+                        (:ano-typ-complex (loop for d across (nth plt-idx data-arrays)
+                                                do (mjr_gnupl_send-command (format nil "~F ~F " (realpart d) (imagpart d)) alternate-gnuplot-stream)))
+                        (otherwise        (loop for d across (nth plt-idx data-arrays)
+                                                do (mjr_gnupl_send-command (format nil "~F ~F " (aref d 0) (aref d 1)) alternate-gnuplot-stream)))))
                    (3 (loop for d across (nth plt-idx data-arrays)
                             do (mjr_gnupl_send-command (format nil "~F ~F ~F " (aref d 0) (aref d 1) (aref d 2)) alternate-gnuplot-stream)))
                    (otherwise (error "mjr_gnupl_dquad: Range dimension ~d is not support with domain dimension of 1" rdim)))

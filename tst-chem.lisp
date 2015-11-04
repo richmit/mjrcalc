@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-chem.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Tests for :MJR_CHEM.@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-chem.lisp
 ;; @copyright 

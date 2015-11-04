@@ -1,11 +1,36 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-prob.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,1998,2004,2010,2011,2012 by Mitch Richling.  All rights reserved.
 ;; @brief     Augments and supports :mjr_probau.@EOL
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-prob.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2010,2011,2012,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      mjr_prob_bernoulli-pdf: Reconsider "always double-float" rule.  Document why we do it.@EOL@EOL
+;; @todo      mjr_prob_negative-binomial-pdf: Optimize!@EOL@EOL
+;; @todo      mjr_prob_negative-binomial-pdf: Add a :poisson option for :algorithm.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_PROB
@@ -48,7 +73,7 @@ supports it by providing PDFs (exponential, std-normal, normal, & poisson) usefu
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prob_exponential-pdf (x mu &key (algorithm :direct))
-  "PDF: $\mu e^{-\mu x}$"
+  "PDF: $\\mu e^{-\\mu x}$"
   (cond ((not (numberp x))               (error "mjr_prob_exponential-pdf: x must be a number!"))
         ((complexp x)                    (error "mjr_prob_exponential-pdf: x must be real (i.e. not complex)!"))
         ((not (numberp mu))              (error "mjr_prob_exponential-pdf: mu must be a number!"))
@@ -61,7 +86,7 @@ supports it by providing PDFs (exponential, std-normal, normal, & poisson) usefu
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prob_exponential-cdf (x mu &key (algorithm :direct))
-  "CDF: $1-e^{-\mu x}$"
+  "CDF: $1-e^{-\\mu x}$"
   (cond ((not (numberp x))               (error "mjr_prob_exponential-cdf: x must be a number!"))
         ((complexp x)                    (error "mjr_prob_exponential-cdf: x must be real (i.e. not complex)!"))
         ((not (numberp mu))              (error "mjr_prob_exponential-cdf: mu must be a number!"))
@@ -82,7 +107,7 @@ supports it by providing PDFs (exponential, std-normal, normal, & poisson) usefu
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prob_exponential-icdf (p mu &key (algorithm :direct))
-  "ICDF: $\frac{1}{\mu} \ln\left(\frac{-1}{p-1}\right)$"
+  "ICDF: $\\frac{1}{\\mu} \\ln\\left(\\frac{-1}{p-1}\\right)$"
   (cond ((not (numberp p))               (error "mjr_prob_exponential-icdf: p must be a number!"))
         ((complexp p)                    (error "mjr_prob_exponential-icdf: p must be real (i.e. not complex)!"))
         ((> p 1)                         (error "mjr_prob_exponential-icdf: p must be less or equal to 1!"))
@@ -116,7 +141,7 @@ The :ALGORITHM argument must be:
   :DIRECT -- use the classical formula.
 
 Classical formula:
-  $$\frac{e^{\left(\frac{x^2}{-2}\right)}}{\sqrt{2\pi}}$$"
+  $$\\frac{e^{\\left(\\frac{x^2}{-2}\\right)}}{\\sqrt{2\\pi}}$$"
   (cond ((not (numberp x))               (error "mjr_prob_std-normal-pdf: X must be a number!"))
         ((complexp x)                    (error "mjr_prob_std-normal-pdf: X must be real (i.e. not complex)!"))
         ((not (equal algorithm :direct)) (error "mjr_prob_std-normal-pdf: Unknown algorithm")))
@@ -288,7 +313,7 @@ References:
 NOTE: variance = standard deviation squared
 
 Classical formula:
-  $$\frac{e^{\left(\frac{(x-\mu)^2}{-2\sigma^2}\right)}}{\sqrt{2\pi\sigma^2}}$$ where $\mathrm{variance}=\sigma^2$ and $\mathrm{mean}=\mu$"
+  $$\\frac{e^{\\left(\\frac{(x-\\mu)^2}{-2\\sigma^2}\\right)}}{\\sqrt{2\\pi\\sigma^2}}$$ where $\\mathrm{variance}=\\sigma^2$ and $\\mathrm{mean}=\\mu$"
   (cond ((not (numberp mean))              (error "mjr_prob_normal-pdf: MEAN must be a number!"))
         ((complexp mean)                   (error "mjr_prob_normal-pdf: MEAN must be real (i.e. not complex)!"))
         ((not (numberp variance))          (error "mjr_prob_normal-pdf: VARIANCE must be a number!"))
@@ -357,7 +382,7 @@ Classical formula:
    * :normal - Normal approximation good for mu>
 
 Classical formula:
-  $$\frac{\lambda^k}{k!}\cdot e^{-\lambda}$$"
+  $$\\frac{\\lambda^k}{k!}\\cdot e^{-\\lambda}$$"
   (cond ((not (numberp mu))        (error "mjr_prob_poisson-pdf: MU must be a number!"))
         ((complexp mu)             (error "mjr_prob_poisson-pdf: MU must be real (i.e. not complex)!"))
         ((< mu 0)                  (error "mjr_prob_poisson-pdf: MU must be non-negative!"))
@@ -416,17 +441,16 @@ Classical formula:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prob_bernoulli-pdf (k p &key (algorithm :direct))
-;; MJR TODO NOTE <2012-09-20 23:35:17 CDT> mjr_prob_bernoulli-pdf: Reconsider "always double-float" rule.  Document why we do it.
   "Probability of having k successes when trying an experiment 1 time when the probability of success is P
 
 NOTE: If p is a float (single or double), then the result is a DOUBLE-FLOAT
 
 Classical formula:
-  $$\begin{cases}
-      1-p & \text{iff $k=0$} \\
-      p   & \text{iff $k=1$} \\
-      0   & \text{otherwise} \\
-    \end{cases}$$"
+  $$\\begin{cases}
+      1-p & \\text{iff $k=0$} \\\\
+      p   & \\text{iff $k=1$} \\\\
+      0   & \\text{otherwise} \\\\
+    \\end{cases}$$"
   (cond ((not (numberp p))                 (error "mjr_prob_bernoulli-pdf: P must be a number!"))
         ((complexp p)                      (error "mjr_prob_bernoulli-pdf: P must be real (i.e. not complex)!"))
         ((> p 1)                           (error "mjr_prob_bernoulli-pdf: P must be less than or equal to 1!"))
@@ -486,7 +510,7 @@ Value of :ALGORITHM determines how the computation is performed.
   * :direct  -- use direct computation using definition
 
 Classical formula:
-  $$(1-p)^k\cdot p$$"
+  $$(1-p)^k\\cdot p$$"
   (cond ((not (numberp p))                 (error "mjr_prob_geometric-pdf: P must be a number!"))
         ((complexp p)                      (error "mjr_prob_geometric-pdf: P must be real (i.e. not complex)!"))
         ((> p 1)                           (error "mjr_prob_geometric-pdf: P must be less than or equal to 1!"))
@@ -548,7 +572,7 @@ Value of :ALGORITHM determines how the computation is performed.
                 Use :direct otherwise
 
 Classical formula:
-  $$\binom{s}{k} p^k (1-p)^{s-k}$$"
+  $$\\binom{s}{k} p^k (1-p)^{s-k}$$"
   (cond ((not (numberp p))                 (error "mjr_prob_binomial-pdf: P must be a number!"))
         ((complexp p)                      (error "mjr_prob_binomial-pdf: P must be real (i.e. not complex)!"))
         ((> p 1)                           (error "mjr_prob_binomial-pdf: P must be less than or equal to 1!"))
@@ -617,11 +641,9 @@ NOTE: I have used a definition of the negative binomial that is compatible with 
       that many sources have K being the successes and R being the failures...
 
 Classical formula:
-  $$\binom{k+r-1}{k}\cdot (1-p)^k\cdot p^r$$
+  $$\\binom{k+r-1}{k}\\cdot (1-p)^k\\cdot p^r$$
 Note that:
-  $$(-1)^k \frac{(-r)(-r-1)(-r-2)\cdots(-r-k+1)}{k!} = (-1)^k\binom{-r}{k}$$"
-  ;; MJR TODO NOTE mjr_prob_negative-binomial-pdf: Optimize!
-  ;; MJR TODO NOTE mjr_prob_negative-binomial-pdf: Add a :poisson option for :algorithm
+  $$(-1)^k \\frac{(-r)(-r-1)(-r-2)\\cdots(-r-k+1)}{k!} = (-1)^k\\binom{-r}{k}$$"
   (cond ((not (numberp p))                 (error "mjr_prob_negative-binomial-pdf: P must be a number!"))
         ((complexp p)                      (error "mjr_prob_negative-binomial-pdf: P must be real (i.e. not complex)!"))
         ((> p 1)                           (error "mjr_prob_negative-binomial-pdf: P must be less than or equal to 1!"))

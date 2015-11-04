@@ -3,7 +3,7 @@
 ;;;
 ;; @file      tst-chk.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Tests for :mjr_chk.@EOL
+;; @brief     Unit tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-chk.lisp
 ;; @copyright 
@@ -99,13 +99,13 @@
       (assert-true  (mjr_chk_!=  1 -1))
       (assert-true  (mjr_chk_!= -1  1))
 
-      (assert-true  (mjr_chk_positivep   1))
-      (assert-false (mjr_chk_positivep  -1))
-      (assert-false (mjr_chk_positivep   0))
+      (assert-true  (mjr_chk_plusp   1))
+      (assert-false (mjr_chk_plusp  -1))
+      (assert-false (mjr_chk_plusp   0))
 
-      (assert-false (mjr_chk_negativep   1))
-      (assert-true  (mjr_chk_negativep  -1))
-      (assert-false (mjr_chk_negativep   0))
+      (assert-false (mjr_chk_minusp   1))
+      (assert-true  (mjr_chk_minusp  -1))
+      (assert-false (mjr_chk_minusp   0))
 
       (assert-true  (mjr_chk_!=0   1))
       (assert-true  (mjr_chk_!=0  -1))

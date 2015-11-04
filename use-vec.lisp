@@ -1,20 +1,37 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-vec.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,1998,2004,2008-2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Mathematical vectors.@EOL
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-vec.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2008-2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            This library is designed primarily to support the mat_ library; however, it is also useful as an aid in hand
-;;            computation with vectors.  This packages grows as I require new functionality, and it is far from a complete vector
-;;            arithmetic package.
-;;            
-;;            TODO: Bind vectors together to form a matrix
-;;            TODO: Coordinate conversions (rectangular, spherical, cylindrical)
-;;            TODO: Rotate vector
-;;            TODO: Make it so that a "mathematical vector" can be a "LISP List", but always return "LISP Vectors"
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      Bind vectors together to form a matrix.@EOL@EOL
+;; @todo      Coordinate conversions (rectangular, spherical, cylindrical).@EOL@EOL
+;; @todo      Rotate vector.@EOL@EOL
+;; @todo      Make it so that a "mathematical vector" can be a "LISP List", but always return "LISP Vectors".@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_VEC
@@ -26,7 +43,8 @@
         :MJR_NUMU
         :MJR_VVEC)
   (:DOCUMENTATION "Brief: Mathematical vectors.;")
-  (:EXPORT #:mjr_vec_every-idx #:mjr_vec_e? 
+  (:EXPORT #:mjr_vec_help
+           #:mjr_vec_every-idx #:mjr_vec_e? 
            #:mjr_vec_make-const #:mjr_vec_make-from-func #:mjr_vec_make-seq #:mjr_vec_make-e 
            #:mjr_vec_ewuo #:mjr_vec_ewbo
            #:mjr_vec_dot #:mjr_vec_triple-cross #:mjr_vec_cross #:mjr_vec_- #:mjr_vec_+ #:mjr_vec_/ #:mjr_vec_*
@@ -39,6 +57,16 @@
            ))
 
 (in-package :MJR_VEC)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_vec_help ()
+  "Help for MJR_VEC:  VECtor math
+
+This package implements various mathematical operations with numerical vectors.
+
+This library is designed primarily to support the :MJR_MAT package; however, it is also useful as an aid in hand computation with vectors.  This package grows
+as I require new functionality, and it is far from a complete vector arithmetic package."
+  (documentation 'mjr_vec_help 'function))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vec_make-const (len-or-vector &optional (constant 0))
@@ -86,7 +114,7 @@ are used. Returns NIL if any vector is too short."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vec_triple-cross (vec1 vec2 vec3)
-  "Compute the triple cross  product of the given vectors $(a \cdot ( b \times c))$.  If vectors are of different lengths, then
+  "Compute the triple cross  product of the given vectors $(a \\cdot ( b \\times c))$.  If vectors are of different lengths, then
 the product will only use the first three elements."
   (- (+ (* (aref vec1 0) (aref vec2 1) (aref vec3 2))
         (* (aref vec1 1) (aref vec2 2) (aref vec3 0))

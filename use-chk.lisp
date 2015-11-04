@@ -38,7 +38,7 @@
            #:mjr_chk_mk-eps-dtype
            #:mjr_chk_dflt-eps
            #:mjr_chk_< #:mjr_chk_> #:mjr_chk_!= #:mjr_chk_!=0
-           #:mjr_chk_negativep #:mjr_chk_positivep
+           #:mjr_chk_minusp #:mjr_chk_plusp
            ))
 
 (in-package :MJR_CHK)
@@ -136,14 +136,14 @@ If A is rational, then an exact numerical comparison will be used; otherwise, no
         ('t                (> (abs a) (mjr_chk_dflt-eps eps a)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_chk_negativep (a &optional eps)
+(defun mjr_chk_minusp (a &optional eps)
   "Return non-NIL if A is certainly negative
 
 If A is rational, then an exact numerical comparison will be used; otherwise, non-NIL is returned iff iff A<-EPS."
   (mjr_chk_< a 0 eps))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_chk_positivep (a &optional eps)
+(defun mjr_chk_plusp (a &optional eps)
   "Return non-NIL if A is certainly positive
 
 If A is rational, then an exact numerical comparison will be used; otherwise, non-NIL is returned iff iff A>EPS."
