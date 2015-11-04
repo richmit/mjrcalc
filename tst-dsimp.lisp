@@ -30,49 +30,79 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defpackage :MJR_DSIMP-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_DSIMP))
+(defpackage :MJR_DSIMP-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_VEC :MJR_DSIMP))
 
 (in-package :MJR_DSIMP-TESTS)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar a '((4 0 2 0)
-            #(#(0.0 0.0 0.0) #(1.0 0.0 0.0) #(1.0 1.0 0.0) #(0.0 1.0 0.0)              ;; 0-simplices  #(vertexes of cube)
-              #(0.0 0.0 1.0) #(1.0 0.0 1.0) #(1.0 1.0 1.0) #(0.0 1.0 1.0))
-            ((:gd-nam . "Heat") (:gd-typ . :gd-typ-integer))                           ;; First 0-simplices data set (integer)
-            #(1 2 3 1 2 3 1 2)
-            ((:gd-nam . "Peat") (:gd-typ . :gd-typ-real))                              ;; Second 0-simplices data set (real)
-            #(3 0 1 6 4 2 9 5)
-            ((:gd-nam . "HeatC") (:gd-typ . :gd-typ-color) (:gd-colorspace :cs-rgb))   ;; Third 0-simplices data set (Color)
-            #(#(0.0 0.0 0.0) #(0.0 0.0 1.0) #(0.0 1.0 0.0) #(0.0 1.0 1.0)
-              #(1.0 0.0 0.0) #(1.0 0.0 1.0) #(1.0 1.0 0.0) #(1.0 1.0 1.0))
-            ((:gd-nam . "Dir") (:gd-typ . :gd-typ-rvec))                               ;; Fourth 0-simplices data set (Real Vector)
-            #(#(0.0 2.0 2.0) #(0.0 0.0 2.0) #(0.0 2.0 0.0) #(0.0 2.0 2.0)
-              #(2.0 0.0 0.0) #(2.0 0.0 2.0) #(2.0 2.0 0.0) #(2.0 2.0 2.0))
-            nil                                                                        ;; 1-simplices
-            #(#(0 1 2) #(0 2 3) #(1 5 2) #(0 4 3) #(4 7 3) #(4 7 5))                   ;; 2-simplices (two triangles on face of cube)
-            ((:gd-nam . "Pie") (:gd-typ . :gd-typ-real))                               ;; First 2-simplices data set
-            #(3.14 6.28 6.28 3.14 3.14 6.28)
-            ((:gd-nam . "Cake") (:gd-typ . :gd-typ-real))                              ;; Second 2-simplices data set
-            #(9.8596 39.4384 39.4384 9.8596 9.8596 39.4384 )
-            nil))                                                                      ;; 3-simplices
-(mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0) 0 :gd-nam "zsn2")     ;; Fifth 0-simplices data set (Real)
+(defvar a nil)
+(setq a '((4 0 2 0)
+          #(#(0 0 0) #(1 0 0) #(1 1 0) #(0 1 0)                                      ;; 0-simplices  #(vertexes of cube)
+            #(0 0 1) #(1 0 1) #(1 1 1) #(0 1 1))
+          ((:ano-nam . "Heat") (:ano-typ . :ano-typ-integer))                           ;; #1 0-simplices data set (integer)
+          #(1 2 3 1 2 3 1 2)
+          ((:ano-nam . "Peat") (:ano-typ . :ano-typ-real))                              ;; #2 0-simplices data set (real)
+          #(3 0 1 6 4 2 9 5)
+          ((:ano-nam . "HeatC") (:ano-typ . :ano-typ-rgbvec))                           ;; #3 0-simplices data set (Color)
+          #(#(0 0 0) #(0 0 1) #(0 1 0) #(0 1 1)
+            #(1 0 0) #(1 0 1) #(1 1 0) #(1 1 1))
+          ((:ano-nam . "Dir") (:ano-typ . :ano-typ-rvec))                               ;; #4 0-simplices data set (Real Vector)
+          #(#(0 2 2) #(0 0 2) #(0 2 0) #(0 2 2)
+            #(2 0 0) #(2 0 2) #(2 2 0) #(2 2 2))
+          nil                                                                        ;; 1-simplices
+          #(#(0 1 2) #(0 2 3) #(1 5 2) #(0 4 3) #(4 7 3) #(4 7 5))                   ;; 2-simplices (two triangles on face of cube)
+          ((:ano-nam . "Pie") (:ano-typ . :ano-typ-real))                               ;; #1 2-simplices data set (real)
+          #(3.14 6.28 6.28 3.14 3.14 6.28)
+          ((:ano-nam . "Cake") (:ano-typ . :ano-typ-real))                              ;; #2 2-simplices data set (real)
+          #(9.8596 39.4384 39.4384 9.8596 9.8596 39.4384 )
+          nil))                                                                      ;; 3-simplices
 
-;; (define-test mjr_dsimp_make-from-points
-;; ((0 0 0 0) #(#(1 2 3) #(4 5 6)) NIL NIL NIL)    (mjr_dsimp_make-from-points #2a((1 2 3)(4 5 6)))
-;; ((0 0 0 0) #(#(1 2 3) #(4 5 6)) NIL NIL NIL)    (mjr_dsimp_make-from-points #(#(1 2 3)#(4 5 6)))
-;; ((0 0 0 0) #(#(1 2 3) #(4 5 6)) NIL NIL NIL)    (mjr_dsimp_make-from-points '(#(1 2 3)#(4 5 6)))
-;; 'error                                          (mjr_dsimp_make-from-points #3a())
-;; 'error                                          (mjr_dsimp_make-from-points 't)
-;; 'error                                          (mjr_dsimp_make-from-points 1)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_dsimp_make-from-points
+  (assert-equalp '((0 0 0 0) #(#(1 2 3) #(5 6 7)) NIL NIL NIL)  (mjr_dsimp_make-from-points #2a((1 2 3 4) (5 6 7 8))))
+  (assert-equalp '((0 0 0 0) #(#(1 2 3 4) #(5 6 7 8)) NIL NIL NIL)  (mjr_dsimp_make-from-points #( #(1 2 3 4)#(5 6 7 8)))) ;; rethink this...
+  (assert-equalp '((0 0 0 0) #(#(1 2 3 4) #(5 6 7 8)) NIL NIL NIL)  (mjr_dsimp_make-from-points '( #(1 2 3 4)#(5 6 7 8)))) ;; rethink this...
+  (assert-equalp '((0 0 0 0) #(#(1 2 3) #(5 6 7)) NIL NIL NIL)      (mjr_dsimp_make-from-points #2a((1 2 3) (5 6 7))))
+  (assert-equalp '((0 0 0 0) #(#(1 2 3) #(5 6 7)) NIL NIL NIL)      (mjr_dsimp_make-from-points #( #(1 2 3)#(5 6 7))))
+  (assert-equalp '((0 0 0 0) #(#(1 2 3) #(5 6 7)) NIL NIL NIL)      (mjr_dsimp_make-from-points '( #(1 2 3)#(5 6 7))))
+  (assert-equalp '((0 0 0 0) #(#(1 2 0) #(5 6 0)) NIL NIL NIL)      (mjr_dsimp_make-from-points #2a((1 2) (5 6))))
+  (assert-equalp '((0 0 0 0) #(#(1 2) #(5 6)) NIL NIL NIL)          (mjr_dsimp_make-from-points #( #(1 2)#(5 6))))         ;; rethink this...
+  (assert-equalp '((0 0 0 0) #(#(1 2) #(5 6)) NIL NIL NIL)          (mjr_dsimp_make-from-points '( #(1 2)#(5 6))))         ;; rethink this...
+  ;; Pick the cols
+  (assert-equalp '((0 0 0 0) #(#(2 3 4) #(6 7 8)) NIL NIL NIL)      (mjr_dsimp_make-from-points #2a((1 2 3 4) (5 6 7 8)) :point-columns '(1 2 3)))
+  (assert-equalp '((0 0 0 0) #(#(2 3 0) #(6 7 0)) NIL NIL NIL)      (mjr_dsimp_make-from-points #2a((1 2 3 4) (5 6 7 8)) :point-columns '(1 2)))
+  (assert-equalp '((0 0 0 0) #(#(2 0 0) #(6 0 0)) NIL NIL NIL)      (mjr_dsimp_make-from-points #2a((1 2 3 4) (5 6 7 8)) :point-columns '(1)))
+  (assert-equalp '((0 0 0 0) #(#(0 0 0) #(0 0 0)) NIL NIL NIL)      (mjr_dsimp_make-from-points #2a((1 2 3 4) (5 6 7 8)) :point-columns '()))
+  ;; Zap y cord to zero
+  (assert-equalp '((0 0 0 0) #(#(2 0 4) #(6 0 8)) NIL NIL NIL)      (mjr_dsimp_make-from-points #2a((1 2 3 4) (5 6 7 8)) :point-columns '(1 -1 3)))
+  ;; Add a data element
+  (assert-equalp '((1 0 0 0) #(#(1 2 3) #(5 6 7))
+                   ((:ANO-NAM . "foo")
+                    (:ANO-TYP . :ANO-TYP-REAL)) #(4 8)
+                   NIL NIL NIL)                                     (mjr_dsimp_make-from-points #2a((1 2 3 4) (5 6 7 8)) :data-columns 3 :data-column-names "foo"))
+  
+  ;; Errors
+  (assert-error 'error                                            (mjr_dsimp_make-from-points nil))
+  (assert-error 'error                                            (mjr_dsimp_make-from-points #()))
+  (assert-error 'error                                            (mjr_dsimp_make-from-points #2a()))
+  
+  (assert-error 'error                                            (mjr_dsimp_make-from-points 't))
+  (assert-error 'error                                            (mjr_dsimp_make-from-points 1))
+)
 
-;; (define-test mjr_dsimp_add-data
-;; 'error                                         (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0)  0 :gd-nam "zsn2")
-;; 'error                                         (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0) -1 :gd-nam "zsn3")
-;; 'error                                         (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0)  4 :gd-nam "zsn3")
-;; 'error                                         (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0)  5 :gd-nam "zsn3")
-;; 'error                                         (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0)  0 :gd-nam nil)
-;; 'error                                         (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0)  0 :gd-nam 5)
-;; 'error                                         (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0)  0 :gd-nam "zsn2" :gd-typ :gd-type-realX)
-;; 'error                                         (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0)  0 :gd-nam "zsn2" :gd-typ :gd-type-real  :gd-colorspace :cs-tru)
-;; 'error                                         (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0)  0 :gd-nam "zsn2"                        :gd-colorspace :cs-tru)
-;; 'error                                         (mjr_dsimp_add-data a (mjr_dsimp_map a  #'mjr_vec_norm-two -1 0)  0 :gd-nam "zsn2" :gd-typ :gd-type-color :gd-colorspace :cs-truX)
+(define-test mjr_dsimp_add-data-from-map
+  ;; TODO: Add some non-error cases. ;)
+  ;; Errors
+  (assert-error 'error       (mjr_dsimp_add-data-from-map a #'mjr_vec_norm-two -1  0  :ano-nam "Heat"))                          ;; name already exists
+  (assert-error 'error       (mjr_dsimp_add-data-from-map a #'mjr_vec_norm-two -1  -1 :ano-nam "aBcD"))                          ;; bad simplix dim
+  (assert-error 'error       (mjr_dsimp_add-data-from-map a #'mjr_vec_norm-two -1  14 :ano-nam "aBcD"))                          ;; bad simplix dim
+;;(assert-error 'error       (mjr_dsimp_add-data-from-map a #'mjr_vec_norm-two -1  0))                                           ;; missing ano-nam TODO: FIX
+  (assert-error 'error       (mjr_dsimp_add-data-from-map a #'mjr_vec_norm-two -1   0 :ano-nam 5))                               ;; bad ano-nam
+  (assert-error 'error       (mjr_dsimp_add-data-from-map a #'mjr_vec_norm-two -1   0 :ano-nam "aBcD" :ano-typ :ano-type-realX)) ;; bad ano-typ
+  (assert-error 'error       (mjr_dsimp_add-data-from-map a #'mjr_vec_norm-two -1   0 :ano-nam "aBcD" :ano-typ 1))               ;; bad ano-typ
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(run-tests
+ )
+

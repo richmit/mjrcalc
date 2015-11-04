@@ -30,7 +30,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defpackage :MJR_ODE-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_ODE :MJR_POLY :MJR_EPS :MJR_PRNG))
+(defpackage :MJR_ODE-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_ODE :MJR_POLY :MJR_EPS :MJR_PRNG :MJR_DQUAD))
 
 (in-package :MJR_ODE-TESTS)
 
@@ -141,10 +141,13 @@
                        #'mjr_ode_erk-step-cash-karp-5-4
                        #'mjr_ode_erk-step-dormand-prince-5-4
                        #'mjr_ode_erk-step-verner-6-5))
-          (let ((ar (mjr_ode_slv-ivp-erk-mesh #'polyd01 ivy (list :start start :end end :len len) :y-err-abs-max 1d-6 :algorithm algo)))
-            (assert-equalp len (array-dimension ar 0))
-            (dotimes (i (array-dimension ar 0))
-              (assert-equality (mjr_eps_make-fixed= -5) (polys01 (aref ar i 0)) (aref ar i 1) (list algo end len i (aref ar i 0)))))))))
+          (let* ((sol   (mjr_ode_slv-ivp-erk-mesh #'polyd01 ivy (list :start start :end end :len len) :y-err-abs-max 1d-6 :algorithm algo))
+                 (x     (mjr_dquad_get-axis-vector sol "x"))
+                 (y     (mjr_dquad_get-data-array sol "y"))
+                 (x-len (length x)))
+            (assert-equalp len x-len)
+            (dotimes (i x-len)
+              (assert-equality (mjr_eps_make-fixed= -5) (polys01 (aref x i)) (aref y i) (list algo end len i x y))))))))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

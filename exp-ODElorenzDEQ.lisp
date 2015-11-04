@@ -26,9 +26,7 @@
 ;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 ;;  DAMAGE.
 ;;  @endparblock
-;; @todo      @EOL@EOL
-;; @warning   @EOL@EOL
-;; @bug       @EOL@EOL
+;; @todo      Add code to generate povray data.@EOL@EOL
 ;; @filedetails
 ;;
 ;;  Lorenz
@@ -37,31 +35,28 @@
 ;;     \frac{\mathrm{d}y}{\mathrm{d}t} = bx-y-xz  \\
 ;;     \frac{\mathrm{d}z}{\mathrm{d}t} = xy-cz    \\
 ;;     \end{array}$$
-;;     $$a=10, b=28, c=8/3$$
-;;     $$x(0)=1/10, y(0)=0, z(0)=0$$
+;;     $$a=10, b=28, c=\frac{8}{3}$$
+;;     $$x(0)=\frac{1}{10}, y(0)=0, z(0)=0$$
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(time (let* ((ar (mjr_ode_slv-ivp-erk-mesh (list (lambda (tim p)
-                                                   (declare (ignore tim))
-                                                   (let ((a  10)
-                                                         (b  28)
-                                                         (c  8/3)
-                                                         (x (aref p 0))
-                                                         (y (aref p 1))
-                                                         (z (aref p 2)))
-                                                     (vector (* a (- y x))              ;; dx/dt
-                                                             (- (* b x) y (* x z))      ;; dy/dt
-                                                             (- (* x y) (* c z))))))    ;; dz/dt
-                                           (list #(1 1 1))
-                                           '(:start 0 :step 0.009 :len 10000)
-                                           :algorithm #'mjr_ode_erk-step-euler-1
-                                           )))
+(time (let* ((sol (mjr_ode_slv-ivp-erk-mesh (list (lambda (tim p)
+                                                    (declare (ignore tim))
+                                                    (let ((a  10)
+                                                          (b  28)
+                                                          (c  8/3)
+                                                          (x (aref p 0))
+                                                          (y (aref p 1))
+                                                          (z (aref p 2)))
+                                                      (vector (* a (- y x))              ;; dx/dt
+                                                              (- (* b x) y (* x z))      ;; dy/dt
+                                                              (- (* x y) (* c z))))))    ;; dz/dt
+                                            (list #(1 1 1))
+                                            '(:start 0 :step 0.009 :len 10000)
+                                            :algorithm #'mjr_ode_erk-step-euler-1)))
+        ;; Add a single data element with the path points.
+        (mjr_dquad_add-data-from-map sol #'vector :data '("y_0" "y_1" "y_2") :ano-nam "path" :ano-typ :ano-typ-rvec)
         (mjr_vtk_from-dsimp "exp-ODElorenzDEQ-OUT.vtk"
-                            (mjr_dsimp_make-from-points ar :connect-points 't
-                                                        :point-columns '(1 2 3) :data-columns 0 :data-column-names "time")
+                            (mjr_dsimp_make-from-dquad sol 0 "path" :domain-data-names "time")
                             :simplices 1)))
-
-

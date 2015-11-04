@@ -27,7 +27,7 @@
 ;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 ;;  DAMAGE.
 ;;  @endparblock
-;; @todo      Need better unit-tests.@EOL@EOL
+;; @todo      Need better unit-tests.                                                                             @EOL@EOL
 ;; @warning   Experimental, but usable@EOL@EOL
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -48,8 +48,7 @@
            ;; Create data arrays from dquad lists
            #:mjr_dquad_map                     #:mjr_dquad_colorize
            ;; Add data data to a dquad list
-           #:mjr_dquad_add-data-from-map
-           #:mjr_dquad_add-image-data-from-map
+           #:mjr_dquad_add-data-from-map       #:mjr_dquad_add-image-data-from-map
            #:mjr_dquad_add-data
            #:mjr_dquad_add-multi-data
            ;; New dquad lists from old ones
@@ -58,7 +57,7 @@
            ;; Get size info for a dquad list
            #:mjr_dquad_data-array-size         #:mjr_dquad_axis-vector-lengths
            #:mjr_dquad_data-count              #:mjr_dquad_axis-count
-           ;; Get size elements from a dquad list
+           ;; Get elements from a dquad list
            #:mjr_dquad_get-data-array          #:mjr_dquad_get-data-ano
            #:mjr_dquad_get-axis-vector         #:mjr_dquad_get-axis-ano
            ;; Persistence
@@ -136,7 +135,7 @@ will be placed into the returned dquad list as is -- the contents are not valida
           (loop for thingy in rest
                 for i from 1
                 if (oddp i)
-                collect (cond ((stringp thingy)  (list (cons :ano-nam thingy)))
+                collect (cond ((stringp thingy)  (list (cons :ano-nam thingy) (cons :ano-typ :ano-typ-real)))
                               ((null thingy)     (error "mjr_dquad_make-from-axis: axis-meta must not be nil"))
                               ((listp thingy)    thingy)
                               ('t                (error "mjr_dquad_make-from-axis: axis-meta was not a supported type")))
@@ -356,6 +355,8 @@ Supported combinations of axes, idxes, and data arguments:
 (defun mjr_dquad_add-data (dquad data-array &key ano-nam ano-typ ano-units ano-list)
   "Destructively add the given data-array and and a data-meta list to dquad.
 
+:ANO-TYP defaults to :ANO-TYP-REAL when :ANO-LIST and :ANO-TYP are both NIL.
+
 The :ANO-LIST argument may contain a complete annotation list, and is intended for internal (or at least very careful) use.  No error checking is preformed
 on the list. When non-NIL, none of the other :ANO-* arguments may be provided.  The list (not a copy) is used as-is."
   (cond ((not (equal (mjr_dquad_data-array-size dquad) (array-dimensions data-array))) (error "mjr_dquad_add-data: data-array of wrong size!!"))
@@ -363,19 +364,21 @@ on the list. When non-NIL, none of the other :ANO-* arguments may be provided.  
         ((and (or ano-nam ano-typ ano-units) ano-list)                                 (error "mjr_dquad_add-data: :ano-list icompatable with other :ano-* args!")))
   (nconc dquad
          (or ano-list
-             (list (mjr_annot_make-alist ano-nam ano-typ ano-units)))
+             (list (mjr_annot_make-alist ano-nam (or ano-typ :ano-typ-real) ano-units)))
          (list data-array)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dquad_add-multi-data (dquad multi-data-array &key ano-nam-olos ano-typ ano-units)
-  "Add N data-arrays to dquad when multi-data-array contains vectors or lists of length N.
+  "Add N data-arrays to dquad when multi-data-array is an array containing N element lists or vectors.
 
 If :ano-nam-olos is a string, then then :ano-name for each data-array will be ano-nam-olos_idx.
 If :ano-nam-olos is a list, then each element of the list will be used in turn for the :ano-name."
   (let ((delt (mjr_arr_aref-row-major multi-data-array 0)))
     (if (or (vectorp delt) (listp delt))
-        (let ((avl (mjr_dquad_axis-vector-lengths dquad)))
-          (dotimes (i (length delt) dquad)
+        (let ((avl   (mjr_dquad_axis-vector-lengths dquad))
+              (ldelt (length delt)))
+          (dotimes (i ldelt dquad)
             (mjr_dquad_add-data dquad
                                 (mjr_combc_gen-all-cross-product avl
                                                                  :result-type :array
@@ -383,7 +386,9 @@ If :ano-nam-olos is a list, then each element of the list will be used in turn f
                                                                  :collect-value (lambda (idx) (elt (apply #'aref multi-data-array idx) i)))
                                 :ano-nam (if (listp ano-nam-olos)
                                              (nth i ano-nam-olos)
-                                             (format nil "~a_~d" ano-nam-olos i))
+                                             (if (> ldelt 1)
+                                                 (format nil "~a_~d" ano-nam-olos i)
+                                                 ano-nam-olos))
                                 :ano-typ ano-typ
                                 :ano-units ano-units)))
         (error "mjr_dquad_add-multi-data: multi-data-array must be an array of vectors or lists!"))))
@@ -394,6 +399,15 @@ If :ano-nam-olos is a list, then each element of the list will be used in turn f
   (let ((arg-mode   (or arg-mode :arg-number)))
     (mjr_dquad_add-data dquad (mjr_dquad_map dquad f :axes axes :idxes idxes :data data :arg-mode arg-mode)
                         :ano-nam ano-nam :ano-typ ano-typ)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_dquad_add-image-data-from-map (dquad color-function &key axes idxes data (color-function-typ :ano-typ-rgbvec) (ano-typ :ano-typ-rgbvec) ano-nam)
+  (let* ((cpc (mjr_color_make-unpacker-color-space-converter-and-packer (mjr_annot_get-colorpacking color-function-typ)
+                                                                        (mjr_annot_get-colorspace   color-function-typ)
+                                                                        (mjr_annot_get-colorspace   ano-typ)
+                                                                        (mjr_annot_get-colorpacking ano-typ)))
+         (cf  (lambda (&rest rest)  (funcall cpc (apply color-function rest)))))
+    (mjr_dquad_add-data-from-map dquad cf :idxes idxes :axes axes :data data :ano-nam ano-nam :ano-typ ano-typ)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dquad_colorize (dquad &key axes idxes data color-method max-color data-range (auto-scale 't) ano-nam (ano-typ :ano-typ-truint))
@@ -428,15 +442,6 @@ Arguments:
     (mjr_dquad_add-data-from-map dquad
                                  (mjr_colorize_make-colorize-function color-method colorspace max-color data-range auto-scale (mjr_color_make-color-packer colorpack))
                                  :idxes idxes :axes axes :data data :ano-nam ano-nam :ano-typ ano-typ)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_dquad_add-image-data-from-map (dquad color-function &key axes idxes data (color-function-typ :ano-typ-rgbvec) (ano-typ :ano-typ-rgbvec) ano-nam)
-  (let* ((cpc (mjr_color_make-unpacker-color-space-converter-and-packer (mjr_annot_get-colorpacking color-function-typ)
-                                                                        (mjr_annot_get-colorspace   color-function-typ)
-                                                                        (mjr_annot_get-colorspace   ano-typ)
-                                                                        (mjr_annot_get-colorpacking ano-typ)))
-         (cf  (lambda (&rest rest)  (funcall cpc (apply color-function rest)))))
-    (mjr_dquad_add-data-from-map dquad cf :idxes idxes :axes axes :data data :ano-nam ano-nam :ano-typ ano-typ)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dquad_read-from-file (file-name)

@@ -534,10 +534,16 @@ Examples:
       (setf (aref new-array col) (aref an-array the-row col)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_arr_get-rows (an-array)
+(defun mjr_arr_get-rows (an-array &optional the-rows)
   "Return a list of the rows (as vectors) of a 2D array"
-  (loop for i from 0 upto (1- (array-dimension an-array 0))
-        collect (mjr_arr_get-row an-array i)))
+  (if the-rows
+      (typecase the-rows
+        (integer (list (mjr_arr_get-row an-array the-rows)))
+        (list    (loop for i in the-rows
+                       collect (mjr_arr_get-row an-array i)))
+        (otherwise (error "mjr_arr_get-rows: THE-ROWS must be an integer or list of integers")))
+      (loop for i from 0 upto (1- (array-dimension an-array 0))
+            collect (mjr_arr_get-row an-array i))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_arr_get-col (an-array the-col)
