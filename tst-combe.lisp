@@ -1,36 +1,54 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      tst-combe.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,1998,2004,2008,2011,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Tests for :MJR_COMBE.@EOL
-;; @Keywords  unit tests
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       use-combe.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2008,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_COMBE-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_COMBE :MJR_PRNG))
 
 (in-package :MJR_COMBE-TESTS)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_partitions-naive (n)
   "The number of partitions of N.
 
-A partition of a number is a sum of positive integers equaling the original number where sums differing only in the order of the
-summands are not counted as distinct."
+A partition of a number, $n$, is a sum of positive integers equaling $n$. Sums differing only in the order of the summands aren't counted as distinct."
   (cond ((not (integerp n)) (error "mjr_combe_partition: Argument must be an integer!"))
         ((< n 0)            (error "mjr_combe_partition: Argument must be non-negative!")))
   (mjr_combe_partition-into-parts-of-size-ge-k n 0))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_perm-naive (n k)
   ""
   (/ (mjr_combe_! n) (mjr_combe_! (- n k))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_comb-naive0 (n k)
   ""
   (cond ((= k 0) 1)
@@ -38,21 +56,20 @@ summands are not counted as distinct."
         ((< n k) 0) ;; 0 ways to select more objects than we have
         ('t      (/ (mjr_combe_! n) (* (mjr_combe_! k) (mjr_combe_! (- n k)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_comb-naive1 (n k)
   (cond ((= k 0) 1)
         ((= n 0) 0)
         ((< n k) 0) ;; 0 ways to select more objects than we have
         ('t      (/ (mjr_combe_perm n k) (mjr_combe_! k)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_comb-naive2 (n k)
   "Only works for n<=31. 
 
-Makes sophisticated use of Pascal's triangle -- only stores one row at a time, requires on storage beyond the triangle, and only
-computes the parts of the rows required (both sides of the symmetry are computed as that is cheaper than fancy indexing to avoid
-the single addition required for each cell beyond the halfway point).  Requires only integer arithmetic.  One of the best
-options for small, fixed size integers. Great for C, slow for LISP."
+Makes sophisticated use of Pascal's triangle -- only stores one row at a time, requires on storage beyond the triangle, and only computes the parts of the
+rows required (both sides of the symmetry are computed as that is cheaper than fancy indexing to avoid the single addition required for each cell beyond the
+halfway point).  Requires only integer arithmetic.  One of the best options for small, fixed size integers. Great for C, slow for LISP."
   (if (< (- n k) k)
       (mjr_combe_comb-naive2 n (- n k))
       (cond ((= k 0) 1)
@@ -69,18 +86,18 @@ options for small, fixed size integers. Great for C, slow for LISP."
                              do (loop for c from (min k (1+ r)) downto (max 1 (- k (- n r)))
                                       do (incf (aref b c) (aref b (1- c))))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_central-comb-naive (n)
   "central binomial coefficient for integer arguments"
   (mjr_combe_comb (* 2 n) n))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_multinomial-naive (n &rest k-list)
   ""
   (/ (mjr_combe_! n)
      (reduce #'* (mapcar #'mjr_combe_! k-list))))
                                                                  
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_stirling2nd-naive (n k)
   "Recursive implementation
 
@@ -92,7 +109,7 @@ References:
         ((> k n)               0)
         ('t                    (+ (* k (mjr_combe_stirling2nd-naive (1- n) k)) (mjr_combe_stirling2nd-naive (1- n) (1- k))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_euler1st-naive (n k)
   "Slow, recursive implementation"
   (cond ((=  k 0)        1)
@@ -102,7 +119,7 @@ References:
         ('t              (+ (* (- n k) (mjr_combe_euler1st-naive (1- n) (1- k)))
                             (* (1+  k) (mjr_combe_euler1st-naive (1- n) k))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_catalan-naive (n)
   "Compute the N'th Catalan number.
 
@@ -110,14 +127,14 @@ Interpretations:
   * ???"
   (/ (mjr_combe_central-comb n) (1+ n)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_bell-naive (n)
   ;; MJR TODO NOTE <2011-11-11 13:54:55 CST> mjr_combe_bell-naive: CHECK THIS!!
 
   ""
   (mjr_combe_12way-lu-all n n))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_!
   ;; http://oeis.org/A000142
   (loop for i from 0
@@ -130,7 +147,7 @@ Interpretations:
   (assert-error 'error     (mjr_combe_!  't))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_!!
   ;; http://oeis.org/A006882
   (loop for i from 0
@@ -139,7 +156,7 @@ Interpretations:
         do (assert-equal b (mjr_combe_!! i) i))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_perm
   ;; One line of Pascal's triangle
   (assert-equal 1                           (mjr_combe_perm   4   0))
@@ -172,7 +189,7 @@ Interpretations:
   (assert-error 'error                      (mjr_combe_perm  't        5))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_comb-with-replacement
   ;; Normal use with replacement
   (assert-equal 1              (mjr_combe_comb-with-replacement   4   0))
@@ -193,7 +210,7 @@ Interpretations:
   (assert-equal 76360380541900 (mjr_combe_comb-with-replacement  34  19))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_comb
   ;; Normal use
   (assert-equal 1540              (mjr_combe_comb  22  19))
@@ -250,7 +267,7 @@ Interpretations:
   (assert-error 'error            (mjr_combe_comb  't        5))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_central-comb
   (dotimes (i 1000)
     (let* ((n (mjr_prng_int-co 1 500)))
@@ -262,7 +279,7 @@ Interpretations:
           do (assert-equal b (mjr_combe_central-comb i)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_multinomial
   (assert-equal 3     (mjr_combe_multinomial  3 2 0 1))
   (assert-equal 6     (mjr_combe_multinomial  3 1 1 1))
@@ -277,7 +294,7 @@ Interpretations:
       (assert-equal (apply #'mjr_combe_multinomial (+ n s) k) (apply #'mjr_combe_multinomial (+ n s) k) (+ n s) k)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_stirling2nd
   (assert-equal 1     (mjr_combe_stirling2nd 0  0))
   (assert-equal 0     (mjr_combe_stirling2nd 6  0))
@@ -302,7 +319,7 @@ Interpretations:
                  do (assert-equal (aref kv (1- n) (1- k)) (mjr_combe_stirling2nd n k))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_stirling1st-XXX
   ;; http://oeis.org/A008275
   (loop with kv = #2a((1     0       0      0      0     0     0   0   0  0)
@@ -326,19 +343,19 @@ Interpretations:
       (assert-equal (abs (mjr_combe_stirling1st n k)) (mjr_combe_stirling1st-unsigned n k))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_stirling1st-unsigned
   ;; See: mjr_combe_stirling1st-XXX
   1
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_stirling1st
   ;; See: mjr_combe_stirling1st-XXX
   1
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_euler1st 
   (dotimes (n 25)
     (dotimes (k 25)
@@ -359,7 +376,7 @@ Interpretations:
                  do (assert-equal (aref kv n k) (mjr_combe_euler1st-naive n k))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_k-partitions
   ;; http://oeis.org/A008284
   (loop with kv = #2a((1 0 0  0  0  0  0  0 0 0 0 0 0)
@@ -380,7 +397,7 @@ Interpretations:
                  do (assert-equal (aref kv (1- n) (1- k)) (mjr_combe_k-partitions n k))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_partition-into-parts-of-size-ge-k
   ;; http://oeis.org/A026807
   (loop with kv = #2a((1   0  0  0 0 0 0 0 0 0 0 0 0)
@@ -401,7 +418,7 @@ Interpretations:
                  do (assert-equal (aref kv (1- n) (1- k)) (mjr_combe_partition-into-parts-of-size-ge-k n k))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_inversion-number
   (assert-equal 0  (mjr_combe_inversion-number '(0 1 2 3 4)))
   (assert-equal 0  (mjr_combe_inversion-number #(0 1 2 3 4)))
@@ -410,7 +427,7 @@ Interpretations:
   (assert-equal 2  (mjr_combe_inversion-number #(1 0 2 4 3)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_descent-number
   (assert-equal 0 (mjr_combe_descent-number '(0 1 2 3 4)))
   (assert-equal 0 (mjr_combe_descent-number #(0 1 2 3 4)))
@@ -419,7 +436,7 @@ Interpretations:
   (assert-equal 2 (mjr_combe_descent-number #(1 0 2 4 3)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_bell
   ;; http://oeis.org/A000110
   (loop for i from 0
@@ -434,7 +451,7 @@ Interpretations:
   (assert-equal 359334085968622831041960188598043661065388726959079837 (mjr_combe_bell 55))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_catalan
   ;; http://oeis.org/A000108
   (loop for i from 0
@@ -447,7 +464,7 @@ Interpretations:
         do (assert-equal (mjr_combe_catalan-naive n) (mjr_combe_catalan n)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_partitions
   ;; http://oeis.org/A000041
   (loop for i from 0
@@ -461,7 +478,7 @@ Interpretations:
 ; (assert-equal 24061467864032622473692149727991 (mjr_combe_partitions 1000))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_derangements
   ;; http://oeis.org/A000166
   (loop for i from 0
@@ -470,7 +487,7 @@ Interpretations:
         do (assert-equal b (mjr_combe_derangements i)))
   )	
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_rencontres
   ;; http://oeis.org/A008290
   (loop with kv = #2a((1      0      0      0      0      0      0      0      0      0)
@@ -488,17 +505,17 @@ Interpretations:
                  do (assert-equal (aref kv n k) (mjr_combe_rencontres n k) (list n k))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_rencontres-mjr_combe_derangements
   (loop for n from 0 upto 100
         do (assert-equal (mjr_combe_derangements n) (mjr_combe_rencontres n 0)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_combe_help
   ;; Note: This function dosen't need test cases..
   1
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests)

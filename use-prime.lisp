@@ -1,14 +1,13 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-prime.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1992,1994,1997,1998,2004,2008,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Computational Number Theory.@EOL
-;; @Keywords  lisp prime number theory
 ;; @Std       Common Lisp
 ;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_PRIME
   (:USE :COMMON-LISP
         :MJR_INTU
@@ -48,20 +47,18 @@
 
 (in-package :MJR_PRIME)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_help ()
 "Help for MJR_PRIME:
 
-A great deal of intellectual effort has been expended to develop efficient computational number theory algorithms that are
-capable of efficiently manipulating very large integers, and the result is the availability today of several very high quality
-software packages targeted at this space; however, the efficiency and capability of these packages comes at a price of usability
-and simplicity.  The result is that very few high quality packages exist that are both optimized and simple to use for the much
-less sexy problem of smaller number computational number theory.  This library aims to fill this gap and provide very fast
-solutions to 'very small' (less than 10 decimal digits) number problems like factorization and provide reasonably useful, but by
-no means optimal, routines for slightly larger (less than 20 decimal digits).  Outside of number theory and cryptographic
-circles, such smallish numbers are the rule rather than the exception so this library fits nicely into such applications as
-finding the rational roots of a typical integer polynomial -- how many polynomials do you see with coefficients containing
-thousands of digits? :)
+A great deal of intellectual effort has been expended to develop efficient computational number theory algorithms that are capable of efficiently manipulating
+very large integers, and the result is the availability today of several very high quality software packages targeted at this space; however, the efficiency
+and capability of these packages comes at a price of usability and simplicity.  The result is that very few high quality packages exist that are both
+optimized and simple to use for the much less sexy problem of smaller number computational number theory.  This library aims to fill this gap and provide very
+fast solutions to 'very small' (less than 10 decimal digits) number problems like factorization and provide reasonably useful, but by no means optimal,
+routines for slightly larger (less than 20 decimal digits).  Outside of number theory and cryptographic circles, such smallish numbers are the rule rather
+than the exception so this library fits nicely into such applications as finding the rational roots of a typical integer polynomial -- how many polynomials do
+you see with coefficients containing thousands of digits? :)
 
   * Small prime list utilities ......... init-small-prime-list
   * Single factor/divisor finding ...... pollard-rho find-a-big-prime-factor
@@ -72,10 +69,10 @@ thousands of digits? :)
   * Number Theory Functions ............ pi-func"
   (documentation 'mjr_prime_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (declaim (optimize (speed 3) (safety 0) ( debug 0) (compilation-speed 0)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar *mjr_prime_small-list* nil
   "An array of the first few prime numbers.")
 (defvar *mjr_prime_small-bitmap* nil
@@ -84,8 +81,9 @@ thousands of digits? :)
   "Number of prime numbers in the *mjr_prime_small-list* array.  Normally 6 million, but may be smaller")
 (defvar *mjr_prime_small-max* 0
   "Largest prime number in the *mjr_prime_small-list* array")
+(proclaim '(type fixnum *mjr_prime_small-max* *mjr_prime_small-count*))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_sieve-int2idx (n)
   "Return the index by which the number may be found in the prime number bitmap or nil if it isn't in the bitmap"
   (declare (type fixnum n))
@@ -105,27 +103,28 @@ thousands of digits? :)
             (let ((byte-idx (truncate (- n 7) 30)))
               (+ (* 8 byte-idx) bit-idx))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_init-small-prime-list (&optional (max-prime-can 104395301))
   "Initialize *MJR_PRIME_SMALL-LIST*, *MJR_PRIME_SMALL-COUNT*, and *MJR_PRIME_SMALL-MAX*.
 
-It is not necessary to initialize these variables; however, several of the functions in this package take advantage of these
-variables to achieve significant performance gains.
+It is not necessary to initialize these variables; however, several of the functions in this package take advantage of these variables to achieve significant
+performance gains.
 
-The default value for MAX-PRIME-CAN will attempt to compute the first 6 MILLION prime numbers, or at least as many as possible
-based upon ARRAY-DIMENSION-LIMIT. This should take but a moment with modern hardware."
+The default value for MAX-PRIME-CAN will attempt to compute the first 6 MILLION prime numbers, or at least as many as possible based upon
+ARRAY-DIMENSION-LIMIT. This should take but a moment with modern hardware."
   (declare (type fixnum max-prime-can))
   (let* ((max-prime-can (loop for i from (max max-prime-can 36)
                               for j = (mjr_prime_sieve-int2idx i)
                               when (and j (zerop (mod (1+ j) 8)))
                               do (return i)))
          (m             (1+ (mjr_prime_sieve-int2idx max-prime-can))))
-    (if (> m array-dimension-limit) (error "mjr_prime_init-small-prime-list: The array size limit is too small for such a large sieve!"))
+    (if (> m array-dimension-limit)
+        (error "mjr_prime_init-small-prime-list: The array size limit is too small for such a large sieve!"))
     (let ((abv (make-array m :element-type 'bit  :initial-element 1)))
       (loop with wheel = #(4 2 4 2 4 6 2 6)
-            with max-i = (1+ (isqrt max-prime-can))
+            with max-i = (+ 1 (isqrt max-prime-can))
             for k from -1
-            for i = 7 then (+ i (aref wheel (mod k 8)))
+            for i fixnum = 7 then (+ i (aref wheel (mod k 8)))
             for iidx = (mjr_prime_sieve-int2idx i)
             until (> i max-i)
             when iidx
@@ -148,7 +147,7 @@ based upon ARRAY-DIMENSION-LIMIT. This should take but a moment with modern hard
         (setq *mjr_prime_small-bitmap* abv)
         nil))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_pollard-rho (n &key (max-seq 10) (max-seq-len nil) (mon-seq-c nil) (seq-0-0 nil) (show-progress nil))
   "Use the Pollard-Rho algorithm to search for a factor of n.  Returns nil if no factor is found.
 
@@ -169,7 +168,7 @@ Notes:
 References:
   Crandall and Pomerance (2005); Prime numbers: A computational perspective 2nd Ed; ISBN: 0387252827; p230"
   (if (> n 4)
-      (loop for i from 1
+      (loop for i fixnum from 1
             for c = (if mon-seq-c i (mjr_prng_int-co 1 (- n 2))) ;; WAS: (1+ (Random (- n 3)))
             until (and max-seq (> i max-seq))
             until (and mon-seq-c (> c (- n 3)))
@@ -200,12 +199,11 @@ References:
 ; 2  3   38   589     1
 ; 2  4  205     1    17
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_strong-probable-primep (n a &optional s d)
   "Return 't if $n$, an odd integer greater than 3, is a strong probable prime base $a$.
 
-The $s$ and $d$ arguments should be integers such that $n=1+2^s\\cdot d$ and $d$ is odd.  If $s$ or $d$ is nil, then they will BOTH
-be computed.
+The $s$ and $d$ arguments should be integers such that $n=1+2^s\\cdot d$ and $d$ is odd.  If $s$ or $d$ is nil, then they will BOTH be computed.
 
 If a is a list, then 't is returned if and only if n is a strong probable prime with respect to each element of the list.
 If a negative, then 't is returned if and only if n is a strong probable prime with respect to each integer in [2,k+2].
@@ -234,15 +232,14 @@ Artjuhov (1967)"
                                         (return 't)))))
                   (every (lambda (a) (mjr_prime_strong-probable-primep n a s d)) a))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_pimep-miller-rabin-deterministic (n &optional assume-riemann-hypothesis)
 ; MJR TODO NOTE <2013-03-19 23:14:40 CDT> mjr_prime_pimep-miller-rabin-deterministic: Correct refs and fix name.
   "Deterministic Miller-Rabin primality test.  Return is non-NIL if n is PROVED prime, and NIL otherwise.
 
-For n<341550071728321, n will be tested via mjr_prime_strong-probable-primep on one to 7 basis values known to prove primality.  For
-larger n, mjr_prime_strong-probable-primep will still be used but for all bases in the interval [2, min(2*(ln(N))^2, N-1)] if
-assume-riemann-hypothesis is NIL and in the interval [2, min(isqrt(N), N-1)] otherwise.  Note that things get quite slow when
-n>=341550071728321.
+For n<341550071728321, n will be tested via mjr_prime_strong-probable-primep on one to 7 basis values known to prove primality.  For larger n,
+mjr_prime_strong-probable-primep will still be used but for all bases in the interval [2, min(2*(ln(N))^2, N-1)] if assume-riemann-hypothesis is NIL and in
+the interval [2, min(isqrt(N), N-1)] otherwise.  Note that things get quite slow when n>=341550071728321.
 
 References:
   Crandall and Pomerance (2005); Prime numbers: A computational perspective 2nd Ed; ISBN: 0387252827; p230
@@ -259,7 +256,7 @@ References:
                                             (assume-riemann-hypothesis (- (min (ceiling (* 2 (expt (log n) 2))) (1- n))))
                                             ('t                        (- (min (ceiling (isqrt n)) (1- n)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_probable-primep-miller-rabin (n k)
 ; MJR TODO NOTE <2013-03-19 23:14:40 CDT> mjr_prime_pimep-miller-rabin-deterministic: Correct refs
   "Classical, randomized Miller-Rabin primality test.  Return 't if n is probably prime, and NIL if it is PROVED composite.
@@ -279,20 +276,20 @@ References:
                do (if (not (mjr_prime_strong-probable-primep n (mjr_prng_int-co 2 (- n 2)) s d))
                       (return 't))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_find-a-big-prime-factor (n)
   "Find a prime factor, or return NIL.
 
-The 'big' in the name indicates that the techniques used work for numbers with factors larger than *MJR_PRIME_SMALL-MAX*, and that
-*mjr_prime_small-list* is never used.  That said this function will find small factors too! The current implementation uses
-MJR_PRIME_POLLARD-RHO and MJR_PRIME_PRIMEP-MILLER-RABIN-DETERMINISTIC recursively."
+The 'big' in the name indicates that the techniques used work for numbers with factors larger than *MJR_PRIME_SMALL-MAX*, and that *mjr_prime_small-list* is
+never used.  That said this function will find small factors too! The current implementation uses MJR_PRIME_POLLARD-RHO and
+MJR_PRIME_PRIMEP-MILLER-RABIN-DETERMINISTIC recursively."
   (let ((f (mjr_prime_pollard-rho n)))
     (if f
         (if (mjr_prime_pimep-miller-rabin-deterministic f)
             f
             (mjr_prime_find-a-big-prime-factor f)))))
 
-;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_big-prime-factorization (n &key show-progress)
   "Return the complete prime factorization of N, as an assoc array with (prime . power) and 1 as the second return value.
 
@@ -312,7 +309,7 @@ MJR_PRIME_FIND-A-BIG-PRIME-FACTOR to find factors and MJR_PRIME_PRIMEP-MILLER-RA
                                       count 't)))
           1))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_primep-small (n)
   "For N <= *MJR_PRIME_SMALL-MAX*, return NIL if the number is composite and 'T if it is prime.
 
@@ -327,10 +324,10 @@ This function is O(1) with a run time typically measured in micro-seconds with 2
       (let ((idx (mjr_prime_sieve-int2idx n)))
         (if (or (and idx (= (aref *mjr_prime_small-bitmap* idx) 1)) (= n 2) (= n 3) (= n 5)) 't))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_small-prime-factorization (n)
-  "Find all the small (<= *MJR_PRIME_SMALL-MAX*) prime factors of n.  The return is an assoc array with (prime . power) and
-the remaining part of N left unfactored (if this second part is 1, then the number was completely factored by small primes"
+  "Find all the small (<= *MJR_PRIME_SMALL-MAX*) prime factors of n.  The return is an assoc array with (prime . power) and the remaining part of N left
+unfactored (if this second part is 1, then the number was completely factored by small primes"
   (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
   (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_small-prime-factorization: Could not initialize *mjr_prime_small-list*!"))
@@ -345,7 +342,7 @@ the remaining part of N left unfactored (if this second part is 1, then the numb
                                                   count 't)))))
         (values p-list n-left))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_prime-factorization (n)
   "Return the prime factorization of N as an assoc array with (prime . power) and 1 as the second return value.  
 
@@ -357,14 +354,14 @@ Use MJR_PRIME_SMALL-PRIME-FACTORIZATION when N is small enough, and MJR_PRIME_BI
       (mjr_prime_small-prime-factorization n)
       (mjr_prime_big-prime-factorization n)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_primep-trial-div (n)
   "Use trial division to determine if N is prime.  Return NIL if N is composite, return 'T and 1 if it is prime.
 
 The second value of the return is to provide compatibility with the return of other primep-like functions.
 
-This function is quite slow, but it provides a simplistic implementation of a primep-like function with which we
-may regression test more useful (faster) implementations."
+This function is quite slow, but it provides a simplistic implementation of a primep-like function with which we may regression test more useful (faster)
+implementations."
   (if (> n 0)
       (if (< n 5)
           (if (or (= n 2) (= n 3)) 't)
@@ -373,7 +370,7 @@ may regression test more useful (faster) implementations."
                     do (if (mjr_intu_divides? i n) (return nil))
                     finally                        (return 't))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_primep (n)
   "Return NIL if N is composite, and 'T if it is prime.
 
@@ -386,11 +383,11 @@ This function uses MJR_PRIME_PRIMEP-SMALL or MJR_PRIME_PRIMEP-MILLER-RABIN-DETER
           (mjr_prime_primep-small n)
           (mjr_prime_pimep-miller-rabin-deterministic n))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_nth-small-prime (n &optional (end nil))
   "If END is NIL, return the N-th prime.  If END is non-NIL, return an array of the N-th to the end-th prime numbers.
-N and END are zero based, and 2 is the zero'th prime. Note that N, END < *MJR_PRIME_SMALL-COUNT*.  NIL is returned if N
-is out of bounds or if end is a number and END<N.  If END is too large, then it is clipped to (1-*MJR_PRIME_SMALL-COUNT*)."
+N and END are zero based, and 2 is the zero'th prime. Note that N, END < *MJR_PRIME_SMALL-COUNT*.  NIL is returned if N is out of bounds or if end is a number
+and END<N.  If END is too large, then it is clipped to (1-*MJR_PRIME_SMALL-COUNT*)."
   (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
   (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_nth-small-prime: Could not initialize *mjr_prime_small-list*!")))
@@ -399,7 +396,7 @@ is out of bounds or if end is a number and END<N.  If END is too large, then it 
           (and (<= n end) (subseq *mjr_prime_small-list* n (min end (1- *mjr_prime_small-count*))))
           (aref *mjr_prime_small-list* n))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_random-small-prime ()
   "Return a random prime number less than or equal to *MJR_PRIME_SMALL-MAX*."
   (if (zerop *mjr_prime_small-count*)
@@ -407,10 +404,10 @@ is out of bounds or if end is a number and END<N.  If END is too large, then it 
   (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_random-small-prime: Could not initialize *mjr_prime_small-list*!")))
   (mjr_prime_nth-small-prime (mjr_prng_random *mjr_prime_small-count*)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_small-prime-index (p)
-  "Return the index of the N-th small prime -- i.e. 2 is the 0'th prime, 3 is the 1st, etc...  The return is NIL if P is not
-in *MJR_PRIME_SMALL-MAX*.  The only error case is when *mjr_prime_small-max* is not initialized."
+  "Return the index of the N-th small prime -- i.e. 2 is the 0'th prime, 3 is the 1st, etc...  The return is NIL if P is not in *MJR_PRIME_SMALL-MAX*.  The
+only error case is when *mjr_prime_small-max* is not initialized."
   (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
   (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_small-prime-index: Could not initialize *mjr_prime_small-list*!")))
@@ -424,17 +421,17 @@ in *MJR_PRIME_SMALL-MAX*.  The only error case is when *mjr_prime_small-max* is 
             when (< v-gus p)           do (setf i-low i-gus)
             when (> v-gus p)           do (setf i-hgh i-gus))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_next (n)
   "Return the smallest prime number greater than N."
   (loop for i from (1+ n) do (if (mjr_prime_primep i) (return i))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_prev (n)
   "Return the largest prime number less than N."
   (loop for i downfrom (1- n) do (if (mjr_prime_primep i) (return i))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_pi-func (n)
   "Return pi function value at N.
 
@@ -464,14 +461,14 @@ References:
                                65612899915304 128625503610475))
               (loop for i from 2 upto n when (mjr_prime_primep i) count 1))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_num-factors (n)
   "Return a list of all the factors (prime and composite) N.  N may be a number or an associative-style prime factorization."
   (if (listp n)
       (reduce #'* (mapcar (lambda (x) (1+ (cdr x))) n))
       (mjr_prime_num-factors (mjr_prime_prime-factorization n))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_phi-func (n)
   "Find the number of factors of N.  N may be a number or an associative-style prime factorization.
 
@@ -483,12 +480,12 @@ References:
       (reduce #'* (mapcar (lambda (x) (* (expt (car x) (1- (cdr x))) (1- (car x)))) n))
       (mjr_prime_phi-func (mjr_prime_prime-factorization n))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_n-from-factors (factor-list)
   "Find the composite number for the given associative-style prime factorization."
   (reduce #'* (mapcar (lambda (x) (expt (car x) (cdr x))) factor-list)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_all-factors (n)
   "Find all factors of N.   N may be a number or an associative-style prime factorization."
   (if (listp n)
@@ -503,33 +500,33 @@ References:
                                          ('t                                  (return (incf (aref curpow i))))))) #'<))
       (mjr_prime_all-factors (mjr_prime_prime-factorization n))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_square-free? (n)
   "Non-NIL if N is square free -- .i.e. not divisible by the square of any prime number."
   (every (lambda (x) (< (cdr x) 2)) (mjr_prime_prime-factorization n)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_perfect? (n)
   "Non-NIL if N is square free -- .i.e. it equals the sum of all of its proper divisors
 
 Proper divisors are divisors that are strictly less than N -- contrary to some sources, we call 1 a proper divisor."
   (= n (- (reduce #'+ (mjr_prime_all-factors n)) n)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_deficient? (n)
   "Non-NIL if N is square free -- .i.e. it is greater than the sum of all of its proper divisors.
 
 Proper divisors are divisors that are strictly less than N -- contrary to some sources, we call 1 a proper divisor."
   (> n (- (reduce #'+ (mjr_prime_all-factors n)) n)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_abundant? (n)
   "Non-NIL if N is square free -- .i.e. it is less than the sum of all of its proper divisors.
 
 Proper divisors are divisors that are strictly less than N -- contrary to some sources, we call 1 a proper divisor."
   (< n (- (reduce #'+ (mjr_prime_all-factors n)) n)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_legendre-symbol (a p)
   "Return the Jacobi-Symbol $\left(\frac{a}{p}\right)$ for $a$, an integer, and $p$, a odd, prime integer."
   (if (< a 0)
@@ -542,7 +539,7 @@ Proper divisors are divisors that are strictly less than N -- contrary to some s
               1
               -1))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_jacobi-symbol (a n)
   "Return the Jacobi-Symbol $\left(\frac{a}{n}\right)$ for $a$, an integer, and $n$, a positive, odd integer."
   (let ((j 1))
@@ -566,7 +563,7 @@ Proper divisors are divisors that are strictly less than N -- contrary to some s
         j
         0)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_lucas-sequence (k p q modn retu)
   "Compute the kth number in the Lucas sequence with parameters P & Q.
 References:
@@ -614,7 +611,7 @@ References:
 
 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_probable-primep-lucas-selfridge (n)
   "
 
@@ -640,39 +637,39 @@ References:
             (and (not (zerop (rem q n)))
                  (zerop (rem (mjr_prime_lucas-sequence (1+ n) 1 q n 't) n)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_lucas-number (n)
   "Return the L(n) -- the Lucas number for n.  n starts at 1. Sloan A000204"
   (mjr_prime_lucas-sequence n 1 -1 nil nil))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_fibonacci-number (n)
   "Return the F(n) -- the Fibonacci number for n. n starts at 0. Sloan A000045"
   (mjr_prime_lucas-sequence n 1 -1 nil 't))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_pell-number (n)
   "Return the P(n) -- the Pell number for n. n starts at 0. Sloan A000129"
   (mjr_prime_lucas-sequence n 2 -1 nil 't))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_pell-lucas-number (n)
   "Return the PL(n) -- the Pell number for n. n starts at 0. Sloan A002203
 Note: Some sources call these companion pell numbers."
   (mjr_prime_lucas-sequence n 2 -1 nil nil))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_jacobsthal-number (n)
   "Return the J(n) -- the Jacobsthal number for n. n starts at 0. Sloan A001045"
   (mjr_prime_lucas-sequence n 1 -2 nil 't))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_jacobsthal-lucas-number (n)
   "Return the PJ(n) -- the Jacobsthal number for n. n starts at 0. Sloan A014551
 Note: Some sources call these pell-jacobsthal numbers."
   (mjr_prime_lucas-sequence n 1 -2 nil nil))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_probable-primep-bpsw (n)
   "The BPSW (Baillie, Pomerance, Selfridge, Wagstaff) probable prime test
 
@@ -682,14 +679,15 @@ Algorithm:
  * Perform a Miller-Rabin (strong probable prime) test, base 2, on N.
  * Perform a Lucas-Selfridge test on N, using Lucas sequences with the parameters suggested by Selfridge.
 
-Multiple sources have reported that this test PROVES prime for n<2^64; however, I don't have a good journal article reference for
-this.  Interestingly enough, the test implemented here is essentially the same test used in Mathematica for PrimeQ.
+Multiple sources have reported that this test PROVES prime for n<2^64; however, I don't have a good journal article reference for this.  Interestingly enough,
+the test implemented here is essentially the same test used in Mathematica for PrimeQ.
 
 References:
     Baillie, Robert, & Wagstaff (1980); Lucas pseudoprimes; Math. Comp. 35
     Pomerance, Selfridge, and Wagstaff (1980); The pseudoprimes to 25*10^9; Mathematics of Computation 35; DOI: 10.2307/2006210
     Pomerance; Are there counterexamples to the Baillie-PSW primality test?; 1984
     Arnault (1997); The Rabin-Monier theorem for Lucas pseudoprimes; Math. Comp. 66"
+  (declare (type integer n))
   (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
   (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_probable-primep-bpsw: Could not initialize *mjr_prime_small-list*!")))
@@ -704,7 +702,7 @@ References:
            (mjr_prime_strong-probable-primep n 2)
            (mjr_prime_probable-primep-lucas-selfridge n))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prime_probable-primep (n)
   "Return NIL if N is composite, and 'T if it is probably prime.
 

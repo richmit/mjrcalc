@@ -1,17 +1,16 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      use-ia.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2007,2008 by Mitch Richling.  All rights reserved.
 ;; @brief     User interface wrapper for :MJR_SIA.@EOL
-;; @Keywords  lisp interactive interval arithmetic
 ;; @Std       Common Lisp
 ;;
 ;;            Notes here
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_IA
   (:USE :COMMON-LISP
         :MJR_SIA
@@ -26,7 +25,7 @@
 
 (in-package :MJR_IA)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ia_help ()
   "
 Functions:
@@ -56,30 +55,34 @@ Functions:
  |                                  | mjr_ia_i2s        mjr_ia_s2i        | ........................................ |
  | Misc ........................... | ................................... | mjr_sia_ctr=guess?                       |
 
-This library expands upon the MJR_SIA_* functions to provide more comfortable environment for interactive computation with
-general intervals and with intervals derived from error analysis and measurement uncertainty.
+This library expands upon the MJR_SIA_* functions to provide a more comfortable environment for interactive computation with general intervals and with
+intervals derived from error analysis and measurement uncertainty.
 
-Intervals are supported:
- Name              SYM  LISP            Math
- Interval          :M   (list :M  a b)  [a, b]
- Absolute Error    :AE  (list :AE a e)  [a-e, a+e]
- Fractional Error  :FE  (list :FE a f)  [a-a*f, a+a*f]
- Percentage Error  :PE  (list :PE a p)  [a-a*p, a+a*p]/100
- Interval type     :S   (list a b)      [a, b]
- Number            :N   a               [a, a]
+Intervals supported:
+
+    |------------------+-----+----------------+--------------------|
+    | Name             | SYM | LISP           | Math               |
+    |------------------+-----+----------------+--------------------|
+    | Interval         | :M  | (list :M  a b) | [a, b]             |
+    | Absolute Error   | :AE | (list :AE a e) | [a-e, a+e]         |
+    | Fractional Error | :FE | (list :FE a f) | [a-a*f, a+a*f]     |
+    | Percentage Error | :PE | (list :PE a p) | [a-a*p, a+a*p]/100 |
+    | Interval type    | :S  | (list a b)     | [a, b]             |
+    | Number           | :N  | a              | [a, a]             |
+    |------------------+-----+----------------+--------------------|
 
 Notes on :AE, :FE, and :PE forms:
 
-  Intervals specified in the :AE, :FE, and :PE forms are defined by a 'best guess' for the true value and an error bound.  This
-  'best guess' is the center point for the defined interval, and the width of the interval is defined by the error.  This a
-  common format for specifying imprecision or error in quantities like physical measurements and survey results.
+  Intervals specified in the :AE, :FE, and :PE forms are defined by a 'best guess' for the true value and an error bound.  This 'best guess' is the center
+  point for the defined interval, and the width of the interval is defined by the error.  This is a common format for specifying imprecision or error in
+  quantities like physical measurements and survey results.
 
 Notes on the :S and :N forms:
-  The :S and :N forms are included for simplicity and to make the library easy to use.  The only time the :S and :N symbols
-  used, are in the conversion functions."
+
+  The :S and :N forms are included for simplicity and for ease of use.  The only time the :S and :N symbols used, are in the conversion functions."
   (documentation 'mjr_ia_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ia_i2s (a)
 "Convert ia-type intervals into sia-type intervals."
   (or
@@ -105,7 +108,7 @@ Notes on the :S and :N forms:
             (if (= 4 (length a)) (fourth a))))))
    (error "mjr_ia_i2s: Bad interval: ~s~&" a)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun mjr_ia_s2i (a &optional (rep :m))
 "Convert sia-type intervals into ia-type intervals"
@@ -127,7 +130,7 @@ Notes on the :S and :N forms:
                            hformng
                          (append hformng (list (mjr_sia_guess a)))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_ia_rep (a &optional b)
 "Return symbol for the representation of the given interval or combination of intervals"
   (if b

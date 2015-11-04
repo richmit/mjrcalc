@@ -1,21 +1,20 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      tst-use-intg.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Test cases for :MJR_INTG.@EOL
-;; @Keywords  
 ;; @Std       Common Lisp
 ;;
 ;;            
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_INTG-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_CMP :MJR_INTG :MJR_PRNG :MJR_EPS))
 
 (in-package :MJR_INTG-TESTS)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Test cases:
 ;; $$t_{1}  = \int_1^a\frac{1}{x} \, \mathrm{d}x = \log(x)\rvert_{x=a} \;\;\;\;\;\;\;\;\; a=2 => t_1 \approxeq 0.6931473$$
@@ -47,7 +46,7 @@
                                    (defun tf12 (x) (COS (* 100 (SIN X))))                                      (defvar ta11 0.0d0) (defvar tb11      pi) (defvar tv11 0.627874E-01)
 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_loc-adp-dnc-simpson-naive (fun &key start end min-width (the-err 1e-5))
   "Compute the definite integral of FUN between A and B using the adaptive Simpson's rule.
 References:
@@ -66,7 +65,7 @@ References:
                                                          (simpson-r f m end miw (/ me 2) ra))))))
       (simpson-r fun start end min-width the-err (simpson-1 fun start end))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_loc-adp-dnc-simpson
   ;; A few hand picked examples
   (assert-equality (mjr_eps_make-fixed= .001) tv1 (mjr_intg_loc-adp-dnc-simpson       #'tf1 :start ta1 :end tb1 :min-width 1/100))
@@ -92,7 +91,7 @@ References:
   (assert-equal 4/3                                     (mjr_intg_loc-adp-dnc-simpson         ti3 :start ta3  :end tb3   :min-width 1/100))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_composite-trap
   ;; A few random test cases
   (dotimes (i 100)
@@ -127,7 +126,7 @@ References:
   (assert-error 'error      (mjr_intg_composite-trap #'identity                             :start 0   :end  't     :len 100))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_composite-simpson
   ;; A few random test cases
   (dotimes (i 100)
@@ -169,7 +168,7 @@ References:
   (assert-error 'error      (mjr_intg_composite-simpson #'identity                             :start 0   :end  1     :len 100))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_glb-adp-composite-trapezoidal
   ;; A few random test cases
   (dotimes (i 100)
@@ -209,7 +208,7 @@ References:
   (assert-error 'error                   (mjr_intg_glb-adp-composite-trapezoidal #'identity                             :start 0   :end 1       :the-err #C(0 0)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_simple-gauss-kronrod
   ;; A few random test cases
   (dotimes (i 100)
@@ -242,7 +241,7 @@ References:
   (assert-error 'error                   (mjr_intg_simple-gauss-kronrod #'identity                             :start 0   :end 1       :order 30))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_glb-adp-composite-romberg
   ;; A few random test cases
   (dotimes (i 100)
@@ -281,7 +280,7 @@ References:
   (assert-error 'error                   (mjr_intg_glb-adp-composite-romberg #'identity                             :start 0   :end 1       :the-err #C(0 0)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_loc-adp-dnc-trapezoidal
   ;; A few random test cases
   (dotimes (i 100)
@@ -316,7 +315,7 @@ References:
   (assert-error 'error                   (mjr_intg_loc-adp-dnc-trapezoidal #'identity                             (list :start 0   :end 1       :the-err #C(0 0))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_simple-rect-left
   ;; Note: The test cases for mjr_intg_divide-and-conquer make heavy use of this function, so we don't need many tests here.
   ;; Hand picked cases
@@ -326,7 +325,7 @@ References:
   (assert-equal 0                             (mjr_intg_simple-rect-left      ti3 :start ta3  :end tb3))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_simple-rect-right
   ;; Note: The test cases for mjr_intg_divide-and-conquer make heavy use of this function, so we don't need many tests here.
   ;; Hand picked cases
@@ -336,7 +335,7 @@ References:
   (assert-equal 0                             (mjr_intg_simple-rect-right     ti3 :start ta3  :end tb3))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_simple-trap
   ;; Note: The test cases for mjr_intg_divide-and-conquer make heavy use of this function, so we don't need many tests here.
   ;; Hand picked cases
@@ -356,7 +355,7 @@ References:
       (assert-equalp (mjr_intg_simple-newton-cotes #'tf6 :start ta6 :end u :order 1 :closed 't) (mjr_intg_simple-trap #'tf6 :start ta6 :end u))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_simple-simpson
   ;; Note: The test cases for mjr_intg_divide-and-conquer make heavy use of this function, so we don't need many tests here.
   ;; Hand picked cases
@@ -377,7 +376,7 @@ References:
       (assert-equalp (mjr_intg_simple-newton-cotes #'tf6 :start ta6 :end u :order 2 :closed 't) (mjr_intg_simple-simpson #'tf6 :start ta6 :end u))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_simple-simpson-3/8
   ;; Note: The test cases for mjr_intg_divide-and-conquer make heavy use of this function, so we don't need many tests here.
   ;; Hand picked cases
@@ -397,7 +396,7 @@ References:
       (assert-equalp (mjr_intg_simple-newton-cotes #'tf6 :start ta6 :end u :order 3 :closed 't) (mjr_intg_simple-simpson-3/8 #'tf6 :start ta6 :end u))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_simple-boole
   ;; Note: The test cases for mjr_intg_divide-and-conquer make heavy use of this function, so we don't need many tests here.
   ;; Hand picked cases
@@ -417,7 +416,7 @@ References:
       (assert-equalp (mjr_intg_simple-newton-cotes #'tf6 :start ta6 :end u :order 4 :closed 't) (mjr_intg_simple-boole #'tf6 :start ta6 :end u))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_simple-rect-mid
   ;; Note: The test cases for mjr_intg_divide-and-conquer make heavy use of this function, so we don't need many tests here.
   ;; Hand picked cases
@@ -437,7 +436,7 @@ References:
       (assert-equalp (mjr_intg_simple-newton-cotes #'tf6 :start ta6 :end u :order 2 :closed nil) (mjr_intg_simple-rect-mid #'tf6 :start ta6 :end u))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_simple-milne
   ;; Note: The test cases for mjr_intg_divide-and-conquer make heavy use of this function, so we don't need many tests here.
   ;; Hand picked cases
@@ -457,7 +456,7 @@ References:
       (assert-equalp (mjr_intg_simple-newton-cotes #'tf6 :start ta6 :end u :order 4 :closed nil) (mjr_intg_simple-milne #'tf6 :start ta6 :end u))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_simple-gauss-legendre
   ;; Note: The test cases for mjr_intg_divide-and-conquer make heavy use of this function, so we don't really need many tests here;
   ;; however, this is such an important function we include several thousand anyhow.
@@ -482,14 +481,14 @@ References:
         do (assert-equality (mjr_eps_make-fixed= .00001) 1.3333333333333335d0 (mjr_intg_simple-gauss-legendre    ti3 :start ta3  :end tb3 :order ord)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_glb-adp-composite-trap-or-romberg
   ;; Note: mjr_intg_glb-adp-composite-trap-or-romberg is teh computational kernel for both mjr_intg_glb-adp-composite-trapezoidal and mjr_intg_glb-adp-composite-romberg, and is thus
   ;; well tested by the mjr_intg_glb-adp-composite-trapezoidal and mjr_intg_glb-adp-composite-romberg tests above.
   1
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_divide-and-conquer
   ;; A few random test cases
   (dolist (intfun (list #'mjr_intg_simple-gauss-legendre))
@@ -534,7 +533,7 @@ References:
                                                                                                      (list :start ta6 :end u :len 100)))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_simple-newton-cotes
 
   ;; XREF: The test cases for mjr_intg_divide-and-conquer make heavy use of this function with high values for order.
@@ -545,13 +544,13 @@ References:
   1
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intg_help
   ;; Note: This function dosen't need test cases..
   1
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests
  )
 

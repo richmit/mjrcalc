@@ -4,7 +4,6 @@
 ;; @file      use-combc.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Constructive Combinatorics: Generating combinatorial objects.@EOL
-;; @keywords  lisp interactive combinatorial constructive generate list
 ;; @std       Common Lisp
 ;; @see       tst-combc.lisp
 ;; @copyright
@@ -820,13 +819,13 @@ References:
           do (if (not (= (aref a q) 2))
                  (progn (if (zerop q)
                             (return parts)
-                            (setf x               (- (aref a q) 1)
+                            (setf x          (- (aref a q) 1)
                                   (aref a q) x
-                                  n               (+ (- m q) 1)
-                                  m               (+ q 1)))
+                                  n          (+ (- m q) 1)
+                                  m          (+ q 1)))
                         (loop do (if (<= n x)
                                      (return (setf (aref a m) n
-                                                   q               (- m (if (= n 1) 1 0))))
+                                                   q          (- m (if (= n 1) 1 0))))
                                      (progn (setf (aref a m) x)
                                             (incf m)
                                             (decf n x)))))

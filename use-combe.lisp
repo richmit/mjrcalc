@@ -1,16 +1,15 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-combe.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2008,2011,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Enumerative Combinatorics: Counting combinatorial objects.@EOL
-;; @Keywords  lisp interactive enumerative combinatorics combinatorial
 ;; @Std       Common Lisp
 ;;
 ;;            
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_COMBE
   (:USE :COMMON-LISP
         :MJR_NUMU)
@@ -48,22 +47,20 @@
 
 (in-package :MJR_COMBE)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_help ()
   "Help for MJR_COMBE:
 
-This package contains a collection of functions related to 'Enumerative Combinatorics' -- i.e. 'counting'.  Basic combinatorial
-functions like the factorial and the binomial coefficient functions, but with a pure counting focus.  Also included are less generic
-functions for the direct solutions to various counting problems (the 12-fold way & several balls-n-urns problems).  The use case is
-two fold:
+This package contains a collection of functions related to 'Enumerative Combinatorics' -- i.e. 'counting'.  Basic combinatorial functions like the factorial
+and the binomial coefficient functions, but with a pure counting focus.  Also included are less generic functions for the direct solutions to various counting
+problems (the 12-fold way & several balls-n-urns problems).  The use case is two fold:
 
   * Assist in solving common counting problems that come up in my day to day work
   * Recreational combinatorics problems.
 
-This counting focus can lead to some surprises.  For example, the function that computes 'N choose K' (MJR_COMBE_COMB) in this
-package is different from the traditional 'binomial coefficient function' in that MJR_COMBE_COMB only takes integer arguments,
-and is zero when K>N or K<0 (See: MJR_NUMU_BINOMIAL).  Another example is the factorial function (MJR_COMBE_!) in this
-package only supports integer arguments (see MJR_NUMU_GAMMA).
+This counting focus can lead to some surprises.  For example, the function that computes 'N choose K' (MJR_COMBE_COMB) in this package is different from the
+traditional 'binomial coefficient function' in that MJR_COMBE_COMB only takes integer arguments, and is zero when K>N or K<0 (See: MJR_NUMU_BINOMIAL).
+Another example is the factorial function (MJR_COMBE_!) in this package only supports integer arguments (see MJR_NUMU_GAMMA).
 
   Twelvefold way:
 
@@ -100,7 +97,7 @@ package only supports integer arguments (see MJR_NUMU_GAMMA).
 Note: Some of the implementations here are quite slow."
   (documentation 'mjr_combe_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_iverson-bracket-le (a b)
   "Return 1 if a<=b, and 0 otherwise.
 
@@ -111,7 +108,7 @@ Interpretations:
   * The number ways of placing N unlabeled balls into N labeled urns such that each ball  has no more than one ball"
   (mjr_numu_iverson-bracket #'<= a b))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_! (n)
   "Compute the factorial.
 
@@ -125,7 +122,7 @@ Interpretations:
       1
       (mjr_numu_prod :start 1 :end n)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_!! (n)
   "Compute the double factorial."
   (cond ((not (integerp n))   (error "mjr_combe_!!: Input must be an integer!"))
@@ -134,7 +131,7 @@ Interpretations:
         ((= n 2) 2)
         ('t      (mjr_numu_prod :start (if (oddp n) 1 2) :end n :step 2))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_perm (n k)
   "Compute the permutation function, $n^{\underline{k}}$ (falling power).
 
@@ -153,7 +150,7 @@ Interpretations:
         ((< n k) 0) ;; Can't pick more than we have!
         ('t      (mjr_numu_prod :start (1+ (- n k)) :end n))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_perm-with-replacement (n k)
   "Compute the permutation function with replacements, $n^k$.
 
@@ -167,7 +164,7 @@ Interpretations:
         ((< k 0)              (error "mjr_combe_perm-with-replacement: Second argument must be non-negative!")))
   (expt n k))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_comb (n k)
   "Compute the combination function without replacements, $\binom{n}{k}$.
 
@@ -191,7 +188,7 @@ NOTE: This function is relatively fast, and avoids large intermediate values dur
           ((< n-k k)  (mjr_numu_prod :start 1 :end n-k :seq-fun (lambda (i) (/ (+ k i)   i))))
           ('t         (mjr_numu_prod :start 1 :end k   :seq-fun (lambda (i) (/ (+ n-k i) i)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_comb-with-replacement (n k)
   "Compute the combination function with replacements, $\left(\binom{n}{k}\right)$.
 
@@ -205,7 +202,7 @@ Interpretations (when :WITH-REPLACEMENT is non-NIL):
         ((< k 0)              (error "mjr_combe_comb-with-replacement: Second argument must be non-negative!")))
   (mjr_combe_comb (1- (+ n k)) k))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_central-comb (n)
   "Central binomial coefficient for integer arguments: $\binom{2n}{n}$"
   (cond ((not (integerp n)) (error "mjr_combe_central-comb: Argument must be an integer!"))
@@ -213,7 +210,7 @@ Interpretations (when :WITH-REPLACEMENT is non-NIL):
   (cond ((= n 0) 1)
         ('t      (mjr_numu_prod :start 1 :end n :seq-fun (lambda (i) (/ (+ n i) i))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_multinomial (n &rest k-list)
   "Compute the multinomial function.
 
@@ -239,7 +236,7 @@ Interpretations:
                                                                      when (<= i k)
                                                                      do (setf prod (* prod i))))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_stirling2nd (n k)
   "Compute the Stirling numbers of the second kind, $S(n,k)$
 
@@ -268,7 +265,7 @@ References:
                                                                         (expt (- k j) n))))
                                   (mjr_combe_! k)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_stirling1st-unsigned (n k)
   "Compute the Stirling numbers of the first kind, $c(n,k)$
 
@@ -292,7 +289,7 @@ References:
         ('t                    (+ (* (1- n) (mjr_combe_stirling1st-unsigned (1- n) k))
                                   (mjr_combe_stirling1st-unsigned (1- n) (1- k))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_stirling1st (n k)
   "Compute the Stirling numbers of the first kind, $s(n,k)$
 
@@ -307,7 +304,7 @@ References:
      (if (oddp k) -1 1)
      (mjr_combe_stirling1st-unsigned n k)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_euler1st (n k)
   "The number of permutations of the numbers $1\cdots n$ which have exactly $k$ descents. See: MJR_COMBE_DESCENT-NUMBER
 
@@ -327,7 +324,7 @@ Interpretations:
                                                                (mjr_combe_comb (1+ n) i)
                                                                (expt (- (1+ k) i) n)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_bell (n)
   "Compute the N'th bell number.
 
@@ -347,7 +344,7 @@ Interpretations:
         do (rotatef (aref idxs 2) (aref idxs 0) (aref idxs 1))
         finally (return (aref datv (aref idxs 2) 0))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_catalan (n)
   "Recursive implementation
 
@@ -363,7 +360,7 @@ References:
       1
       (* (/ (- (* 4 n) 2) (1+ n)) (mjr_combe_catalan (1- n)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_12way-lu-all (n k)
   ;; MJR TODO NOTE <2011-11-11 13:54:55 CST> mjr_combe_12way-lu-all: CHECK THIS!!
   "Number of ways to put N labeled balls into K unlabeled urns.
@@ -377,7 +374,7 @@ Interpretations:
         ((< k 0)              (error "mjr_combe_12way-ll-all: Second argument must be non-negative!")))
   (mjr_numu_sum :start 1 :end k :seq-fun (lambda (i) (mjr_combe_stirling2nd n i))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_12way-ll-ge1 (n k)
   "The number ways of placing N labeled balls into N labeled urns such that each ball has at least one ball
 
@@ -390,7 +387,7 @@ Interpretations:
         ((< k 0)              (error "mjr_combe_12way-ll-ge1: Second argument must be non-negative!")))
   (* (mjr_combe_! k) (mjr_combe_stirling2nd n k)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_12way-ul-ge1 (n k)
   "The number ways of placing N unlabeled balls into N labeled urns such that each ball has at least one ball
 
@@ -403,7 +400,7 @@ Interpretations:
         ((< k 0)              (error "mjr_combe_12way-ul-ge1: Second argument must be non-negative!")))
   (mjr_combe_comb-with-replacement k (- n k)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_inversion-number (seq)
   "Count the number of pairs $(s_i, s_j)$ in the finite sequence $(s_1,...,s_n)$ such that $s_i > s_j$ when $i<j$"
   (loop with vec = (if (vectorp seq) seq (concatenate 'vector seq))
@@ -413,7 +410,7 @@ Interpretations:
         sum (loop for j from (1+ i) upto (- len 1)
                   count (> (aref vec i) (aref vec j)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_descent-number (seq)
   "Count the number of pairs $(s_{i-1}, s_i)$ in the finite sequence $(s_1,...,s_n)$ such that $s_{i-1} > s_i$"
   (if (vectorp seq)
@@ -424,14 +421,14 @@ Interpretations:
             for si in seq
             count (and si-1 (> si-1 si)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_k-weak-compositions (n k)
   "Number of k component weak compositions.
 
 Interpretations:
   * Number of ways to form the sum $\\sum_1^k x_k=n$ where $x_k$ are non-negative integers -- order matters.
-  * Number of ways to put $n$ balls of $k$ colors into one urn.  At least $n$ balls of each color is available in the pool.  The
-    order in which they are placed in the urn is irrelevant, just the final counts.
+  * Number of ways to put $n$ balls of $k$ colors into one urn.  At least $n$ balls of each color is available in the pool.  The order in which they are
+    placed in the urn is irrelevant, just the final counts.
 
 References:
   Richard P. Stanley (1997); Enumerative Combinatorics Vol I"
@@ -441,15 +438,14 @@ References:
         ((< k 0)              (error "mjr_combe_k-weak-compositions: Second argument must be non-negative!")))
   (mjr_combe_comb (1- (+ n k)) (1- k)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_k-compositions (n k)
   "Number of k component compositions.
 
 Interpretations:
   * Number of ways to form the sum $\\sum_1^k x_k=n$ where $x_k$ are positive integers -- order matters.
-  * Number of ways to put $n$ balls of $k$ colors into one urn such that at least 1 ball of each color is in the urn at the end.
-    At least $n$ balls of each color is available in the pool. The order in which they are placed in the urn is irrelevant, just
-    the final counts.
+  * Number of ways to put $n$ balls of $k$ colors into one urn such that at least 1 ball of each color is in the urn at the end.  At least $n$ balls of each
+    color is available in the pool. The order in which they are placed in the urn is irrelevant, just the final counts.
 
 References:
   Richard P. Stanley (1997); Enumerative Combinatorics Vol I"
@@ -459,7 +455,7 @@ References:
         ((< k 0)              (error "mjr_combe_k-compositions: Second argument must be non-negative!")))
   (mjr_combe_comb (1- n) (1- k)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_k-partitions (n k)
   "Number of partitions of N into K parts
 
@@ -485,7 +481,7 @@ References:
         ('t           (+ (mjr_combe_k-partitions (1- n)  (1- k))
                          (mjr_combe_k-partitions (- n k) k)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_partition-into-parts-of-size-ge-k (n k)
   "Number of partitions of N such that all parts are at least as big as K.
 
@@ -504,7 +500,7 @@ References:
         ('t            (+ (mjr_combe_partition-into-parts-of-size-ge-k n  (1+ k))
                           (mjr_combe_partition-into-parts-of-size-ge-k (- n k) k)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_12way-uu-all (n k)
   "Number of ways to put N unlabeled balls into K unlabeled urns.
 
@@ -517,12 +513,11 @@ Interpretations:
         ((< k 0)              (error "mjr_combe_12way-uu-all: Second argument must be non-negative!")))
   (mjr_numu_sum :start 1 :end k :seq-fun (lambda (i) (mjr_combe_k-partitions i n))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_partitions (n)
   "The number of partitions of N.
 
-A partition of a number is a sum of positive integers equaling the original number where sums differing only in the order of the
-summands are not counted as distinct."
+A partition of a number, $n$, is a sum of positive integers equaling $n$ where sums differing only in the order of the summands are not counted as distinct."
   (cond ((not (integerp n)) (error "mjr_combe_partition: Argument must be an integer!"))
         ((< n 0)            (error "mjr_combe_partition: Argument must be non-negative!")))
   (if (< n 2)
@@ -536,7 +531,7 @@ summands are not counted as distinct."
                        do (setf (aref tmp x y) (+ 1 (aref tmp (- x y) y) (aref tmp x (1+ y))))))
         (1+ (aref tmp n 1)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_derangements (n)
   "Number of derangements of $n$ objects -- i.e. number of permutations of $n$ objects that fix no element.
 
@@ -553,7 +548,7 @@ References:
                                                                      (setq fact-i (* fact-i i))))))
            fact-i))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_combe_rencontres (n k)
   "Rencontres numbers -- i.e. number of permutations of $n$ objects that fix $k$ elements.
 

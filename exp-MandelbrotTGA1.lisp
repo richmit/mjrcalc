@@ -1,17 +1,15 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      exp-MandelbrotTGA1.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 2012 by Mitch Richling.  All rights reserved.
 ;; @brief     Compute Mandelbrot set, and dump it to a TGA file.@EOL
-;; @Keywords  Mandelbrot set TGA
 ;; @Std       Common Lisp
 ;;
-;;            An appropriate count is computed such that the histogram will be maximized in all three colors.  No complex
-;;            arithmetic for performance.
+;;            An appropriate count is computed such that the histogram will be maximized in all three colors.  No complex arithmetic for performance.
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (declaim (optimize (speed 3) (safety 0) ( debug 0) (compilation-speed 0)))
 

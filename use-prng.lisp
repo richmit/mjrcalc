@@ -1,16 +1,15 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-prng.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2010,2011,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Uniform random deviate generators.@EOL
-;; @Keywords  lisp interactive prng uniform random distributions math library
 ;; @Std       Common Lisp
 ;;
 ;;            
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_PRNG
   (:USE :COMMON-LISP
         :MJR_ARR)
@@ -27,28 +26,28 @@
 
 (in-package :MJR_PRNG)
 
-;; -----------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_help ()
   "Help for MJR_PRNG:
 
-Several UNIFORM PRNG functions are provided in forms that are a bit more handy to use than the built in RANDOM function. 
-In a real way, this package is intended to replace the built in RANDOM function.
+Several UNIFORM PRNG functions are provided in forms that are a bit more handy to use than the built in RANDOM function.  In a real way, this package is
+intended to replace the built in RANDOM function.
 
 For more mathematically oriented random numbers involving other PDFs see the MJR_PROB: package."
   (documentation 'mjr_prng_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar *mjr_prng_rand-func* nil
   "The standard LISP random-like function to use for uniform random numbers")
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_random (arg)
   (declare (number arg))
   (if *mjr_prng_rand-func*
       (funcall *mjr_prng_rand-func* arg)
       (random arg)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_boolean (&optional p)
   "Return non-nil with probably $p$, and nil with probability $1-p$ ($p=1/2$ if $p$ is missing) or nil."
   (if p
@@ -59,14 +58,14 @@ For more mathematically oriented random numbers involving other PDFs see the MJR
             ('t                (< (mjr_prng_random 1.0) p)))
       (= (mjr_prng_random 2) 1)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_sign (&optional p)
   "Return 1 with probably $p$, and nil with probability $1-p$ ($p=1/2$ if $p$ is missing) or -1."
   (if (mjr_prng_boolean p)
       1
       -1))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_bit (&optional p)
   "Return 1 with probably $p$, and nil with probability $1-p$ ($p=1/2$ if $p$ is missing) or 0."
   (if p
@@ -78,7 +77,7 @@ For more mathematically oriented random numbers involving other PDFs see the MJR
       1
       0))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_tbd-uniform-co (a b)
   "Return a pseudo-random number from the uniform distribution on [a,b) -- closed/open.  Return type determined as in RANDOM."
   (cond ((not (numberp a))     (error "mjr_prng_tbd-uniform-co: A must be a number!"))
@@ -93,7 +92,7 @@ For more mathematically oriented random numbers involving other PDFs see the MJR
               (>= a b))        (error "mjr_prng_tbd-uniform-co: B must greater than A!")))
   (+ a (mjr_prng_random (- b a))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_int-oo (a b)
   "Return a pseudo-random number from the discrete uniform distribution on (a,b) -- open/open."
   (cond ((not (integerp a))    (error "mjr_prng_int-oo: A must be an integer!"))
@@ -101,7 +100,7 @@ For more mathematically oriented random numbers involving other PDFs see the MJR
         ((>= a (1- b))         (error "mjr_prng_int-oo: B must be at least 2 greater than A!")))
   (+ (1+ a) (mjr_prng_random (- b a 1))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_int-cc (a b)
   "Return a pseudo-random number from the discrete uniform distribution on [a,b] -- closed/closed."
   (cond ((not (integerp a))    (error "mjr_prng_int-cc: A must be an integer!"))
@@ -109,7 +108,7 @@ For more mathematically oriented random numbers involving other PDFs see the MJR
         ((> a b)               (error "mjr_prng_int-cc: A must be less than or equal to B!")))
   (+ a (mjr_prng_random (1+ (- b a)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_int-co (a b)
   "Return a pseudo-random number from the discrete uniform distribution on [a,b) -- closed/open."
   (cond ((not (integerp a))    (error "mjr_prng_int-co: A must be an integer!"))
@@ -117,7 +116,7 @@ For more mathematically oriented random numbers involving other PDFs see the MJR
         ((> a (1- b))          (error "mjr_prng_int-co: B must be at least 1 greater than A!")))
   (+ a (mjr_prng_random (- b a))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_float-oo (a b)
   "Return a pseudo-random number from the continuous uniform distribution on (a,b) -- open/open."
   (cond ((not (numberp a))     (error "mjr_prng_float-oo: A must be a number!"))
@@ -131,7 +130,7 @@ For more mathematically oriented random numbers involving other PDFs see the MJR
         (+ (/ (+ a b) 2) (mjr_prng_random (/ (- b a) 2)))
         (- (/ (+ a b) 2) (mjr_prng_random (/ (- b a) 2))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_float-cc (a b)
   "Return a pseudo-random number from the continuous uniform distribution on [a,b] -- closed/closed."
   (cond ((not (numberp a))     (error "mjr_prng_float-cc: A must be a number!"))
@@ -145,7 +144,7 @@ For more mathematically oriented random numbers involving other PDFs see the MJR
         (+ a (mjr_prng_random (- b a)))
         (- b (mjr_prng_random (- b a))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_float-co (a b)
   "Return a pseudo-random number from the continuous uniform distribution on [a,b) -- closed/open."
   (cond ((not (numberp a))     (error "mjr_prng_float-co: A must be a number!"))
@@ -157,7 +156,7 @@ For more mathematically oriented random numbers involving other PDFs see the MJR
         (b (if (not (floatp b)) (float b 1e0) b)))
     (+ a (mjr_prng_random (- b a)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_vector (n func &rest rest)
   "Return a vector of length n filled with elements from the prng specified by func."
   (cond ((not (integerp n))     (error "mjr_prng_vector: A must be an integer!")))
@@ -168,7 +167,7 @@ For more mathematically oriented random numbers involving other PDFs see the MJR
             do (setf (aref rv i) (apply func rest))
             finally (return rv))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_bitvector (n &optional p)
   "Return a bitvector of length n filled with elements from the prng specified by func."
   (cond ((not (integerp n))     (error "mjr_prng_bitvector: A must be an integer!")))
@@ -190,7 +189,7 @@ For more mathematically oriented random numbers involving other PDFs see the MJR
                 do (setf (aref rv i) 1))))
         rv))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_list (n func &rest rest)
   "Return a list of length n filled with elements from the prng specified by func."
   (cond ((not (integerp n))     (error "mjr_prng_list: A must be an integer!")))
@@ -199,7 +198,7 @@ For more mathematically oriented random numbers involving other PDFs see the MJR
       (loop for i from 0 upto (1- n)
             collect (apply func rest))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_prng_array (dims func &rest rest)
   "Return a vector of length n filled with elements from the prng specified by func."
   (cond ((not (listp dims))              (error "mjr_prng_vector: DIMS must be a list!"))

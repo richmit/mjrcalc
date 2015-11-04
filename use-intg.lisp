@@ -1,17 +1,37 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-intg.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,1998,2004,2008,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Numerical integration of univariate real functions.@EOL
-;; @Keywords  lisp interactive numerical integration univariate
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-intg.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            TODO: Integrate data instead of a function
-;;            TODO: Arc length of f:R->R^n on an interval [a,b] via various base integration rules
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      Integrate data instead of a function.@EOL@EOL
+;; @todo      Arc length of f:R->R^n on an interval [a,b] via various base integration rules.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_INTG
   (:USE :COMMON-LISP
         :MJR_NUMU
@@ -22,26 +42,27 @@
         :MJR_MXP)
   (:DOCUMENTATION "Brief: Numerical integration of univariate real functions.;")
   (:EXPORT #:mjr_intg_help
-           #:mjr_intg_simple-rect-left #:mjr_intg_simple-rect-right                      ;; fixed-order     simple      Riemann rules
-           #:mjr_intg_simple-rect-mid #:mjr_intg_simple-milne                            ;; fixed-order     simple      Open NC rules
-           #:mjr_intg_simple-trap #:mjr_intg_simple-simpson                              ;; fixed-order     simple      Closed NC rules
-           #:mjr_intg_simple-simpson-3/8 #:mjr_intg_simple-boole                         ;; fixed-order     simple      Closed NC rules
+           #:mjr_intg_simple-rect-left          #:mjr_intg_simple-rect-right             ;; fixed-order     simple      Riemann rules
+           #:mjr_intg_simple-rect-mid           #:mjr_intg_simple-milne                  ;; fixed-order     simple      Open NC rules
+           #:mjr_intg_simple-trap               #:mjr_intg_simple-simpson                ;; fixed-order     simple      Closed NC rules
+           #:mjr_intg_simple-simpson-3/8        #:mjr_intg_simple-boole                  ;; fixed-order     simple      Closed NC rules
            #:mjr_intg_simple-newton-cotes                                                ;; variable-order  simple      All NC rules
            #:mjr_intg_simple-gauss-legendre                                              ;; variable-order  simple      Gauss Legendre
            #:mjr_intg_simple-monte-carlo                                                 ;; variable-order  simple      Monte Carlo
            #:mjr_intg_simple-gauss-kronrod                                               ;; variable-order  simple      embedded GK
-           #:mjr_intg_composite-trap #:mjr_intg_composite-simpson                        ;; variable-order  Composite   NC rules
-           #:mjr_intg_glb-adp-composite-trapezoidal #:mjr_intg_glb-adp-composite-romberg ;; Global Adaptive Composite   Closed NC rules
-           #:mjr_intg_loc-adp-dnc-trapezoidal #:mjr_intg_loc-adp-dnc-simpson             ;; Local Adaptive  Div&Conq    Closed NC rules
+           #:mjr_intg_composite-trap            #:mjr_intg_composite-simpson             ;; variable-order  Composite   NC rules
+           #:mjr_intg_glb-adp-composite-romberg #:mjr_intg_glb-adp-composite-trapezoidal ;; Global Adaptive Composite   Closed NC rules
+           #:mjr_intg_loc-adp-dnc-trapezoidal   #:mjr_intg_loc-adp-dnc-simpson           ;; Local Adaptive  Div&Conq    Closed NC rules
            ;; Experimental
            #:mjr_intg_gbl-adp-factory-order                                              ;; Global Adaptive Order       various (adapter)
            #:mjr_intg_divide-and-conquer                                                 ;; Local Adaptive  Div&Conq    various (adapter)
+           ;; Not exported (backend use)
            ;;#:mjr_intg_glb-adp-composite-trap-or-romberg
            ))
 
 (in-package :MJR_INTG)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_help ()
   "Help for MJR_INTG:
 
@@ -49,16 +70,13 @@ Single variable definite integrals computed over an interval
 
 The functions:
 
-   mjr_intg_simple-newton-cotes .............. Good for smooth functions well approximated by a polynomial of degree < order of
-                                               method
+   mjr_intg_simple-newton-cotes .............. Good for smooth functions well approximated by a polynomial of degree < order of method
    mjr_intg_simple-gauss-legendre ............ Fastest for smooth functions well approximated by a polynomial.
    mjr_intg_glb-adp-composite-romberg ........ Good choice for well behaved functions -- $C^\infty$
-   mjr_intg_glb-adp-composite-trapezoidal .... Good choice for moderately ill-behaved functions.  For example if the derivative
-                                               fails to exist at a few points, but the variation is generally consistent across
-                                               interval of integration.
-   mjr_intg_loc-adp-dnc-trapezoidal .......... Good choice for functions with a widely changing second derivative or strong
-                                               variation that break mjr_intg_glb-adp-composite-trapezoidal.  Also good when a
-                                               particular mesh must be refined.
+   mjr_intg_glb-adp-composite-trapezoidal .... Good choice for moderately ill-behaved functions.  For example if the derivative fails to exist at a few
+                                               points, but the variation is generally consistent across interval of integration.
+   mjr_intg_loc-adp-dnc-trapezoidal .......... Good choice for functions with a widely changing second derivative or strong variation that break
+                                               mjr_intg_glb-adp-composite-trapezoidal.  Also good when a particular mesh must be refined.
    mjr_intg_loc-adp-dnc-simpson .............. Like mjr_intg_loc-adp-dnc-trapezoidal, but uses simpson's rule.
    mjr_intg_composite-trap ................... Fixed step size composite trapezoidal rule.
    mjr_intg_composite-simpson ................ Fixed step size composite simpson rule.
@@ -84,11 +102,7 @@ This is a pathological example
    0.3222203"
   (documentation 'mjr_intg_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_simple-monte-carlo (fun &key start end (order 10000) show-progress)
   "Compute the definite integral of FUN on the given interval using the Monte Carlo method."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
@@ -103,13 +117,9 @@ This is a pathological example
                         (zerop (mod ect spi)))
                    (format 't "~7d :: ~15f ~%" ect (* wid fsum (/ ect))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_composite-trap (fun &key start end step len)
-  "Compute the definite integral of FUN using the composite Trapezoidal Rule.'
+  "Compute the definite integral of FUN using the composite Trapezoidal Rule.
    START, END, STEP, LEN are processed by MJR_VVEC_NORMALIZE-VVT-ASEQ"
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
     (multiple-value-bind (start end step len)
@@ -121,9 +131,9 @@ This is a pathological example
                         (funcall fun end)
                         (* 2 (mjr_numu_sum :seq-fun fun :start (+ start step) :end (- end step) :step step :len (- len 2)))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_composite-simpson (fun &key start end step len)
-  "Compute the definite integral of FUN using the composite Simpson Rule.'
+  "Compute the definite integral of FUN using the composite Simpson Rule.
    START, END, STEP, LEN are processed by MJR_VVEC_NORMALIZE-ASEQ"
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
     (multiple-value-bind (start end step len)
@@ -138,23 +148,18 @@ This is a pathological example
                               for i from 1 upto (- len 2)
                               sum (* (if (oddp i) 4 2) (funcall fun x)))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_loc-adp-dnc-simpson (fun &key points start end step len seq-next min-width (the-err 1e-5) max-evals show-progress)
   "Compute the definite integral of FUN between A and B using an adaptive Simpson's rule.
 
-Each sub-interval of the given partition is recursively bisected until the error estimate on each interval is below THE-ERR, the
-number of function evaluations grows beyond MAX-EVALS, or the intervals become smaller than MIN-WIDTH.
+Each sub-interval of the given partition is recursively bisected until the error estimate on each interval is below THE-ERR, the number of function
+evaluations grows beyond MAX-EVALS, or the intervals become smaller than MIN-WIDTH.
 
-If only :start and :end are given of the partition, then :len will be set to 2.
+If only :START and :END are given of the partition, then :LEN will be set to 2.
 
-If the error goal is satisfied, then the return is the integral approximation and the number of function evaluations. If any of the
-limits are violated on any part of the interval, then the return will be nil, the integral approximation, the number of function
-evaluations required, the total length of the sub-intervals upon which no limits were violated during the computation, and the
-number of intervals that had a violated limit.
+If the error goal is satisfied, then the return is the integral approximation and the number of function evaluations. If any of the limits are violated on any
+part of the interval, then the return will be nil, the integral approximation, the number of function evaluations required, the total length of the
+sub-intervals upon which no limits were violated during the computation, and the number of intervals that had a violated limit.
 
 References:
   Kythe & Schaferkotter (2005); Handbook of Computational Methods for Integration; pp 89-94"
@@ -208,11 +213,7 @@ References:
                                         (setq ilist (append ilist (list (list a ml m fa fml fm vl eps2)
                                                                         (list m mr b fm fmr fb vr eps2)))))))))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_glb-adp-composite-trap-or-romberg (fun &key start end max-evals min-width the-err good-err-stop show-progress do-romberg)
   "Back end function to do adaptive trapezoidal or adaptive Romberg. See: MJR_INTG_TRAP-ADP and/or MJR_INTG_ROMBERG-ADP"
   (cond ((not (numberp start))                      (error "mjr_intg_glb-adp-composite-trap-or-romberg: Lower limit (START) must be a number!"))
@@ -254,15 +255,14 @@ References:
         do (if (and min-width (> min-width hn))          (return-from mjr_intg_glb-adp-composite-trap-or-romberg (values nil new-int ect)))
         do (if (and max-evals (> ect max-evals))         (return-from mjr_intg_glb-adp-composite-trap-or-romberg (values nil new-int ect)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_glb-adp-composite-romberg (fun &key start end max-evals min-width (the-err 1e-5) (good-err-stop 2) show-progress)
   "Compute the definite integral of FUN between A and B using an adaptive Romberg scheme.
 
-The number of steps starts at 2 and is doubled (roughly) until it grows beyond MAX-N or we see GOOD-ERR-STOP consecutive
-iterations with an integral approximation that changes by less than THE-ERR.  If the error goal is satisfied, then the return is
-the integral approximation and the number of function evaluations. If MAX-N is violated, then nil, the integral approximation,
-and the number of function evaluations returned.  min-width sets the smallest intervals that will be used, and if it is violated
-then nil, the integral approximation, and the number of function evaluations are returned."
+The number of steps starts at 2 and is doubled (roughly) until it grows beyond MAX-N or we see GOOD-ERR-STOP consecutive iterations with an integral
+approximation that changes by less than THE-ERR.  If the error goal is satisfied, then the return is the integral approximation and the number of function
+evaluations. If MAX-N is violated, then nil, the integral approximation, and the number of function evaluations returned.  min-width sets the smallest
+intervals that will be used, and if it is violated then nil, the integral approximation, and the number of function evaluations are returned."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
     (mjr_intg_glb-adp-composite-trap-or-romberg fun
                                                 :start start :end end
@@ -271,15 +271,14 @@ then nil, the integral approximation, and the number of function evaluations are
                                                 :show-progress show-progress
                                                 :do-romberg 't)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_glb-adp-composite-trapezoidal (fun &key start end max-evals min-width (the-err 1e-5) (good-err-stop 2) show-progress)
   "Compute the definite integral of FUN between A and B using adaptive the trapezoidal rule.
 
-The number of steps starts at 2 and is doubled (roughly) until it grows beyond MAX-N or we see GOOD-ERR-STOP consecutive
-iterations with an integral approximation that changes by less than THE-ERR.  If the error goal is satisfied, then the return is
-the integral approximation and the number of function evaluations. If MAX-N is violated, then nil, the integral approximation,
-and the number of function evaluations returned.  min-width sets the smallest intervals that will be used, and if it is violated
-then nil, the integral approximation, and the number of function evaluations are returned."
+The number of steps starts at 2 and is doubled (roughly) until it grows beyond MAX-N or we see GOOD-ERR-STOP consecutive iterations with an integral
+approximation that changes by less than THE-ERR.  If the error goal is satisfied, then the return is the integral approximation and the number of function
+evaluations. If MAX-N is violated, then nil, the integral approximation, and the number of function evaluations returned.  min-width sets the smallest
+intervals that will be used, and if it is violated then nil, the integral approximation, and the number of function evaluations are returned."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
     (mjr_intg_glb-adp-composite-trap-or-romberg fun
                                                 :start start :end end
@@ -288,11 +287,7 @@ then nil, the integral approximation, and the number of function evaluations are
                                                 :show-progress show-progress
                                                 :do-romberg nil)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_divide-and-conquer (fun simple-integration-func vvec &rest int-args)
   "Compute the definite integral of FUN on the given numeric sequence using the given interval integration rule."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
@@ -300,16 +295,15 @@ then nil, the integral approximation, and the number of function evaluations are
                                        (declare (ignore fx0 fx1 i))
                                        (apply simple-integration-func fun :start x0 :end x1 int-args)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_loc-adp-dnc-trapezoidal (fun vvec &key min-width max-evals (good-err-stop 2) (the-err 1e-5) suppress-warnings show-progress)
   "Compute the definite integral of FUN between A and B using a doubly adaptive trapezoidal rule.
 
-The initial intervals specified by the virtual vector passed in vvec are recursively bisected until intervals are obtained that are
-the result of :GOOD-ERR-STOP consecutive iterations with an integral approximation that changes by less than :THE-ERR scaled for the
-interval's size.  If the error goal is satisfied, then the return is the integral approximation and the number of times the function
-was evaluated. If :MAX-EVALS is violated, the return is NIL and the number of times the function was evaluated. If an interval with
-an unsatisfactory integral approximation is less than :MIN-WIDTH, it will not be subdivided -- the unsatisfactory approximation will
-be used and a warning will be printed unless :SUPPRESS-WARNINGS is non-NIL."
+The initial intervals specified by the virtual vector passed in vvec are recursively bisected until intervals are obtained that are the result
+of :GOOD-ERR-STOP consecutive iterations with an integral approximation that changes by less than :THE-ERR scaled for the interval's size.  If the error goal
+is satisfied, then the return is the integral approximation and the number of times the function was evaluated. If :MAX-EVALS is violated, the return is NIL
+and the number of times the function was evaluated. If an interval with an unsatisfactory integral approximation is less than :MIN-WIDTH, it will not be
+subdivided -- the unsatisfactory approximation will be used and a warning will be printed unless :SUPPRESS-WARNINGS is non-NIL."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
     (cond ((and max-evals (not (integerp max-evals))) (error "mjr_intg_loc-adp-dnc-trapezoidal: MAX-EVALS must be an integer!"))
           ((and max-evals (< max-evals 3))            (error "mjr_intg_loc-adp-dnc-trapezoidal: MAX-EVALS must be greater than 2!"))
@@ -351,36 +345,32 @@ be used and a warning will be printed unless :SUPPRESS-WARNINGS is non-NIL."
               do (if (null intervals)                  (return-from mjr_intg_loc-adp-dnc-trapezoidal (values intv ect)))
               do (if (and max-evals (> ect max-evals)) (return-from mjr_intg_loc-adp-dnc-trapezoidal (values nil  ect))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_simple-trap (fun &key start end)
   "Compute the definite integral of FUN between A and B using the Trapezoidal rule."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
     (* (- end start)
        (/ (+ (funcall fun start) (funcall fun end)) 2))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_simple-rect-left (fun &key start end)
   "Compute the definite integral of FUN between A and B using the Left Rectangle rule."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
     (* (- end start) (funcall fun start))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_simple-rect-right (fun &key start end)
   "Compute the definite integral of FUN between A and B using the Right Rectangle rule."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
     (* (- end start) (funcall fun end))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_simple-rect-mid (fun &key start end)
   "Compute the definite integral of FUN between A and B using the Midpoint Rectangle rule."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
   (* (- end start) (funcall fun (/ (+ start end) 2)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_simple-simpson (fun &key start end)
   "Compute the definite integral of FUN between A and B using Simpson's rule."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
@@ -388,7 +378,7 @@ be used and a warning will be printed unless :SUPPRESS-WARNINGS is non-NIL."
                             (* 4 (funcall fun (/ (+ end start) 2)))
                             (funcall fun end)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_simple-simpson-3/8 (fun &key start end)
   "Compute the definite integral of FUN between A and B using Simpson's 3/8 rule."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
@@ -397,7 +387,7 @@ be used and a warning will be printed unless :SUPPRESS-WARNINGS is non-NIL."
                               (* 3 (funcall fun (/ (+ (* 2 end) start) 3))) 
                               (funcall fun end)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_simple-boole (fun &key start end)
   "Compute the definite integral of FUN between A and B using Boole's rule."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x"))
@@ -408,7 +398,7 @@ be used and a warning will be printed unless :SUPPRESS-WARNINGS is non-NIL."
                                (* 32 (funcall fun (+ start (* 3 h))))
                                (* 7  (funcall fun end))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_simple-milne (fun &key start end)
   "Compute the definite integral of FUN between A and B using Milne's rule."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x"))
@@ -417,7 +407,7 @@ be used and a warning will be printed unless :SUPPRESS-WARNINGS is non-NIL."
                               (- (funcall fun (+ start (* 2 h))))
                               (* 2 (funcall fun (+ start (* 3 h))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_simple-newton-cotes (fun &key start end (order 3) (closed 't))
   "Newton Cotes Integration (both open and closed)
 
@@ -435,8 +425,8 @@ When closed is non-NIL, the order must be in [1,20].  When closed is NIL, the or
         |     4 | open        | mjr_intg_simple-milne       | Milne       |
         |-------+-------------+-----------------------------+-------------|"
 
-;;  Accuracy generally improves as order increases, but only up to a point.  For example, we can integrate 1/x from 1 to 2 with various
-;;  orders to illustrate the point:
+;;  Accuracy generally improves as order increases, but only up to a point.  For example, we can integrate 1/x from 1 to 2 with various orders to illustrate
+;;  the point:
 ;; ----------------------------------------------------------------------------------------------------  
 ;;    (loop for o from 1 upto 20
 ;;          for ic = (if (> o 0) (mjr_intg_simple-newton-cotes (lambda (x) (/ (1+ x))) :start 0d0 :end 1d0 :order o :closed 't))
@@ -607,7 +597,7 @@ When closed is non-NIL, the order must be in [1,20].  When closed is NIL, the or
                      for x = (+ start h) then (+ x h)
                      sum (* w (funcall fun x))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_simple-gauss-legendre (fun &key start end (order 10))
   "Compute the definite integral using Gaussian quadrature (1<ORDER<21)."
   (let ((fun (mjr_mxp_string-or-func-to-lambda fun "x")))
@@ -1089,7 +1079,7 @@ When closed is non-NIL, the order must be in [1,20].  When closed is NIL, the or
                    for w in (aref weights  order)
                    sum (* w (funcall fun (+ (* wid a) mid)))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_simple-gauss-kronrod (fun &key start end (order 31))
   "Return two estimates (a high order one and a lower order one) for the integral of f on [start, end] using Gauss-Kronrod.
 
@@ -1104,9 +1094,9 @@ The order argument determines the order of the Kronrod rule and the embedded Gau
 References:
   The quadrature weights and abscissas (computed to 80 decimal digits) are courtesy of L. W. Fullerton, Bell Labs, Nov. 1981."
   (cond ((not (member order '(15 21 31 41 51 61))) (error "mjr_intg_simple-gauss-kronrod: Order must be 15, 21, 31, 41, 51, or 61!"))
-        ((< end start)                             (error "mjr_intg_simple-gauss-kronrod: start must be less than end!"))
         ((not (numberp start))                     (error "mjr_intg_simple-gauss-kronrod: start must be a number!"))
-        ((not (numberp end))                       (error "mjr_intg_simple-gauss-kronrod: end must be a number!")))
+        ((not (numberp end))                       (error "mjr_intg_simple-gauss-kronrod: end must be a number!"))
+        ((< end start)                             (error "mjr_intg_simple-gauss-kronrod: start must be less than end!")))
   (let* ((fun    (mjr_mxp_string-or-func-to-lambda fun "x"))
          (oidx   (1- (truncate order 10)))
          (wg     (aref #(#(0.129484966168869693270611432679082d0 0.279705391489276667901467771423780d0 0.381830050505118944950369775488975d0 0.417959183673469387755102040816327d0)
@@ -1218,15 +1208,12 @@ References:
 ;;         51 ::         0.05375100612233012000         0.05375100607136562600         0.00000000005096449651
 ;;         61 ::         0.05375100613067555000         0.05375100617328321000         0.00000000004260766046
 
-
-
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intg_gbl-adp-factory-order (fun &key start end order-min order-max order-step (err 0.0002) (imethod #'mjr_intg_simple-gauss-legendre) show-progress)
   "Compute the definite integral of FUN between A and B using the given integration method.  
 
-The order is stepped from order-min to order-max by order-step until the difference in two successive iterations is less than err.
-Here are some possible values for method:
+The order is stepped from order-min to order-max by order-step until the difference in two successive iterations is less than err.  Here are some possible
+values for method:
 
    * #'mjr_intg_simple-newton-cotes   -- :order-min 3    :order-max 15     :order-step 1
    * #'mjr_intg_simple-gauss-legendre -- :order-min 2    :order-max 20     :order-step 1

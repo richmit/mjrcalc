@@ -1,16 +1,15 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-dft.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1996,1997,2008,2010,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     DFT and inverse DFT.@EOL
-;; @Keywords  lisp interactive dft processing
 ;; @Std       Common Lisp
 ;;
 ;;            
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_DFT
   (:USE :COMMON-LISP
         :MJR_ARR)
@@ -23,23 +22,23 @@
 
 (in-package :MJR_DFT)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dft_help ()
   "Compute DFT and Inverse DFT of arrays" 
   (documentation 'mjr_dft_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dft_transform (x ttype &optional (offset 0) (stride 1) (maxelt nil) (out nil) (ooffset 0) (ostride 1))
   "Compute DFT/IDFT a subset of the data in the array X (a 2D or 1D array)
 
-This function forms the computational kernel of the MJR_DFT package.  One normally uses the MJR_DFT_DFT and MJR_DFT_IDFT
-functions, but this one is exported in order to support more sophisticated computations.
+This function forms the computational kernel of the MJR_DFT package.  One normally uses the MJR_DFT_DFT and MJR_DFT_IDFT functions, but this one is exported
+in order to support more sophisticated computations.
 
 The dimension(s) of X should be power(s) of two for maximum performance.
 
-If X is a matrix (2D array), then the 2D DFT is returned for the entire array.  If X is a vector, then 1) subsets of the vector
-may be processed, and 2) the output may be placed in a provided array instead of one allocated by this function.  This
-additional functionality when X is a vector is provided via several optional arguments:
+If X is a matrix (2D array), then the 2D DFT is returned for the entire array.  If X is a vector, then 1) subsets of the vector may be processed, and 2) the
+output may be placed in a provided array instead of one allocated by this function.  This additional functionality when X is a vector is provided via several
+optional arguments:
     * offset  -- index to begin with
     * stride  -- distance between elements
     * maxelt  -- Maximum number of elements to process from x
@@ -87,12 +86,12 @@ References:
               do (mjr_dft_transform workn-y1 ttype c cols rows workn-y2 c cols))
         (make-array dims :displaced-to workn-y2))))                                               ;;;; Reshape for return
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dft_dft (x)
   "Compute DFT of the data in the X (a matrix for 2D DFT or vector for 1D DFT)"
   (mjr_dft_transform x :dft))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dft_idft (x)
   "Compute IDFT of the data in the X (a matrix for 2D IDFT or vector for 1D IDFT)"
   (mjr_dft_transform x :idft))

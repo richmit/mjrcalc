@@ -1,16 +1,35 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-cmp.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1996,1997,2008,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Floating point comparison: best guess.@EOL
-;; @Keywords  lisp interactive fuzzy floating point comparison
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-cmp.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1996,1997,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_CMP
   (:USE :COMMON-LISP)
   (:DOCUMENTATION "Brief: Floating point comparison: best guess.;")
@@ -22,13 +41,12 @@
 
 (in-package :MJR_CMP)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_cmp_help ()
 "Help for MJR_CMP:
 
-This package implements 'best guess' comparisons -- exact when arguments are rational, fuzzy when they are floating point.
-These should NOT be used for assertions that are used to avoid algorithm failure (i.e. checks for zero before division) -- use
-the mjr_fchk package for that.
+This package implements 'best guess' comparisons -- exact when arguments are rational, fuzzy when they are floating point.  These should NOT be used for
+assertions that are used to avoid algorithm failure (i.e. checks for zero before division) -- use the mjr_fchk package for that.
 
  Expr                           Real  C-abs
  (a<b)  || (a>b)   => a!=b       *      -
@@ -47,81 +65,80 @@ the mjr_fchk package for that.
 "
   (documentation 'mjr_cmp_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defparameter *mjr_cmp_eps* 0.00001
   "The default epsilon used for fuzzy comparisons")
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_cmp_< (a b &optional eps)
   (if (and (rationalp a) (rationalp b))
       (< a b)
       (< (+ a (or eps *mjr_cmp_eps*)) b)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_cmp_> (a b &optional eps)
   (if (and (rationalp a) (rationalp b))
       (> a b)
       (> a (+ b (or eps *mjr_cmp_eps*)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_cmp_= (a b &optional eps)
   (cond ((and (rationalp a) (rationalp b))    (= a b))
         ((or (complexp a)   (complexp b))     (< (abs (- a b)) (or eps *mjr_cmp_eps*)))
         ('t                                   (and (not (mjr_cmp_> a b eps)) (not (mjr_cmp_< a b eps))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_cmp_!= (a b &optional eps)
   (cond ((and (rationalp a) (rationalp b))    (not (= a b)))
         ((or (complexp a)   (complexp b))     (not (mjr_cmp_= a b eps)))
         ('t                                   (or (mjr_cmp_> a b eps) (mjr_cmp_< a b eps)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Combination comparison with an inequality and equality.
 (defun mjr_cmp_<=        (a b &optional eps) (not (mjr_cmp_> a b eps)))
 (defun mjr_cmp_>=        (a b &optional eps) (not (mjr_cmp_< a b eps)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Composite fuzzy comparison functions
 (defun mjr_cmp_=0        (a   &optional eps) (mjr_cmp_=   a 0 eps))
 (defun mjr_cmp_zerop     (a   &optional eps) (mjr_cmp_=   a 0 eps))
 (defun mjr_cmp_=1        (a   &optional eps) (mjr_cmp_=   a 1 eps))
 (defun mjr_cmp_onep      (a   &optional eps) (mjr_cmp_=   a 1 eps))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Second order composite fuzzy comparison functions.  The "promise of certainty in 't" drives the use of < and >.
 (defun mjr_cmp_!=0       (a   &optional eps) (mjr_cmp_!= a 0 eps))
 (defun mjr_cmp_not-zerop (a   &optional eps) (mjr_cmp_!= a 0 eps))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fuzzy comparison functions on absolute value (magnitude) of arguments.
 (defun mjr_cmp_abs<      (a b &optional eps) (mjr_cmp_<  (abs a) (abs b) eps))
 (defun mjr_cmp_abs>      (a b &optional eps) (mjr_cmp_>  (abs a) (abs b) eps))
 (defun mjr_cmp_abs<=     (a b &optional eps) (mjr_cmp_<= (abs a) (abs b) eps))
 (defun mjr_cmp_abs>=     (a b &optional eps) (mjr_cmp_>= (abs a) (abs b) eps))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Test if input is near an integer, near an even integer, or near an odd integer
 (defun mjr_cmp_integerp (a &optional eps)  (mjr_cmp_= a (truncate a) eps))
 (defun mjr_cmp_evenp    (a &optional eps)  (and (mjr_cmp_integerp a eps) (evenp (truncate a))))
 (defun mjr_cmp_oddp     (a &optional eps)  (and (mjr_cmp_integerp a eps) (oddp  (truncate a))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Some useful tests
 (defun mjr_cmp_negativep (a &optional eps)  (mjr_cmp_< a 0            eps))
 (defun mjr_cmp_positivep (a &optional eps)  (mjr_cmp_> a 0            eps))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Max/Min functions based upon fuzzy comparison.  Preference given to first argument when they are numerically equal!
 (defun mjr_cmp_min       (a b &optional eps) (if (mjr_cmp_<=    a b eps) a b))
 (defun mjr_cmp_max       (a b &optional eps) (if (mjr_cmp_>=    a b eps) a b))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;; The comparison is "abs", but the return is one of the inputs a or b.  Preference given to first argument when they are
-;; numerically equal in absolute value.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; The comparison is "abs", but the return is one of the inputs a or b.  Preference given to first argument when they are numerically equal in absolute value.
 (defun mjr_cmp_abs-min   (a b &optional eps) (if (mjr_cmp_abs<= a b eps) a b))
 (defun mjr_cmp_abs-max   (a b &optional eps) (if (mjr_cmp_abs>= a b eps) a b))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_cmp_eps-for-data (x &optional y)
   "Guess the epsilon for the given X and Y.  
 If necessary, the epsilon returned will error on the large side."
@@ -136,12 +153,12 @@ If necessary, the epsilon returned will error on the large side."
             ((typep x 'short-float)  (max (abs short-float-negative-epsilon) (abs short-float-epsilon)))
             ((typep x 'long-float)   (max (abs long-float-negative-epsilon)  (abs long-float-epsilon))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_cmp_signum (a &optional eps)
   "Computes the signum along with flag indicating ambiguity with regard to near zero values of A.
 
-Returns +1 (-1) only if it is sure that A is greater (less) than 0.  Returns 0 otherwise.  The second
-return is non-nil if 0 is returned, and A is not precisely zero."
+Returns +1 (-1) only if it is sure that A is greater (less) than 0.  Returns 0 otherwise.  The second return is non-nil if 0 is returned, and A is not
+precisely zero."
   (cond ((mjr_cmp_> a 0 eps)  (values +1 nil))
         ((mjr_cmp_< a 0 eps)  (values -1 nil))
         ((zerop a)            (values 0  nil))

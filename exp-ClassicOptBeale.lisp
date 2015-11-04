@@ -1,16 +1,34 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      exp-ClassicOptBeale.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 2012 by Mitch Richling.  All rights reserved.
 ;; @brief     Analysis of the classic Beale optimization test function.@EOL
-;; @Keywords  optimization root finding test beale
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 2012, 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun beale (X Y)
   "Beale's Function.  Returns values for function, gradient, and hessian.
 
@@ -48,20 +66,18 @@ Global Minimum: $f\\left(3,\\frac{1}{2}\\right)=0$"
                                                       (+ (* 30 (EXPT X 2) (EXPT Y 4)) (* 12 (EXPT X 2) (EXPT Y 2))
                                                          (- (* 12 (EXPT X 2) Y)) (/ (* 63 X Y) 2) (- (* 2 (EXPT X 2))) (* 9 X)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-(format 't "Nice overview plot~%")
-(mjr_plot_func-r2-r1 #'beale :xlim '(0.5 3.5) :ylim '(0.5 2) :type :f :zlim '(-1 100))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(let ((beale-data (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" '(:start 0.5 :end 3.5 :len 500)
+                                                                         "y" '(:start 0.5 :end 2   :len 500))
+                                               #'beale
+                                               :axes 't
+                                               :ano-nam "Beale"
+                                               :ano-typ :ano-typ-real)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-(format 't "Dump VTK~%")
-(mjr_vtk_from-dquad "exp-ClassicOptBeale-OUT.vtk"
-                    (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" '(:start 0.5 :end 3.5 :len 500)
-                                                                           "y" '(:start 0.5 :end 2   :len 500))
-                                                 #'beale
-                                                 :axes 't
-                                                 :ano-nam "Beale"
-                                                 :ano-typ :ano-typ-real))
+  (format 't "Nice overview plot~%")
+  (mjr_gnupl_dquad beale-data :xlim '(0.5 3.5) :ylim '(0.5 2) :type :f :zlim '(-1 100))
+  (format 't "Dump VTK~%")
+  (mjr_vtk_from-dquad "exp-ClassicOptBeale-OUT.vtk" beale-data))
 
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (format 't "DONE~%")

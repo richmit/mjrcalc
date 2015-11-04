@@ -1,10 +1,9 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-geo.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,2006,2008,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Geographic and cartographic computations.@EOL
-;; @Keywords  lisp interactive
 ;; @Std       Common Lisp
 ;;
 ;;            TODO:
@@ -13,7 +12,7 @@
 ;;             * magnetics
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_GEO
   (:USE :COMMON-LISP
         :MJR_A
@@ -36,31 +35,30 @@
 
 (in-package :MJR_GEO)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geo_help ()
   "Help for MJR_GEO: GEOgraphic computation
 Geographical computations like great circle distance between two points."
   (documentation 'mjr_geo_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geo_angular-spherical-distance (lat1 lon1 lat2 lon2)
   ;; Get the cosine of the angle of separation: sin(lat1)*sin(lat2)+cos(lat1)*cos(lat2)*cos(lon1-lon2)
   (let ((ca (+ (* (sin lat1) (sin lat2)) (* (cos lat1) (cos lat2) (cos (- lon1 lon2))))))
     (if (<= (abs ca) 1)
         (acos ca))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geo_spherical-distance (lat1 lon1 lat2 lon2 r)
   (let ((a (mjr_geo_angular-spherical-distance lat1 lon1 lat2 lon2)))
     (if a 
         (* a r))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geo_spheroid-parameter-normalize (majax minax invflt)
   "Normalize spheroid parameters a (major axis), b (minor axis), & rf (inverse flattening).
-If any one is NIL, then it will be computed in terms of the others.  If MAJAX & INVFLT are both NILL or MINAX & INVFLT are both
-NIL, then MAJAX is assumed to be equal to MINAX and INVFLT is assumed to be zero.  NIL will be returned if not enough parameters
-are provided."
+If any one is NIL, then it will be computed in terms of the others.  If MAJAX & INVFLT are both NILL or MINAX & INVFLT are both NIL, then MAJAX is assumed to
+be equal to MINAX and INVFLT is assumed to be zero.  NIL will be returned if not enough parameters are provided."
   (let ((num-prm (count-if #'identity (list minax majax invflt))))
     (case num-prm
       (3           (if (mjr_chk_!= majax minax)
@@ -75,18 +73,17 @@ are provided."
                        (values (or majax minax) (or majax minax) nil)))
       (otherwise   (error "ERROR: mjr_geo_spheroid-parameter-normalize: inconsistent parameters (no values provided)")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geo_spheroid-distance (lat1 lon1 lat2 lon2 majax minax invflt)
   "Compute the distance between two points on the surface of a spheroid, or NIL if error.
 
-The two points are given by lat/lon in rads.  Note that when the spheroid is approximating Earth's geometry, the geodetic
-literature generally refers to it as an 'ellipsoids', but it is mathematically a oblate spheroid.
+The two points are given by lat/lon in rads.  Note that when the spheroid is approximating Earth's geometry, the geodetic literature generally refers to it as
+an 'ellipsoids', but it is mathematically a oblate spheroid.
 
-The spheroid is defined by at least two of the following: majax=major axis, minax=minor axis, and invflt=inverse flattening.
-Only two are required with the third being computed from the known two if needed.  For the non-spherical case, majax and invflt
-are directly used for the computation.  The minax parameter will only be used in this case to compute one of the maxax or invflt
-if they are unknown.  For the spherical case (a==b) geoDist() is called.  Note that in the spherical case, invflt can NOT be
-provided as it is infinity -- use NIL.
+The spheroid is defined by at least two of the following: majax=major axis, minax=minor axis, and invflt=inverse flattening.  Only two are required with the
+third being computed from the known two if needed.  For the non-spherical case, majax and invflt are directly used for the computation.  The minax parameter
+will only be used in this case to compute one of the maxax or invflt if they are unknown.  For the spherical case (a==b) geoDist() is called.  Note that in
+the spherical case, invflt can NOT be provided as it is infinity -- use NIL.
 
 Reference: H. Andoyer (1950); Annuaire du Bureau des Longitudes pour; pp 145"
   (multiple-value-bind (a b rf) (mjr_geo_spheroid-parameter-normalize majax minax invflt)
@@ -112,13 +109,13 @@ Reference: H. Andoyer (1950); Annuaire du Bureau des Longitudes pour; pp 145"
                             (* (/ (+ r w) s) (expt (* sg cf) 2)))
                          rf))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Geo Computations Below This Point
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geo_spheroid-string-to-parameter (ellps)
   "Return a list ellipsoid parameters (a, b, & rf) as well as a note about the ellipsoid"
   (let ((ell-list
@@ -179,7 +176,7 @@ Reference: H. Andoyer (1950); Annuaire du Bureau des Longitudes pour; pp 145"
         (apply #'mjr_geo_spheroid-parameter-normalize
                (rest (find-if (lambda (x) (string= (string-downcase (car x)) ellps)) ell-list))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geo_geod-mean-radius (&key a b rf (ellps "wgs84"))
   "Compute the mean radius via the International Union of Geodesy and Geophysics (IUGG) definition."
   (multiple-value-bind (a b rf) (if (or a b rf)
@@ -189,7 +186,7 @@ Reference: H. Andoyer (1950); Annuaire du Bureau des Longitudes pour; pp 145"
     (if a
         (/ (+ (* 2 a) b) 3))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geo_geod-quadratic-mean-radius (&key a b rf (ellps "wgs84"))
   "Compute the quadratic mean radius."
   (multiple-value-bind (a b rf) (if (or a b rf)
@@ -199,7 +196,7 @@ Reference: H. Andoyer (1950); Annuaire du Bureau des Longitudes pour; pp 145"
     (if a
         (sqrt (/ (+ (* 3 a a) (* b b)) 4)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geo_geod-volumetric-radius (&key a b rf (ellps "wgs84"))
   "Compute the volumetric radius via the International Union of Geodesy and Geophysics (IUGG) definition.
 This is the radius of the sphere with the same volume as the spheroid."
@@ -210,7 +207,7 @@ This is the radius of the sphere with the same volume as the spheroid."
     (if a
         (expt (* a a b) 1/3))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geo_geod-authalic-mean-radius (&key a b rf (ellps "wgs84"))
   "Compute authalic mean radius via the International Union of Geodesy and Geophysics (IUGG) definition.
 This is the radius of the sphere with the same surface area as the reference spheroid."
@@ -224,7 +221,7 @@ This is the radius of the sphere with the same surface area as the reference sph
                        (log (/ (+ a (sqrt (- (* a a) (* b b)))) b))))
                  2)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_geo_geod-distance (lat1 lon1 lat2 lon2 &key a b rf (ellps "wgs84"))
   "Compute the distance between two points on Earth using the given ellipsoid modeling the surface of a spheroid, or NIL if error.
 The two points are given by lat/lon in degrees."

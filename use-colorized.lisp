@@ -1,18 +1,17 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      use-colorized.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1996,1997,2008,2010 by Mitch Richling.  All rights reserved.
 ;; @brief     Colorization of discrete spaces (Z_n).@EOL
-;; @Keywords  lisp interactive color schemes gradient discrete Z
 ;; @Std       Common Lisp
 ;;
 ;;            TODO: Add some color brewer-like schemes (by index and pallet)
 ;;            TODO: Add some schemes for color blind people (by index and pallet)
 ;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_COLORIZED
   (:USE :COMMON-LISP
         :MJR_COLOR)
@@ -31,7 +30,7 @@
 
 (in-package :MJR_COLORIZED)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorized_help ()
  "Colorize desecrate spaces of dimensions one (i.e. $Z_n=\{0,1,...,n-1\}$ -- used for visualization.
 
@@ -67,7 +66,7 @@ Several common gradients include:
   * WCBYR ..... cmpIceToWaterToHot"
   (documentation 'mjr_colorized_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorized_ut-gradient-length (gradient)
   ""
   (let* ((len (length gradient))
@@ -76,7 +75,7 @@ Several common gradients include:
                   (- (* 256 (- len 1)) (- len 2)))))
     (values sln len)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorized_ut-tru-from-gradient (x &optional (gradient "RYGCBMR"))
   ""
   (let ((x (truncate x)))
@@ -91,19 +90,19 @@ Several common gradients include:
                                      (d    (/ (- x xn) wid)))
                                 (map 'vector (lambda (c1 c2) (truncate (+ (* c1 (- 1 d)) (* c2 d)))) cn cn+1)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorized_ut-pallet-from-gradient (gradient)
   ""
   (let ((len (mjr_colorized_ut-gradient-length gradient)))
     (make-array len :initial-contents (loop for i from 0 upto (1- len)
                                             collect (mjr_colorized_ut-tru-from-gradient i gradient)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorized_ut-pallet-length (pallet)
   ""
   (length pallet))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorized_ut-tru-from-pallet (i pallet &optional (i-over :clip) (i-under :clip))
   "Return the I'th color from PALLET using the I-OVER/I-UNDER behavior for out of range values of I.
 
@@ -123,19 +122,19 @@ Possible behaviors when index is out of range:
                             (:error   (error "mjr_colorized_ut-tru-from-pallet: i too big!"))))
           ('t             (aref pallet i)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorized_povray (value)
   "Convert an number in $[0,2^{16}-1]$ into a :cs-tru color representing a povray height."
   (if (integerp value)
       (vector (ldb (byte 8 8) value) (ldb (byte 8 0) value) 0)
       (mjr_colorized_povray (truncate value))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorized_factory-from-pallet (pallet)
   "Return a function that takes an integer, and returns a color"
   (lambda (i) (mjr_colorized_ut-tru-from-pallet i pallet)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorized_factory-from-gradient (gradient)
   "Return a function that takes an integer, and returns a color.
 NOTE: The resulting function will be much faster than repeatedly calling mjr_colorized_ut-tru-from-pallet."

@@ -1,29 +1,39 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      pre-dsimp.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1995,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Data sets on SIMPlicial complexes.@EOL
-;; @Keywords  lisp interactive math simplicial complexes data triangles triangulation
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-dsimp.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1995, 2013, 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            This is what I want to do:
-;;                * Create DSIMPs
-;;                  * Create simplices from a function sampled on an adaptive triangulation (hard)
-;;                * Modify existing triangulation
-;;                  * Refine
-;;                    * Ruppert triangle refine
-;;                    * Stupid refinement for integration
-;;                * Dump a DSIMP list to
-;;                  * POVRay File (in use-pov)
-;;                  * GNUPlot PIPE (in use-plot)
-;;                * Create and add data sets
-;;                  * Function on 0-simplices
-;;                  * Function on N-simplices
-;;                  * Colorize data and/or points
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      Refine via Ruppert algorithm.@EOL@EOL
+;; @todo      Refine via stupid refinement for integration.@EOL@EOL
+;; @todo      mjr_dsimp_colorize.@EOL@EOL
+;; @warning   Still a bit experimental, but useful.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_DSIMP
   (:USE :COMMON-LISP
         :MJR_VVEC
@@ -39,8 +49,6 @@
   (:EXPORT #:mjr_dsimp_help
            ;; Create dsimp lists
            #:mjr_dsimp_make-from-dquad
-           #:mjr_dsimp_make-from-func-r12-r123
-           ;;#:mjr_dsimp_colorize                  ;; TODO
            #:mjr_dsimp_make-from-points
            #:mjr_dsimp_make-from-xyz
            ;; Create data arrays from dsimp lists
@@ -65,25 +73,24 @@
 
 (in-package :MJR_DSIMP)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_help ()
   "Help for MJR_DSIMP:
 
 Library for dealing with triangulated (simplicial complex'ish) data sets.
 
-The canonical example is computer graphics: When drawing surfaces in 3D, it is common to approximate the surfaces with triangles.
-For this application, the data payload for each vertex is frequently the actual surface normal at that point.  The canonical
-example from mechanical engineering is finite element analysis of machine components.  Here the component is broken up into
-tetrahedra, and each tetrahedra has some data associated with it (like density or temperature).
+The canonical example is computer graphics: When drawing surfaces in 3D, it is common to approximate the surfaces with triangles.  For this application, the
+data payload for each vertex is frequently the actual surface normal at that point.  The canonical example from mechanical engineering is finite element
+analysis of machine components.  Here the component is broken up into tetrahedra, and each tetrahedra has some data associated with it (like density or
+temperature).
 
 About 'triangles':
 
-  A k-simplex is a k-dimensional polytope defined as the convex hull of its $k+1$ vertices.  The 0-simplex is a single point,
-  1-simplex is a line segment, a 2-simplex is a triangle (with it's interior), the 3-simplex is a tetrahedron (with it's interior),
-  and the 4-simplex is a 5-cell.  We shall use 'simplices' as the plural form of simplex.
+  A k-simplex is a k-dimensional polytope defined as the convex hull of its $k+1$ vertices.  The 0-simplex is a single point, 1-simplex is a line segment, a
+  2-simplex is a triangle (with it's interior), the 3-simplex is a tetrahedron (with it's interior), and the 4-simplex is a 5-cell.  We shall use 'simplices'
+  as the plural form of simplex.
 
-I have chosen to implement the data storage as a simple list instead of a complex, opaque object -- the wisdom of that decision has
-yet to be proven. :)
+I have chosen to implement the data storage as a simple list instead of a complex, opaque object -- the wisdom of that decision has yet to be proven. :)
 
   (list (list NUM-0-DATA            ;; Number of meta-data/data-array pairs for 0-simplex data.
               NUM-1-DATA            ;; Number of meta-data/data-array pairs for 1-simplex data.
@@ -106,28 +113,27 @@ yet to be proven. :)
 
 Today only simplices up to dimension 3 are supported, but that may change.  Frankly, only 2-simplices are well supported.
 
-The N-data-meta objects are meta data alists as described by MJR_ANNOT_HELP.  Note that all meta data alists MUST contain both
-the :ano-nam and :ano-typ keys, and the :ano-nam values must be unique across ALL meta data lists.
+The N-data-meta objects are meta data alists as described by MJR_ANNOT_HELP.  Note that all meta data alists MUST contain both the :ano-nam and :ano-typ keys,
+and the :ano-nam values must be unique across ALL meta data lists.
 
 Examples of some DSIMP lists may be found in tst-dsimp.lisp."
   (documentation 'mjr_dsimp_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_read-from-file (file-name)
   "Read a dsimp list from a file.
 
-Data in the file after the first DSIMP list will be ignored.  This space is traditionally used for free text commentary regarding
-the data set."
+Data in the file after the first DSIMP list will be ignored.  This space is traditionally used for free text commentary regarding the data set."
   (with-open-file (stream file-name)
     (read stream)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_write-to-file (dsimp file-name)
   "Write a dsimp list from a file"
   (with-open-file (stream file-name :direction :output :if-exists :supersede :if-does-not-exist :create)
     (null (write  dsimp :stream stream))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_data-count (dsimp &optional simplex-dimension)
   "Return the number of data elements for the simplices of dimension SIMPLEX-DIMENSION"
   (cond ((and simplex-dimension (> 0 simplex-dimension))   (error "mjr_dsimp_data-count: simplex-dimension must be positive!"))
@@ -136,7 +142,7 @@ the data set."
       (nth simplex-dimension (car dsimp))
       (car dsimp)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_simplex-indexes (dsimp &optional simplex-dimension)
   "Return a list of simplex indexes as a list."
   (let ((all-dims (loop with i = 1
@@ -147,19 +153,19 @@ the data set."
         (mapcar (lambda (i) (nth i all-dims)) (mjr_util_non-list-then-list simplex-dimension))
         all-dims)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_simplex-count (dsimp &optional simplex-dimension)
   "Return a list of the lengths of each simplex array in DSIMP."
   (mapcar (lambda (v) (length (nth v dsimp))) (mjr_dsimp_simplex-indexes dsimp simplex-dimension)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_get-simplex-array (dsimp simplex-dimension)
   "Return the simplex array for simplices of dimension SIMPLEX-DIMENSION"
   (cond ((> 0 simplex-dimension)   (error "mjr_dsimp_get-simplex-array: simplex-dimension must be positive!"))
         ((< 4 simplex-dimension)   (error "mjr_dsimp_get-simplex-array: simplex-dimension must be less than 4!")))
   (nth (nth simplex-dimension (mjr_dsimp_simplex-indexes dsimp)) dsimp))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_get-data-array (dsimp data-index-or-name &optional simplex-dimension)
   "Return the requested data array.  NIL if no such data-array.  Return may not be a new object.
 
@@ -187,7 +193,7 @@ DATA-INDEX-OR-NAME may be:
                (mjr_dsimp_get-data-array dsimp (first data-index-or-name) (second data-index-or-name))))
     (otherwise  (error "mjr_dsimp_get-data-array: DATA-INDEX-OR-NAME must be a string or integer!"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_get-data-ano (dsimp data-index-or-name &optional ano-key simplex-dimension )
   "Return the annotation for the data-index-or-name'th data set for simplices of dimension SIMPLEX-DIMENSION
 
@@ -218,12 +224,12 @@ DATA-INDEX-OR-NAME may be:
         (mjr_annot_get-value ano-key anno-alist)
         anno-alist)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_map (dsimp fun data simplex-dimension)
   "Evaluate fun on the data-arrays specified in DATA (by index).
 
-DATA may be a list of indexes or a single integer index.  An index of -1 (simplex-dimension is 0) means the 0-simplices themselves --
-each 0-simplex will be passed to FUN as a 3 element vector."
+DATA may be a list of indexes or a single integer index.  An index of -1 (simplex-dimension is 0) means the 0-simplices themselves -- each 0-simplex will be
+passed to FUN as a 3 element vector."
   (let ((data (mjr_util_non-list-then-list data)))
     (cond ((null data)               (error "mjr_dsimp_map: DATA must be non-NIL"))
           ((> 0 simplex-dimension)   (error "mjr_dsimp_map: simplex-dimension must be positive!"))
@@ -237,7 +243,7 @@ each 0-simplex will be passed to FUN as a 3 element vector."
       (apply #'map 'vector fun (mapcar #'get-dat data)))))
 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_add-simplex-array (dsimp simplex-array simplex-dimension)
   "Add the simplex-array, possibly overwriting an existing array, to dsimp.  Return dsimp."
   (cond ((> 0 simplex-dimension)   (error "mjr_dsimp_add-simplex-array: simplex-dimension must be positive!"))
@@ -245,7 +251,7 @@ each 0-simplex will be passed to FUN as a 3 element vector."
   (setf (nth (nth simplex-dimension (mjr_dsimp_simplex-indexes dsimp)) dsimp) simplex-array)
   dsimp)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_add-data (dsimp data-array simplex-dimension &key ano-nam ano-typ ano-colorspace ano-cpacking ano-units)
   ""
   (cond ((mjr_dsimp_get-data-array dsimp ano-nam) (error "mjr_dsimp_add-data: Duplicate :ano-nam!"))
@@ -258,7 +264,7 @@ each 0-simplex will be passed to FUN as a 3 element vector."
   (incf (nth simplex-dimension (nth 0 dsimp)))
   dsimp)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_add-data-from-map (dsimp fun data simplex-dimension &key ano-nam ano-typ ano-colorspace)
   "Use MJR_DSIMP_MAP and MJR_DSIMP_ADD-DATA to add data to data frame."
   (mjr_dsimp_add-data dsimp
@@ -266,7 +272,7 @@ each 0-simplex will be passed to FUN as a 3 element vector."
                       simplex-dimension
                       :ano-nam ano-nam :ano-typ ano-typ :ano-colorspace ano-colorspace))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_convert-points-do-data (dsimp x-nam y-nam z-nam)
   "Add scalar data sets corresponding to the x, y, and/or z components of the 0-simplices in dsimp
 
@@ -279,7 +285,7 @@ setting the corresponding name to NIL."
   (if z-nam
       (mjr_dsimp_add-data-from-map dsimp (lambda (v) (aref v 2)) -1 0 :ano-nam z-nam :ano-typ :ano-typ-real)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_connect-points (dsimp &key connect-closed)
   "Add 1-simplices, replacing any that might already exist, connecting the points together.  Return dsimp.
 
@@ -293,18 +299,18 @@ If CONNECT-CLOSED is non-NIL, then the first and last points will be connected."
                                  new-lines)
                                 1))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_make-from-xyz (&key xdat ydat zdat connect-points connect-closed data-vectors data-vector-names data-vector-types)
   "Construct a dsimp list from vectors of point components and 0-simplex data.
 
-At least one of them must be a vector of numbers.  Each non-nil xdat, ydat, and zdat should be a vector of the same length.
-These will be the x, y, and z components of the new points element in the new dsimp.
+At least one of them must be a vector of numbers.  Each non-nil xdat, ydat, and zdat should be a vector of the same length.  These will be the x, y, and z
+components of the new points element in the new dsimp.
 
-When connect-points is non-NIL, the resulting DSIMP will contain 1-simplices connecting the points -- see MJR_DSIMP_CONNECT-POINTS.
-When CONNECT-POINTS is non-NIL, CONNECT-CLOSED is passed to MJR_DSIMP_CONNECT-POINTS.
+When connect-points is non-NIL, the resulting DSIMP will contain 1-simplices connecting the points -- see MJR_DSIMP_CONNECT-POINTS.  When CONNECT-POINTS is
+non-NIL, CONNECT-CLOSED is passed to MJR_DSIMP_CONNECT-POINTS.
 
-DATA-VECTORS is a vector or list of vectors.  DATA-VECTOR-NAMES is a name or list of names for each vector in DATA-VECTORS.
-Similarly DATA-VECTOR-TYPES is a :ano-typ or a list of same.
+DATA-VECTORS is a vector or list of vectors.  DATA-VECTOR-NAMES is a name or list of names for each vector in DATA-VECTORS.  Similarly DATA-VECTOR-TYPES is
+a :ano-typ or a list of same.
 
 Note that the elements of DATA-VECTORS are referenced in the new DSIMP -- no copies are made."
   (let* ((npts              (or (and xdat (length xdat))
@@ -331,21 +337,20 @@ Note that the elements of DATA-VECTORS are referenced in the new DSIMP -- no cop
                 do (mjr_dsimp_add-data new-dsimp cur-dat-vec 0 :ano-nam cur-dat-nam :ano-typ (nth di data-vector-types)))))
     new-dsimp))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_make-from-points (points &key connect-points connect-closed (point-columns '(0 1 2)) data-columns data-column-names data-column-types)
   "Return a new DSIMP list having 0-simplices taken from POINTS.
 
-POINTS may be a list of point vectors, a vector of point vectors, or a 2D array.  The 0-simplex array will be a new object even when POINTS is a
-vector of vectors.  The contents of POINTS is not validated -- it is simply copied and stuffed into a DSIMP object.
+POINTS may be a list of point vectors, a vector of point vectors, or a 2D array.  The 0-simplex array will be a new object even when POINTS is a vector of
+vectors.  The contents of POINTS is not validated -- it is simply copied and stuffed into a DSIMP object.
 
-POINT-COLUMNS is used if POINTS is a 2D array, in which case it is the columns to use for the points.  If points has fewer than
-three elements, the trailing vector elements will be zero -- i.e. if you provide one integer, then the y and z components of each
-point will be zero.  If point-columns is just one column, it may be an integer; otherwise it must be a list.  Similarly
-DATA-COLUMNS is used to specify columns that will be used as 0-simplex data arrays -- meta data for the arrays comes from
-DATA-COLUMN-NAMES and DATA-COLUMN-TYPES.  If only one data column is used, then these last three arguments may be individual data
+POINT-COLUMNS is used if POINTS is a 2D array, in which case it is the columns to use for the points.  If points has fewer than three elements, the trailing
+vector elements will be zero -- i.e. if you provide one integer, then the y and z components of each point will be zero.  If point-columns is just one column,
+it may be an integer; otherwise it must be a list.  Similarly DATA-COLUMNS is used to specify columns that will be used as 0-simplex data arrays -- meta data
+for the arrays comes from DATA-COLUMN-NAMES and DATA-COLUMN-TYPES.  If only one data column is used, then these last three arguments may be individual data
 elements (an integer, string, and :ano-typ); otherwise, they must be lists.
 
-When connect-points is non-NIL, the resulting DSIMP will contain 1-simplices connecting the points -- see MJR_DSIMP_CONNECT-POINTS.
+When CONNECT-POINTS is non-NIL, the resulting DSIMP will contain 1-simplices connecting the points -- see MJR_DSIMP_CONNECT-POINTS.
 When CONNECT-POINTS is non-NIL, CONNECT-CLOSED is passed to MJR_DSIMP_CONNECT-POINTS."
   (let* ((new-points (typecase points
                       (list      (make-array (length points) :initial-contents points))
@@ -381,7 +386,7 @@ When CONNECT-POINTS is non-NIL, CONNECT-CLOSED is passed to MJR_DSIMP_CONNECT-PO
                      (mjr_dsimp_add-data new-dsimp new-data 0 :ano-nam cur-dat-nam :ano-typ (nth di data-column-types))))))
     new-dsimp))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_make-from-dquad (dquad domain range &key data
                                                        u-close v-close
                                                        (surface-grid '(:x :y :d)) (surface-poly 't) (curve-line 't) (surface-orient 't) (surface-tlbr 't) (surface-normals 't)
@@ -413,26 +418,24 @@ Arguments:
                                - All data sets with 't
                                - NIL no data sets
     - RANGE ................. The data set to use for f
-    - DOMAIN ................ axis-index, axis-name, or list of same
-                              In what follows, we call the first axis in the DOMAIN 'u' and the second one 'v'.
-    - DOMAIN-DATA-NAMES ..... The :ano-nam values used for the DOMAIN data placed in the new DQUAD list.  Setting a
-                              name to NIL prevent the corresponding data set from being included in the new DQUAD list.
-    - RANGE-DATA-NAMES ...... The :ano-nam values used for the RANGE data placed in the new DQUAD list.  Setting a
-                              name to NIL prevent the corresponding data set from being included in the new DQUAD list.
+    - DOMAIN ................ axis-index, axis-name, or list of same In what follows, we call the first axis in the DOMAIN 'u' and the second one 'v'.
+    - DOMAIN-DATA-NAMES ..... The :ano-nam values used for the DOMAIN data placed in the new DQUAD list.  Setting a name to NIL prevent the corresponding data
+                              set from being included in the new DQUAD list.
+    - RANGE-DATA-NAMES ...... The :ano-nam values used for the RANGE data placed in the new DQUAD list.  Setting a name to NIL prevent the corresponding data
+                              set from being included in the new DQUAD list.
     - U-CLOSE ............... The curve/surface is 'closed' in the u-direction (first component of domain)
     - V-CLOSE ............... the surface is 'closed' in the v-direction (second component of domain)
   - Curve arguments
     - CURVE-LINE ............ non-NIL to create line segments for a curve
   - surface arguments
     - SURFACE-POLY .......... non-NIL to create surface triangle patches for a surface
-    - SURFACE-NORMALS ....... non-NIL to create surface normals at each point -- average normal vector across all
-                              triangles containing each point.  Data set is named via the SURFACE-NORMAL-NAME argument.
+    - SURFACE-NORMALS ....... non-NIL to create surface normals at each point -- average normal vector across all triangles containing each point.  Data set
+                              is named via the SURFACE-NORMAL-NAME argument.
     - SURFACE-GRID .......... A symbol, or list of same, indicating which 1-simplices to create for a surface
                                  - :u -- in the u direction
                                  - :v -- in the v direction
                                  - :d -- on the diagonal (the 'manufactured' edge across each quad cell)
-    - SURFACE-ORIENT ........ non-NIL and triangle points will all be ordered clockwise, otherwise they alternate
-                              so that edges all go in the same direction
+    - SURFACE-ORIENT ........ non-NIL and triangle points will all be ordered clockwise, otherwise they alternate so that edges all go in the same direction
     - SURFACE-TLBR .......... non-NIL and triangles break quads top left to bottom right
 
                                    ------------------------------------
@@ -457,6 +460,7 @@ Arguments:
                                    |  Bottom Left   |   Bottom Right  |   direction of increasing x
                                    ------------------------------------   values for :x & :d, and
                                    |  SURFACE-TLBR  |   SURFACE-TLBR  |   increasing y values for :y
+                                   |       NIL      |        'T       |   
                                    ------------------------------------"
 
   (cond ((and surface-normals (not surface-poly)) (error "mjr_dsimp_make-from-dquad: non-NIL SURFACE-NORMALS requires non-NIL SURFACE-POLY"))
@@ -663,31 +667,3 @@ Arguments:
                     (apply #'mjr_dsimp_convert-points-do-data new-dsimp range-data-names)
                     new-dsimp)))))))))
 
-;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_dsimp_make-from-func-r12-r123 (f &key
-                                              (func-lab "f")
-                                              xdat ydat (arg-mode :arg-number) (xlab "x") (ylab "y")
-                                              ax-color-meth  (ax-color-max-color  1) (ax-color-lab  "c") (ax-color-auto-scale  't) (ax-color-colorspace  :cs-rgb)
-                                              f-color-meth   (f-color-max-color   1) (f-color-lab   "c") (f-color-auto-scale   't) (f-color-colorspace   :cs-rgb)
-                                              all-color-meth (all-color-max-color 1) (all-color-lab "c") (all-color-auto-scale 't) (all-color-colorspace :cs-rgb)
-                                              u-close v-close)
-  "Transform a mathematical function into a dsimp list
-     All arguments are as documented in mjr_dquad_make-from-func-r123-r123, with the following additions:
-       - u-close v-close ............ Close the curve or surface"
-  (mjr_dsimp_make-from-dquad (mjr_dquad_make-from-func-r123-r123 f
-                                                                 :xdat xdat :ydat ydat :arg-mode arg-mode :xlab xlab :ylab ylab
-                                                                 :func-lab func-lab
-                                                                 :ax-color-meth ax-color-meth :ax-color-max-color
-                                                                 ax-color-max-color :ax-color-lab ax-color-lab :ax-color-auto-scale
-                                                                 ax-color-auto-scale :ax-color-colorspace
-                                                                 ax-color-colorspace :f-color-meth f-color-meth :f-color-max-color
-                                                                 f-color-max-color :f-color-lab f-color-lab :f-color-auto-scale
-                                                                 f-color-auto-scale :f-color-colorspace
-                                                                 f-color-colorspace :all-color-meth
-                                                                 all-color-meth :all-color-max-color
-                                                                 all-color-max-color :all-color-lab
-                                                                 all-color-lab :all-color-auto-scale
-                                                                 all-color-auto-scale :all-color-colorspace all-color-colorspace)
-                             (apply #'list 0 (if ydat (list 1)))
-                             0
-                             :data 't :u-close u-close :v-close v-close))

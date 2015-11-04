@@ -1,16 +1,15 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-date.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Handy date stuff.@EOL
-;; @Keywords  lisp interactive
 ;; @Std       Common Lisp
 ;;
 ;;            
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_DATE
   (:USE :COMMON-LISP
         :MJR_A
@@ -27,7 +26,7 @@
 
 (in-package :MJR_DATE)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_date_help ()
   "Help for MJR_DATE:  Date Time
 
@@ -47,7 +46,7 @@ Funcs:
     :tz-akst :tz-hadt :tz-hast"
   (documentation 'mjr_date_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_date_us-tz-utc-offset (tz)
   "Return the offset, in hours, between the US timezone given by TZ and UTC.
 
@@ -68,7 +67,7 @@ If this function returns N for TZ, then UTC - N = Time in TZ"
                 ( :TZ-HADT . -9 )     ;;  "Hawaii-Aleutian Daylight Time" 
                 ( :TZ-HAST . -10))))) ;;  "Hawaii-Aleutian Standard Time" 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_date_jdate2alternate (jdate &optional (aform :MJD))
   "Convert a Julian date (first return is same type as JDATE, second is DOUBLE-FLOAT) into one of the alternate forms:
   * MJD - Modified Julian Day      (The default)
@@ -83,7 +82,7 @@ If this function returns N for TZ, then UTC - N = Time in TZ"
                       ((eq aform :TJD) (- jdate 4880001/2)))))
     (values ajdate (coerce ajdate 'double-float))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_date_month-name (month-number-or-name &key (january-index 1) (abbreviate-name nil))
   "Convert between integers and month names.
 If MONTH-NUMBER-OR-NAME is a string, then the month number will be returned.  If it is an integer, then the name is returned.
@@ -107,7 +106,7 @@ ABBREVIATE-NAME is only used when MONTH-NUMBER-OR-NAME is an integer.  If non-ni
           ('t
            (error "mjr_date_month-name: Invalid MONTH-NUMBER-OR-NAME argument!")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_date_day-name (day-number-or-name &key (monday-index 1) (abbreviate-name nil))
   "Convert between integers and day names.
 If DAY-NUMBER-OR-NAME is a string, then the day number will be returned.  If it is an integer, then the name is returned.
@@ -131,7 +130,7 @@ ABBREVIATE-NAME is only used when DAY-NUMBER-OR-NAME is an integer.  If non-nil,
           ('t
            (error "mjr_date_day-name: Invalid DAY-NUMBER-OR-NAME argument!")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_date_convert (from-fmt to-fmt &rest rest-args)
   "Convert between date formats:
   * :dt-list   -- list: date components: year, month, day, hour, min, second, zone
@@ -147,13 +146,13 @@ ABBREVIATE-NAME is only used when DAY-NUMBER-OR-NAME is an integer.  If non-nil,
   * :dt-posix  -- integer: POSIX (UNIX or C) time integer
   * :dt-lisp   -- integer: LISP universal time integer
   * :dt-julian -- number:  'Julian Date'
-When converting an integer based date to an :dt-list or :dt-string, a timezone may be added as a final argument -- otherwise, the
-current time zone will be assumed.  The LISP function GET-UNIVERSAL-TIME will return the current :dt-lisp.
+When converting an integer based date to an :dt-list or :dt-string, a timezone may be added as a final argument -- otherwise, the current time zone will be
+assumed.  The LISP function GET-UNIVERSAL-TIME will return the current :dt-lisp.
 
 Theory of operation:
-  A set of 4 bidirectional conversions are hand coded (:dt-string  <-> :dt-list <-> :dt-lisp <-> :dt-posix <-> :dt-julian).  From these
-four, all 20 other conversions are obtained via composition of conversions.  As some conversions make use of a second argument
-that is the time zone, and the conversions that don't need this argument must simply ignore it if it is present."
+  A set of 4 bidirectional conversions are hand coded (:dt-string <-> :dt-list <-> :dt-lisp <-> :dt-posix <-> :dt-julian).  From these four, all 20 other
+  conversions are obtained via composition of conversions.  As some conversions make use of a second argument that is the time zone, and the conversions that
+  don't need this argument must simply ignore it if it is present."
   (flet ((f2= (x y) (and (equalp from-fmt x) (equalp to-fmt y))))
     (cond ((f2= :dt-posix  :dt-lisp)   (+ (or (first rest-args) 0) 2208988800))
           ((f2= :dt-lisp   :dt-posix)  (- (or (first rest-args) 0) 2208988800))
@@ -216,7 +215,7 @@ that is the time zone, and the conversions that don't need this argument must si
                                                    (mjr_date_convert nxt-fmt to-fmt (apply #' mjr_date_convert from-fmt nxt-fmt rest-args) (second rest-args))
                                                    (first rest-args)))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_date_now (&optional (date-fmt :dt-string))
   "Return current date in the given formats.
 
@@ -230,7 +229,7 @@ Formats:
       (get-universal-time)
       (mjr_date_convert :dt-lisp date-fmt (get-universal-time))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_date_add-delta (the-date the-delta &key (date-units :dt-string) (delta-units "days") (return-units :dt-string) (return-zone nil))
   (let ((the-date          (if the-date
                                (mjr_date_convert date-units :dt-lisp the-date)
@@ -242,7 +241,7 @@ Formats:
                                  ('t                                    (error "mjr_date_add-delta: Unsupported unit!")))))
     (mjr_date_convert :dt-lisp return-units (+ the-date the-delta-seconds) return-zone)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_date_delta (date1 date2 &key (date1-units :dt-string) (date2-units :dt-string) (delta-units "days"))
   (let ((date1             (if date1
                                (mjr_date_convert date1-units :dt-lisp date1)
@@ -257,7 +256,7 @@ Formats:
                                  ('t                                    (error "mjr_date_add-delta: Unsupported unit!")))))
     (/ (- date2 date1) the-delta-factor)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_date_unx-convert (&optional anArg)
   "Convert between UNIX integer date and a string date.  Returns integer, local date string, and Zulu date string
 

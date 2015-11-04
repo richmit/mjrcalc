@@ -1,13 +1,12 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-probau.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2010,2011,2012 by Mitch Richling.  All rights reserved.
 ;; @brief     Balls And Urns probability distributions.@EOL
-;; @Keywords  lisp interactive probability distributions math library
 ;; @Std       Common Lisp
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_PROBAU
   (:USE :COMMON-LISP
         :MJR_NUMU
@@ -30,14 +29,13 @@
 
 (in-package :MJR_PROBAU)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_help ()
   "Help for MJR_PROBAU (PROBablity Balls And Urns):
 
-This package focuses exclusively on probability distributions with a clear 'Balls And Urns' definition, and implements the
-distributions directly in 'BAU' terms.  For example, the binomial is not parametrized in terms of $p$, the probability of success
-for the underlying Bernoulli trial, but in terms of the number of red balls, $n$, and blue balls, $m$, in an urn from which we draw
-with replacement.
+This package focuses exclusively on probability distributions with a clear 'Balls And Urns' definition, and implements the distributions directly in 'BAU'
+terms.  For example, the binomial is not parametrized in terms of $p$, the probability of success for the underlying Bernoulli trial, but in terms of the
+number of red balls, $n$, and blue balls, $m$, in an urn from which we draw with replacement.
 
 See MJR_PROB for traditionally parametrized implementations of some of the PDFs found here as well as a few other useful PDFs.
 
@@ -76,11 +74,11 @@ See MJR_PROB for traditionally parametrized implementations of some of the PDFs 
   |--------------------------------+--------------------------------------+--------------------------------------------|"
   (documentation 'mjr_probu_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_bernoulli-pdf (k n m &key (algorithm :direct))
   "'Balls And Urns' version of the bernoulli PDF
 
@@ -93,7 +91,7 @@ Probability of picking K red balls in 1 draw from a population N red balls and M
         ((not (integerp k))                (error "mjr_probau_bernoulli-pdf: K must be an integer!")))
   (mjr_prob_bernoulli-pdf k (/ n (+ n m)) :algorithm algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_bernoulli-cdf (k n m &key (algorithm :pdf2cdf) (pdf-algorithm :direct))
   (cond ((not (integerp m))                (error "mjr_probau_bernoulli-cdf: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_bernoulli-cdf: M must be non-negative!"))
@@ -104,7 +102,7 @@ Probability of picking K red balls in 1 draw from a population N red balls and M
         ((not (equal algorithm :pdf2cdf))  (error "mjr_probau_bernoulli-cdf: Unknown algorithm!")))
   (mjr_probu_pdf2cdf k 0 1 #'mjr_probau_bernoulli-pdf 't n m :algorithm pdf-algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_bernoulli-ccdf (k n m &key (algorithm :pdf2ccdf) (pdf-algorithm :direct))
   (cond ((not (integerp m))                (error "mjr_probau_bernoulli-ccdf: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_bernoulli-ccdf: M must be non-negative!"))
@@ -115,7 +113,7 @@ Probability of picking K red balls in 1 draw from a population N red balls and M
         ((not (equal algorithm :pdf2ccdf)) (error "mjr_probau_bernoulli-ccdf: Unknown algorithm!")))
   (mjr_probu_pdf2ccdf k 0 1 #'mjr_probau_bernoulli-pdf 't n m :algorithm pdf-algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_bernoulli-prng (n m &key (algorithm :accept-reject) (pdf-algorithm :direct))
   (cond ((not (integerp m))                (error "mjr_probau_bernoulli-prng: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_bernoulli-prng: M must be non-negative!"))
@@ -127,16 +125,15 @@ Probability of picking K red balls in 1 draw from a population N red balls and M
     (:bau            (if (< (random (+ n m)) n) 1 0))
     (otherwise       (error "mjr_probau_bernoulli-prng: Unknown algorithm"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_geometric-pdf (k n m &key (algorithm :direct))
   "The probability of K blue balls followed by 1 red ball after k+1 draws with replacement
 
-NOTE: I have used a definition of the geometric distribution that is compatible with R in order to facilitate interoperability
-      with R.
+NOTE: I have used a definition of the geometric distribution that is compatible with R in order to facilitate interoperability with R.
 
 Value of :ALGORITHM determines how the computation is performed.
   * :direct  -- use direct computation using definition
@@ -152,7 +149,7 @@ Classical formula:
         ((< k 0)                           (error "mjr_probau_geometric-pdf: K must be non-negative!")))
   (mjr_prob_geometric-pdf k (/ n (+ n m)) :algorithm algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_geometric-cdf (k n m &key (algorithm :pdf2cdf) (pdf-algorithm :direct))
   (cond ((not (integerp m))                (error "mjr_probau_geometric-cdf: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_geometric-cdf: M must be non-negative!"))
@@ -164,7 +161,7 @@ Classical formula:
         ((not (equal algorithm :pdf2cdf))  (error "mjr_probau_geometric-cdf: Unknown algorithm!")))     
   (mjr_probu_pdf2cdf k 0 nil #'mjr_probau_geometric-pdf 't n m :algorithm pdf-algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_geometric-ccdf (k n m &key (algorithm :pdf2ccdf) (pdf-algorithm :direct))
   (cond ((not (integerp m))                (error "mjr_probau_geometric-ccdf: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_geometric-ccdf: M must be non-negative!"))
@@ -176,7 +173,7 @@ Classical formula:
         ((not (equal algorithm :pdf2ccdf)) (error "mjr_probau_geometric-ccdf: Unknown algorithm!")))     
   (mjr_probu_pdf2ccdf k 0 nil #'mjr_probau_geometric-pdf 't n m :algorithm pdf-algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_geometric-prng (n m &key (algorithm :bau))
   (cond ((not (integerp m))                (error "mjr_probau_geometric-prng: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_geometric-prng: M must be non-negative!"))
@@ -190,11 +187,11 @@ Classical formula:
     (:exponential   (floor (mjr_prob_exponential-prng (/ n (+ n m)))))
     (otherwise      (error "mjr_probau_geometric-pdf: Unknown algorithm"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_binomial-pdf (k n m s &key (algorithm :direct))
   "'Balls And Urns' version of the binomial PDF
 
@@ -209,7 +206,7 @@ Value of :ALGORITHM is as in mjr_prob_binomial-pdf"
         ((not (integerp k))                (error "mjr_probau_binomial-pdf: K must be an integer!")))
   (mjr_prob_binomial-pdf k (/ n (+ n m)) s :algorithm algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_binomial-cdf (k n m s &key (algorithm :pdf2cdf) (pdf-algorithm :direct))
   (cond ((not (integerp m))                (error "mjr_probau_binomial-cdf: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_binomial-cdf: M must be non-negative!"))
@@ -220,7 +217,7 @@ Value of :ALGORITHM is as in mjr_prob_binomial-pdf"
         ((not (equal algorithm :pdf2cdf))  (error "mjr_probau_binomial-cdf: Unknown algorithm!")))
   (mjr_probu_pdf2cdf k 0 s #'mjr_probau_binomial-pdf 't n m s :algorithm pdf-algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_binomial-ccdf (k n m s &key (algorithm :pdf2ccdf) (pdf-algorithm :direct))
   (cond ((not (integerp m))                (error "mjr_probau_binomial-ccdf: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_binomial-ccdf: M must be non-negative!"))
@@ -231,7 +228,7 @@ Value of :ALGORITHM is as in mjr_prob_binomial-pdf"
         ((not (equal algorithm :pdf2ccdf)) (error "mjr_probau_binomial-ccdf: Unknown algorithm!")))
   (mjr_probu_pdf2ccdf k 0 s #'mjr_probau_binomial-pdf 't n m s :algorithm pdf-algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_binomial-prng (n m s &key (algorithm :accept-reject) (pdf-algorithm :direct))
   (cond ((not (integerp m))                (error "mjr_probau_binomial-prng: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_binomial-prng: M must be non-negative!"))
@@ -244,11 +241,11 @@ Value of :ALGORITHM is as in mjr_prob_binomial-pdf"
                           count (< (random (+ n m)) n)))
     (otherwise      (error "mjr_probau_binomial-pdf: Unknown algorithm"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_negative-binomial-pdf (k n m r &key (algorithm :direct))
   "Probability a sequence of draws with replacement containing K blue balls will have R red ones from a population of N red balls and M blue balls
 
@@ -265,7 +262,7 @@ Value of :ALGORITHM is as in mjr_prob_negative-binomial-pdf"
         ((not (integerp k))                (error "mjr_probau_negative-binomial-pdf: K must be an integer!")))
   (mjr_prob_negative-binomial-pdf k (/ n (+ n m)) r :algorithm algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_negative-binomial-cdf (k n m r &key (algorithm :pdf2cdf) (pdf-algorithm :direct))
   (cond ((not (integerp m))                (error "mjr_probau_negative-binomial-cdf: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_negative-binomial-cdf: M must be non-negative!"))
@@ -278,7 +275,7 @@ Value of :ALGORITHM is as in mjr_prob_negative-binomial-pdf"
         ((not (equal algorithm :pdf2cdf))  (error "mjr_probau_negative-binomial-cdf: Unknown algorithm!")))
   (mjr_probu_pdf2cdf k 0 nil #'mjr_probau_negative-binomial-pdf 't n m r :algorithm pdf-algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_negative-binomial-ccdf (k n m r &key (algorithm :pdf2ccdf) (pdf-algorithm :direct))
   (cond ((not (integerp m))                (error "mjr_probau_negative-binomial-ccdf: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_negative-binomial-ccdf: M must be non-negative!"))
@@ -291,7 +288,7 @@ Value of :ALGORITHM is as in mjr_prob_negative-binomial-pdf"
         ((not (equal algorithm :pdf2ccdf)) (error "mjr_probau_negative-binomial-ccdf: Unknown algorithm!")))
   (mjr_probu_pdf2ccdf k 0 nil #'mjr_probau_negative-binomial-pdf 't n m r :algorithm pdf-algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_negative-binomial-prng (n m r &key (algorithm :bau))
   (cond ((not (integerp m))                (error "mjr_probau_negative-binomial-prng: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_negative-binomial-prng: M must be non-negative!"))
@@ -310,11 +307,11 @@ Value of :ALGORITHM is as in mjr_prob_negative-binomial-pdf"
                (incf blue))
         until (= red r)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_hypergeometric-pdf (k n m s &key (algorithm :direct))
   "Probability of exactly K red balls in S draws without replacement from a population of N red balls and M blue balls
 
@@ -417,7 +414,7 @@ Classical formula:
                                                                           (if (<= i m+n)   i 1)))))))
       (otherwise  (error "mjr_probau_hypergeometric-pdf: Unknown algorithm")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_hypergeometric-cdf (k n m s &key (algorithm :pdf2cdf) (pdf-algorithm :direct))
   (cond ((not (integerp m))                (error "mjr_probau_hypergeometric-cdf: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_hypergeometric-cdf: M must be non-negative!"))
@@ -430,7 +427,7 @@ Classical formula:
         ((not (equal algorithm :pdf2cdf))  (error "mjr_probau_hypergeometric-cdf: Unknown algorithm!")))
   (mjr_probu_pdf2cdf k 0 (min s (+ n m)) #'mjr_probau_hypergeometric-pdf 't n m s :algorithm pdf-algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_hypergeometric-ccdf (k n m s &key (algorithm :pdf2ccdf) (pdf-algorithm :direct))
   (cond ((not (integerp m))                (error "mjr_probau_hypergeometric-ccdf: M must be an integer!"))
         ((< m 0)                           (error "mjr_probau_hypergeometric-ccdf: M must be non-negative!"))
@@ -443,7 +440,7 @@ Classical formula:
         ((not (equal algorithm :pdf2ccdf)) (error "mjr_probau_hypergeometric-ccdf: Unknown algorithm!")))
   (mjr_probu_pdf2ccdf k 0 (min s (+ n m)) #'mjr_probau_hypergeometric-pdf 't n m s :algorithm pdf-algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_hypergeometric-prng (n m s &key (pdf-algorithm :direct) (algorithm :accept-reject))
   (cond ((not (integerp m))                     (error "mjr_probau_hypergeometric-prng: M must be an integer!"))
         ((< m 0)                                (error "mjr_probau_hypergeometric-prng: M must be non-negative!"))
@@ -462,11 +459,11 @@ Classical formula:
                                  (incf blue))))
     (:accept-reject (mjr_probu_pdf2prng 0 (min s n) #'mjr_probau_hypergeometric-pdf 't n m s :algorithm pdf-algorithm))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_negative-hypergeometric-pdf (k n m r &key (algorithm :direct))
   "Probability that a sequence of draws without replacement containing R red balls from a population of N red balls and M blue balls will have exactially K blue balls
 
@@ -516,7 +513,7 @@ Classical formula:
                                                                                               (if (<= i k)    (/ (* (+ i r-1) (+ i m-k)) i) 1)))))))
                              (otherwise (error "mjr_probau_negative-hypergeometric-pdf: Unknown algorithm")))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_negative-hypergeometric-cdf (k n m r &key (algorithm :pdf2cdf) (pdf-algorithm :direct))
   (cond ((not (integerp m))                     (error "mjr_probau_negative-hypergeometric-cdf: M must be an integer!"))
         ((< m 0)                                (error "mjr_probau_negative-hypergeometric-cdf: M must be non-negative!"))
@@ -529,7 +526,7 @@ Classical formula:
         ((not (equal algorithm :pdf2cdf))       (error "mjr_probau_negative-hypergeometric-cdf: Unknown algorithm!")))
   (mjr_probu_pdf2cdf k 0 nil #'mjr_probau_negative-hypergeometric-pdf 't n m r :algorithm pdf-algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_negative-hypergeometric-ccdf (k n m r &key (algorithm :pdf2ccdf) (pdf-algorithm :direct))
   (cond ((not (integerp m))                     (error "mjr_probau_negative-hypergeometric-ccdf: M must be an integer!"))
         ((< m 0)                                (error "mjr_probau_negative-hypergeometric-ccdf: M must be non-negative!"))
@@ -542,7 +539,7 @@ Classical formula:
         ((not (equal algorithm :pdf2ccdf))      (error "mjr_probau_negative-hypergeometric-ccdf: Unknown algorithm!")))
   (mjr_probu_pdf2ccdf k 0 nil #'mjr_probau_negative-hypergeometric-pdf 't n m r :algorithm pdf-algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_negative-hypergeometric-prng (n m r &key (pdf-algorithm :direct) (algorithm :accept-reject))
   (cond ((not (integerp m))                     (error "mjr_probau_negative-hypergeometric-prng: M must be an integer!"))
         ((< m 0)                                (error "mjr_probau_negative-hypergeometric-prng: M must be non-negative!"))
@@ -554,11 +551,11 @@ Classical formula:
         ((not (equal algorithm :accept-reject)) (error "mjr_probau_negative-hypergeometric-prng: Unknown algorithm!")))
   (mjr_probu_pdf2prng 0 m #'mjr_probau_negative-hypergeometric-pdf 't n m r :algorithm pdf-algorithm))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_multi-hypergeometric-pdf (k n &key (algorithm :direct))
   "Probability of exactly $k_i$ balls of color $i$ drawn without replacement from a population with $n_i$ balls of color $i$
 
@@ -584,11 +581,11 @@ Classical formula:
         (/ (mjr_numu_prod :start 0 :end (1- (length k)) :seq-fun (lambda (i) (mjr_combe_comb (aref n i) (aref k i))))
            (mjr_combe_comb n-sum k-sum)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probau_multinomial-pdf (k n &key (algorithm :direct))
   "Probability of exactly $k_i$ balls of color $i$ in $\sum k_i$ draws WITH replacement from a population with $n_i$ balls of color $i$
 

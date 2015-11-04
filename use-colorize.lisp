@@ -1,17 +1,16 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      use-colorize.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1996,1997,2008,2010 by Mitch Richling.  All rights reserved.
 ;; @brief     Interface for :MJR_COLORIZED and :MJR_COLORIZER.@EOL
-;; @Keywords  wrap colorize colorizer colorized
 ;; @Std       Common Lisp
 ;;
 ;;            Notes here
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_COLORIZE
   (:USE :COMMON-LISP
         :MJR_COLORIZED
@@ -23,12 +22,11 @@
 
 (in-package :MJR_COLORIZE)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorize_help ()
   "Handy wrapper and interface homogenization for colorization packages.
 
-This is the one package that tools consuming colorization specifications need to use so that they can generate internal,
-optimized colorization functions.
+This is the one package that tools consuming colorization specifications need to use so that they can generate internal, optimized colorization functions.
 
     We can colorize four kinds of scalar domains:
     
@@ -52,9 +50,9 @@ optimized colorization functions.
        | colorspace             | :cs-rgb     | :cs-rgb     | :cs-rgb     | :cs-rgb     |
        |------------------------+-------------+-------------+-------------+-------------|
     
-    Gradients, multi-gradients, and pallets all can be mapped quite directly to scalar colorization schemes.  When passed as
-    function arguments, these objects can be recognized and transformed into colorize functions.  The type of the passed object
-    along with the continuity of the input domain are enough to recognize what to do:
+    Gradients, multi-gradients, and pallets all can be mapped quite directly to scalar colorization schemes.  When passed as function arguments, these objects
+    can be recognized and transformed into colorize functions.  The type of the passed object along with the continuity of the input domain are enough to
+    recognize what to do:
     
        |------------+-------------------+----------------+---------|
        | input      | object type       | color method   | support |
@@ -70,7 +68,7 @@ optimized colorization functions.
        |------------+-------------------+----------------+---------|"
   (documentation 'mjr_colorize_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_colorize_make-colorize-function (color-method color-space max-color data-range auto-scale)
   "Return a colorize function from a function, gradient, or pallet with optional argument scaling.
 Arguments:

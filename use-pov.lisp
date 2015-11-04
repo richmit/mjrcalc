@@ -1,18 +1,37 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-pov.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,1998,2004,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Produce Povray files!@EOL
-;; @Keywords  lisp interactive povray
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-pov.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,1998,2004,2012,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      mjr_pov_make-from-dsimp -- dump height field.@EOL@EOL
+;; @todo      better unit tests.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; TODO: An easy way to add a height field to a dquad object -- it can be dumped to TGA later.
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_POV
   (:USE :COMMON-LISP
         :MJR_VVEC
@@ -25,11 +44,8 @@
         :MJR_DQUAD
         :MJR_DSIMP
         :MJR_MXP)
-  (:DOCUMENTATION "Brief: Produce Povray files!;")
+  (:DOCUMENTATION "Brief: Write Povray files!;")
   (:EXPORT #:mjr_pov_help
-           ;; TODO: Nix the following two after we finish the dsimp/dquad code.
-           #:mjr_pov_make-from-func-r12-r13          
-           ;; Experimental
            #:mjr_pov_make-from-dsimp
            ;; NOT EXPORTED
            ;; #:mjr_pov_code-curve
@@ -37,7 +53,7 @@
 
 (in-package :MJR_POV)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_pov_help ()
   "Help for MJR_POV: Create POVray files
 
@@ -45,7 +61,7 @@ The goal is to provide some basic functionality for transforming mathematical da
 function) into Povray files."
   (documentation 'mjr_pov_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_pov_code-curve (pts spline &optional (no-degenerate-check nil))
   "Return string with code to draw curve.
 
@@ -68,7 +84,7 @@ Arguments:
         ""
         (with-output-to-string (outStr)
           (if spline
-              (let* ((spline  (if (< npts 2) "linear" spline))
+              (let* ((spline  (if (< npts 3) "linear" spline))
                      (non-lin (not (string= "linear" spline))))
                 (format outStr "sphere_sweep { ~a_spline ~a" spline (if non-lin (+ 2 npts) npts))
                 (loop initially (if non-lin (format outStr ", ~a, lineDiam" (mjr_vec_code (mjr_vec_- (mjr_vec_* 2 (first pts)) (second pts)) :lang :lang-povray)))
@@ -82,22 +98,21 @@ Arguments:
                     when (or no-degenerate-check (not (mjr_geom_simplex-degeneratep nil x y)))
                     do (format outStr "cylinder {~a, ~a, lineDiam texture { lineTex } }~%" (mjr_vec_code x :lang :lang-povray) (mjr_vec_code y :lang :lang-povray))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_pov_make-from-dsimp (out-file dsimp &key simplices color-data curve-spline surface-normal-data no-degenerate-check
                                                  draw-0-simplex-vertexes
                                                  draw-1-simplex-vertexes draw-1-simplex-edges
                                                  draw-2-simplex-vertexes draw-2-simplex-edges draw-2-simplex-triangles)
   "Generate POV-Ray data file from dsimp.  
 
-  :COLOR-DATA ........... 0-simplex COLOR data set (a dataset name or list containing the dataset simplex dimension and dataset
-                          index).  This dataset defines colors for 0-simplex spheres (not vertexes of 1-simplices & 2-simplices),
-                          and 2-simplex colors (color is interpolated across the triangle face based on vertex colors).  This
-                          argument has no impact on the colors of one simplex objects (the cylinders or sphere_sweep objects
-                          representing one simplices).
+  :COLOR-DATA ........... 0-simplex COLOR data set (a dataset name or list containing the dataset simplex dimension and dataset index).  This dataset defines
+                          colors for 0-simplex spheres (not vertexes of 1-simplices & 2-simplices), and 2-simplex colors (color is interpolated across the
+                          triangle face based on vertex colors).  This argument has no impact on the colors of one simplex objects (the cylinders or
+                          sphere_sweep objects representing one simplices).
   :NO-DEGENERATE-CHECK .. Print all simplices includeing degenerate ones.
   :SURFACE-NORMAL-DATA .. Surface normals (a vector) at each vertex
-  :CURVE-SPLINE ......... If non-NIL, will be used as the spline type for a sphere_sweep object representing curves (1-simplices
-                          that are 'end-to-end').  When NIL, one simplices are simple cylinders.
+  :CURVE-SPLINE ......... If non-NIL, will be used as the spline type for a sphere_sweep object representing curves (1-simplices that are 'end-to-end').  When
+                          NIL, one simplices are simple cylinders.
 
   Notes about the generated POV-Ray:
    Various primitives represent different dsimp components:

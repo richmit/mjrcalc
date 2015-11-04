@@ -1,16 +1,34 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      exp-ClassicOptFreudensteinRoth.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 2012 by Mitch Richling.  All rights reserved.
 ;; @brief     Analysis of the classic Freudenstein-Roth optimization test function.@EOL
-;; @Keywords  optimization root finding test freudenstein roth
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 2012, 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun freudenstein-roth (X Y)
   "Freudenstein and Roth Function.  Returns values for function, gradient, and hessian.
 
@@ -41,30 +59,23 @@ Local Minimum:  $f(11.41, -0.8986)=48.9842$"
                                                            (+ (- (* 60 (EXPT Y 4)) (* 160 (EXPT Y 3)))
                                                               (* 24 (EXPT Y 2)) (- (* 480 Y)) (* 24 X) 24))))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(let ((fr-data (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" '(:start -4 :end 23 :len 500)
+                                                                      "y" '(:start -2 :end 5  :len 500))
+                                            #'freudenstein-roth
+                                            :axes 't
+                                            :ano-nam "Freudenstein-Roth"
+                                            :ano-typ :ano-typ-real)))
+  (format 't "Nice pic of the global minimum~%")
+  (mjr_gnupl_dquad fr-data :zlim '(-0 200) :type :f :xlim '(-5 15) :ylim '(3.65 4.27))
+  (format 't "Press [ENTER] to continue.~%")
+  (read-char)
+  (format 't "Nice pic showing both extrema~%")
+  (mjr_gnupl_dquad fr-data :zlim '(-0 200) :type :f :xlim '(-4 23) :ylim '(-2 5))
+  (format 't "Press [ENTER] to continue.~%")
+  (read-char)
+  (format 't "Dump VTK~%")
+  (mjr_vtk_from-dquad "exp-ClassicOptFreudensteinRoth-OUT.vtk" fr-data))
 
-
-
-;;----------------------------------------------------------------------------------------------------------------------------------
-(format 't "Nice pic of the global minimum~%")
-(mjr_plot_func-r2-r1 (lambda (x y) (min 100 (freudenstein-roth x y))) :zlim '(-0 200) :type :f :xdat '(:start -5 :end 15 :len 75) :ydat '(:start 3.65 :end 4.27 :len 75))
-(format 't "Press [ENTER] to continue.~%")
-(read-char)
-
-;;----------------------------------------------------------------------------------------------------------------------------------
-(format 't "Nice pic showing both extrema~%")
-(mjr_plot_func-r2-r1 (lambda (x y) (min 100 (freudenstein-roth x y))) :zlim '(-0 200) :type :f :xdat '(:start -4 :end 23 :len 75) :ydat '(:start -2 :end 5 :len 75))
-(format 't "Press [ENTER] to continue.~%")
-(read-char)
-
-;;----------------------------------------------------------------------------------------------------------------------------------
-(format 't "Dump VTK~%")
-(mjr_vtk_from-dquad "exp-ClassicOptFreudensteinRoth-OUT.vtk"
-                    (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" '(:start -4 :end 23 :len 500)
-                                                                           "y" '(:start -2 :end 5  :len 500))
-                                                 #'freudenstein-roth
-                                                 :axes 't
-                                                 :ano-nam "Freudenstein-Roth"
-                                                 :ano-typ :ano-typ-real))
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (format 't "DONE~%")

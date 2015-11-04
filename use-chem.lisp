@@ -1,20 +1,40 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-chem.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Chemical element data.@EOL
-;; @Keywords  Chemical Chemistry element properties data
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-chem.lisp
+;; @copyright
+;;  @parblock
+;;  Copyright (c) 2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            TODO: Add isotope information.
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      Add isotope information.@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_CHEM
   (:USE :COMMON-LISP)
   (:DOCUMENTATION "Brief: Chemical element data.;")
-  (:EXPORT #:mjr_chem_help 
+  (:EXPORT #:mjr_chem_help
            #:mjr_chem_element-key-to-element-key
            #:mjr_chem_find-element-property
            #:mjr_chem_find-element-key
@@ -22,7 +42,7 @@
 
 (in-package :MJR_CHEM)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_chem_help ()
   "The focus of this package is on providing basic chemical element data.
 
@@ -39,7 +59,7 @@ Vocabulary:
                                    NOTE: An element-name or element-symbol returned from a function will always be a STRING!
  * element-key-type ............. A LISP symbol that may be used to specify the type of an element-key
                                    * :ek-symbol       -- element-symbol
-                                   * :ek-name         -- element-name  
+                                   * :ek-name         -- element-name
                                    * :ek-anumber      -- element-anumber
                                    * NIL              -- Used when the type is unknown or should be auto determined somehow
  * element-property-name ........ A string or symbol representing. Example: \"electronicConfiguration\" or :ELECTRONICCONFIGURATION
@@ -70,9 +90,9 @@ Element properties are as follows:
  | radiusCovalent           | float   | ang              |
  | solidDensity             | float   | g/cm^3           |
  | liquidDensity            | float   | g/cm^3           |
- | gasDensity (STP)         | float   | g/L              | 
- | HeatCapacityMol          | float   | J/(mol*K)        | 
- | HeatCapacity             | float   | J/(g*K)          | 
+ | gasDensity (STP)         | float   | g/L              |
+ | HeatCapacityMol          | float   | J/(mol*K)        |
+ | HeatCapacity             | float   | J/(g*K)          |
  | thermalExpansion         | float   | m/(m*K)          |
  | thermalConductivity      | float   | W/(m*K)          |
  +--------------------------+---------+------------------+"
@@ -110,7 +130,7 @@ Element properties are as follows:
   '("H" "He" "Li" "Be" "B" "C" "N" "O" "F" "Ne" "Na" "Mg" "Al" "Si" "P" "S" "Cl" "Ar" "K" "Ca" "Sc" "Ti" "V" "Cr" "Mn" "Fe" "Co" "Ni" "Cu" "Zn" "Ga" "Ge" "As" "Se" "Br" "Kr" "Rb" "Sr" "Y" "Zr" "Nb" "Mo" "Tc" "Ru" "Rh" "Pd" "Ag" "Cd" "In" "Sn" "Sb" "Te" "I" "Xe" "Cs" "Ba" "La" "Ce" "Pr" "Nd" "Pm" "Sm" "Eu" "Gd" "Tb" "Dy" "Ho" "Er" "Tm" "Yb" "Lu" "Hf" "Ta" "W" "Re" "Os" "Ir" "Pt" "Au" "Hg" "Tl" "Pb" "Bi" "Po" "At" "Rn" "Fr" "Ra" "Ac" "Th" "Pa" "U" "Np" "Pu" "Am" "Cm" "Bk" "Cf" "Es" "Fm" "Md" "No" "Lr" "Rf" "Db" "Sg" "Bh" "Hs" "Mt" "Ds" "Rg" "Cn" "Uut" "Uuq" "Uup" "Uuh" "Uus" "Uuo")
   "element symbols list")
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_chem_element-key-to-element-key (out-element-key-type element-key-or-keys)
   "Transform element-keys to the kind specified by out-element-key-type.
 
@@ -145,12 +165,12 @@ Return is NIL if conversion is unsupported, otherwise the return depends on elem
               (:ek-name         (case out-element-key-type
                                   (:ek-symbol             (car (rassoc element-key-or-keys (cdr (assoc "name"         *element-property-db* :test #'string-equal))  :test #'string-equal))))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_chem_find-element-property (element-key-or-keys element-property-name &optional (out-element-key-type :ek-symbol))
   "Take an element-key & element-property-value, and return the search results.
 
 out-element-key-type determines the form of returned element-keys
-   
+
 The return will be NIL if the search had no hits, otherwise it depends on the value of element-key-or-keys:
   * A single element-key .... An element-property-value-cons
   * NIL ..................... An element-property-value-list containing ALL elements with the element-property defined
@@ -167,7 +187,7 @@ The return will be NIL if the search had no hits, otherwise it depends on the va
                   (mjr_chem_element-key-to-element-key out-element-key-type (assoc cur-ele-sym the-data :test #'string-equal))))
             (mjr_chem_element-key-to-element-key out-element-key-type the-data)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_chem_find-element-key (out-element-key-type &rest search-terms)
   "Take one or more element-property-value related search terms, and return a list of matching element-symbols that match.
    search-terms are cons cells of one of two types:
@@ -175,7 +195,7 @@ The return will be NIL if the search had no hits, otherwise it depends on the va
          predicate is a function that takes a single element-property-value of the kind specified by element-property-name
      * (element-property-name . element-property-value)
          element-property-value is a value of the kind specified by element-property-name"
-  (mjr_chem_element-key-to-element-key 
+  (mjr_chem_element-key-to-element-key
    out-element-key-type
    (reduce (lambda (a b) (intersection a b :test #'string-equal))
            (loop for (cur-search-name . cur-search-criteria) in search-terms

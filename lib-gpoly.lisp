@@ -1,16 +1,34 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      lib-gpoly.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1994,1997,1998,2004,2008,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Generate Polynomial Code For General Fields.@EOL
-;; @Keywords  lisp non-interactive generate polynomial code
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1994,1997,1998,2004,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_GPOLY
   (:USE :COMMON-LISP)
   (:DOCUMENTATION "Brief: Generate Polynomial Code For General Fields.;")
@@ -44,12 +62,12 @@
 
 (in-package :MJR_GPOLY)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_gpoly_help ()
   "Back end code to generate code for univariate, dense polynomial libraries.  This is not intended for interactive use.
 
-The idea is that a ring structure is defined and codified in another package, and that package is then exploited to 
-generate code for polynomials over that base ring.  
+The idea is that a ring structure is defined and codified in another package, and that package is then exploited to generate code for polynomials over that
+base ring.
 
 Naming conventions:
   * A base ring is defined in a package called 'MJR_FOO' ('foo' is the logical name of the ring)
@@ -58,21 +76,21 @@ Naming conventions:
 MJR_GFP & MJR_POLYGFP are the canonical examples of how to do this."
   (documentation 'mjr_gpoly_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_gpoly_to-sym-str (&rest rest)
   "Convert objects to uppercase strings and concatenate them.  If given a single list, apply fucntion to elements."
   (if (and rest (listp (car rest)) (null (cdr rest)))
       (mapcar (lambda (y) (mjr_gpoly_to-sym-str y)) (car rest))
       (format nil "~:@(~{~a~^~}~)" rest)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_gpoly_to-sym (&rest rest)
   ""
   (if (and rest (listp (car rest)) (null (cdr rest)))
       (mapcar (lambda (y) (mjr_gpoly_to-sym y)) (car rest))
       (intern (apply #'mjr_gpoly_to-sym-str rest))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_gpoly_get-op (ring-name ring-op)
   "Return the symbol to use for the operation"
   (let ((std-rng (zerop (length ring-name))))
@@ -95,7 +113,7 @@ MJR_GFP & MJR_POLYGFP are the canonical examples of how to do this."
           (if (not (and std-rng (equalp "simplify" op-name)))
               (warn "WARNING: Could not find ring (~a) operation (~a) -- function (~a) in package (~a)!" ring-name ring-op op-name pk-name))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-scale (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_SCALE."
   (let* ((ring-div-func      (mjr_gpoly_get-op ring-name "/"))
@@ -113,7 +131,7 @@ MJR_GFP & MJR_POLYGFP are the canonical examples of how to do this."
                        x)))
          (,poly-simplify-func ,@ring-parameters (map 'vector (lambda (x) (,ring-mul-func ,@ring-parameters x fact)) poly))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-coeff (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_COEFF."
   (let ((ring-simplify-func (mjr_gpoly_get-op ring-name "simplify"))
@@ -135,7 +153,7 @@ Things that are not vectors are assumed to be ring elements.  This works well wh
                   `(aref poly idx))
              ,(apply ring-add-func ring-parameters))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-simplify (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_SIMPLIFY."
   (let ((ring-zerop-func    (mjr_gpoly_get-op ring-name "zerop"))
@@ -148,8 +166,8 @@ Things that are not vectors are assumed to be ring elements.  This works well wh
 
 Things that are not vectors are assumed to be ring elements.  This works well when ring elements are not vectors too. :)
 
-This function is almost FREE if the poly is already simplified, so it can be used to verify a polynomial is simplified without
-introducing too much overhead.")
+This function is almost FREE if the poly is already simplified, so it can be used to verify a polynomial is simplified without introducing too much
+overhead.")
      (if (vectorp poly)
          (let* ((lt-idx (if (not (,ring-zerop-func ,@ring-parameters (aref poly 0)))
                             0
@@ -167,7 +185,7 @@ introducing too much overhead.")
                 `(vector poly))
              (error ,(concatenate 'string new-func-name ": POLY must be a polynomial or base ring element")))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-eval (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_EVAL."
   (let ((ring-add-func      (mjr_gpoly_get-op ring-name "+"))
@@ -189,7 +207,7 @@ Things that are not vectors are assumed to be ring elements.  This works well wh
                do (setq pval (,ring-add-func ,@ring-parameters (,ring-mul-func ,@ring-parameters x pval) (aref poly i)))
                finally (return pval))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-+ (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_+."
   (let ((ring-add-func      (mjr_gpoly_get-op ring-name "+"))
@@ -231,7 +249,7 @@ Things that are not vectors are assumed to be ring elements.  This works well wh
                                                                                                    (if (vectorp poly) (aref poly j) poly))))
                                                                  finally (return (,poly-simplify-func ,@ring-parameters newpoly)))))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-- (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_-."
   (let ((ring-sub-func      (mjr_gpoly_get-op ring-name "-"))
@@ -263,7 +281,7 @@ Things that are not vectors are assumed to be ring elements.  This works well wh
                                                                         (if (minusp rhp-i) 0 (aref rhp rhp-i))))
                                        finally (return (,poly-simplify-func ,@ring-parameters newpoly))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-* (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_*."
   (let ((ring-add-func      (mjr_gpoly_get-op ring-name "+"))
@@ -300,7 +318,7 @@ poly*poly = multiply as polynomials, s*poly & poly*s = multiply s by each elemen
                                        collect npl)))))
            (otherwise (reduce (lambda (x y) (,poly-mul-func ,@ring-parameters x y)) polys)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-iexpt (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_IEXPT."
   (let ((poly-mul-func      (mjr_gpoly_to-sym "mjr_poly" ring-name "_*"))
@@ -326,7 +344,7 @@ References:
                    do (setf poly (,poly-mul-func ,@ring-parameters poly poly)
                             n    (truncate n 2))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-diff (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_DIFF."
   (let* ((ring-add-func      (mjr_gpoly_get-op ring-name "+"))
@@ -349,7 +367,7 @@ References:
                                                              do (setf (aref dpoly i) (,ring-imul-func ,@ring-parameters (aref poly i) (- plen i 1)))
                                                              finally (return dpoly))))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-leading-coeff (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_LEADING-COEFF."
   (let* ((ring-zerop-func    (mjr_gpoly_get-op ring-name "zerop"))
@@ -374,7 +392,7 @@ Returns 0 if all the coefficients were zero -- note that zero is the additive id
               `(,ring-simplify-func ,@ring-parameters lc)
               `lc)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-degree (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_DEGREE."
   (let* ((ring-zerop-func    (mjr_gpoly_get-op ring-name "zerop"))
@@ -397,7 +415,7 @@ Things that are not vectors are assumed to be ring elements.  This works well wh
                0
                (error ,(concatenate 'string new-func-name ": Arguments must be Polynomials and/or base ring elements")))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-density (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_DENSITY."
   (let* ((ring-zerop-func    (mjr_gpoly_get-op ring-name "zerop"))
@@ -416,7 +434,7 @@ Things that are not vectors are assumed to be ring elements.  This works well wh
                    0)
                (error ,(concatenate 'string new-func-name ": Arguments must be Polynomials and/or base ring elements")))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-index (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_INDEX."
   (let* ((ring-zerop-func    (mjr_gpoly_get-op ring-name "zerop"))
@@ -436,7 +454,7 @@ Things that are not vectors are assumed to be ring elements.  This works well wh
                0
                (error ,(concatenate 'string new-func-name ": Arguments must be Polynomials and/or base ring elements")))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-constant-coeff (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_CONSTANT-COEFF."
   (let* ((ring-simplify-func (mjr_gpoly_get-op ring-name "simplify"))
@@ -456,7 +474,7 @@ Things that are not vectors are assumed to be ring elements.  This works well wh
               `(,ring-simplify-func ,@ring-parameters ct)
               `ct)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-onep (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_ONEP."
   (let* ((ring-onep-func    (mjr_gpoly_get-op ring-name "onep"))
@@ -477,7 +495,7 @@ Things that are not vectors are assumed to be ring elements.  This works well wh
                (,ring-onep-func ,@ring-parameters poly)
                (error ,(concatenate 'string new-func-name ": Arguments must be Polynomials and/or base ring elements")))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-constantp (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_CONSTANTP."
   (let* ((ring-numberp-func  (mjr_gpoly_get-op ring-name "numberp"))
@@ -494,7 +512,7 @@ Things that are not vectors are assumed to be ring elements.  This works well wh
                't
                (error ,(concatenate 'string new-func-name ": Arguments must be Polynomials and/or base ring elements")))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-zerop (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_ZEROP."
   (let* ((ring-zerop-func    (mjr_gpoly_get-op ring-name "zerop"))
@@ -511,7 +529,7 @@ Things that are not vectors are assumed to be ring elements.  This works well wh
                (,ring-zerop-func ,@ring-parameters poly)
                (error ,(concatenate 'string new-func-name ": Arguments must be Polynomials and/or base ring elements")))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-truncate (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_TRUNCATE."
   (let* ((ring-add-func      (mjr_gpoly_get-op ring-name "+"))
@@ -523,8 +541,8 @@ Things that are not vectors are assumed to be ring elements.  This works well wh
     `(defun ,(intern new-func-name) (,@ring-parameters poly1 poly2)
        "Return the quotient and the remainder from POLY1/POLY2.
 
-Based upon a generalization of synthetic division published in 2003 by Lianghuo FAN.  The algorithm implemented is a minor
-generalization of FAN's work that supports non-monic polynomial divisors.  Note that this implementation is not optimized.
+Based upon a generalization of synthetic division published in 2003 by Lianghuo FAN.  The algorithm implemented is a minor generalization of FAN's work that
+supports non-monic polynomial divisors.  Note that this implementation is not optimized.
 
 Reference: Lianghuo FAN (2003)
            A Generalization of Synthetic Division and A General Theorem of Division of Polynomials; Mathematical Medley, June 2003; pp30-37"
@@ -556,7 +574,7 @@ Reference: Lianghuo FAN (2003)
                                                                        (subseq tmpvec 0 (1+ (- len1 len2)))))
                            (,poly-simplify-func ,@ring-parameters (subseq tmpvec (1+ (- len1 len2))))))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-mod (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_MOD."
   (let* ((poly-truncate-func (mjr_gpoly_to-sym "mjr_poly" ring-name "_truncate"))
@@ -568,7 +586,7 @@ Reference: Lianghuo FAN (2003)
          (declare (ignore rem))
          quo))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-rem (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_REM."
   (let* ((poly-truncate-func (mjr_gpoly_to-sym "mjr_poly" ring-name "_truncate"))
@@ -580,7 +598,7 @@ Reference: Lianghuo FAN (2003)
          (declare (ignore quo))
          rem))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-divides? (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_DIVIDES?."
   (let* ((ring-divides?-func (mjr_gpoly_get-op ring-name "divides?"))
@@ -601,7 +619,7 @@ Reference: Lianghuo FAN (2003)
                   (if (or (not require-integer-quotient) (every #'integerp quo))
                       quo)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-gcd (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_GCD."
   (let* ((ring-add-func      (mjr_gpoly_get-op ring-name "+"))
@@ -628,7 +646,7 @@ References:
                   (lambda (x) (,ring-div-func ,@ring-parameters x (,poly-lc-func ,@ring-parameters poly1w)))
                   poly1w))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmacro mjr_gpoly_make-subst (ring-name &rest ring-parameters)
   "Construct and defun for MJR_POLY<RING>_SUBST."
   (let* ((poly-mul-func      (mjr_gpoly_to-sym "mjr_poly" ring-name "_*"))

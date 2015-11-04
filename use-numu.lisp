@@ -1,16 +1,35 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      use-numu.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1997,2008,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Numerical utilities.@EOL
-;; @Keywords  
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @see       tst-numu.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1997,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_NUMU
   (:USE :COMMON-LISP
         :MJR_CMP
@@ -19,6 +38,8 @@
   (:DOCUMENTATION "Brief: Numerical utilities.;")
   (:EXPORT #:mjr_numu_max-accuracy
 
+           #:mjr_numu_abssqr
+           
            #:mjr_numu_absdif
            #:mjr_numu_min-nil
            #:mjr_numu_max-nil
@@ -49,23 +70,25 @@
 
            #:mjr_numu_sum
            #:mjr_numu_prod
+
+           #:mjr_numu_complex-to-vector
            ))
 
 (in-package :MJR_NUMU)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_sum (&key start end step len seq-fun)
   "User friendly wrapper for MJR_VVEC_MAP-SUM that directly takes keyword arguments. nil values are ignored."
   (mjr_vvec_map-sum (list :start start :end end :step step :len len :map-fun seq-fun) :filter-fun (lambda (v f i) (declare (ignore f i)) v))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_prod (&key start end step len seq-fun)
   "User friendly wrapper for MJR_VVEC_MAP-PROD that directly takes keyword arguments. nil values are ignored."
   (mjr_vvec_map-prod (list :start start :end end :step step :len len :map-fun seq-fun) :filter-fun (lambda (v f i) (declare (ignore f i)) v))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_tuple-max-min (r g b)
   "Return values: max value, min value, max index, min index"
     (if (> r g)
@@ -80,29 +103,36 @@
                 (values   g r 1 0))    ;; g>=r g>b b>=r
             (values       b r 2 0))))  ;; g>=r b>=g
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_min-nil (a b)
   "Return minimum of two numeric arguments, nil if both arguments are nil, and the non-nil value of only one is non-nil."
   (if (and a b) (min a b) (or a b)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_max-nil (a b)
   "Return maximum of two numeric arguments, nil if both arguments are nil, and the non-nil value of only one is non-nil."
   (if (and a b) (max a b) (or a b)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_absdif (a b)
   "Absolute difference between two numbers: (abs (- a b))"
   (abs (- a b)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_numu_abssqr (a)
+  "Square of the absolute value.  Computation is a bit more stable than (EXPT (ABS A) 2) for complex A."
+  (typecase a
+    (complex   (+ (expt (realpart a) 2) (expt (imagpart a) 2)))
+    (otherwise (expt (abs a) 2))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_dabs (x)
   "The derivative of abs(x) for real x -- -1 when x<0, +1 when x>0, and undef for x=0."
   (cond ((< x 0) -1)
         ((> x 0)  1)
         ('t       (error 'floating-point-invalid-operation))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_csign (x)
   "The sign function for both real and complex X -- the 'lexicographic sign function'.
 This is NOT the signum, sgn, or sign function."
@@ -113,24 +143,24 @@ This is NOT the signum, sgn, or sign function."
             (signum (imagpart x))))
       (signum x)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_signum-pos (x)
   "Modified signum that returns 1 for X near zero.
 This is NOT the signum, sgn, or sign, or csign function.
 
-Normal use case for his function is when the signum is being used to maximize/minimize the result of an arbitrary sign choice
-for numerical stability.  In most cases, the signum is multiplied by a value in this use case, and the production of a zero is
-undesirable in this application."
+Normal use case for his function is when the signum is being used to maximize/minimize the result of an arbitrary sign choice for numerical stability.  In
+most cases, the signum is multiplied by a value in this use case, and the production of a zero is undesirable in this application."
   (let ((snv (signum x)))
     (if (> (abs snv) 1/2)
         snv
         1)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_fnd-max-periodic-point (seed period lower-bound upper-bound &optional eps)
   "Find the maximum number PP=seed+period*n such that n is an integer and lower-bound<=PP<=upper-bound
-This is useful for finding special points (discontinuities, extrema, etc) for periodic functions.
-max(sin) @ pi/2,2*pi; min(sin) @ 3*pi/2,2*pi, max(cos) @ 0,2*pi, min(cos) @ pi,2*pi"
+
+This is useful for finding special points (discontinuities, extrema, etc) for periodic functions.  max(sin) @ pi/2,2*pi; min(sin) @ 3*pi/2,2*pi, max(cos) @
+0,2*pi, min(cos) @ pi,2*pi"
   (let* ((ymsdp  (/ (- upper-bound seed) period))
          (minPPI (floor (- ymsdp 1)))
          (lowPP  (loop 
@@ -145,7 +175,7 @@ max(sin) @ pi/2,2*pi; min(sin) @ 3*pi/2,2*pi, max(cos) @ 0,2*pi, min(cos) @ pi,2
         (if (mjr_cmp_<= lower-bound maxPP eps)
             maxPP))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_near-periodic-point? (seed period the-number &optional (max-distance 100) (eps nil))
 "Is the given point within epsilon of a number like PP=seed+period*n such that n is an integer?"
   (dotimes (i max-distance)
@@ -155,7 +185,7 @@ max(sin) @ pi/2,2*pi; min(sin) @ 3*pi/2,2*pi, max(cos) @ 0,2*pi, min(cos) @ pi,2
 
 ;;; Rename this function to mjr_eps_=o+p*n, and move it to eps package.
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_code (the-number &key (lang :lang-matlab))
   "Return a string using the syntax of the selected programming language or computational environment."
   (if (not (numberp the-number))
@@ -206,7 +236,7 @@ max(sin) @ pi/2,2*pi; min(sin) @ 3*pi/2,2*pi, max(cos) @ 0,2*pi, min(cos) @ pi,2
                      (format nil (nth 3 bams) (mjr_numu_code (numerator the-number) :lang lang) (mjr_numu_code (denominator the-number) :lang lang))))
       (otherwise (format nil (nth 0 bams) the-number)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_cubert (x &key (aggressive-conversion nil))
   "Compute the cube root of X.  Real roots are preferred over complex ones"
   (and aggressive-conversion)
@@ -214,10 +244,10 @@ max(sin) @ pi/2,2*pi; min(sin) @ 3*pi/2,2*pi, max(cos) @ 0,2*pi, min(cos) @ pi,2
       (* (signum x) (expt (abs x) 1/3))
       (expt x 1/3)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_sqrt (x &key (aggressive-conversion nil))
-  "Compute the square root of X.  If possible, an integer or rational number is returned.  Otherwise a floating point or
-complex number will be returned.
+  "Compute the square root of X.  If possible, an integer or rational number is returned.  Otherwise a floating point or complex number will be returned.
+
 The aggressiveness of the algorithm varies according the the value of :AGGRESSIVE-CONVERSION:
   * :NEAR-INT-CONVERT --  floating point X within *MJR_CMP_EPS* of an integer are converted to that integer.
   * :NEAR-RAT-CONVERT --  First try :NEAR-INT-CONVERT, then rationalize X if an integer conversion was not possible.
@@ -247,7 +277,7 @@ The aggressiveness of the algorithm varies according the the value of :AGGRESSIV
                                  sqrtx)))
             ('t            (sqrt x)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_hypot (x y)
   "Computes (sqrt (+ (expt (abs x) 2) (expt (abs y))) in such a way as to avoid floating point overflow/underflow."
   (if (and (rationalp x) (rationalp y))
@@ -260,7 +290,7 @@ The aggressiveness of the algorithm varies according the the value of :AGGRESSIV
             (* (abs x) (mjr_numu_sqrt (1+ (expt (/ y x) 2))))
             0))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_argument (z)
   "The phase of the complex number z.  #C(1,0)=0, #C(0,1)=pi/2, #C(-1,0)=pi, #C(0,-1)=3*pi/2"
   (cond  ((not (numberp z)) (error "mjr_numu_argument: Input must be a number!")))
@@ -269,7 +299,7 @@ The aggressiveness of the algorithm varies according the the value of :AGGRESSIV
           (+ (* 2 pi) p)
           p)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_gamma-lanczos (z &optional ln)
   "Lanczos approximation with g=7.  Generally good to about 4 digits.
 
@@ -295,7 +325,7 @@ References:
                (exp (- tm))
                (+ x (aref p 0)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_gamma-spouge (z &optional a)
   "Spouge approximation (a=9 by default).
 
@@ -329,17 +359,17 @@ References:
                            (* kf
                               (+ z k)))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_gamma (z)
   "Use MJR_NUMU_GAMMA-LANCZOS to approximate the gamma"
   (mjr_numu_gamma-lanczos z))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_log-gamma (z)
   "Use MJR_NUMU_GAMMA-LANCZOS to approximate the logarithm of the gamma"
   (mjr_numu_gamma-lanczos z 't))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_log-binomial (n k)
   "Approximation the logarithm of the binomial coefficient.  Return is always a double-float."
   (if (and (integerp k) (< k 0))
@@ -354,9 +384,10 @@ References:
              (+ (mjr_numu_log-gamma (+ k 1))
                 (mjr_numu_log-gamma (1+ (- n k))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_binomial (n k)
   "Approximation the binomial coefficient.  Return is always a double-float.
+
 For exact answers when the arguments are integers and non-negative, use MJR_COMBE_COMB."
   (if (and (integerp k) (< k 0))
       0
@@ -367,21 +398,26 @@ For exact answers when the arguments are integers and non-negative, use MJR_COMB
               (error "binomial: INFINITY!"))
           (exp (mjr_numu_log-binomial n k)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_log! (n)
   "Compute the natural logarithm of the factorial.  Return is a DOUBLE-FLOAT"
   (mjr_numu_log-gamma (1+ n)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_iverson-bracket (pred &rest rest)
   "Return 1 if PRED applied to the remaining arguments is true, and 0 otherwise."
   (if (apply pred rest)
       1 
       0))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_max-accuracy (val)
   "If val is a float, convert to a double float.  Otherwise return val.  Used to maximize numerical accuracy in computations."
   (if (floatp val)
       (float val 0.0d0)
       val))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_numu_complex-to-vector (z)
+  "Convert a complex numberr to a two element, real vector"
+  (vector (realpart z) (imagpart z)))

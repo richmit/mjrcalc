@@ -1,10 +1,9 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      exp-ODErossler.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2012 by Mitch Richling.  All rights reserved.
 ;; @brief     Compute the Rossler strange attracter.@EOL
-;; @Keywords  Rossler strange attracter
 ;; @Std       Common Lisp
 ;;
 ;;            The equations:
@@ -18,7 +17,7 @@
 ;;              $$x(0)=1/10, y(0)=0, y(0)=0$$
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (time (let* ((ar (mjr_ode_slv-ivp-erk-mesh (list (lambda (tim p)
                                                    (declare (ignore tim))
                                                    (let ((a   0.2d0)
@@ -34,7 +33,6 @@
                                            '(:start 0 :end 250 :len 10000)
                                            :algorithm #'mjr_ode_erk-step-heun-euler-1-2
                                            :y-delta-abs-max 1)))
-        (mjr_plot_data :dat ar :datcols '(1 2 3))
         (mjr_vtk_from-dsimp  "exp-ODErossler-OUT.vtk"
                              (mjr_dsimp_make-from-points ar :connect-points 't :point-columns '(1 2 3) :data-columns 0 :data-column-names "time")
                              :simplices 1)))

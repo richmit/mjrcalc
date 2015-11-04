@@ -1,16 +1,15 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-matt.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1998,2004,2010,2012,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Generate and compute with various test matrices.@EOL
-;; @Keywords  interactive test matrix math library
 ;; @Std       Common Lisp
 ;;
 ;;            
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_MATT
   (:USE :COMMON-LISP
         :MJR_MAT
@@ -28,16 +27,15 @@
 
 (in-package :MJR_MATT)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_matt_help ()
   "Help for MJR_MATT: Test MATrix 
 
-This package focuses on various 'test' matrices -- i.e. matrices that have an exploitable structure allowing specialized algorithms.
-This code is not in a -test package because these matrices frequently come up in applications, and because they are very handy
-during the software development process."
+This package focuses on various 'test' matrices -- i.e. matrices that have an exploitable structure allowing specialized algorithms.  This code is not in a
+-test package because these matrices frequently come up in applications, and because they are very handy during the software development process."
   (documentation 'mjr_matt_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_matt_det-test (the-sm &key x y a b n m f)
   "Compute the determinant of special matrices.  See mjr_matt_make-test for details regarding arguments."
   (let* ((m     (or m n))
@@ -72,7 +70,7 @@ during the software development process."
       (:mp-pascal-i       1)
       (otherwise          (error "mjr_matt_det-test: Unknown matrix type requested!!")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_matt_make-test (the-sm &key x y a b k n m f)
   "Compute several special matrices.
 
@@ -103,16 +101,15 @@ during the software development process."
   :mp-cauchy-i      X           Inverse of :mp-cauchy
   :mp-cauchy-i      n           Inverse of :mp-cauchy
   :mp-parter        n           T[i,j]=1/(i-j+1/2)
-                                    T is a special case of the Cauchy matrix with X=(1:n)+1/2 & Y=-(1:n).  The diagonal and
-                                    superdiagonal are constant: T[i,i]=2 and T[i,i-1]=-2.  T is Toeplitz, persymmetric.  Most of
-                                    the singular values are very close to Pi.
+                                    T is a special case of the Cauchy matrix with X=(1:n)+1/2 & Y=-(1:n).  The diagonal and superdiagonal are constant:
+                                    T[i,i]=2 and T[i,i-1]=-2.  T is Toeplitz, persymmetric.  Most of the singular values are very close to Pi.
                                     References:
                                       Evgeny Tyrtyshnikov; Cauchy-Toeplitz matrices and some applications; Linear Algebra and Applications. Volume 149
   :mp-parter-i      n           Inverse of :mp-parter
                                     NOTE: Implemented via :mp-cauchy-i
   :mp-hilbert       n           T[i,j]=1/(i-1+j)
-                                    Condition number grows like exp(3.5*n) T is symmetric positive definite, totally positive,
-                                    and Hankel.  The Hilbert matrix is a Cauchy matrix with X=(1:n)-1 & Y=1:n
+                                    Condition number grows like exp(3.5*n) T is symmetric positive definite, totally positive, and Hankel.  The Hilbert matrix
+                                    is a Cauchy matrix with X=(1:n)-1 & Y=1:n
                                     References:
                                       M.D. Choi (1983); Tricks or treats with the Hilbert matrix; Amer. Math. Monthly 90; Page 301-312.
                                       Nicholas Higham; Accuracy and Stability of Numerical Algorithms
@@ -121,16 +118,15 @@ during the software development process."
   :mp-hilbert-i     n           Inverse of :mp-hilbert matrix
                                     T has integer entries.
   :mp-ris           n           T[i,j]=(1/2)/(n-i-j-1/2)
-                                    T is a Cauchy matrix with X=(3+2*5)-2*(1:n) & Y=-2*(1:n).  T is Hankel, symmetric, normal,
-                                    diagonalizable. The eigenvalues of T cluster around PI/2 and -PI/2.
+                                    T is a Cauchy matrix with X=(3+2*5)-2*(1:n) & Y=-2*(1:n).  T is Hankel, symmetric, normal, diagonalizable. The eigenvalues
+                                    of T cluster around PI/2 and -PI/2.
                                     Reference:
                                       John Nash; Compact Numerical Methods for Computers: Linear Algebra and Function Minimization
   :mp-ris-i         n           Inverse of :mp-ris
                                     NOTE: Implemented via :mp-cauchy-i
   :mp-westlake      n           T[1,j]=(1+min(i,j))/(1+max(i,j))
-                                    T is symmetric, normal, diagonalizable, positive definite, and totally non-negative.  The
-                                    condition number of T lies between n and 4*n*n. Frequently called Lehmer; however, the one
-                                    called Lehmer in Matlab is NOT this matrix.
+                                    T is symmetric, normal, diagonalizable, positive definite, and totally non-negative.  The condition number of T lies
+                                    between n and 4*n*n. Frequently called Lehmer; however, the one called Lehmer in Matlab is NOT this matrix.
                                     References:
                                       Morris Newman, John Todd; The evaluation of matrix inversion programs; Journal of SIAM. Vol 6
                                       John Todd; Basic Numerical Mathematics, Volume 2: Numerical Algebra
@@ -146,10 +142,9 @@ during the software development process."
                                     Inverse of :mp-minij.
                                     T has integer entries, is symmetric, normal, diagonalizable, and tridiagonal.
   :mp-pei           n,b         T[j,j]=b+1 and T[i,j]=1 otherwise
-                                    T is symmetric, normal, diagonalizable, persymmetric, positive definite when 0<b, Toeplitz,
-                                    circulant, singular only when b=0 or b=-n, and becomes more ill-conditioned as b->0.  T has
-                                    two eigenvalues: b+n (of multiplicity 1) and b (of multiplicity n-1).  The determinant of T
-                                    is (n+b)*b^(n-1).
+                                    T is symmetric, normal, diagonalizable, persymmetric, positive definite when 0<b, Toeplitz, circulant, singular only when
+                                    b=0 or b=-n, and becomes more ill-conditioned as b->0.  T has two eigenvalues: b+n (of multiplicity 1) and b (of
+                                    multiplicity n-1).  The determinant of T is (n+b)*b^(n-1).
                                     References:
                                       Morris Newman, John Todd; The evaluation of matrix inversion programs; Journal of SIAM. Vol 6
                                       ML Pei; A test matrix for inversion procedures; Communications of the ACM. Volume 5
@@ -167,12 +162,12 @@ during the software development process."
   :mp-hankel        X           Hankel with first row equal to X and zeros on sub-skew diagonals
   :mp-hankel        n           Hankel with first row equal to 1:n and zeros on sub-skew diagonals (As if X=1:n)
   :mp-hankel        f,n         T[i,j]=f(i+j)
-                                    NOTE: Hankel <=> constant skew-diagonals <=> T[i,j]=T[i-1,j+1] <=> T[i,j]=f(i+j) for f:Z->C
-                                    T is symmetric, normal, diagonalizable, constant along anti-diagonals.
+                                    NOTE: Hankel <=> constant skew-diagonals <=> T[i,j]=T[i-1,j+1] <=> T[i,j]=f(i+j) for f:Z->C T is symmetric, normal,
+                                    diagonalizable, constant along anti-diagonals.
   :mp-toeplitz      X,Y         T[i,j]=X[i-j] when i>=j, and T[i,j]=Y[j-i] otherwise
-                                    NOTE: Toeplitz <=> constant along diagonals.  Toeplitz matrices are completely defined by the
-                                    first column and first row.  The first column of T is X, and the first row of T is Y.  Note
-                                    that X[0]=Y[0], but if they do not, then the value of X[0] 'wins'. T is persymmetric.
+                                    NOTE: Toeplitz <=> constant along diagonals.  Toeplitz matrices are completely defined by the first column and first row.
+                                    The first column of T is X, and the first row of T is Y.  Note that X[0]=Y[0], but if they do not, then the value of X[0]
+                                    'wins'. T is persymmetric.
   :mp-toeplitz      X           T[i,j]=X[i-j] when i>=j, and T[i,j]=X[j-i] otherwise -- i.e. Y is set to X.
   :mp-toeplitz      n           X & Y are set to 1:n
   :mp-random        m,n,a,b     T is an m by n random matrix with elements uniformly distributed on in [a,b)

@@ -1,16 +1,35 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      lib-meta.lisp
-;; @author    Mitch Richling<http://www.mitchr.me>
-;; @Copyright Copyright 1998,2002,2004,2007,2010,2011 by Mitch Richling.  All rights reserved.
-;; @webpage   http://www.mitchr.me/SS/mjrcalc/
+;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @brief     Meta package for working with *MJRCALC* packages.@EOL
-;; @Keywords  lisp load mjr library
-;; @Std       Common Lisp
+;; @std       Common Lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1998,2002,2004,2007,2010,2011,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;; @todo      unit tests!@EOL@EOL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_META
   (:USE :COMMON-LISP)
   (:DOCUMENTATION "Brief: Meta package for working with *MJRCALC* packages.;")
@@ -27,7 +46,7 @@
 
 (in-package :MJR_META)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_meta_help ()
   "Help for the :MJR_META package:
 
@@ -36,15 +55,14 @@ INTRODUCTION
 
   This package is for working with other packages in *MJRCALC* -- finding, loading, compiling, testing, etc...
 
-  Unless the functions in this package are run within the directory containing the *MJRCALC* source, the :BASE-PATH argument must be
-  provided to let the functions know where the *MJRCALC* source is.  The value is the path, with trailing directory separator at the
-  end.  For example: '/the/full/path/to/mjrcalc/'
+  Unless the functions in this package are run within the directory containing the *MJRCALC* source, the :BASE-PATH argument must be provided to let the
+  functions know where the *MJRCALC* source is.  The value is the path, with trailing directory separator at the end.  For example:
+  '/the/full/path/to/mjrcalc/'
 
-  If you use SLIME, then you can 'cd' your LISP with the comma command or from the REPL with the SWANK:SET-DEFAULT-DIRECTORY
-  function.
+  If you use SLIME, then you can 'cd' your LISP with the comma command or from the REPL with the SWANK:SET-DEFAULT-DIRECTORY function.
 
-  Most people will use ASDF to load/compile the packages included in *MJRCALC* so the only thing of use in this package is the
-  function MJR_META_USE-PACKAGES which will do a 'use-package' for all packages designed for interactive use.
+  Most people will use ASDF to load/compile the packages included in *MJRCALC* so the only thing of use in this package is the function MJR_META_USE-PACKAGES
+  which will do a 'use-package' for all packages designed for interactive use.
 
   For people who do not use ASDF, this package can do a few useful things:
 
@@ -70,8 +88,8 @@ EXPORTED PACKAGE CONTENTS
 LOAD'N THE CODE WITH ASDF OR QUICKLISP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  With ASDF or Quicklisp, you can easily load up just the packages you need (like :MJR_MAT and its dependencies), or you 
-  can load up everything with :mjrcalc.  For example, you might load everything with ASDF like so:
+  With ASDF or Quicklisp, you can easily load up just the packages you need (like :MJR_MAT and its dependencies), or you can load up everything with :mjrcalc.
+  For example, you might load everything with ASDF like so:
 
      (require :asdf)
      (asdf:load-system :mjrcalc)
@@ -80,21 +98,18 @@ LOAD'N THE CODE WITH ASDF OR QUICKLISP
 
      (ql:quickload :mjrcalc)
 
-  When being used interactively, the next step is to do a 'use-package' on the loaded parts of *MJRCALC* designed for interactive
-  use.  This may be done like so:
+  When used interactively, the next step is to do a 'use-package' on the loaded parts of *MJRCALC* designed for interactive use.  This may be done like so:
 
      (mjr_meta::mjr_meta_use-packages :base-path (directory-namestring (asdf:system-source-directory :mjr_meta)))
 
   The above process of loading and 'using' *MJRCALC* packages may be archived by loading the file 'sup-lm-asdf.lisp'.
 
-  Note that you need a relatively recent version of ASDF for all this to work -- v3 or newer.  If you are using Quicklisp, then you
-  are OK. ;)
+  Note that you need a relatively recent version of ASDF for all this to work -- v3 or newer.  If you are using Quicklisp, then you are OK. ;)
 
 LOAD'N THE CODE
 ^^^^^^^^^^^^^^^
 
-  Using ASDF or Quicklisp is the normal way I expect most people will load the packages, but they may be loaded using :MJR_META like
-  so:
+  Using ASDF or Quicklisp is the normal way I expect most people will load the packages, but they may be loaded using :MJR_META like so:
 
      (mjr_meta::mjr_meta_load-packages)
      (mjr_meta::mjr_meta_use-packages)
@@ -104,8 +119,8 @@ LOAD'N THE CODE
 COMPILE'N THE CODE
 ^^^^^^^^^^^^^^^^^^
 
-  While most users will probably use ASDF to manage compiled versions of the code, the :MJR_META package can be to compile the code
-  without ASDF or Quicklisp/.  This is all a bit of a hack, but works -- mostly. ;)
+  While most users will probably use ASDF to manage compiled versions of the code, the :MJR_META package can be to compile the code without ASDF or
+  Quicklisp/.  This is all a bit of a hack, but works -- mostly. ;)
 
   Before compiling the code it must first be loaded.  The complete sequence looks like this:
 
@@ -116,9 +131,8 @@ COMPILE'N THE CODE
 
      (mjr_meta_load-packages :force-source-load nil)
 
-  On some LISPs you might need to provide the :OBJ-EXTENSION argument to specify the file extension used by object files.  Note that
-  on most lisps, you can leave this the empty string and the LISP will load the object code if it is up to date and the source
-  otherwise.
+  On some LISPs you might need to provide the :OBJ-EXTENSION argument to specify the file extension used by object files.  Note that on most lisps, you can
+  leave this the empty string and the LISP will load the object code if it is up to date and the source otherwise.
 
 CHANGE'N THE CODE
 ^^^^^^^^^^^^^^^^^
@@ -146,18 +160,17 @@ PACKAGE AND SYMBOL NAMING CONVENTIONS
 
       /\*MJR_([a-z]+)_([^_]+\*$)
 
-  In both symbol regular expressions, $1 is the 'package identifier' -- i.e. all external names begin with the package name followed
-  by an underscore.  The $2 could be thought of as the 'unqualified symbol name' within the package.  Note that external symbols
-  have PRECISELY two underscores when we follow the rules above.  In the code, package symbols are generally referred to in
-  lowercase.
+  In both symbol regular expressions, $1 is the 'package identifier' -- i.e. all external names begin with the package name followed by an underscore.  The $2
+  could be thought of as the 'unqualified symbol name' within the package.  Note that external symbols have PRECISELY two underscores when we follow the rules
+  above.  In the code, package symbols are generally referred to in lowercase.
 
   Using the above conventions, a typical function might be named:
 
       mjr_package:mjr_package_function-name
 
-  This redundancy is designed to provide namespace isolation at the language level and at the interactive REPL level even if all the
-  packages are 'USED'.  This second form of namespace separation makes auto-completion work nicely in clisp, SLIME, and rlwrap.  The
-  biggest disadvantage is that it lengthens function names in source code files.
+  This redundancy is designed to provide namespace isolation at the language level and at the interactive REPL level even if all the packages are 'USED'.
+  This second form of namespace separation makes auto-completion work nicely in clisp, SLIME, and rlwrap.  The biggest disadvantage is that it lengthens
+  function names in source code files.
 
   Unit test packages have names that look like
 
@@ -165,9 +178,8 @@ PACKAGE AND SYMBOL NAMING CONVENTIONS
 
   The test will be for a package named MJR_$1 (i.e. with package identifier of $1).
 
-  Unit test files contain tests, data, and functions.  These symbols have names that match the ASSOCIATED package they test.
-  Ex: :MJR_FOO-TESTS might contain a function named MJR_FOO_BAR-NAIVE.  Note that this function looks like it might belong to the
-  package :MJR_FOO!
+  Unit test files contain tests, data, and functions.  These symbols have names that match the ASSOCIATED package they test.  Ex: :MJR_FOO-TESTS might contain
+  a function named MJR_FOO_BAR-NAIVE.  Note that this function looks like it might belong to the package :MJR_FOO!
 
   An alternate implementation for a function found in a unit test package have names that end with '-naive[0-9]'.
 
@@ -184,19 +196,17 @@ PACKAGE AND SYMBOL NAMING CONVENTIONS
                  ...))
       (in-package :MJR_PKG)
 
-  The order of the forms contained within the defpackage is important.  The :USE, :DOCUMENTATION, and :EXPORT components may only
-  appear in this order, and, when present, they must appear immediately after the package name.  The :USE component is required --
-  all *MJRCALC* packages use :COMMON-LISP.
+  The order of the forms contained within the defpackage is important.  The :USE, :DOCUMENTATION, and :EXPORT components may only appear in this order, and,
+  when present, they must appear immediately after the package name.  The :USE component is required -- all *MJRCALC* packages use :COMMON-LISP.
 
-  In the above, :MJR_PKG is the name of the package -- i.e. the package identifier is 'PKG'.  The package symbol and dependency
-  symbols should be UPPERCASE.  This structure allows the following code to dynamically discover all package dependencies, and then
-  load the packages in an order consistent with those package dependencies.
+  In the above, :MJR_PKG is the name of the package -- i.e. the package identifier is 'PKG'.  The package symbol and dependency symbols should be UPPERCASE.
+  This structure allows the following code to dynamically discover all package dependencies, and then load the packages in an order consistent with those
+  package dependencies.
 
 FILE NAME CONVENTIONS
 ^^^^^^^^^^^^^^^^^^^^^
 
-  The package identifier relates to the source code files holding the code and unit tests.  Let $1 be as in the
-  first regexp above, then:
+  The package identifier relates to the source code files holding the code and unit tests.  Let $1 be as in the first regexp above, then:
 
     -  lib-<PACKAGE_ID>.lisp .............. non-interactive library for PACKAGE_ID
     -  use-<PACKAGE_ID>.lisp .............. interactive library for PACKAGE_ID
@@ -218,7 +228,7 @@ FILE NAME CONVENTIONS
     - exp-<EXAMP_ID>-ART-<TAG4>.<EXT4> .... An artifact generated from an additional process (ex: image generated by povray)"
   (documentation 'mjr_meta_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_meta_parse-package-doc (docstring)
   "Parse standard *MJRCALC* package documentation strings."
   (loop with ppos = 0
@@ -230,7 +240,7 @@ FILE NAME CONVENTIONS
                         (string-trim " " (subseq tmp (1+ cpo)))))
         do (setq ppos (1+ npos))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_meta_scan-packages (prefixes-to-consider &key show-progress base-path)
   "Scan the source directory for packages.
 
@@ -272,7 +282,7 @@ The value of PREFIXES-TO-CONSIDER must be :pc-src or :pc-tst"
           do (if show-progress (format 't "Found package: ~20a ::: ~s~%" pkg-name pkg-path))
           collect (list pkg-name pkg-path pkg-file pkg-uses pkg-docs))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_meta_load-packages (&key (force-source-load 't) (object-extension "") show-progress base-path)
   "Load all *MJRCALC* packages."
   (let* ((all-load-s-time (float (/ (get-internal-real-time) internal-time-units-per-second)))
@@ -302,12 +312,12 @@ The value of PREFIXES-TO-CONSIDER must be :pc-src or :pc-tst"
           (format 't "Not Loaded: ~a~%" (set-difference (mapcar #'car pkg-data) pkg-loaded))))
     num-loaded))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_meta_use-packages (&key use-all show-progress base-path)
   "Preforms a use-package for each loaded *MJRCALC* package that is intended for interactive use.
 
-If :use-all is non-NIL, then all *MJRCALC* packages are even if they are 'lib-' packages.  When :use-all is non-NIL, this function
-will not call MJR_META_SCAN-PACKAGES."
+If :use-all is non-NIL, then all *MJRCALC* packages are even if they are 'lib-' packages.  When :use-all is non-NIL, this function will not call
+MJR_META_SCAN-PACKAGES."
   (let ((num-used (if use-all
                       (loop for pkg-name in (mapcar #'package-name (list-all-packages))
                             when (equalp 0 (search "MJR_" pkg-name))
@@ -323,18 +333,20 @@ will not call MJR_META_SCAN-PACKAGES."
     (format 't "Used ~d packages!~%" num-used)
     num-used))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_meta_compile-packages (&key show-progress base-path)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_meta_compile-packages (&key show-progress base-path quiet-compile)
   "Compile all packages in *MJRCALC*."
   (let ((num-compiled (loop for (pkg-name pkg-path pkg-file pkg-uses pkg-docs) in (mjr_meta_scan-packages :pc-src :show-progress show-progress :base-path base-path)
                             when (find-package pkg-name)
                             do (if show-progress (format 't "Compiling package: ~a~%" pkg-name))
                             and
-                            count (compile-file pkg-path))))
+                            count (if quiet-compile
+                                      (compile-file pkg-path :verbose nil :print nil)
+                                      (compile-file pkg-path)))))
     (format 't "Compiled ~d packages!~%" num-compiled)
     num-compiled))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_meta_asdfify-packages (&key show-progress base-path)
   "Create ASDF files for all packages and the MJRCALC 'package'."
   (let* ((pkg-auth    "Mitch Richling <http://www.mitchr.me/>")
@@ -386,7 +398,7 @@ will not call MJR_META_SCAN-PACKAGES."
     (format 't "ASDFify'ed 1 meta package!~%")
     num-asdfify))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_meta_dotify-packages (&key (out-file-name "gr.dot") show-progress base-path)
   "Create dot code for dependency graphs.
 
@@ -417,7 +429,7 @@ See: sup-updDepImage.sh for how the dependency graphs on the web site are genera
     (format stream "}~%")
     (format 't "Wrote ~a~%" out-file-name)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_meta_test-packages (&key show-progress base-path)
   "Load and run all unit tests."
   (if (not (find-package :LISP-UNIT))

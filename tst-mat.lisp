@@ -1,21 +1,20 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      tst-mat.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1995-2010,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Tests for use-mat.lisp@EOL
-;; @Keywords  
 ;; @Std       Common Lisp
 ;;
 ;;            
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_MAT-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_MAT :MJR_CMP :MJR_VEC :MJR_PRNG :MJR_MATT :MJR_ARR))
 
 (in-package :MJR_MAT-TESTS)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mat_det-ge-naive1 (matrix &key show-progress pivot-row)
   "Return the determinant of a matrix or NIL if the matrix is not square or empty.
 This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINATE. :)"
@@ -28,7 +27,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
              (/ deti)
              0))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mat_det-ge-naive2 (matrix &key show-progress pivot-row elim-method)
   "Return the determinant of a matrix or NIL if the matrix is not square or empty.
 This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINATE. :)"
@@ -132,7 +131,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
 ; (assert-true (mjr_mat_test-property-struct qrt1-qa :mp-u-triangular))
 ; (assert-equalp 1 (mjr_mat_det qrt1-q)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_rows
   (assert-equal 3 (mjr_mat_rows m))
   (assert-equal 2 (mjr_mat_rows wm))
@@ -146,7 +145,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equal 0 (mjr_mat_rows em))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_cols
   (assert-equal 3 (mjr_mat_cols m))
   (assert-equal 3 (mjr_mat_cols wm))
@@ -160,7 +159,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equal 0 (mjr_mat_cols em))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_matp
   (assert-true  (mjr_mat_matp m))
   (assert-false (mjr_mat_matp v3))
@@ -176,7 +175,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-false (mjr_mat_matp #C(1 2)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_make-const
   (assert-equalp #2a((0 0)(0 0)(0 0))   (mjr_mat_make-const 3 2))
   (assert-equalp #2a((1 1 1)(1 1 1))    (mjr_mat_make-const 2 3 1))
@@ -185,7 +184,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   )
 
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_make-zero
   (assert-equalp #2a((0 0)(0 0)(0 0))   (mjr_mat_make-zero 3 2))
   (assert-equalp #2a((0 0 0)(0 0 0))    (mjr_mat_make-zero 2 3))
@@ -202,7 +201,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
 
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_cv2m
   (assert-equalp m               (mjr_mat_cv2m m))
   (assert-equalp wm              (mjr_mat_cv2m wm))
@@ -212,7 +211,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp #2a((1)(2)(3))  (mjr_mat_cv2m v3))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_m2cv
   (assert-equalp #(1 2 3 4 5 6 7 8 9)  (mjr_mat_m2cv vtm))
   ;; No conversion cases
@@ -224,7 +223,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp v3                    (mjr_mat_m2cv v3))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_make-from-func
   (assert-equalp c23                                                                     (mjr_mat_make-from-func #'complex :rows 2 :cols 3))
   (assert-equalp c33                                                                     (mjr_mat_make-from-func #'complex :rows 3))
@@ -240,7 +239,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp #2A((#C(1 2) #C(1 4) #C(1 6)) (#C(2 2) #C(2 4) #C(2 6)))                (mjr_mat_make-from-func #'complex :rpoints #(1 2) :cpoints #(2 4 6)))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_make-and-fill
   ;; Just right
   (assert-equalp m                                              (mjr_mat_make-and-fill m v9))
@@ -261,14 +260,14 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp wm                                             (mjr_mat_make-and-fill 2 3 L9))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_make-diag
   (assert-equalp #2a((1 0 0)(0 2 0)(0 0 3))                      (mjr_mat_make-diag #(1 2 3)))
   (assert-equalp #2A((0 1 0 0) (0 0 2 0) (0 0 0 3) (0 0 0 0))    (mjr_mat_make-diag #(1 2 3) 1))
   (assert-equalp #2A((0 0 0 0) (1 0 0 0) (0 2 0 0) (0 0 3 0))    (mjr_mat_make-diag #(1 2 3) -1))
   )
  
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_make-poly-companion
   (assert-equalp #2A((0 -5/3) (1 -4/3))              (mjr_mat_make-poly-companion #(3 4 5)))
   (assert-equalp #2A((-4/3 -5/3) (1 0))              (mjr_mat_make-poly-companion #(3 4 5) :form :matlab))
@@ -282,7 +281,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp #2A((0 1 0) (0 0 1) (-5/2 -2 -3/2)) (mjr_mat_make-poly-companion #(2 3 4 5) :form :transpose))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_make-identity
   (assert-equalp #2a((1 0 0)(0 1 0)(0 0 1))                  (mjr_mat_make-identity 3))
   (assert-equalp #2a((1 0 0 0)(0 1 0 0)(0 0 1 0)(0 0 0 1))   (mjr_mat_make-identity 4))
@@ -307,7 +306,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error                                       (mjr_mat_make-identity 't))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_make-table
   (assert-equalp #2A((0 0) (1 1) (2 2))          (mjr_mat_make-table (lambda (x) (+ x))                    :len 3 :n 1 :arg-mode :arg-number))
   (assert-equalp #2A((0 0 0) (0 1 1) (0 2 2) 
@@ -317,7 +316,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp #2A((0 0 0) (1 1 2) (2 4 4))    (mjr_mat_make-table (lambda (x) (vector (* x x) (* 2 x))) :len 3 :n 1 :arg-mode :arg-number))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_code
   ;; Test defaults, alternate spec of language, etc...
   (assert-equal "[1,2,3;4,5,6;7,8,9]"                                  (mjr_mat_code m))
@@ -357,7 +356,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
 "                                                                      (mjr_mat_code m :lang :lang-csvl))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_transpose
   (assert-equalp   #2A((1 4 7) (2 5 8) (3 6 9))                     (mjr_mat_transpose m))
   (assert-equalp #2A((1 4 7) (2 5 8))                               (mjr_mat_transpose tm))
@@ -365,7 +364,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp #2A((0 1) (#C(0 -1) #C(1 -1)) (#C(0 -2) #C(1 -2))) (mjr_mat_transpose c23))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_*
   (assert-equalp #2A((30 36 42) (66 81 96) (102 126 150))             (mjr_mat_* m m))
   (assert-equalp #2A((30 36 42) (66 81 96))                           (mjr_mat_* wm m))
@@ -384,7 +383,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error                                                (mjr_mat_* m em))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_+
   (assert-equalp #2A((2 4 6) (8 10 12) (14 16 18))                    (mjr_mat_+ m m))
   (assert-equalp #2A((3 6 9) (12 15 18) (21 24 27))                   (mjr_mat_+ m m m))
@@ -402,7 +401,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error                                                (mjr_mat_+ m em))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_expt
   (assert-equalp m                                                    (mjr_mat_expt m 1))
   (assert-equalp #2A((30 36 42) (66 81 96) (102 126 150))             (mjr_mat_expt m 2))
@@ -413,7 +412,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp nil                                                  (mjr_mat_expt m -2))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_ew*
   (assert-equalp #2A((1 4 9) (16 25 36) (49 64 81))                   (mjr_mat_ew* m m))
   (assert-equalp #2A((1 8 27) (64 125 216) (343 512 729))             (mjr_mat_ew* m m m))
@@ -432,7 +431,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error                                                (mjr_mat_ew* m em))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_ew/
   (assert-equalp #2A((1 1 1) (1 1 1) (1 1 1))                         (mjr_mat_ew/ m m))
   (assert-equalp #2A((1 1/2 1/3) (1/4 1/5 1/6) (1/7 1/8 1/9))         (mjr_mat_ew/ m m m))
@@ -451,7 +450,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error                                                (mjr_mat_ew/ m em))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_-
   (assert-equalp #2A((-1 -2 -3) (-4 -5 -6) (-7 -8 -9))                (mjr_mat_- m))
   (assert-equalp #2A((0 0 0) (0 0 0) (0 0 0))                         (mjr_mat_- m m))
@@ -471,7 +470,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error                                                (mjr_mat_- m em))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_s/
   (assert-equalp #2A((1/2 1 3/2) (2 5/2 3) (7/2 4 9/2))               (mjr_mat_s/ m 2))
   (assert-equalp em                                                   (mjr_mat_s/ em 2))
@@ -481,7 +480,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp #2A((1/2) (1) (3/2))                                 (mjr_mat_s/ v3 2))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_float
   (assert-equalp mf                     (mjr_mat_float m))
   (assert-equalp cf23                   (mjr_mat_float c23))
@@ -496,7 +495,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
                                              sum 1)))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_rationalize
   (assert-equalp m                                      (mjr_mat_rationalize m))
   (assert-equalp m                                      (mjr_mat_rationalize mf))
@@ -513,7 +512,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
                                              sum 1)))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_diag
   (assert-equalp #(1 5 9) (mjr_mat_diag m))
   (assert-equalp #(1 5)   (mjr_mat_diag wm))
@@ -523,7 +522,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp #(1)     (mjr_mat_diag v3))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_every-idx
   ;;(pred rows-or-matrix &optional cols-or-missing)
   (assert-true  (mjr_mat_every-idx (lambda (i j) (integerp (aref m i j)))  m))
@@ -536,7 +535,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-true  (mjr_mat_every-idx (lambda (i j) (and (< i 3) (< j 3)))   3 2))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_test-property-struct
   (assert-true (mjr_mat_test-property-struct #2a((11 12 13 14 15)
                                                  (21 22 23 24 14)
@@ -560,7 +559,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
                                                   (1 2 3 5 5)) :mp-toeplitz))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_trace
   (assert-equalp 15  (mjr_mat_trace m))
   (assert-equalp 6   (mjr_mat_trace wm))
@@ -570,7 +569,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp 1   (mjr_mat_trace v3))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_diag-prod
   (assert-equalp 45  (mjr_mat_diag-prod m))
   (assert-equalp 5   (mjr_mat_diag-prod wm))
@@ -580,7 +579,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp 1   (mjr_mat_diag-prod v3))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_print
   ;; This is one way to temporally redirect standard output...
   (with-output-to-string (*standard-output* nil)
@@ -629,7 +628,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
     )
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_rowop-swap
   ;; square
   (assert-equalp #2A((4 5 6) (1 2 3) (7 8 9))   (mjr_mat_rowop-swap m    0 1))
@@ -667,7 +666,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error                          (mjr_mat_rowop-swap m    0 3))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_rowop-mult
   (assert-equalp #2A((-1 -2 -3)(4 5 6)(7 8 9))  (mjr_mat_rowop-mult m    0 -1))
   (assert-equalp #2A((1 2 3)(-4 -5 -6)(7 8 9))  (mjr_mat_rowop-mult m    1 -1))
@@ -683,7 +682,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error                          (mjr_mat_rowop-mult m    3 1))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_rowop-div
   (assert-equalp #2A((1/2 1 3/2)(4 5 6)(7 8 9)) (mjr_mat_rowop-div m    0 2))
   (assert-equalp #2A((1 2 3)(2 5/2 3)(7 8 9))   (mjr_mat_rowop-div m    1 2))
@@ -700,7 +699,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error                                      (mjr_mat_rowop-div m    3 1))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_rowop-mult-add
   ;; square
   (assert-equalp #2A((1 2 3) (0 -3 -6) (7 8 9))             (mjr_mat_rowop-mult-add m    0 1))
@@ -732,7 +731,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error                                      (mjr_mat_rowop-mult-add m    0 3))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_norm
   (assert-equal 24  (mjr_mat_norm m))
   (assert-equal 24  (mjr_mat_norm m  :norm :infinity))
@@ -745,7 +744,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
       (assert-equalp (mjr_mat_norm m :norm :one) (mjr_mat_norm m :norm 1))))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_minor
   ;; Normal cases
   (assert-equalp #2A((1 3 4 4) (7 9 8 2) (9 7 6 1) (3 1 3 9))  (mjr_mat_minor m5 1   1))
@@ -779,7 +778,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp #2a((1)(4)(7))                                (mjr_mat_minor tm nil 1))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_det-small
   ;; Normal cases
   (assert-equalp 0        (mjr_mat_det-small m))
@@ -799,7 +798,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp nil  (mjr_mat_det-small m5)) ;; too big
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_det-minor-expand
   ;; Normal cases
   (assert-equalp 0        (mjr_mat_det-minor-expand m))
@@ -820,7 +819,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp nil  (mjr_mat_det-minor-expand wm))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_factor-qdr
   (assert-equalp (values #2A((1 9/11 -1/6) (4 3/11 1/3) (7 -3/11 -1/6))
                          #2A((1/66 0 0) (0 11/9 0) (0 0 6))
@@ -833,7 +832,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error (mjr_mat_factor-qdr m))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_eliminate
   (assert-equalp (values #2A((0 6/7 12/7) (0 0 0) (7 0 -7)) #(2 0 NIL))    (mjr_mat_eliminate m  :full-elim 't))
   (assert-equalp (values #2A((0 6/7 12/7) (0 0 0) (7 0 -7)) #(2 0 NIL))    (mjr_mat_eliminate m  :full-elim 't :pivot-row :max-non-zero))
@@ -849,7 +848,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   ;; XREF: This function is heavily tested in mjr_mat_det-ge, mjr_mat_solve-sys-sge, mjr_mat_inv-sge, and mjr_mat_rank-sge .
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_det-ge
   ;; Normal cases
   (assert-equalp 0        (mjr_mat_det-ge m))
@@ -870,7 +869,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp nil  (mjr_mat_det-ge wm))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_det
   ;; Normal cases
   (assert-equalp 0        (mjr_mat_det m))
@@ -891,7 +890,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp nil  (mjr_mat_det wm))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_solve-sys-sub
   (assert-equalp #(2 3)                         (mjr_mat_solve-sys-sub #2A((0 1) (1 0) (0 0)) #(3 2 0)))
   (assert-equalp #2A((2) (3))                   (mjr_mat_solve-sys-sub #2A((0 1) (1 0) (0 0)) #2A((3) (2) (0))))
@@ -903,7 +902,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp (values #(2 3) #(1 0 -1) NIL)  (mjr_mat_solve-sys-sub #2A((0 1) (1 0) (0 0)) #(3 2 2) :return-partial-results 't))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_solve-sys-sge
   (assert-equalp #(-1/3 2/3 0)                                (mjr_mat_solve-sys-sge mi v3))
   (assert-equalp #2A((-1/3) (2/3) (0))                        (mjr_mat_solve-sys-sge mi mv3))
@@ -928,7 +927,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error                                        (mjr_mat_solve-sys-sge tm v2))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_inv
   ;; Good matrix
   (assert-equalp #2A((1/2))                                                          (mjr_mat_inv m1i))
@@ -950,7 +949,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp nil                                                                 (mjr_mat_inv m))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_rank-sge
   (assert-equalp 5    (mjr_mat_rank-sge m5))
   (assert-equalp 4    (mjr_mat_rank-sge m4))
@@ -969,7 +968,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error (mjr_mat_rank-sge em))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_cpoly-eval
   (assert-equalp 6196  (mjr_mat_cpoly-eval m5 -3))
   (assert-equalp 4632  (mjr_mat_cpoly-eval m5 -2))
@@ -988,7 +987,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error (mjr_mat_cpoly-eval tm 0))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_cpoly
   (assert-equalp #(1 -30 69 846 -806 700)                                           (mjr_mat_cpoly m5))
   (assert-equalp #(1 -20 -83 84 6)                                                  (mjr_mat_cpoly m4))
@@ -1003,7 +1002,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error (mjr_mat_cpoly tm))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_cpoly-fl
   (assert-equalp #(1 -30 69 846 -806 700)                                           (mjr_mat_cpoly m5))
   (assert-equalp #(1 -20 -83 84 6)                                                  (mjr_mat_cpoly m4))
@@ -1018,7 +1017,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-error 'error (mjr_mat_cpoly tm))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_inv-fl
   ;; Good matrix
   (assert-equalp #2A((1/2))                                                          (mjr_mat_inv-fl m1i))
@@ -1040,7 +1039,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp nil                                                                 (mjr_mat_inv-fl m))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_inv-sge
   ;; Good matrix
   (assert-equalp #2A((1/2))                                                          (mjr_mat_inv-sge m1i))
@@ -1062,7 +1061,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp nil                                                                 (mjr_mat_inv-sge m))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_eigen-rational
   (assert-equalp (sort (list 1 2 3)             #'<) (sort (mjr_mat_eigen-rational aCoMfTCA5-1)  #'<))
   (assert-equalp (sort (list 3 3 6)             #'<) (sort (mjr_mat_eigen-rational aCoMfTCA5-2)  #'<))
@@ -1070,7 +1069,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp (sort (list -3 -2 2 3/2 1 1/3) #'<) (sort (mjr_mat_eigen-rational aCoMfTCA5-25) #'<))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_test-property-math
   ;; Empty matrix case
   (assert-false (mjr_mat_test-property-math em :mp-involutary))
@@ -1082,7 +1081,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-false (mjr_mat_test-property-math em :mp-invertible))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_inv-small
   (assert-equalp #2A((1/2))          (mjr_mat_inv-small m1i))
   ;; Make sure mjr_mat_inv-fl is consistent with mjr_mat_inv.
@@ -1106,7 +1105,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Combo tests
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_make-poly-companion-mjr_mat_cpoly
   ;; Compute monic, random polynomial over Z, compute the associated
   ;; companion matrix, compute the cpoly, make sure they match
@@ -1119,7 +1118,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
       (assert-equalp pr (mjr_mat_cpoly (mjr_mat_make-poly-companion pr :form :transpose)))))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_xxx_det
   ;; Make sure that all the det functions agree.
   (loop for j from 4 upto 8 by 4  ;; Make sure we have lots of small matrices
@@ -1152,7 +1151,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
                  do (progn (assert-equalp bd (mjr_mat_det-small b))
                            (assert-equalp cd (mjr_mat_det-small c))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_xxx_inv
   ;; Make sure that all the inv functions agree.
   (loop for j from 3 upto 10 by 6  ;; Make sure we have lots of small matrices
@@ -1178,7 +1177,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
                  do (assert-equalp ai (mjr_mat_inv-fl a))
                  )))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_inv_det_mul_eq_1
   ;; Compute random matrix with integer elements -- det and inv done
   ;; with exact, rational arithmetic.  If det != 0, then:
@@ -1197,7 +1196,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
             (assert-true (mjr_mat_test-property-struct (mjr_mat_* mr mri) :mp-identity))
             (assert-equalp mr (apply 'mjr_mat_* (multiple-value-list (mjr_mat_factor-qdr mr)))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_cpoly-eq-mjr_mat_cpoly-det
   ;; Make sure mjr_mat_cpoly and mjr_mat_cpoly-det have same value.
   (dotimes (i 50) 
@@ -1207,13 +1206,13 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
       (assert-equalp cp (mjr_mat_cpoly-det mr))
       (assert-equalp cp (mjr_mat_cpoly-fl  mr)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_help
   ;; Note: This function dosen't need test cases..
   1
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_apply-gauss-1!!
   ;; Some hand picked test cases
   (assert-equalp  #2a((4 5 6)(1 2 3)(7 8 8)) (mjr_mat_apply-gauss-1!! (mjr_arr_copy2 mi) 0 1))
@@ -1233,7 +1232,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   ;; XREF: This function is heavily tested in mjr_mat_eliminate
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_apply-gauss-2!!
   ;; Some hand picked test cases
   (assert-equalp  #2a((3 6 9)(4 5 6)(7 8 8))    (mjr_mat_apply-gauss-2!! (mjr_arr_copy2 mi) 3 0))
@@ -1247,7 +1246,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   ;; XREF: This function is heavily tested in mjr_mat_eliminate
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_apply-gauss-3!!
   ;; Some hand picked test cases
   (assert-equalp  #2A((1 2 3)(7 11 15)(7 8 8))  (mjr_mat_apply-gauss-3!! (mjr_arr_copy2 mi) 3 0 1))
@@ -1267,6 +1266,6 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   ;; XREF: This function is heavily tested in mjr_mat_eliminate
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests
  )

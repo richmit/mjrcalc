@@ -1,16 +1,15 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-const.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997-2002,2004-2008,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Physical constants -- with units.@EOL
-;; @Keywords  lisp interactive physical constants units physics
 ;; @Std       Common Lisp
 ;;
 ;;            
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_CONST
   (:USE :COMMON-LISP
         :MJR_UNITS
@@ -21,7 +20,7 @@
 
 (in-package :MJR_CONST)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_const_search (search-string &key units return-as-interval suppress-ambiguous-results prefix-search case-sensitive)
   "Search for physical constant data.
 The return depends upon the search results:
@@ -228,7 +227,7 @@ If SEARCH-STRING. ends in a colon (:), then :SUPPRESS-AMBIGUOUS-RESULTS and :PRE
          (results                    (loop for c in const-list
                                            for good-match = (if prefix-search
                                                                 (mjr_string_starts-with search-string (fourth c) :case-sensitive case-sensitive)
-                                                                (search search-string (fourth c) :test (if :case-sensitive #'string-equal #'string=)))
+                                                                (search search-string (fourth c) :test (if case-sensitive #'string-equal #'string=)))
                                            when good-match
                                            collect c
                                            until (and good-match suppress-ambiguous-results)))

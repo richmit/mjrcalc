@@ -1,21 +1,40 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;; @file      tst-dquad.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @Copyright Copyright 1995-2010,2013 by Mitch Richling.  All rights reserved.
-;; @brief     Tests for use-dquad.lisp@EOL
-;; @Keywords  
-;; @Std       Common Lisp
+;; @brief     @EOL
+;; @std       Common Lisp
+;; @see       use-dquad.lisp
+;; @copyright 
+;;  @parblock
+;;  Copyright (c) 1995-2010,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
 ;;
-;;            
-;;            
+;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+;;
+;;  1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+;;
+;;  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation
+;;     and/or other materials provided with the distribution.
+;;
+;;  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software
+;;     without specific prior written permission.
+;;
+;;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;;  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+;;  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+;;  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+;;  DAMAGE.
+;;  @endparblock
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_DQUAD-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_DQUAD :MJR_UTIL))
 
 (in-package :MJR_DQUAD-TESTS)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar a)
 (setq a (mjr_dquad_make-from-axis "x"                                            '(:start 1 :end 10 :len 10)
                                   '((:dq-nam . "y") (:dq-typ . :dq-typ-integer)) #(2 3 4 5)))
@@ -60,41 +79,34 @@
 (defvar a-z1+z2-t  :dq-typ-real)
 (defvar a-x+y+z1-t :dq-typ-real)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar b)
 (null (setq b (mjr_dquad_make-from-axis "x" (list :start (* -2 pi) :end (* 2 pi) :len 100) "y" (list :start (* -2 pi) :end (* 2 pi) :len 100))))
 (null (mjr_dquad_add-data-from-map b (lambda (x y) (sin (sqrt (+ (* x x) (* y y))))) :axes 't :arg-mode :arg-number :dq-nam "sindst" :dq-typ :dq-typ-real))
 (null (mjr_dquad_add-data b (mjr_dquad_colorize b :data '(0) :color-method "rgb" :color-space :cs-rgb :max-color 1 :auto-scale 't) :dq-nam "cRGB" :dq-typ :dq-typ-color :dq-colorspace :cs-rgb))
 (null (mjr_dquad_add-data b (mjr_dquad_colorize b :data '(0) :color-method "01"  :color-space :cs-rgb :max-color 1 :auto-scale 't) :dq-nam "cBW"  :dq-typ :dq-typ-color :dq-colorspace :cs-rgb))
 
-;; (mjr_plot_data :xdat (mjr_dquad_get-axis-vector-by-name b "x") :ydat (mjr_dquad_get-axis-vector-by-name b "y") :zdat (mjr_dquad_get-data-array-by-name b "sindst") :span -1 :type :f)
-;; (mjr_vtk_from-gndata "a.vtk" :xdat (mjr_dquad_get-axis-vector-by-name b "x") :ydat (mjr_dquad_get-axis-vector-by-name b "y") :scalar-array (mjr_dquad_get-data-array-by-name b "sindst"))
-;; (mjr_img_tga-write "a.tga" (mjr_img_make-from-gndata (mjr_dquad_get-data-array-by-name b "sindst") :color-method "01" :auto-scale 't))
-
-;; (mjr_img_tga-write "a.tga" (mjr_dquad_get-data-array-by-name b "cRGB") :color-space :cs-rgb :color-unpacker #'identity)
-
-
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar c '(1
             ((:dq-nam . "X Values") (:dq-typ . :dq-typ-real))                      #(1 2 3)
             ((:dq-nam . "Y Values") (:dq-typ . :dq-typ-real))                      #(1 4 9)
             ((:dq-nam . "C") (:dq-typ . :dq-typ-color) (:dq-colorspace . :cs-rgb)) #(#(0.1 0.2 0.3) #(0.4 0.5 0.6) #(0.7 0.8 1.0))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar d (mjr_dquad_make-from-axis "x" '(:start -2 :end 2 :len 5) "y" '(:start -2 :end 2 :len 5)))
 (mjr_dquad_add-data-from-map d (lambda (x y) (* x y)) :axes 't :dq-nam "z")
 (mjr_dquad_add-data-from-map d (lambda (x y) (vector (* x x) (* y y) (* x y))) :axes 't :dq-nam "uvw")
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar e (mjr_dquad_make-from-axis "u" '(:start 0 :end 7.0 :len 5)))
 (mjr_dquad_add-data-from-map e (lambda (u) (vector (sin u) (cos u) (/ u 7))) :axes 't :dq-nam "xyz")
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_read-from-file
   (assert-equalp a (mjr_dquad_read-from-file "tst-dquad-REG-a.qgd"))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_write-to-file
   (let ((p (probe-file "tst-dquad-OUT-a.qgd"))) (if p (delete-file p)))
   (mjr_dquad_write-to-file a "tst-dquad-OUT-a.qgd")
@@ -107,27 +119,27 @@
                 (mjr_util_read-file "tst-dquad-REG-c.qgd"))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_data-array-size
   (assert-equalp a-lena (mjr_dquad_data-array-size a))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_axis-vector-lengths
   (assert-equalp a-lena (mjr_dquad_axis-vector-lengths a))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_data-count
   (assert-equal a-numd (mjr_dquad_data-count a))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_axis-count          
   (assert-equal a-numa (mjr_dquad_axis-count a))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_get-data-array-by-index 
   (assert-equalp a-z1     (mjr_dquad_get-data-array-by-index a 0))
   (assert-equalp a-z2     (mjr_dquad_get-data-array-by-index a 1))
@@ -144,7 +156,7 @@
   (assert-error 'error     (mjr_dquad_get-data-array-by-index a 7))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_get-data-array-by-name
   (assert-equalp a-z1     (mjr_dquad_get-data-array-by-name a "z1"))
   (assert-equalp a-z2     (mjr_dquad_get-data-array-by-name a "z2"))
@@ -164,7 +176,7 @@
   (assert-error 'error     (mjr_dquad_get-data-array-by-name a 7))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_get-axis-vector-by-index
   (assert-equalp a-x    (mjr_dquad_get-axis-vector-by-index a 0))
   (assert-equalp a-y    (mjr_dquad_get-axis-vector-by-index a 1))
@@ -176,7 +188,7 @@
   (assert-error 'error  (mjr_dquad_get-axis-vector-by-index a 5))
   )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_get-axis-vector-by-name
   (assert-equalp a-x     (mjr_dquad_get-axis-vector-by-name a "x"))
   (assert-equalp a-y     (mjr_dquad_get-axis-vector-by-name a "y"))
@@ -191,7 +203,7 @@
   (assert-error 'error    (mjr_dquad_get-axis-vector-by-name a 5))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_get-axis-ano-by-index    
   (assert-equalp a-x-n     (mjr_dquad_get-axis-ano-by-index a 0 :dq-nam))
   (assert-equalp a-y-n     (mjr_dquad_get-axis-ano-by-index a 1 :dq-nam))
@@ -211,7 +223,7 @@
   (assert-error 'error  (mjr_dquad_get-axis-ano-by-index a 0 5   ))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_get-data-ano-by-index    
 
   (assert-equalp a-z1-t     (mjr_dquad_get-data-ano-by-index a 0 :dq-typ))
@@ -242,12 +254,12 @@
   (assert-error 'error  (mjr_dquad_get-data-ano-by-index a 0 7   ))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_copy
   (assert-equalp a (mjr_dquad_copy a))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_dquad_slab
   (assert-equalp a                                                                                                (mjr_dquad_slab a nil nil))
   (assert-equalp '(1 
@@ -275,6 +287,6 @@
   (assert-error 'error  (mjr_dquad_slab a 10 nil))
 )
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests
  )

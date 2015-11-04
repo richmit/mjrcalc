@@ -1,16 +1,15 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-probe.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1995,2013 by Mitch Richling.  All rights reserved.
 ;; @brief     Empirical probability distriubtions.@EOL
-;; @Keywords  lisp interactive math empirical probability distributions
 ;; @Std       Common Lisp
 ;;
 ;;            Experimental!
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_PROBE
   (:USE :COMMON-LISP
         :MJR_PRNG
@@ -29,15 +28,15 @@
 
 (in-package :MJR_PROBE)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_help ()
   "Help for MJR_PROBE:
 
 Empirical Random Variables
 
-All random variables in this package are on $Z_n$, integers in $[0, n-1], and they are explicitly specified via
-data (i.e. empirically) in the form of use-a.lisp vector or list that represents an EPDF, ECDF, EWT, ECWT, EFREQ, ECFREQ, or DATA for
-the random variable in question.  As an example, the random variable for a fair, six sided die might be represented as:
+All random variables in this package are on $Z_n$, integers in $[0, n-1], and they are explicitly specified via data (i.e. empirically) in the form of
+use-a.lisp vector or list that represents an EPDF, ECDF, EWT, ECWT, EFREQ, ECFREQ, or DATA for the random variable in question.  As an example, the random
+variable for a fair, six sided die might be represented as:
 
                                      |--------+-------------------------------+-----------------|
                                      | form   | value for a fair, 6 sided die | Notes           |
@@ -55,18 +54,16 @@ the random variable in question.  As an example, the random variable for a fair,
 
 Let $\\mathbf{X}$ be a random variable taking values in $\\mathbb{Z}_n$.
 
-The \\emph{Probability Density Function (\\emph{\\texttt{PDF}}) for $\\mathbf{X}$} is defined as
-$P:\\mathbf{Z}_n\\rightarrow[0,1]\\subset\\mathbf{R}$, where $P(i)=Prob(\\mathbf{X}=i)$.  The \\emph{Empirical Probability Density
-Function (\\emph{\\texttt{EPDF}}) for $\\mathbf{X}$} is not a function at all, but a vector defined by
-$\\overline{P}=(p_i)_{i\\in\\mathbb{Z}_n}\\in\\mathbb{R}^n$ where $p_i=P(i)$.  Thus $\\overline{P}$ is little more than a table of
-values for $P$, and so the word \\emph{empirical} is used to mean \\emph{given by data}.
+The \\emph{Probability Density Function (\\emph{\\texttt{PDF}}) for $\\mathbf{X}$} is defined as $P:\\mathbf{Z}_n\\rightarrow[0,1]\\subset\\mathbf{R}$, where
+$P(i)=Prob(\\mathbf{X}=i)$.  The \\emph{Empirical Probability Density Function (\\emph{\\texttt{EPDF}}) for $\\mathbf{X}$} is not a function at all, but a
+vector defined by $\\overline{P}=(p_i)_{i\\in\\mathbb{Z}_n}\\in\\mathbb{R}^n$ where $p_i=P(i)$.  Thus $\\overline{P}$ is little more than a table of values
+for $P$, and so the word \\emph{empirical} is used to mean \\emph{given by data}.
 
 The \\emph{Cumulative Probability Density Function (\\emph{\\texttt{CDF}}) for $\\mathbf{X}$} , is defined as
-$C:[0,n-1]\\subset\\mathbf{R}\\rightarrow[0,1]\\subset\\mathbf{R}$, where $C(x)=Prob(\\mathbf{X}\\le x)$.  The \\emph{Empirical
-Cumulative Probability Function for $\\mathbf{X}$} (\\emph{\\texttt{ECDF}}) not directly defined in terms of the CDF, $C$; rather it
-is defined in terms of the EPDF, $\\overline{P}$.  The ECDF is a vector defined by
-$\\overline{C}=(c_i)_{i\\in\\mathbb{Z}_n}\\in\\mathbb{R}^n$ where $c_i=\\sum_{j=0}^i p_j$.  This definition implies that $c_i=C(i)$
-for any $i\\in\\mathbb{Z}_n$ and that $C(x)=c_{\\lfloor x\\rfloor}$ for any $x\\in\\mathbb{R}$
+$C:[0,n-1]\\subset\\mathbf{R}\\rightarrow[0,1]\\subset\\mathbf{R}$, where $C(x)=Prob(\\mathbf{X}\\le x)$.  The \\emph{Empirical Cumulative Probability
+Function for $\\mathbf{X}$} (\\emph{\\texttt{ECDF}}) not directly defined in terms of the CDF, $C$; rather it is defined in terms of the EPDF,
+$\\overline{P}$.  The ECDF is a vector defined by $\\overline{C}=(c_i)_{i\\in\\mathbb{Z}_n}\\in\\mathbb{R}^n$ where $c_i=\\sum_{j=0}^i p_j$.  This definition
+implies that $c_i=C(i)$ for any $i\\in\\mathbb{Z}_n$ and that $C(x)=c_{\\lfloor x\\rfloor}$ for any $x\\in\\mathbb{R}$
 
 We call any $\\overline{W}_G=(w_i)_{i\\in\\mathbb{Z}_n}\\in\\mathbb{R}^n$ where $w_i=G\\cdot p_i$ for some positive, constant
 $G\\in\\mathbb{R}$ an \\emph{Empirical Weight for $\\mathbf{X}$} (\\emph{\\texttt{EWTF}}).  Note that
@@ -77,16 +74,15 @@ we say that $\\overline{F}$ is \\emph{minimal}. Let $\\overline{S}=(s_i)_{i\\in\
 $s_i=\\sum_{j=0}^i w_j$.  We call $\\overline{S}$ the \\emph{Empirical Cumulative Weight Function for
 $\\overline{W}$} (\\emph{\\texttt{ECWTF}}).
 
-Let $\\overline{F}=\\overline{W}_G$ be an $\\texttt{EFREQ}$ and $\\overline{D}\\in\\mathbb{Z}_n^G$ such that $i\\in\\mathbb{Z}_n$
-appears in $\\overline{D}$ precisely $f_i=w_i$ times for all $i\\in\\mathbb{Z}_n$.  We call $\\overline{D}$ a realization of the
-\\texttt{EFREQ} $\\overline{W}_G$.  If $d_i\\le d_j$ for all $i,j\\in\\mathbb{Z}_n$ with $i\\le j$, then we say $\\overline{D}$ is
-\\emph{ordered}.  If $\\overline{F}$ is minimal, then we say $\\overline{D}$ is \\emph{minimal} too.  The minimal, ordered
-realization for an $\\texttt{EFREQ}$ is unique.
+Let $\\overline{F}=\\overline{W}_G$ be an $\\texttt{EFREQ}$ and $\\overline{D}\\in\\mathbb{Z}_n^G$ such that $i\\in\\mathbb{Z}_n$ appears in $\\overline{D}$
+precisely $f_i=w_i$ times for all $i\\in\\mathbb{Z}_n$.  We call $\\overline{D}$ a realization of the \\texttt{EFREQ} $\\overline{W}_G$.  If $d_i\\le d_j$ for
+all $i,j\\in\\mathbb{Z}_n$ with $i\\le j$, then we say $\\overline{D}$ is \\emph{ordered}.  If $\\overline{F}$ is minimal, then we say $\\overline{D}$ is
+\\emph{minimal} too.  The minimal, ordered realization for an $\\texttt{EFREQ}$ is unique.
 
-It is frequently the case that we start with $\\overline{D}$, compute an \\texttt{EFREQ} $\\overline{F}$ from it, and then assume
-$\\mathbf{X}$ to be DEFINED by $\\overline{F}$ -- i.e. we use the histogram from real data to approximate the theoretical
-distribution from which the data were drawn.  We can also go the other way, i.e. construct $\\overline{D}$ given $\\overline{F}$.
-Using the statistical package R, one might use something like: \\verb+rep(1:length(F)-1, F)+.
+It is frequently the case that we start with $\\overline{D}$, compute an \\texttt{EFREQ} $\\overline{F}$ from it, and then assume $\\mathbf{X}$ to be DEFINED
+by $\\overline{F}$ -- i.e. we use the histogram from real data to approximate the theoretical distribution from which the data were drawn.  We can also go the
+other way, i.e. construct $\\overline{D}$ given $\\overline{F}$.  Using the statistical package R, one might use something like: 
+\\verb+rep(1:length(F)-1,F)+.
 
 Functions provided:
 
@@ -101,13 +97,13 @@ Functions provided:
 "
   (documentation 'mjr_probe_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Empirical object conversion
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_ewt2ecwt (ewt)
   "Compute ECWT from EWT.  The type of the result (vector or list) is the same as EWT."
   (typecase ewt
@@ -119,7 +115,7 @@ Functions provided:
                                                               collect (incf sum v))))
     (t       (error "mjr_probe_ewt2ecwt: EWT must be a list or vector"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_ecwt2ewt (ecwt)
   "Compute EWT from ECWT.  The type of the result (vector or list) is the same as ECWT."
   (typecase ecwt
@@ -131,19 +127,19 @@ Functions provided:
                                                                collect (- v sum))))
     (t       (error "mjr_probe_ecwt2ewt: ECWT must be a list or vector"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_ewt2epdf (ewt)
   "Compute EPDF from EWT.  The type of the result (vector or list) is the same as EWT."
   (let ((sum (reduce #'+ ewt)))
     (map (type-of ewt) (lambda (x) (/ x sum)) ewt)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_ecwt2ecdf (ecwt)
   "Compute EPDF from ECWT.  The type of the result (vector or list) is the same as ECWT."
   (let ((sum (elt ecwt (1- (length ecwt)))))
     (map (type-of ecwt) (lambda (x) (/ x sum)) ecwt)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_ewt2efreq (ewt)
   "Compute minimal EFREQ from EWT.  The type of the result (vector or list) is the same as EWT."
   (let* ((p1 (map 'list #'rationalize ewt))
@@ -153,12 +149,12 @@ Functions provided:
          (p3 (map (type-of ewt) (lambda (x) (/ x G)) p2)))
     p3))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_ecwt2ecfreq (ecwt)
   "Compute minimal EFREQ from ECWT.  The type of the result (vector or list) is the same as ECWT."
   (mjr_probe_ewt2efreq ecwt))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_data2efreq (data)
   "Compute minimal EFREQ from DATA.  The type of the result (vector or list) is the same as DATA."
   (let ((freq (make-array (1+ (reduce #'max data)) :initial-element 0)))
@@ -170,7 +166,7 @@ Functions provided:
       (t       (error "mjr_probe_data2efreq: DATA must be a list or vector")))
     (mjr_probe_ewt2efreq freq)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_ewt2data (ewt)
   "Compute minimal, ordered data set from EWT.  The type of the result (vector or list) is the same as EWT."
   (let ((ewt (mjr_probe_ewt2efreq ewt)))
@@ -190,13 +186,13 @@ Functions provided:
                  data))
       (t       (error "mjr_probe_ewt2data: EWT be a list or vector")))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; probu section
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_ewt2pdf (ewt)
   "Return a PDF function (use-a.lisp function) as used by the :MJR_PROBU package."
   (let* ((epdf (mjr_probe_ewt2epdf ewt))
@@ -206,7 +202,7 @@ Functions provided:
                  (aref ,epdf x)
                  0)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_ecwt2cdf (ecwt)
   "Return a CDF function (use-a.lisp function) as used by the :MJR_PROBU package."
   (let* ((ecdf (mjr_probe_ecwt2ecdf ecwt))
@@ -216,7 +212,7 @@ Functions provided:
                  (aref ,ecdf x)
                  0)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_pdf2epdf (min-x max-x pdf-func &rest rest)
   "Return an EPDF given a PDF (as used by the :MJR_PROBU package) and its range."
   (let ((pdf (make-array (1+ max-x) :element-type 'number :initial-element 0)))
@@ -224,7 +220,7 @@ Functions provided:
           do (setf (aref pdf x) (apply pdf-func x rest)))
     pdf))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_cdf2ecdf (min-x max-x cdf-func &rest rest)
   "Return an ECDF given a CDF (as used by the :MJR_PROBU package) and its range."
   (let ((cdf (make-array (1+ max-x) :element-type 'number :initial-element 0)))
@@ -232,7 +228,7 @@ Functions provided:
           do (setf (aref cdf x) (apply cdf-func x rest)))
     cdf))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_ecwt2icdf (ecwt)
   "Return a function that computes the ICDF (i.e. icdf(r)=PROB(X<=r)."
   (let ((ecdf (mjr_probe_ecwt2ecdf (map 'vector (lambda (x) (float x 1.0d0)) ecwt))))
@@ -244,25 +240,25 @@ Functions provided:
                  (-2        ,(1- (length ecdf)))
                  (otherwise (1+ i))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; prng section
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_ecwt2prng (ecwt)
   "Return a PRNG on $Z_n$ given an ECWT"
   ;; MJR TODO NOTE <2013-06-09 23:28:20 CDT> mjr_probe_ecwt2prng: Switch random to mjr_prng_random!!
   ;; MJR TODO NOTE <2013-06-09 23:28:20 CDT> mjr_probe_ecwt2prng: Add option to select random number function.
   (eval `(lambda () (funcall ,(mjr_probe_ecwt2icdf ecwt) (random 1.0d0)))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_ewt2prng (ewt)
   "Return a PRNG on $Z_n$ given an EWT."
   (mjr_probe_ecwt2prng (mjr_probe_ewt2ecwt ewt)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_ecfreq2prng (ecfreq)
   "Return a PRNG on $Z_n$ given an ECFREQ."
   ;; MJR TODO NOTE <2013-06-09 23:28:20 CDT> mjr_probe_ecfreq2prng: Switch random to mjr_prng_random!!
@@ -288,12 +284,12 @@ Functions provided:
                                     (setf up g)
                                     (return g))))))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_efreq2prng (efreq)
   "Return a PRNG on $Z_n$ given an EFREQ."
   (mjr_probe_ecfreq2prng (mjr_probe_ewt2ecwt efreq)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_data2prng (DATA)
   "Return a PRNG returning values from DATA -- i.e. sampling with replacement.  DATA should be an array for best performance."
   (if (listp data)
@@ -301,13 +297,13 @@ Functions provided:
       (eval `(lambda ()
                (aref ,data (random ,(length data)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; EPDFs as mathematical objects to be manipulated
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_epdf-+ (&rest rest)
   "Return the sum of the given EPDFs.  Result is always an array.  Use arrays for arguments for best performance."
   (if (every #'arrayp rest)
@@ -327,7 +323,7 @@ Functions provided:
               ('t          (reduce #'mjr_probe_epdf-+ rest))))
       (apply #'mjr_probe_epdf-+ (mapcar (lambda (x) (concatenate 'vector x)) rest))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_epdf-int* (epdf pos-int)
   "Compute product of the EPDF and POS-INT
 
@@ -344,7 +340,7 @@ References:
                    epdf    (mjr_probe_epdf-+ epdf epdf)))
     result))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_epdf-* (&rest rest)
   "Return the product of the given EPDFs.  Result is always an array.  Use arrays for arguments for best performance."
   (if (every #'arrayp rest)
@@ -364,7 +360,7 @@ References:
               ('t          (reduce #'mjr_probe_epdf-* rest))))
       (apply #'mjr_probe_epdf-* (mapcar (lambda (x) (concatenate 'vector x)) rest))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_epdf-moment (epdf n)
   "N-th moment of of EPDF."
   (typecase epdf
@@ -376,24 +372,24 @@ References:
                    sum (* (expt i n) p)))
     (t       (error "mjr_probe_epdf-e: EPDF be a list or vector"))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_epdf-e (epdf)
   "Expected value of EPDF -- i.e. the 1st moment of EPDF."
   (mjr_probe_epdf-moment epdf 1))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_epdf-v (epdf)
   "Variance of EPDF."
   (- (mjr_probe_epdf-moment epdf 2)
      (expt (mjr_probe_epdf-moment epdf 1) 2)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Stuff
-;;----------------------------------------------------------------------------------------------------------------------------------
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_dice2epdf (&rest rest)
   "Dice"
   (apply #'mjr_probe_epdf-+
@@ -401,7 +397,7 @@ References:
                collect (loop for i from 0 upto c
                              collect (if (zerop i) 0 (/ c))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probe_dice2prng (&rest rest)
   "Dice"
   (mjr_probe_data2prng (mjr_probe_ewt2data (apply #'mjr_probe_dice2epdf rest))))

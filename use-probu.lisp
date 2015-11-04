@@ -1,14 +1,13 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      use-probu.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2010,2011,2012 by Mitch Richling.  All rights reserved.
 ;; @brief     Computations on PDFs (Probability Distribution Functions).@EOL
-;; @Keywords  lisp interactive probability distributions math library
 ;; @Std       Common Lisp
 ;;
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defpackage :MJR_PROBU
   (:USE :COMMON-LISP
         :MJR_INTG
@@ -24,7 +23,7 @@
 
 (in-package :MJR_PROBU)
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probu_help ()
   "Help for MJR_PROBU (PROBability Utilities):
 
@@ -45,7 +44,7 @@ This package has several utility functions useful for computations on PDFs (Prob
 
   (documentation 'mjr_probu_help 'function))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probu_pdf2cdf (x min-x max-x pdf-func discrete &rest rest)
   (cond ((not (numberp x))                 (error "mjr_probu_pdf2cdf: X must be a number!"))
         ((complexp x)                      (error "mjr_probu_pdf2cdf: X must be a real number!"))
@@ -61,12 +60,12 @@ This package has several utility functions useful for computations on PDFs (Prob
                                    (if (or (null min-x) (and max-x min-x (< (- max-x x) (- x min-x))))
                                        (if discrete
                                            (- 1 (mjr_numu_sum :start x :end max-x :seq-fun #'da-func))
-                                           (- 1 (mjr_intg_glb-adp-composite-trapezoidal #'da-func x max-x)))
+                                           (- 1 (mjr_intg_glb-adp-composite-trapezoidal #'da-func :start x :end max-x)))
                                        (if discrete
                                            (mjr_numu_sum :start min-x :end x :seq-fun #'da-func)
-                                           (mjr_intg_glb-adp-composite-trapezoidal #'da-func min-x x)))))))
+                                           (mjr_intg_glb-adp-composite-trapezoidal #'da-func :start min-x :end x)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probu_pdf2ccdf (x min-x max-x pdf-func discrete &rest rest)
   (cond ((not (numberp x))                 (error "mjr_probu_pdf2ccdf: X must be a number!"))
         ((complexp x)                      (error "mjr_probu_pdf2ccdf: X must be a real number!"))
@@ -82,12 +81,12 @@ This package has several utility functions useful for computations on PDFs (Prob
                                    (if (or (null max-x) (and max-x min-x (< (- x min-x) (- max-x x))))
                                        (if discrete
                                            (- 1 (mjr_numu_sum :start min-x :end x :seq-fun #'da-func))
-                                           (- 1 (mjr_intg_glb-adp-composite-trapezoidal #'da-func min-x x)))
+                                           (- 1 (mjr_intg_glb-adp-composite-trapezoidal #'da-func :start min-x :end x)))
                                        (if discrete
                                            (mjr_numu_sum :start x :end max-x :seq-fun #'da-func)
-                                           (mjr_intg_glb-adp-composite-trapezoidal #'da-func x max-x)))))))
+                                           (mjr_intg_glb-adp-composite-trapezoidal #'da-func :start x :end max-x)))))))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probu_pdf2prng (min-x max-x pdf-func discrete &rest rest)
   "Return random number given a PDF and its range.  The algorithm is the the rejection method."
   (cond ((not (numberp min-x)) (error "mjr_probu_pdf2prng: MIN-X must be a number!"))
@@ -103,7 +102,7 @@ This package has several utility functions useful for computations on PDFs (Prob
         finally (return x)
         while (> y p)))
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_probu_icdf2prng (icdf-func &rest rest)
   "Return random number given an inverse CDF.  The algorithm is the the inverse CDF method."
   (apply icdf-func (mjr_prng_float-oo 0 1) rest))

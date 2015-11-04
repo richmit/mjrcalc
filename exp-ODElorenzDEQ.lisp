@@ -1,10 +1,9 @@
-;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:132 -*-
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; @file      exp-ODElorenzDEQ.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
 ;; @Copyright Copyright 1997,1998,2004,2008,2010,2012 by Mitch Richling.  All rights reserved.
 ;; @brief     Compute (with :MJR_ODE) and draw the Lorenz strange attracter.@EOL
-;; @Keywords  lorenz strange attractor
 ;; @Std       Common Lisp
 ;;
 ;;            Lorenz
@@ -17,7 +16,7 @@
 ;;               $$x(0)=1/10, y(0)=0, z(0)=0$$
 ;;            
 
-;;----------------------------------------------------------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (time (let* ((ar (mjr_ode_slv-ivp-erk-mesh (list (lambda (tim p)
                                                    (declare (ignore tim))
