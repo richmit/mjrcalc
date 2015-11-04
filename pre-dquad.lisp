@@ -39,6 +39,7 @@
         :MJR_ARR
         :MJR_UTIL
         :MJR_COLORIZE
+        :MJR_COLOR
         :MJR_ANNOT)
   (:DOCUMENTATION "Brief: Data sets on QUADrilateral (rectilinear) grids.;")
   (:EXPORT #:mjr_dquad_help
@@ -48,6 +49,7 @@
            #:mjr_dquad_map                     #:mjr_dquad_colorize
            ;; Add data data to a dquad list
            #:mjr_dquad_add-data-from-map
+           #:mjr_dquad_add-image-data-from-map
            #:mjr_dquad_add-data
            #:mjr_dquad_add-multi-data
            ;; New dquad lists from old ones
@@ -118,7 +120,7 @@ Note that an axis-meta and data-meta alists MUST contain both the :ano-nam and :
               #(1 2 3)
               ((:ano-nam . \"Y Values\") (:ano-typ . :ano-typ-real))
               #(1 4 9)
-              ((:ano-nam . \"C\") (:ano-typ . :ano-typ-color) (:ano-colorspace . :cs-rgb))
+              ((:ano-nam . \"C\") (:ano-typ . :ano-typ-rgbvec))
               #(#(0.1 0.2 0.3) #(0.4 0.5 0.6) #(0.7 0.8 1.0))))"
   (documentation 'mjr_dquad_help 'function))
 
@@ -351,21 +353,21 @@ Supported combinations of axes, idxes, and data arguments:
               (eval (macroexpand `(mjr_dquad_fast_map101 ,f ,arg-mode (,@(mjr_dquad_get-all-axis dquad)) (,@da-dats)))))))))                              ;; 1 0 1
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_dquad_add-data (dquad data-array &key ano-nam ano-typ ano-colorspace ano-cpacking ano-units ano-list)
+(defun mjr_dquad_add-data (dquad data-array &key ano-nam ano-typ ano-units ano-list)
   "Destructively add the given data-array and and a data-meta list to dquad.
 
 The :ANO-LIST argument may contain a complete annotation list, and is intended for internal (or at least very careful) use.  No error checking is preformed
 on the list. When non-NIL, none of the other :ANO-* arguments may be provided.  The list (not a copy) is used as-is."
   (cond ((not (equal (mjr_dquad_data-array-size dquad) (array-dimensions data-array))) (error "mjr_dquad_add-data: data-array of wrong size!!"))
         ((and (not ano-list) (mjr_dquad_get-data-ano dquad ano-nam :ano-nam))          (error "mjr_dquad_add-data: data-array already exists :ano-nam!"))
-        ((and (or ano-nam ano-typ ano-colorspace ano-cpacking ano-units) ano-list)     (error "mjr_dquad_add-data: :ano-list icompatable with other :ano-* args!")))
+        ((and (or ano-nam ano-typ ano-units) ano-list)                                 (error "mjr_dquad_add-data: :ano-list icompatable with other :ano-* args!")))
   (nconc dquad
          (or ano-list
-             (list (mjr_annot_make-alist ano-nam ano-typ ano-colorspace ano-cpacking ano-units)))
+             (list (mjr_annot_make-alist ano-nam ano-typ ano-units)))
          (list data-array)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_dquad_add-multi-data (dquad multi-data-array &key ano-nam-olos ano-typ ano-colorspace ano-cpacking ano-units)
+(defun mjr_dquad_add-multi-data (dquad multi-data-array &key ano-nam-olos ano-typ ano-units)
   "Add N data-arrays to dquad when multi-data-array contains vectors or lists of length N. 
 
 If :ano-nam-olos is a string, then then :ano-name for each data-array will be ano-nam-olos_idx.
@@ -383,39 +385,37 @@ If :ano-nam-olos is a list, then each element of the list will be used in turn f
                                              (nth i ano-nam-olos)
                                              (format nil "~a_~d" ano-nam-olos i))
                                 :ano-typ ano-typ
-                                :ano-colorspace ano-colorspace
-                                :ano-cpacking ano-cpacking
                                 :ano-units ano-units)))
         (error "mjr_dquad_add-multi-data: multi-data-array must be an array of vectors or lists!"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_dquad_add-data-from-map (dquad f &key axes idxes data ano-nam ano-typ ano-colorspace ano-cpacking (arg-mode :arg-number))
+(defun mjr_dquad_add-data-from-map (dquad f &key axes idxes data ano-nam ano-typ (arg-mode :arg-number))
   "Destructively add a new data-array and data-meta to dquad by applying MJR_DQUAD_MAP to DQUAD and F."
   (let ((arg-mode   (or arg-mode :arg-number)))
     (mjr_dquad_add-data dquad (mjr_dquad_map dquad f :axes axes :idxes idxes :data data :arg-mode arg-mode)
-                        :ano-nam ano-nam :ano-typ ano-typ :ano-colorspace ano-colorspace :ano-cpacking ano-cpacking)))
+                        :ano-nam ano-nam :ano-typ ano-typ)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_dquad_colorize (dquad &key axes idxes data color-method (max-color 1) data-range (auto-scale 't) ano-nam (ano-colorspace :CS-RGB))
+(defun mjr_dquad_colorize (dquad &key axes idxes data color-method max-color data-range (auto-scale 't) ano-nam (ano-typ :ano-typ-truint))
   "This is a helper function to create a colorization function and then apply it to DQUAD via MJR_DQUAD_MAP.
+
+Note that :ano-typ-truint will result in a packed image format, while all other image formats will be vector based (and slower).  
 
 Arguments:
   - axes, idxes, data ................................... Same as in mjr_dquad_map
-  - color-method, max-color, data-range, & auto-scale ... As in mjr_colorize_make-colorize-function
-  - ano-colorspace, ano-nam ............................. As in mjr_dquad_add-data
-
-When the result is 2D, it is compatible with the MJR_IMG library using a packing function of #'identity."
+  - color-method, max-color, data-range, & auto-scale ... As in mjr_colorize_make-colorize-function"
   (cond ((not (or axes idxes data)) (error "mjr_dquad_colorize: At least one of AXES, IDXES, or DATA must be provided"))
         ((and idxes data)           (error "mjr_dquad_colorize: non-NIL DATA may not be combined with non-NIL IDXES"))
         ((not ano-nam)              (error "mjr_dquad_colorize: ANO-NAM must be a non-NIL!"))
         ((not (stringp ano-nam))    (error "mjr_dquad_colorize: ANO-NAM must be a string!")))
-; MJR TODO NOTE <2015-08-06> mjr_dquad_colorize: Think about how to pack values in an easy way...
   (let* ((data-count (mjr_dquad_data-count dquad))
          (data       (typecase data
                        (string    (list data))
                        (integer   (list data))
                        (list      data)
                        (otherwise (if (not (zerop data-count)) (concatenate 'list (mjr_vvec_to-vec-maybe data-count))))))
+         (colorpack    (mjr_annot_get-colorpacking ano-typ))
+         (colorspace   (mjr_annot_get-colorspace ano-typ))
          (data-range (or data-range
                          (if auto-scale
                              (apply #'concatenate 'vector (concatenate 'list
@@ -426,9 +426,17 @@ When the result is 2D, it is compatible with the MJR_IMG library using a packing
                                                                        (mapcar (lambda (x) (multiple-value-list (mjr_arr_min-max x)))
                                                                                (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x)) data))))))))
     (mjr_dquad_add-data-from-map dquad
-                                 (mjr_colorize_make-colorize-function color-method ano-colorspace max-color data-range auto-scale)
-                                 :idxes idxes :axes axes :data data
-                                 :ano-nam ano-nam :ano-typ :ano-typ-color :ano-colorspace ano-colorspace :ano-cpacking :CP-IDENTITY)))
+                                 (mjr_colorize_make-colorize-function color-method colorspace max-color data-range auto-scale (mjr_color_make-color-packer colorpack))
+                                 :idxes idxes :axes axes :data data :ano-nam ano-nam :ano-typ ano-typ)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_dquad_add-image-data-from-map (dquad color-function &key axes idxes data (color-function-typ :ano-typ-rgbvec) (ano-typ :ano-typ-rgbvec) ano-nam)
+  (let* ((cpc (mjr_color_make-unpacker-color-space-converter-and-packer (mjr_annot_get-colorpacking color-function-typ)
+                                                                        (mjr_annot_get-colorspace   color-function-typ)
+                                                                        (mjr_annot_get-colorspace   ano-typ)
+                                                                        (mjr_annot_get-colorpacking ano-typ)))
+         (cf  (lambda (&rest rest)  (funcall cpc (apply color-function rest)))))
+    (mjr_dquad_add-data-from-map dquad cf :idxes idxes :axes axes :data data :ano-nam ano-nam :ano-typ ano-typ)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dquad_read-from-file (file-name)
@@ -458,7 +466,6 @@ Note that all data-array elements in the new dquad list are new, but meta data a
     (loop for data-idx from 0 upto (1- (mjr_dquad_data-count dquad))
           for data-arr = (apply #'mjr_arr_get-stride (mjr_dquad_get-data-array dquad data-idx) strides)
           for data-ano = (mjr_dquad_get-data-ano dquad data-idx)
-          ;do (format 't "~a ~a ~a ~%" data-idx data-ano data-arr)
           do (mjr_dquad_add-data new-dquad data-arr :ano-list data-ano)
           )
     new-dquad))

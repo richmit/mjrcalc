@@ -197,7 +197,7 @@ DATA-INDEX-OR-NAME may be:
 (defun mjr_dsimp_get-data-ano (dsimp data-index-or-name &optional ano-key simplex-dimension )
   "Return the annotation for the data-index-or-name'th data set for simplices of dimension SIMPLEX-DIMENSION
 
-ano-key should be one of :ano-nam, :ano-typ, or :ano-colorspace.
+ano-key should be one of :ano-nam, :ano-typ, or :ano-units.
 
 DATA-INDEX-OR-NAME may be:
   - string  -- the name of the data
@@ -212,10 +212,11 @@ DATA-INDEX-OR-NAME may be:
                       (string  (loop for smp-idx in (mjr_dsimp_simplex-indexes dsimp)
                                      for num-dat in (mjr_dsimp_data-count dsimp)
                                      for si from 0
-                                     do (loop for di from 0 upto (1- num-dat)
-                                              for dat-idx = (+ smp-idx 2) then (+ dat-idx 2)
-                                              when (string-equal data-index-or-name (mjr_annot_get-value :ano-nam (nth (1- dat-idx) dsimp)))
-                                              do (return (nth (1- dat-idx) dsimp)))))
+                                     for fn = (loop for di from 0 upto (1- num-dat)
+                                                    for dat-idx = (+ smp-idx 2) then (+ dat-idx 2)
+                                                    when (string-equal data-index-or-name (mjr_annot_get-value :ano-nam (nth (1- dat-idx) dsimp)))
+                                                    do (return (nth (1- dat-idx) dsimp)))
+                                     do (if fn (return fn))))
                       (list  (if simplex-dimension
                                  (error "mjr_dsimp_get-data-ano: SIMPLEX-DIMENSION must not be provided if DATA-INDEX-OR-NAME is an data-index/simplex-dimension pair!")
                                (print (nth (+ 1 (* 2 (first data-index-or-name)) (nth (second data-index-or-name) (mjr_dsimp_simplex-indexes dsimp))) dsimp))))
@@ -252,25 +253,25 @@ passed to FUN as a 3 element vector."
   dsimp)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_dsimp_add-data (dsimp data-array simplex-dimension &key ano-nam ano-typ ano-colorspace ano-cpacking ano-units)
+(defun mjr_dsimp_add-data (dsimp data-array simplex-dimension &key ano-nam ano-typ ano-units)
   ""
   (cond ((mjr_dsimp_get-data-array dsimp ano-nam) (error "mjr_dsimp_add-data: Duplicate :ano-nam!"))
         ((> 0 simplex-dimension)                  (error "mjr_dsimp_add-data: simplex-dimension must be positive!"))
         ((< 4 simplex-dimension)                  (error "mjr_dsimp_add-data: simplex-dimension must be less than 4!")))
   (let ((idx (+ 2 (* 2 (1- (mjr_dsimp_data-count dsimp simplex-dimension))) (nth simplex-dimension (mjr_dsimp_simplex-indexes dsimp))))
-        (met (mjr_annot_make-alist ano-nam ano-typ ano-colorspace ano-cpacking ano-units)))
+        (met (mjr_annot_make-alist ano-nam ano-typ ano-units)))
     (push met        (cdr (nthcdr idx      dsimp)))
     (push data-array (cdr (nthcdr (1+ idx) dsimp))))
   (incf (nth simplex-dimension (nth 0 dsimp)))
   dsimp)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_dsimp_add-data-from-map (dsimp fun data simplex-dimension &key ano-nam ano-typ ano-colorspace)
+(defun mjr_dsimp_add-data-from-map (dsimp fun data simplex-dimension &key ano-nam ano-typ)
   "Use MJR_DSIMP_MAP and MJR_DSIMP_ADD-DATA to add data to data frame."
   (mjr_dsimp_add-data dsimp
                       (mjr_dsimp_map dsimp fun data simplex-dimension)
                       simplex-dimension
-                      :ano-nam ano-nam :ano-typ ano-typ :ano-colorspace ano-colorspace))
+                      :ano-nam ano-nam :ano-typ ano-typ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_dsimp_convert-points-do-data (dsimp x-nam y-nam z-nam)
@@ -547,9 +548,7 @@ Arguments:
                                         (mjr_dquad_get-data-array dquad cur-dat)
                                         0
                                         :ano-nam        (mjr_dquad_get-data-ano dquad cur-dat :ano-nam)
-                                        :ano-typ        (mjr_dquad_get-data-ano dquad cur-dat :ano-typ)
-                                        :ano-colorspace (mjr_dquad_get-data-ano dquad cur-dat :ano-colorspace)
-                                        :ano-cpacking   (mjr_dquad_get-data-ano dquad cur-dat :ano-cpacking)))
+                                        :ano-typ        (mjr_dquad_get-data-ano dquad cur-dat :ano-typ)))
                   ;; Add range data
                   (apply #'mjr_dsimp_convert-points-do-data new-dsimp range-data-names)
                   new-dsimp)))
@@ -660,9 +659,7 @@ Arguments:
                                             tmp-data
                                             0
                                             :ano-nam        (mjr_dquad_get-data-ano dquad cur-dat :ano-nam)
-                                            :ano-typ        (mjr_dquad_get-data-ano dquad cur-dat :ano-typ)
-                                            :ano-colorspace (mjr_dquad_get-data-ano dquad cur-dat :ano-colorspace)
-                                            :ano-cpacking   (mjr_dquad_get-data-ano dquad cur-dat :ano-cpacking))))
+                                            :ano-typ        (mjr_dquad_get-data-ano dquad cur-dat :ano-typ))))
                     ;; Add range data
                     (apply #'mjr_dsimp_convert-points-do-data new-dsimp range-data-names)
                     new-dsimp)))))))))

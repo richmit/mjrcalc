@@ -27,6 +27,7 @@
 ;;  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 ;;  DAMAGE.
 ;;  @endparblock
+;; @todo      Add more comprehensive support for :cs-rgba, :cs-trua, and :cs-bit.@EOL@EOL
 ;; @todo      mjr_color_metrics-rgb: H should be nil if chroma==0.@EOL@EOL
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -53,11 +54,17 @@
            #:mjr_color_convert-hsl2rgb                             #:mjr_color_convert-hsv2rgb #:mjr_color_convert-tru2rgb
            #:mjr_color_convert-hsl2hsv #:mjr_color_convert-rgb2hsv                             #:mjr_color_convert-tru2hsv
            #:mjr_color_convert-hsl2tru #:mjr_color_convert-rgb2tru #:mjr_color_convert-hsv2tru
-           ;; Generic color conversion
-           #:mjr_color_convert-xxx2xxx
+           ;; Generic color space conversions
+           #:mjr_color_make-color-space-converter
            ;; Color packers & unpackers
-           #:mjr_color_cp-pack-int8x3-int24   #:mjr_color_cp-pack-int8x4-int32   #:mjr_color_cp-pack-int0x1-int   #:mjr_color_cp-pack
-           #:mjr_color_cp-unpack-int8x3-int24 #:mjr_color_cp-unpack-int8x4-int32 #:mjr_color_cp-unpack-int0x1-int #:mjr_color_cp-unpack          
+           #:mjr_color_cp-pack-int8x3-int24   #:mjr_color_cp-pack-int8x4-int32   #:mjr_color_cp-pack-int0x1-int
+           #:mjr_color_cp-unpack-int8x3-int24 #:mjr_color_cp-unpack-int8x4-int32 #:mjr_color_cp-unpack-int0x1-int
+           ;; Generic packers & unpackers
+           #:mjr_color_make-color-unpacker #:mjr_color_make-color-packer
+           ;; Generic unpackers, color space converter, and packers
+           #:mjr_color_make-unpacker-color-space-converter-and-packer
+           ;; Misc
+           #:mjr_color_get-chan-max #:mjr_color_get-num-chan
          ))
 
 (in-package :MJR_COLOR)
@@ -66,23 +73,28 @@
 (defun mjr_color_help ()
   "Color theory computations
 
-For color schemes (gradients and other schemes), see :MJR_COLORIZE.  Functionality is broken up into the following categories:
+For color schemes (gradients and other schemes), see :MJR_COLORIZE.
 
-A 'color' is usually a vector of channel values -- like Red, Green, and Blue.  Depending on the color space, the components may have different meanings -- RGB
-vs HSL for example.  Most functions here take such vectors as colors, and some will also accept the components as arguments.  A few functions, the
-mjr_color_make-*-from-spec and mjr_color_cp-unpack-*, take objects representing colors that may, or may not, be in the vector form just described -- see the
-documentation about them below.
+  color .......... A vector of channel values -- like Red, Green, and Blue.  Depending on the color space, the components may have different meanings -- RGB
+                   vs HSL for example.  Most functions here take such vectors as colors, and some will also accept the components as arguments.  A few
+                   functions, the
+  packed color ... An object, usually an integer, from which we may 'unpack' a color
+  color spec ..... An object, normally a human readable thing, which may be converted into a color (a name, html hex color code, etc...)
 
 Color spaces for which special support is provided include:
 
-  |------+---------+--------------+-----------+----------+----------------------------------------------------------------------|
-  | name | symbol  | channel type | ranges    | black    | notes                                                                |
-  |------+---------+--------------+-----------+----------+----------------------------------------------------------------------|
-  | tru  | :cs-tru | Integer      | [0,255]^3 | #(0,0,0) | TRU == 24-bit TRUecolor                                              |
-  | rgb  | :cs-rgb | Real         | [0,1]^3   | #(0,0,0) |                                                                      |
-  | hsv  | :cs-hsv | Real         | [0,1]^3   |          | Equivalent to HSB; Hue is a float in $[0,1]$ and not in $[0,359]$!   |
-  | hsl  | :cs-hsl | Real         | [0,1]^3   |          | $V$ is normalized to a maximum of $1$, and is not always $V<S$       |
-  |------+---------+--------------+-----------+----------+----------------------------------------------------------------------|
+  |------+----------+--------+-----------+------------+------------------+-------------------------------------------------------------------------|
+  | name | symbol   | # Chan | Chan type | Chan Range | black            | notes                                                                   |
+  |------+----------+--------+-----------+------------+------------------+-------------------------------------------------------------------------|
+  | tru  | :cs-tru  |      3 | Integer   | [0, 255]   | #(0 0 0)         | TRU == 24-bit TRUecolor                                                 |
+  | rgb  | :cs-rgb  |      3 | Real      | [0.0, 1.0] | #(0.0 0.0 0.0)   |                                                                         |
+  | hsv  | :cs-hsv  |      3 | Real      | [0.0, 1.0] |                  | Equivalent to HSB; Hue is a float in $[0.0, 1.0]$ and not in $[0,359]$! |
+  | hsl  | :cs-hsl  |      3 | Real      | [0.0, 1.0] |                  | $V$ is normalized to a maximum of $1.0$, and is not always $V<S$        |
+  |------+----------+--------+-----------+------------+------------------+-------------------------------------------------------------------------|
+  | trua | :cs-trua |      4 | Integer   | [0.0, 1.0] | #(0,0,0,*)       | Partial support only!!!                                                 |
+  | rgba | :cs-rgb  |      4 | Real      | [0.0, 1.0] | #(0.0,0.0,0.0,*) | Partial support only!!!                                                 |
+  | bit  | :cs-bit  |      1 | Bit       | [0, 1]     | 0                | Partial support only!!!                                                 |
+  |------+----------+--------+-----------+------------+------------------+-------------------------------------------------------------------------|
 
 This library provides functionality broken up into several basic categories:
 
@@ -117,6 +129,15 @@ This library provides functionality broken up into several basic categories:
     same task.  Note that FIXNUMs will normally be the fastest option, and provide more compatibility with external image tools.  That said, things like
     vectors of color components, HTML color codes, or even color names can prove useful for some applications.
 
+       |------------+-------------+------------+-----------+------------+------------+-------------------------|
+       | symbol     | Packed into | Chan Count | Chan type | Chan Depth | Chan range | Compatable color spaces |
+       |------------+-------------+------------+-----------+------------+------------+-------------------------|
+       | :cp-int8x3 | Integer     |          3 | integer   | 8          | [0,255]    | :cs-tru                 |
+       | :cp-int8x4 | Integer     |          4 | integer   | 8          | [0,255]    |                         |
+       | :cp-int0x1 | Integer     |          1 | integer   | N/A        | N/A        |                         |
+       | :cp-none   | Vector      |        N/A | number    | N/A        | N/A        | :cs-rgb :cs-hsv :cs-hsl |
+       |------------+-------------+------------+-----------+------------+------------+-------------------------|
+
       - For integer packing, we have three sets of functions:
 
           * mjr_color_cp-pack-int8x3-int24 & mjr_color_cp-unpack-int8x3-int24 ---- 3 channels each with 8-bits -- tru rgb
@@ -126,18 +147,7 @@ This library provides functionality broken up into several basic categories:
       - The IDENTITY function can be used to 'pack' color vectors into an array -- useful for scientific applications.
 
       - mjr_color_make-rgb-from-spec & mjr_color_make-tru-from-spec can be used to 'unpack' color specs -- handy for converting from awkward color formats
-        like HTML color codes or X11 color names.
-
-    A generic interface exists, but is a bit slower, for common packing schemes via the mjr_color_cp_pack & mjr_color_cp_unpack functions.
-
-         |--------------+----------+------------+-----------------+-------------------------------------------------------------------|
-         | Symbol       | Channels | Chan Depth | Colorspace      | pack & unpack functions                                           |
-         |--------------+----------+------------+-----------------+-------------------------------------------------------------------|
-         | :cp-identity |      N/A | N/A        | :CS_RGB :CS_TRU | identity                       & identity                         |
-         | :cp-int8x3   |        3 | 8          | :CS_TRU         | mjr_color_cp-pack-int8x3-int24 & mjr_color_cp-unpack-int8x3-int24 |
-         | :cp-int8x4   |        4 | 8          | :CS_TRU         | mjr_color_cp-pack-int8x4-int32 & mjr_color_cp-unpack-int8x4-int32 |
-         | :cp-int0x1   |        1 | N/A        | N/A             | mjr_color_cp-pack-int0x1-int   & mjr_color_cp-unpack-int0x1-int   |
-         |--------------+----------+------------+-----------------+-------------------------------------------------------------------|"
+        like HTML color codes or X11 color names."
   (documentation 'mjr_color_help 'function))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -266,33 +276,72 @@ This library provides functionality broken up into several basic categories:
   (mjr_color_convert-rgb2hsv (mjr_color_convert-tru2rgb r-or-rgb g-or-nil b-or-nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_color_convert-xxx2xxx (color in-color-space out-color-space)
-  "Convert the COLOR from IN-COLOR-SPACE to OUT-COLOR-SPACE"
+(defun mjr_color_make-color-space-converter (in-color-space out-color-space &key (identity-function #'identity))
+  "Return a function that will convert from IN-COLOR-SPACE to OUT-COLOR-SPACE.
+
+Supported conversions:
+    
+    |----------+----------+----------+---------+---------+---------+---------+---------|
+    | in\out   | :cs-trua | :cs-rgba | :cs-bit | :cs-tru | :cs-rgb | :cs-hsl | :cs-hsv |
+    |----------+----------+----------+---------+---------+---------+---------+---------|
+    | :cs-trua | N/A      | NO       | NO      | YES     | YES     | YES     | YES     |
+    | :cs-rgba | NO       | N/A      | NO      | YES     | YES     | YES     | YES     |
+    | :cs-bit  | YES      | YES      | N/A     | YES     | YES     | YES     | YES     |
+    | :cs-tru  | YES      | NO       | NO      | N/A     | YES     | YES     | YES     |
+    | :cs-rgb  | NO       | YES      | NO      | YES     | N/A     | YES     | YES     |
+    | :cs-hsl  | NO       | NO       | NO      | YES     | YES     | N/A     | YES     |
+    | :cs-hsv  | NO       | NO       | NO      | YES     | YES     | YES     | N/A     |
+    |----------+----------+----------+---------+---------+---------+---------+---------|
+
+If the return would normally be the identity function, then the value of IDENTITY-FUNCTION will be returned."
   (if (or (not out-color-space)
           (not in-color-space)
           (equal out-color-space in-color-space))
-      color
+      identity-function
       (case in-color-space
-        (:cs-tru (case out-color-space
-                   (:cs-rgb   (mjr_color_convert-tru2rgb color))
-                   (:cs-hsl   (mjr_color_convert-tru2hsl color))
-                   (:cs-hsv   (mjr_color_convert-tru2hsv color))
-                   (otherwise (error "mjr_color_convert-xxx2xxx: Unknown value for :OUT-COLOR-SPACE!"))))
-        (:cs-rgb (case out-color-space
-                   (:cs-tru   (mjr_color_convert-rgb2tru color))
-                   (:cs-hsl   (mjr_color_convert-rgb2hsl color))
-                   (:cs-hsv   (mjr_color_convert-rgb2hsv color))
-                   (otherwise (error "mjr_color_convert-xxx2xxx: Unknown value for :OUT-COLOR-SPACE!"))))
-        (:cs-hsv (case out-color-space
-                   (:cs-tru   (mjr_color_convert-hsv2tru color))
-                   (:cs-rgb   (mjr_color_convert-hsv2rgb color))
-                   (:cs-hsl   (mjr_color_convert-hsv2hsl color))
-                   (otherwise (error "mjr_color_convert-xxx2xxx: Unknown value for :OUT-COLOR-SPACE!"))))
-        (:cs-hsl (case out-color-space
-                   (:cs-tru   (mjr_color_convert-hsl2tru color))
-                   (:cs-rgb   (mjr_color_convert-hsl2rgb color))
-                   (:cs-hsv   (mjr_color_convert-hsl2hsv color))
-                   (otherwise (error "mjr_color_convert-xxx2xxx: Unknown value for :OUT-COLOR-SPACE!")))))))
+        (:cs-bit  (case out-color-space
+                    (:cs-tru   (lambda (b) (if (zerop b) #(0 0 0)   #(255 255 255))))
+                    (:cs-rgb   (lambda (b) (if (zerop b) #(0 0 0)   #(  1   1   1))))
+                    (:cs-trua  (lambda (b) (if (zerop b) #(0 0 0 1) #(255 255 255 255))))
+                    (:cs-rgba  (lambda (b) (if (zerop b) #(0 0 0 1) #(  1   1   1   1))))
+                    (:cs-hsl   (lambda (b) (if (zerop b) #(0 0 0)   #(  1   1   1))))
+                    (:cs-hsv   (lambda (b) (if (zerop b) #(0 0 0)   #(  1   1   1))))
+                    (otherwise (error "mjr_color_make-color-space-converter: Conversion not supported :OUT-COLOR-SPACE: ~s~%" out-color-space))))
+        (:cs-trua (case out-color-space
+                    (:cs-tru   (lambda (c) (vector (aref c 0) (aref c 1) (aref c 2))))
+                    (:cs-rgb   (lambda (c) (mjr_color_convert-tru2rgb (vector (aref c 0) (aref c 1) (aref c 2)))))
+                    (:cs-hsl   (lambda (c) (mjr_color_convert-tru2hsl (vector (aref c 0) (aref c 1) (aref c 2)))))
+                    (:cs-hsv   (lambda (c) (mjr_color_convert-tru2hsv (vector (aref c 0) (aref c 1) (aref c 2)))))
+                    (otherwise (error "mjr_color_make-color-space-converter: Conversion not supported :OUT-COLOR-SPACE: ~s~%" out-color-space))))
+        (:cs-rgba (case out-color-space
+                    (:cs-rgb   (lambda (c) (vector (aref c 0) (aref c 1) (aref c 2))))
+                    (:cs-tru   (lambda (c) (mjr_color_convert-rgb2tru (vector (aref c 0) (aref c 1) (aref c 2)))))
+                    (:cs-hsl   (lambda (c) (mjr_color_convert-rgb2hsl (vector (aref c 0) (aref c 1) (aref c 2)))))
+                    (:cs-hsv   (lambda (c) (mjr_color_convert-rgb2hsv (vector (aref c 0) (aref c 1) (aref c 2)))))
+                    (otherwise (error "mjr_color_make-color-space-converter: Conversion not supported :OUT-COLOR-SPACE: ~s~%" out-color-space))))
+        (:cs-tru  (case out-color-space
+                    (:cs-rgb   #'mjr_color_convert-tru2rgb)
+                    (:cs-trua  (lambda (c) (vector (aref c 0) (aref c 1) (aref c 2) 255)))
+                    (:cs-hsl   #'mjr_color_convert-tru2hsl)
+                    (:cs-hsv   #'mjr_color_convert-tru2hsv)
+                    (otherwise (error "mjr_color_make-color-space-converter: Conversion not supported :OUT-COLOR-SPACE: ~s~%" out-color-space))))
+        (:cs-rgb  (case out-color-space
+                    (:cs-tru   #'mjr_color_convert-rgb2tru)
+                    (:cs-rgba  (lambda (c) (vector (aref c 0) (aref c 1) (aref c 2) 1)))
+                    (:cs-hsl   #'mjr_color_convert-rgb2hsl)
+                    (:cs-hsv   #'mjr_color_convert-rgb2hsv)
+                    (otherwise (error "mjr_color_make-color-space-converter: Conversion not supported :OUT-COLOR-SPACE: ~s~%" out-color-space))))
+        (:cs-hsv  (case out-color-space
+                    (:cs-tru   #'mjr_color_convert-hsv2tru)
+                    (:cs-rgb   #'mjr_color_convert-hsv2rgb)
+                    (:cs-hsl   #'mjr_color_convert-hsv2hsl)
+                    (otherwise (error "mjr_color_make-color-space-converter: Conversion not supported :OUT-COLOR-SPACE: ~s~%" out-color-space))))
+        (:cs-hsl  (case out-color-space
+                    (:cs-tru   #'mjr_color_convert-hsl2tru)
+                    (:cs-rgb   #'mjr_color_convert-hsl2rgb)
+                    (:cs-hsv   #'mjr_color_convert-hsl2hsv)
+                    (otherwise (error "mjr_color_make-color-space-converter: Conversion not supported :OUT-COLOR-SPACE: ~s~%" out-color-space))))
+        (otherwise (error "mjr_color_make-color-space-converter: Unknown value for :IN-COLOR-SPACE: ~s~%" in-color-space)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_make-rgb-from-spec (red-or-color-spec &optional green-or-nil blue-or-nil)
@@ -415,7 +464,7 @@ If only one argument is provided, then it must be a COLOR-SPEC:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_cp-pack-int8x3-int24 (color)
-  "Pack an 8-bit per pixel RGBA color into a 24bit integer"
+  "Pack an 8-bit per pixel RGB color into a 24bit integer"
   (declare (type (simple-vector 3) color))
   (+ (aref color 0)
      (* 256 (aref color 1))
@@ -460,21 +509,60 @@ If only one argument is provided, then it must be a COLOR-SPEC:
   (vector value))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_color_cp-pack (color &optional (packing :cp-identity))
-  "Pack a color into a packed color value -- see mjr_color_help for details on the packing argument."
-  (case packing
-    (:cp-identity color)
-    (:cp-int8x3   (mjr_color_cp-pack-int8x3-int24 color))
-    (:cp-int8x4   (mjr_color_cp-pack-int8x4-int32 color))
-    (:cp-int0x1   (mjr_color_cp-pack-int0x1-int   color))
-    (otherwise    (error "mjr_color_cp-pack: Value for packing is not supported!"))))
+(defun mjr_color_make-color-unpacker (color-packing &key (identity-function #'identity))
+  "Return a function that will unpack a color from an object that was packed with COLOR-PACKING.
+
+If the return would normally be the identity function, then the value of IDENTITY-FUNCTION will be returned."
+  (case color-packing
+    (:cp-int8x3 #'mjr_color_cp-unpack-int8x3-int24)
+    (:cp-int8x4 #'mjr_color_cp-unpack-int8x4-int32)
+    (:cp-int0x1 #'mjr_color_cp-unpack-int0x1-int)
+    (:cp-none   identity-function)
+    (otherwise  (error "mjr_color_make-color-unpacker: Unsupported color-packing: ~a!" color-packing))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_color_cp-unpack (value &optional (packing :cp-identity))
-  "Unpack a packed color value into a color -- see mjr_color_help for details on the packing argument."
-  (case packing
-    (:cp-identity value)
-    (:cp-int8x3   (mjr_color_cp-unpack-int8x3-int24 value))
-    (:cp-int8x4   (mjr_color_cp-unpack-int8x4-int32 value))
-    (:cp-int0x1   (mjr_color_cp-unpack-int0x1-int   value))
-    (otherwise    (error "mjr_color_cp-pack: Value for packing is not supported!"))))
+(defun mjr_color_make-color-packer (color-packing &key (identity-function #'identity))
+  "Return a function that will unpack a color using the specified COLOR-PACKING.
+
+If the return would normally be the identity function, then the value of IDENTITY-FUNCTION will be returned."
+  (case color-packing
+    (:cp-int8x3 #'mjr_color_cp-pack-int8x3-int24)
+    (:cp-int8x4 #'mjr_color_cp-pack-int8x4-int32)
+    (:cp-int0x1 #'mjr_color_cp-pack-int0x1-int)
+    (:cp-none   identity-function)
+    (otherwise  (error "mjr_color_make-color-packer: Unsupported color-packing: ~a!" color-packing))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_color_get-chan-max (color-space)
+  "Returns one of 255, 1 or NIL."
+  (case color-space
+    (:cs-tru 255)
+    (:cs-rgb 1.0d0)
+    (:cs-hsv 1.0d0)
+    (:cs-hsl 1.0d0)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_color_get-num-chan (color-space)
+  "Returns 3 or NIL."
+  (case color-space
+    (:cs-tru 3)
+    (:cs-rgb 3)
+    (:cs-hsv 3)
+    (:cs-hsl 3)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_color_make-unpacker-color-space-converter-and-packer (in-packing in-color-space out-color-space out-packing &key (identity-function #'identity))
+  "Uses MJR_COLOR_MAKE-COLOR-SPACE-CONVERTER, MJR_COLOR_MAKE-COLOR-UNPACKER, and MJR_COLOR_MAKE-COLOR-PACKER to construct a conversion function."
+  (let* ((csc (mjr_color_make-color-space-converter in-color-space out-color-space :identity-function nil))
+         (upk (mjr_color_make-color-unpacker        in-packing                     :identity-function nil))
+         (pkr (mjr_color_make-color-packer          out-packing                    :identity-function nil))
+         (cse (+ (if csc 4 0) (if pkr 2 0) (if upk 1 0))))
+    (case cse
+      (0 identity-function)
+      (1 (lambda (color) (funcall upk color)))
+      (2 (lambda (color) (funcall pkr color)))
+      (3 (lambda (color) (funcall pkr (funcall upk color))))
+      (4 (lambda (color) (funcall csc color)))
+      (5 (lambda (color) (funcall csc (funcall upk color))))
+      (6 (lambda (color) (funcall pkr (funcall csc color))))
+      (7 (lambda (color) (funcall pkr (funcall csc (funcall upk color))))))))

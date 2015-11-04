@@ -3,7 +3,7 @@
 ;;;
 ;; @file      exp-dXXXX.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-w;; @brief     Example for :MJR_DQUAD.@EOL
+;; @brief     Example for :MJR_DQUAD.@EOL
 ;; @std       Common Lisp
 ;; @copyright 
 ;;  @parblock
@@ -114,9 +114,9 @@ w;; @brief     Example for :MJR_DQUAD.@EOL
                                                           
 (mjr_dquad_colorize f-q-r2-r1 :data 0 :color-method "01"  :ano-nam "z_color")
 
-;; (mjr_gnupl_dquad f-q-r2-r1 :data-arrays 0 :main "f-q-r2-r1" :type :l)
-;; (mjr_gnupl_dquad f-q-r2-r1 :data-arrays 0 :main "f-q-r2-r1" :type :f)
-;; (mjr_gnupl_dquad f-q-r2-r1 :data-arrays 0 :main "f-q-r2-r1" :type :i)
+;; (mjr_gnupl_dquad f-q-r2-r1 :data 0 :main "f-q-r2-r1" :type :l)
+;; (mjr_gnupl_dquad f-q-r2-r1 :data 0 :main "f-q-r2-r1" :type :f)
+;; (mjr_gnupl_dquad f-q-r2-r1 :data 0 :main "f-q-r2-r1" :type :i)
 (mjr_vtk_from-dquad "exp-dXXXX-OUT-f-q-r2-r1.vtk" f-q-r2-r1)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -434,3 +434,24 @@ w;; @brief     Example for :MJR_DQUAD.@EOL
 ;;                         :arg-mode :arg-number)
 
 
+
+;; (let ((dq (mjr_fsamp_dq-func-r123-r123 (lambda (x y) (sin (sqrt (+ (* x x) (* y y))))) :xdat '(:start -10 :end 10 :len 300) :ydat  '(:start -10 :end 10 :len 300))))
+;;            (mjr_dquad_colorize dq :data 0 :color-method "GB" :ano-nam "c" :ano-typ :ano-typ-rgbvec :max-color 1)
+;;            (mjr_dquad_add-image-data-from-map dq (lambda (x y) (vector (abs (rem x 1)) (abs (rem y 1)) .5)) :axes 't :ano-nam "r" :ano-typ :ano-typ-truint :color-function-typ :ano-typ-rgbvec)
+;;            (let ((ds (mjr_dsimp_make-from-dquad dq '(0 1) 0 :data "r")))
+;;              (print "gnu")
+;;              (time (mjr_gnupl_dquad dq :data "r" :type :rgb))
+;;              (print "tga")
+;;              (time (mjr_tga_from-dquad "xq.tga" dq :data "r"))
+;;              (print "vtk q")
+;;              (time (mjr_vtk_from-dquad "xq.vtk" dq))
+;;              (print "vtk s")
+;;              (time (mjr_vtk_from-dsimp "xs.vtk" ds :simplices 2))
+;;              (print "pov")
+;;              (time (mjr_pov_make-from-dsimp "xs.pov" ds :simplices 2 :draw-2-simplex-triangles 't :color-data "r"))
+;;              ;;(mjr_gnupl_dquad dq :data "c" :type :rgb)
+;;              ;;(mjr_gnupl_dquad dq :data "f" :type :f)
+;;              ;;(mjr_gnupl_dquad dq :data "f" :type :i)
+;;              ;;(mjr_gnupl_dquad dq :data "f" :type :l)
+;;              nil
+;;              ))

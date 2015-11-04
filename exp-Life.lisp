@@ -29,11 +29,10 @@
 ;; @filedetails
 ;;
 ;;  Render a movie like this:
-;;     for f in exLife-OUT-???.tga; do convert -colorspace RGB -sample 400% -type TrueColor $f `echo $f | sed 's/.tga$/.png/'`; done
-;;     ffmpeg -pix_fmt rgb24 -t 72 -r 12 -loop_output 0 -pix_fmt rgb24 -i exLife-OUT-%03d.png exLife-ART.gif
-;;     mplayer exLife-ART.gif
-;;     convert -define gif:size=200x200 exLife-ART.gif -thumbnail '200x200>' -background white -gravity Center -extent 190x190 exLife-ART-t.gif
-;;     rm exLife-exLife-OUT-???d.png
+;;     for f in exp-Life-OUT-???.tga; do convert -colorspace RGB -sample 800% -type TrueColor $f `echo $f | sed 's/.tga$/.png/'`; done
+;;     convert exp-Life-OUT-*.png exp-Life-ART.gif  
+;;     convert -define gif:size=200x200 exp-Life-ART.gif -thumbnail '200x200>' -background white -gravity Center -extent 190x190 exp-Life-ART-t.gif
+;;     rm exp-Life-exp-Life-OUT-???d.png
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -63,10 +62,10 @@
                                   (y   0)
                                   (len 1)
                                   (p   0)
-                                  (img (mjr_img_make xwid ywid)))
+                                  (img (make-array (list xwid ywid) :element-type 'bit)))
                               (flet ((don (live num)
                                        (loop for i from 1 upto num
-                                             do (setf (aref img x y) (if live #xFFFFFF #x000000))
+                                             do (setf (aref img x y) (if live 1 0))
                                              do (incf x))
                                        (setf len 1)
                                        (incf p)))
@@ -81,11 +80,11 @@
                                                                              len nlen))))
                                       until (equal c #\!)
                                       finally (return img)))))))))
-             (xmax  (+ padn padn (first (mjr_img_size shap))))
-             (ymax  (+ padn padn (second (mjr_img_size shap))))
-             (seed  (mjr_img_make xmax ymax :color-space :cs-tru))
-             (img1  (mjr_img_make xmax ymax :color-space :cs-tru))
-             (img2  (mjr_img_make xmax ymax :color-space :cs-tru)))
+             (xmax  (+ padn padn (first (array-dimensions shap))))
+             (ymax  (+ padn padn (second (array-dimensions shap))))
+             (seed  (make-array (list xmax ymax) :element-type 'bit))
+             (img1  (make-array (list xmax ymax) :element-type 'bit))
+             (img2  (make-array (list xmax ymax) :element-type 'bit)))
         (declare (fixnum xmax ymax))
         (dotimes (y (- ymax padn padn))
           (dotimes (x (- xmax padn padn))
@@ -104,12 +103,11 @@
                                                count (not (zerop (aref old-img (mod (+ x xd) xmax) (mod (+ y yd) ymax)))))
                                 do (if (zerop (aref old-img x y))
                                        (if (= nc 3)
-                                           (setf (aref new-img x y) #xFFFFFF)
-                                           (setf (aref new-img x y) #x000000))
+                                           (setf (aref new-img x y) 1)
+                                           (setf (aref new-img x y) 0))
                                        (if (or (< nc 2) (> nc 3))
-                                           (setf (aref new-img x y) #x000000)
-                                           (setf (aref new-img x y) #xFFFFFF)))
+                                           (setf (aref new-img x y) 0)
+                                           (setf (aref new-img x y) 1)))
                                 do (if (not (equal (aref new-img x y) (aref seed x y)))
-                                       (setq imgeq nil))))                                       
-              do (mjr_img_tga-write (format nil "exp-Life-OUT-~3,'0d.tga" i) new-img)
-              until imgeq)))
+                                       (setq imgeq nil))))
+              do (mjr_tga_from-array (format nil "exp-Life-OUT-~3,'0d.tga" i) new-img :color-space :cs-bit :color-packing :cp-none))))

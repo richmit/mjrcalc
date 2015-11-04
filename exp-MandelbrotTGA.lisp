@@ -1,9 +1,9 @@
 ;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;; @file      exp-MandelbrotTGA1.lisp
+;; @file      exp-MandelbrotTGA2.lisp
 ;; @author    Mitch Richling <http://www.mitchr.me>
-;; @brief     Compute Mandelbrot set, and dump it to a TGA file.@EOL
+;; @brief     Compute Mandelbrot set, and dump it to a TGA file using a nice pallet.@EOL
 ;; @std       Common Lisp
 ;; @copyright 
 ;;  @parblock
@@ -28,7 +28,7 @@
 ;;  @endparblock
 ;; @filedetails
 ;;
-;;  An appropriate count is computed such that the histogram will be maximized in all three colors.  No complex arithmetic for performance.
+;;  No complex arithmetic for performance.  Nice pic.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -36,31 +36,32 @@
 (declaim (optimize (speed 3) (safety 0) ( debug 0) (compilation-speed 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(time (let* ((xmax 1536)
-             (ymax 1536)
-             (smax 512)
-             (bpp  (truncate (mjr_intu_log-floor smax 2) 3))
-             (cmax (expt 2 (* 3 bpp)))
-             (fac  (truncate 255 (expt 2 bpp)))
-             (img  (mjr_img_make xmax ymax)))
-        (declare (fixnum bpp smax fac xmax ymax cmax))
-        (format 't "COUNT: ~d~%" cmax)
-        (loop with left  short-float =  -2.0   ;;    -2   -0.70  -0.67  -0.642
-              with top   short-float =   1.5   ;;     2    0.50   0.40   0.394
-              with xside short-float =   3.0   ;;     4    0.07   0.04   0.012
-              with yside short-float =   3.0   ;;     4    0.10   0.03   0.021
-              with xscale short-float = (/ xside xmax)
-              with yscale short-float = (/ yside ymax)
-              for y fixnum from 0 upto (1- ymax)
-              for cy short-float = (- top (* y yscale))
-              do (loop for x fixnum from 0 upto (1- xmax)
-                       for cx short-float = (+ (* x xscale) left)
-                       do (loop for tz short-float = cx then (+ (- (* zx zx) (* zy zy)) cx)
-                                for zy short-float = cy then (+ (* 2 zx zy) cy)
-                                for zx short-float = tz
-                                for cnt fixnum from 0
-                                do (if (or (> (+ (* zx zx) (* zy zy)) 4.0) (>= cnt cmax))
-                                       (return (mjr_img_set-px-color img x y (vector (* fac (ldb (byte bpp (* 0 bpp)) cnt))
-                                                                                     (* fac (ldb (byte bpp (* 1 bpp)) cnt))
-                                                                                     (* fac (ldb (byte bpp (* 2 bpp)) cnt)))))))))
-        (mjr_img_tga-write "exp-MandelbrotTGA1-OUT.tga" img)))
+
+(loop with xmax fixnum = (expt 2 11)
+      with ymax fixnum = (expt 2 11)
+      with grd = "0RMGY1CB0"
+      with cmax fixnum = (1- (mjr_colorized_ut-gradient-length grd)) ;; so we get potentially as many levels as we have colors
+      for cf fixnum in '(  10    50      2      2       1)
+      for x0 float  in '(-2.0  -2.0  -0.70  -0.67  -0.642)
+      for x1 float  in '( 2.0   2.0  -0.63  -0.63  -0.630)
+      for y0 float  in '(-2.0  -2.0  -0.50  -0.40  -0.394)
+      for y1 float  in '( 2.0   2.0  -0.40  -0.37  -0.373)
+      for i from 1
+      for fname = (format nil "exp-MandelbrotTGA2-OUT-~d.tga" i)
+      do (format 't "~%Compute ~a~%" fname)
+      do (time (let ((daData (mjr_fsamp_dq-func-r123-r123 (lambda (cx cy)
+                                                            (mod (* cf (loop with lcx short-float = (float cx 1.0e0)
+                                                                             with lcy short-float = (float cy 1.0e0)
+                                                                             for tz short-float = lcx then (+ (- (* zx zx) (* zy zy)) lcx)
+                                                                             for zy short-float = lcy then (+ (* 2 zx zy) lcy)
+                                                                             for zx short-float = tz
+                                                                             for ct fixnum from 1 upto cmax
+                                                                             count 1
+                                                                             while (and (< (+ (* zx zx) (* zy zy)) 4.0))))
+                                                                 cmax))
+                                                          :xdat (list :start x0 :end x1 :len xmax)                                             
+                                                          :ydat (list :start y0 :end y1 :len ymax)
+                                                          :f-color-meth grd :f-color-ano-typ :ano-typ-truvec)))
+                 (mjr_tga_from-dquad fname daData))))
+
+

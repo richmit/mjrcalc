@@ -50,6 +50,7 @@
            #:mjr_fsamp_dq-poly-c1
            ;; Generic real functions: $f:\mathbb{R}^n\to\mathbb{R}^m$ with $m,n\in\{1,2,3\}$
            #:mjr_fsamp_dq-func-r123-r123
+           #:mjr_fsamp_dq-func-r123-color
            #:mjr_fsamp_ds-func-r123-r123
            ;; Generic complex functions: $f:\mathbb{C}\to\mathbb{C}$
            #:mjr_fsamp_dq-func-c1-c1
@@ -91,7 +92,7 @@ Example:
   * (mjr_gnupl_dquad (mjr_fsamp_dq-func-c1-c1 #'sin
                                               :rdat '(:start -1.5d0 :end 1.5d0 :len 50) 
                                               :idat '(:start -1.5d0 :end 1.5d0 :len 50))
-                     :data-arrays \"f_abs\" :type :f)"
+                     :data \"f_abs\" :type :f)"
   (let* (;;(c-func  (mjr_mxp_string-or-func-to-lambda c-func "Z"))
          ;;(f       (mjr_mxp_string-or-func-to-lambda f      "Z"))
          (daDquad (mjr_dquad_make-from-axis "real" rdat
@@ -101,11 +102,11 @@ Example:
     (mjr_dquad_add-data-from-map daDquad #'abs        :data 1      :ano-nam "f_abs"    :ano-typ :ano-typ-real)
     (mjr_dquad_add-data-from-map daDquad #'phase      :data 1      :ano-nam "f_phase"  :ano-typ :ano-typ-real)
     (if z_color
-        (mjr_dquad_add-data-from-map daDquad z_color  :data 0      :ano-nam "z_color"  :ano-typ :ano-typ-color :ano-colorspace :cs-rgb))
+        (mjr_dquad_add-data-from-map daDquad z_color  :data 0      :ano-nam "z_color"  :ano-typ :ano-typ-rgbvec))
     (if zf_color
-        (mjr_dquad_add-data-from-map daDquad zf_color :data '(0 1) :ano-nam "zf_color" :ano-typ :ano-typ-color :ano-colorspace :cs-rgb))
+        (mjr_dquad_add-data-from-map daDquad zf_color :data '(0 1) :ano-nam "zf_color" :ano-typ :ano-typ-rgbvec))
     (if f_color
-        (mjr_dquad_add-data-from-map daDquad f_color  :data 1      :ano-nam "f_color"  :ano-typ :ano-typ-color :ano-colorspace :cs-rgb))
+        (mjr_dquad_add-data-from-map daDquad f_color  :data 1      :ano-nam "f_color"  :ano-typ :ano-typ-rgbvec))
     daDquad))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -114,13 +115,13 @@ Example:
 
 Examples:
   * (mjr_gnupl_dquad (mjr_fsamp_dq-poly-c1 #(1 0 0 1) :rdat '(:start -1.5d0 :end 1.5d0 :len 50) :idat '(:start -1.5d0 :end 1.5d0 :len 50))
-                     :data-arrays \"f_abs\" :type :f)
+                     :data \"f_abs\" :type :f)
   * Lehmer's polynomial:
     (mjr_gnupl_dquad (mjr_fsamp_dq-poly-c1 #(1 0 -1 1 0 -1 0 1 -1 0 1) 
                                            :rdat '(:start -1.5d0 :end 1.5d0 :len 150) 
                                            :idat '(:start -1.5d0 :end 1.5d0 :len 150) 
                                            :do-log 't)
-                     :data-arrays \"f_abs\"
+                     :data \"f_abs\"
                      :type :f)"
   (mjr_fsamp_dq-func-c1-c1 (if do-log
                                (lambda (z) (log (mjr_poly_eval poly z)))
@@ -140,9 +141,9 @@ like 'd^{n}p(x)/dx^{n}.
 
 Examples:
   * (mjr_gnupl_dquad (mjr_fsamp_dq-poly-r1 #(2310 -7201 8949 -5541 1709 -210) :order 2 :xdat '(:start 0.45L0 :end 0.75L0 :len 1000))
-                     :data-arrays '(0 1) :type :l :ylim '(-0.002 0.015))
+                     :data '(0 1) :type :l :ylim '(-0.002 0.015))
   * (mjr_gnupl_dquad (mjr_fsamp_dq-poly-r1 #(1 0 -1 1 0 -1 0 1 -1 0 1) :order 4 :xdat '(:start -1.45d0 :end 1.25d0 :len 2000))
-                     :data-arrays '(0 1) :type :l :ylim '(-2 6))"
+                     :data '(0 1) :type :l :ylim '(-2 6))"
   (let* ((list-of-poly  (mjr_util_non-list-then-list poly-olos))
          (num-polys     (length list-of-poly))
          (list-of-order (typecase order
@@ -178,14 +179,45 @@ Examples:
                                                                          (format nil "d^{~d}~a(~a)/d~a^{~d}" o ylab xlab xlab o)))))
       new-dquad)))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_fsamp_dq-func-r123-color (color-func-olos &key (func-lab "c") (ano-typ :ano-typ-rgbvec) xdat ydat zdat (arg-mode :arg-number) (xlab "x") (ylab "y") (zlab "z"))
+  "Transform one or more color functions (i.e. a functino returning a color when given 1, 2, or 3 real arguments) into a dquad"
+  (flet ((mkLabs (labs num) ;; Create NUM unique labels from list of labels in LABS
+           (if (<= num (length labs))
+               labs
+               (let ((good-labs nil))
+                 (loop for i from 0 upto (1- num)
+                       for b = (mjr_util_elt-mod labs i)
+                       do (loop for j from 0
+                                for n = (format nil "~a~d" b j)
+                                when (not (member n good-labs :test #'string=))
+                                return (push n good-labs))
+                       finally (return (reverse good-labs)))))))
+    (let* ((list-of-funcs     (mjr_util_non-list-then-list color-func-olos))
+           (list-of-ano-typs  (mjr_util_non-list-then-list ano-typ))
+           (list-of-func-labs (mkLabs (mjr_util_non-list-then-list func-lab) (length list-of-funcs))))
+      (cond ((zerop (length list-of-funcs))         (error "mjr_fsamp_dq-func-r123-color: FUNC must be provided!"))
+            ((not xdat)                             (error "mjr_fsamp_dq-func-r123-color: XDAT must be provided!"))
+            ((and zdat (not ydat))                  (error "mjr_fsamp_dq-func-r123-color: YDAT must be provided when ZDAT is provided!")))
+      (let ((daDquad (apply #'mjr_dquad_make-from-axis (append (list xlab xdat) (if ydat (list ylab ydat)) (if zdat (list zlab zdat))))))
+        (loop for i from 0
+              for f in list-of-funcs
+              for d-lab in list-of-func-labs
+              for d = (mjr_dquad_map daDquad f :axes 't :arg-mode arg-mode)
+              for d-val = (mjr_arr_aref-row-major d 0)
+              for d-typ = (mjr_util_elt-mod list-of-ano-typs i)
+              do (mjr_dquad_add-data daDquad d :ano-nam d-lab :ano-typ d-typ))
+        daDquad))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_fsamp_dq-func-r123-r123 (func-olos &key
                                                 (func-lab "f")
                                                 xdat ydat zdat (arg-mode :arg-number) (xlab "x") (ylab "y") (zlab "z")
-                                                ax-color-meth  (ax-color-max-color  1) (ax-color-lab  "c") (ax-color-auto-scale  't) (ax-color-colorspace  :cs-rgb)
-                                                f-color-meth   (f-color-max-color   1) (f-color-lab   "c") (f-color-auto-scale   't) (f-color-colorspace   :cs-rgb)
-                                                all-color-meth (all-color-max-color 1) (all-color-lab "c") (all-color-auto-scale 't) (all-color-colorspace :cs-rgb))
-  "Transform one or more mathematical functions into a dquad or dsimp list
+                                                ax-color-meth  ax-color-max-color  (ax-color-lab  "c") (ax-color-auto-scale  't) (ax-color-ano-typ  :ano-typ-rgbvec)
+                                                f-color-meth   f-color-max-color   (f-color-lab   "c") (f-color-auto-scale   't) (f-color-ano-typ   :ano-typ-rgbvec)
+                                                all-color-meth all-color-max-color (all-color-lab "c") (all-color-auto-scale 't) (all-color-ano-typ :ano-typ-rgbvec))
+  "Transform one or more mathematical functions into a dquad
      Arguments:
        - func-olos .. A function or list of same
        - func-lab .............. Labels (names) for functions
@@ -195,7 +227,7 @@ Examples:
        - u-close v-close ....... For :dsimp output.  Close the curve or surface
        - X-color-lab ........... Labels (names) for *-color-meth
        - X-color-meth .......... color-method or list of same.  See: MJR_COLORIZE_MAKE-COLORIZE-FUNCTION
-       - X-color-colorspace .... colorspace or list of same.  See: MJR_COLORIZE_MAKE-COLORIZE-FUNCTION
+       - X-color-ano-typ ....... :ano-typ or list of same.  See: :MJR_ANNOT and MJR_COLORIZE_MAKE-COLORIZE-FUNCTION
        - X-color-auto-scale .... auto-scale or list of same.  See: MJR_COLORIZE_MAKE-COLORIZE-FUNCTION
        - X-color-max-color ..... max-color or list of same.  MJR_See: COLORIZE_MAKE-COLORIZE-FUNCTION
                            -  X=ax .... axis              -- color functions receive x, y, z
@@ -205,32 +237,32 @@ Examples:
       * Single rectilinear function graph (curve)
        (let ((data (mjr_fsamp_dq-func-r123-r123 #'sin
                                                 :xdat '(:start 0 :end 7 :len 100))))
-            (mjr_gnupl_dquad data :data-arrays 0 :type :l))
+            (mjr_gnupl_dquad data :data 0 :type :l))
       * Single rectilinear univariate polynomial graph (curve)
        (let ((data (mjr_fsamp_dq-func-r123-r123 (lambda (x) (mjr_poly_eval #(2310 -7201 8949 -5541 1709 -210) x))
                                                 :xdat '(:start 0.45L0 :end 0.75L0 :len 100))))
-            (mjr_gnupl_dquad data :data-arrays 0 :type :l :ylim '(-0.002 0.015)))
+            (mjr_gnupl_dquad data :data 0 :type :l :ylim '(-0.002 0.015)))
       * Two rectilinear polynomial graph
        (let ((data (mjr_fsamp_dq-func-r123-r123 (list #'sin #'cos) :xdat (list :start (* -2 pi) :end (* 2 pi) :len 100))))
-            (mjr_gnupl_dquad data :data-arrays '(0 1) :type :l))
+            (mjr_gnupl_dquad data :data '(0 1) :type :l))
       * Single parametric curve plot in 2D
        (let ((data (mjr_fsamp_dq-func-r123-r123 (lambda (x) (vector (sin x) (cos x)))
                                                 :xdat (list :start 0 :end (* 2 pi) :len 100))))
-            (mjr_gnupl_dquad data :data-arrays 0 :type :l))
+            (mjr_gnupl_dquad data :data 0 :type :l))
       * Single parametric curve plot in 3D
        (let ((data (mjr_fsamp_dq-func-r123-r123 (lambda (x) (vector (sin x) (cos x) x))
                                                 :xdat (list :start 0 :end (* 2 pi) :len 100))))
-            (mjr_gnupl_dquad data :data-arrays 0 :type :l))
+            (mjr_gnupl_dquad data :data 0 :type :l))
       * Single rectilinear surface graph
        (let ((data (mjr_fsamp_dq-func-r123-r123 (lambda (x y) (sin (sqrt (+ (* x x) (* y y)))))
                                                 :xdat '(:start -7 :end 7 :len 10)
                                                 :ydat '(:start -7 :end 7 :len 10))))
-            (mjr_gnupl_dquad data :data-arrays 0 :type :f))
+            (mjr_gnupl_dquad data :data 0 :type :f))
       * Single 2D image graph
        (let ((data (mjr_fsamp_dq-func-r123-r123 (lambda (x y) (sin (sqrt (+ (* x x) (* y y)))))
                                                 :xdat '(:start -7 :end 7 :len 100)
                                                 :ydat '(:start -7 :end 7 :len 100))))
-            (mjr_gnupl_dquad data :data-arrays 0 :type :i))
+            (mjr_gnupl_dquad data :data 0 :type :i))
       * Single parametric surface plot
        (let ((data (mjr_fsamp_dq-func-r123-r123 (lambda (x y)
                                                          (let ((a 1)
@@ -240,7 +272,7 @@ Examples:
                                                                    (* a (sin y)))))
                                                 :xdat '(:start 0 :end 5.0 :len 20)
                                                 :ydat '(:start 0 :end 6.0 :len 20))))
-                (mjr_gnupl_dquad data :data-arrays 0 :type :l))"
+                (mjr_gnupl_dquad data :data 0 :type :l))"
   (flet ((mkLabs (labs num) ;; Create NUM unique labels from list of labels in LABS
            (if (<= num (length labs))
                labs
@@ -257,17 +289,17 @@ Examples:
            (list-of-ax-color-meths  (mjr_util_non-list-then-list ax-color-meth))
            (list-of-ax-color-mc     (mjr_util_non-list-then-list ax-color-max-color))
            (list-of-ax-color-as     (mjr_util_non-list-then-list ax-color-auto-scale))
-           (list-of-ax-color-cs     (mjr_util_non-list-then-list ax-color-colorspace))
+           (list-of-ax-color-at     (mjr_util_non-list-then-list ax-color-ano-typ))
            (list-of-ax-color-labs   (mkLabs (mjr_util_non-list-then-list ax-color-lab) (length list-of-ax-color-meths)))
            (list-of-f-color-meths   (mjr_util_non-list-then-list f-color-meth))
            (list-of-f-color-mc      (mjr_util_non-list-then-list f-color-max-color))
            (list-of-f-color-as      (mjr_util_non-list-then-list f-color-auto-scale))
-           (list-of-f-color-cs      (mjr_util_non-list-then-list f-color-colorspace))
+           (list-of-f-color-at      (mjr_util_non-list-then-list f-color-ano-typ))
            (list-of-f-color-labs    (mkLabs (mjr_util_non-list-then-list f-color-lab) (length list-of-f-color-meths)))
            (list-of-all-color-meths (mjr_util_non-list-then-list all-color-meth))
            (list-of-all-color-mc    (mjr_util_non-list-then-list all-color-max-color))
            (list-of-all-color-as    (mjr_util_non-list-then-list all-color-auto-scale))
-           (list-of-all-color-cs    (mjr_util_non-list-then-list all-color-colorspace))
+           (list-of-all-color-at    (mjr_util_non-list-then-list all-color-ano-typ))
            (list-of-all-color-labs  (mkLabs (mjr_util_non-list-then-list all-color-lab) (length list-of-all-color-meths))))
       (cond ((zerop (length list-of-funcs))         (error "mjr_fsamp_dq-func-r123-r123: FUNC must be provided!"))
             ((not xdat)                             (error "mjr_fsamp_dq-func-r123-r123: XDAT must be provided!"))
@@ -284,44 +316,51 @@ Examples:
                             (vector    (typecase (aref d-val 0)
                                          (complex   :ano-typ-cvec)
                                          (number    :ano-typ-rvec)
-                                         (otherwise (error "mjr_fsamp_dq-func-r123-r123: Function return type not supported!"))))
-                            (otherwise (error "mjr_fsamp_dq-func-r123-r123: Function return type not supported!")))
+                                         (otherwise (error "mjr_fsamp_dq-func-r123-r123: Function return type not supported: ~a!" d-val))))
+                            (otherwise (error "mjr_fsamp_dq-func-r123-r123: Function return type not supported: ~a!" d-val)))
               do (mjr_dquad_add-data daDquad d :ano-nam d-lab :ano-typ d-typ))
         (if list-of-ax-color-meths
             (loop for i from 0
                   for c-cm  in list-of-ax-color-meths
                   for c-lab in list-of-ax-color-labs
-                  for c-as  = (mjr_util_elt-mod list-of-ax-color-as i)
-                  for c-cs  = (mjr_util_elt-mod list-of-ax-color-cs i)
-                  for c-mc  = (mjr_util_elt-mod list-of-ax-color-mc i)
-                  do (mjr_dquad_colorize daDquad :color-method c-cm :axes 't :auto-scale c-as :ano-nam c-lab :max-color c-mc :ano-colorspace c-cs)))
+                  for c-as  = (if list-of-ax-color-as (mjr_util_elt-mod list-of-ax-color-as i))
+                  for c-at  = (if list-of-ax-color-at (mjr_util_elt-mod list-of-ax-color-at i))
+                  for c-mc  = (if list-of-ax-color-mc (mjr_util_elt-mod list-of-ax-color-mc i))
+                  do (apply #'mjr_dquad_colorize daDquad :ano-nam c-lab :axes 't (append (if c-cm (list :color-method c-cm))
+                                                                                         (if c-as (list :auto-scale   c-as))
+                                                                                         (if c-mc (list :max-color    c-mc))))))
         (if list-of-f-color-meths
             (let ((data-idxs (concatenate 'list (mjr_vvec_to-vec-maybe (length list-of-funcs)))))
+              
               (loop for i from 0
                     for c-cm  in list-of-f-color-meths
                     for c-lab in list-of-f-color-labs
-                    for c-as  = (mjr_util_elt-mod list-of-f-color-as i)
-                    for c-cs  = (mjr_util_elt-mod list-of-f-color-cs i)
-                    for c-mc  = (mjr_util_elt-mod list-of-f-color-mc i)
-                    do (mjr_dquad_colorize daDquad :color-method c-cm :data data-idxs :auto-scale c-as :ano-nam c-lab :max-color c-mc :ano-colorspace c-cs))))
+                    for c-as  = (if list-of-f-color-as (mjr_util_elt-mod list-of-f-color-as i))
+                    for c-at  = (if list-of-f-color-at (mjr_util_elt-mod list-of-f-color-at i))
+                    for c-mc  = (if list-of-f-color-mc (mjr_util_elt-mod list-of-f-color-mc i))
+                    do (apply #'mjr_dquad_colorize daDquad :ano-nam c-lab :data data-idxs (append (if c-cm (list :color-method c-cm))
+                                                                                                  (if c-as (list :auto-scale   c-as))
+                                                                                                  (if c-mc (list :max-color    c-mc)))))))
         (if list-of-all-color-meths
             (let ((data-idxs (concatenate 'list (mjr_vvec_to-vec-maybe (length list-of-funcs)))))
               (loop for i from 0
                     for c-cm  in list-of-all-color-meths
                     for c-lab in list-of-all-color-labs
-                    for c-as  = (mjr_util_elt-mod list-of-all-color-as i)
-                    for c-cs  = (mjr_util_elt-mod list-of-all-color-cs i)
-                    for c-mc  = (mjr_util_elt-mod list-of-all-color-mc i)
-                    do (mjr_dquad_colorize daDquad :color-method c-cm :axes 't :data data-idxs :auto-scale c-as :ano-nam c-lab :max-color c-mc :ano-colorspace c-cs))))
+                    for c-as  = (if list-of-all-color-as (mjr_util_elt-mod list-of-all-color-as i))
+                    for c-at  = (if list-of-all-color-at (mjr_util_elt-mod list-of-all-color-at i))
+                    for c-mc  = (if list-of-all-color-mc (mjr_util_elt-mod list-of-all-color-mc i))
+                    do (apply #'mjr_dquad_colorize daDquad :ano-nam c-lab :axes 't :data data-idxs (append (if c-cm (list :color-method c-cm))
+                                                                                                           (if c-as (list :auto-scale   c-as))
+                                                                                                           (if c-mc (list :max-color    c-mc)))))))
         daDquad))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_fsamp_ds-func-r123-r123 (f &key
                                         (func-lab "f")
                                         xdat ydat (arg-mode :arg-number) (xlab "x") (ylab "y")
-                                        ax-color-meth  (ax-color-max-color  1) (ax-color-lab  "c") (ax-color-auto-scale  't) (ax-color-colorspace  :cs-rgb)
-                                        f-color-meth   (f-color-max-color   1) (f-color-lab   "c") (f-color-auto-scale   't) (f-color-colorspace   :cs-rgb)
-                                        all-color-meth (all-color-max-color 1) (all-color-lab "c") (all-color-auto-scale 't) (all-color-colorspace :cs-rgb)
+                                        ax-color-meth  (ax-color-max-color  1) (ax-color-lab  "c") (ax-color-auto-scale  't) (ax-color-ano-typ  :ano-typ-rgbvec)
+                                        f-color-meth   (f-color-max-color   1) (f-color-lab   "c") (f-color-auto-scale   't) (f-color-ano-typ   :ano-typ-rgbvec)
+                                        all-color-meth (all-color-max-color 1) (all-color-lab "c") (all-color-auto-scale 't) (all-color-ano-typ :ano-typ-rgbvec)
                                         u-close v-close)
   "Transform a mathematical function into a dsimp list
      All arguments are as documented in mjr_fsamp_dq-func-r123-r123, with the following additions:
@@ -331,15 +370,15 @@ Examples:
                                                           :func-lab func-lab
                                                           :ax-color-meth ax-color-meth :ax-color-max-color
                                                           ax-color-max-color :ax-color-lab ax-color-lab :ax-color-auto-scale
-                                                          ax-color-auto-scale :ax-color-colorspace
-                                                          ax-color-colorspace :f-color-meth f-color-meth :f-color-max-color
+                                                          ax-color-auto-scale :ax-color-ano-typ
+                                                          ax-color-ano-typ :f-color-meth f-color-meth :f-color-max-color
                                                           f-color-max-color :f-color-lab f-color-lab :f-color-auto-scale
-                                                          f-color-auto-scale :f-color-colorspace
-                                                          f-color-colorspace :all-color-meth
+                                                          f-color-auto-scale :f-color-ano-typ
+                                                          f-color-ano-typ :all-color-meth
                                                           all-color-meth :all-color-max-color
                                                           all-color-max-color :all-color-lab
                                                           all-color-lab :all-color-auto-scale
-                                                          all-color-auto-scale :all-color-colorspace all-color-colorspace)
+                                                          all-color-auto-scale :all-color-ano-typ all-color-ano-typ)
                              (apply #'list 0 (if ydat (list 1)))
                              0
                              :data 't :u-close u-close :v-close v-close))

@@ -40,6 +40,8 @@
         :MJR_GEOM
         :MJR_COMBC
         :MJR_COLORIZED
+        :MJR_COLOR
+        :MJR_ANNOT
         :MJR_UTIL
         :MJR_DQUAD
         :MJR_DSIMP
@@ -217,12 +219,17 @@ Arguments:
                               ;; TEXTURES
                               (if color-data
                                   (let* ((colors (mjr_dsimp_get-data-array dsimp color-data))
+                                         (dattyp (mjr_dsimp_get-data-ano dsimp color-data :ano-typ))
+                                         (cuc (mjr_color_make-unpacker-color-space-converter-and-packer (mjr_annot_get-colorpacking dattyp)
+                                                                                                        (mjr_annot_get-colorspace dattyp)
+                                                                                                        :cs-rgb
+                                                                                                        :cp-none))
                                          (ncol   (length colors)))
                                     (format dest "  texture_list {~%")
                                     (format dest "    ~d,~%" ncol)
                                     (loop for  a-clr across colors
                                           for  lft downfrom (1- ncol)
-                                          do   (format dest "    texture { pigment { rgb ~a } }" (pvc a-clr))
+                                          do   (format dest "    texture { pigment { rgb ~a } }" (pvc (funcall cuc a-clr)))
                                           when (not (zerop lft))
                                           do   (format dest ",~%"))
                                     (format dest "  }~%")))
