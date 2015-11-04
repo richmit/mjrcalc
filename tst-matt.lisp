@@ -1,0 +1,150 @@
+;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:utf-8; fill-column:132 -*-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; @file      tst-matt.lisp
+;; @author    Mitch Richling <http://www.mitchr.me>
+;; @Copyright Copyright 1995-2010,2013 by Mitch Richling.  All rights reserved.
+;; @brief     Unit tests for use-matt.lisp@EOL
+;; @Keywords  
+;; @Std       Common Lisp
+;;
+;;            
+;;            
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defpackage :MJR_MATT-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_MAT :MJR_CMP :MJR_VEC :MJR_PRNG :MJR_MATT))
+
+(in-package :MJR_MATT-TESTS)
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(define-test mjr_matt_make-test
+  ;; Make sure the example in Burkardt's test matrix library matches
+  (assert-equalp #2A((3 1 1 1 1)(1 3 1 1 1)(1 1 3 1 1)(1 1 1 3 1)(1 1 1 1 3))                                                     (mjr_matt_make-test :mp-pei         :n 5 :b 2))
+  (assert-equalp #2A((1/9 1/7 1/5 1/3 1)(1/7 1/5 1/3 1 -1)(1/5 1/3 1 -1 -1/3)(1/3 1 -1 -1/3 -1/5)(1 -1 -1/3 -1/5 -1/7))           (mjr_matt_make-test :mp-ris         :n 5))
+  (assert-equalp #2A((1 1/2 1/3 1/4 1/5)(1/2 1 2/3 1/2 2/5)(1/3 2/3 1 3/4 3/5)(1/4 1/2 3/4 1 4/5)(1/5 2/5 3/5 4/5 1))             (mjr_matt_make-test :mp-westlake    :n 5))
+  (assert-equalp #2A((1 1 1 1 1)(1 2 3 4 5)(1 3 6 10 15)(1 4 10 20 35)(1 5 15 35 70))                                             (mjr_matt_make-test :mp-pascal      :n 5))
+  (assert-equalp #2A((1/2 1/3 1/4 1/5 1/6)(1/3 1/4 1/5 1/6 1/7)(1/4 1/5 1/6 1/7 1/8)(1/5 1/6 1/7 1/8 1/9)(1/6 1/7 1/8 1/9 1/10))  (mjr_matt_make-test :mp-cauchy      :n 5))
+  (assert-equalp #2A((1 1 1 1 1) (1 2 4 8 16) (1 3 9 27 81) (1 4 16 64 256) (1 5 25 125 625))                                     (mjr_matt_make-test :mp-vandermonde :n 5))
+  (assert-equalp #2A((1 1 1 1 1) (1 2 2 2 2) (1 2 3 3 3) (1 2 3 4 4) (1 2 3 4 5))                                                 (mjr_matt_make-test :mp-minij       :n 5))
+  (assert-equalp #2A((2 -2 -2/3 -2/5 -2/7)(2/3 2 -2 -2/3 -2/5)(2/5 2/3 2 -2 -2/3)(2/7 2/5 2/3 2 -2)(2/9 2/7 2/5 2/3 2))           (mjr_matt_make-test :mp-parter      :n 5))
+  (assert-equalp #2A((1/1 1/2 1/3 1/4 1/5)(1/2 1/3 1/4 1/5 1/6)(1/3 1/4 1/5 1/6 1/7)(1/4 1/5 1/6 1/7 1/8)(1/5 1/6 1/7 1/8 1/9))   (mjr_matt_make-test :mp-hilbert     :n 5))
+  (assert-equalp #2A((1 2 3 4 5) (2 3 4 5 0) (3 4 5 0 0) (4 5 0 0 0) (5 0 0 0 0))                                                 (mjr_matt_make-test :mp-hankel      :n 5))
+  (assert-equalp #2A((1 2 3 4 5) (2 1 2 3 4) (3 2 1 2 3) (4 3 2 1 2) (5 4 3 2 1))                                                 (mjr_matt_make-test :mp-toeplitz    :n 5))
+  ;; Several tests in this loop
+  (loop for n from 2 upto 20
+        for x = (mjr_vec_make-seq :start n :end 1 :step -1)
+        for y = (mjr_vec_make-seq :start n :end 1 :step -1)
+        for b = (/ (mjr_prng_int-co 1 10) (mjr_prng_int-co 1 10))
+        ;; Make sure the *-i versions match what we get from mjr_mat_inv.
+        do (assert-equalp (mjr_mat_inv (mjr_matt_make-test :mp-cauchy      :n n))      (mjr_matt_make-test :mp-cauchy-i      :n n))
+        do (assert-equalp (mjr_mat_inv (mjr_matt_make-test :mp-hilbert     :n n))      (mjr_matt_make-test :mp-hilbert-i     :n n))
+        do (assert-equalp (mjr_mat_inv (mjr_matt_make-test :mp-minij       :n n))      (mjr_matt_make-test :mp-minij-i       :n n))
+        do (assert-equalp (mjr_mat_inv (mjr_matt_make-test :mp-parter      :n n))      (mjr_matt_make-test :mp-parter-i      :n n))
+        do (assert-equalp (mjr_mat_inv (mjr_matt_make-test :mp-ris         :n n))      (mjr_matt_make-test :mp-ris-i         :n n))
+        do (assert-equalp (mjr_mat_inv (mjr_matt_make-test :mp-westlake    :n n))      (mjr_matt_make-test :mp-westlake-i    :n n))
+        do (assert-equalp (mjr_mat_inv (mjr_matt_make-test :mp-vandermonde :n n))      (mjr_matt_make-test :mp-vandermonde-i :n n))
+        do (assert-equalp (mjr_mat_inv (mjr_matt_make-test :mp-vandermonde :x x))      (mjr_matt_make-test :mp-vandermonde-i :x x))
+        do (assert-equalp (mjr_mat_inv (mjr_matt_make-test :mp-cauchy      :x x))      (mjr_matt_make-test :mp-cauchy-i      :x x))
+        do (assert-equalp (mjr_mat_inv (mjr_matt_make-test :mp-cauchy      :x x :y y)) (mjr_matt_make-test :mp-cauchy-i      :x x :y y))
+        do (assert-equalp (mjr_mat_inv (mjr_matt_make-test :mp-pei         :n n :b b)) (mjr_matt_make-test :mp-pei-i         :n n :b b))
+        ;; Make sure the *-i versions are really inverses. :)
+        do (assert-true (mjr_mat_test-property-struct (mjr_mat_* (mjr_matt_make-test :mp-cauchy      :n n)      (mjr_matt_make-test :mp-cauchy-i      :n n))      :mp-identity))
+        do (assert-true (mjr_mat_test-property-struct (mjr_mat_* (mjr_matt_make-test :mp-hilbert     :n n)      (mjr_matt_make-test :mp-hilbert-i     :n n))      :mp-identity))
+        do (assert-true (mjr_mat_test-property-struct (mjr_mat_* (mjr_matt_make-test :mp-minij       :n n)      (mjr_matt_make-test :mp-minij-i       :n n))      :mp-identity))
+        do (assert-true (mjr_mat_test-property-struct (mjr_mat_* (mjr_matt_make-test :mp-parter      :n n)      (mjr_matt_make-test :mp-parter-i      :n n))      :mp-identity))
+        do (assert-true (mjr_mat_test-property-struct (mjr_mat_* (mjr_matt_make-test :mp-ris         :n n)      (mjr_matt_make-test :mp-ris-i         :n n))      :mp-identity))
+        do (assert-true (mjr_mat_test-property-struct (mjr_mat_* (mjr_matt_make-test :mp-westlake    :n n)      (mjr_matt_make-test :mp-westlake-i    :n n))      :mp-identity))
+        do (assert-true (mjr_mat_test-property-struct (mjr_mat_* (mjr_matt_make-test :mp-vandermonde :n n)      (mjr_matt_make-test :mp-vandermonde-i :n n))      :mp-identity))
+        do (assert-true (mjr_mat_test-property-struct (mjr_mat_* (mjr_matt_make-test :mp-vandermonde :x x)      (mjr_matt_make-test :mp-vandermonde-i :x x))      :mp-identity))
+        do (assert-true (mjr_mat_test-property-struct (mjr_mat_* (mjr_matt_make-test :mp-cauchy      :x x)      (mjr_matt_make-test :mp-cauchy-i      :x x))      :mp-identity))
+        do (assert-true (mjr_mat_test-property-struct (mjr_mat_* (mjr_matt_make-test :mp-cauchy      :x x :y y) (mjr_matt_make-test :mp-cauchy-i      :x x :y y)) :mp-identity))
+        do (assert-true (mjr_mat_test-property-struct (mjr_mat_* (mjr_matt_make-test :mp-pei         :n n :b b) (mjr_matt_make-test :mp-pei-i         :n n :b b)) :mp-identity))
+        ;; Make sure various matrices have the properties we think they have
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-pascal    :n n)      :mp-symmetric :mp-integer))
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-hankel    :n n)      :mp-hankel))
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-hilbert   :n n)      :mp-hankel :mp-symmetric))
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-minij     :n n)      :mp-integer :mp-symmetric))
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-parter    :n n)      :mp-persymmetric :mp-toeplitz))
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-ris       :n n)      :mp-hankel :mp-symmetric))
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-westlake  :n n)      :mp-symmetric))
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-toeplitz  :n n)      :mp-toeplitz))
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-hankel    :x x)      :mp-hankel))
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-toeplitz  :x x)      :mp-toeplitz))
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-hankel    :x x :y y) :mp-hankel))
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-toeplitz  :x x :y y) :mp-toeplitz))
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-pei       :n n :b b) :mp-persymmetric :mp-symmetric))
+        ;; Make sure det matches
+        do (assert-equalp (mjr_matt_det-test :mp-cauchy        :n n)      (mjr_mat_det (mjr_matt_make-test :mp-cauchy      :n n)))       ;; Busted for n=1
+        do (assert-equalp (mjr_matt_det-test :mp-hankel        :n n)      (mjr_mat_det (mjr_matt_make-test :mp-hankel      :n n)))
+        do (assert-equalp (mjr_matt_det-test :mp-pascal        :n n)      (mjr_mat_det (mjr_matt_make-test :mp-pascal      :n n)))
+        do (assert-equalp (mjr_matt_det-test :mp-hilbert       :n n)      (mjr_mat_det (mjr_matt_make-test :mp-hilbert     :n n)))
+        do (assert-equalp (mjr_matt_det-test :mp-vandermonde   :n n)      (mjr_mat_det (mjr_matt_make-test :mp-vandermonde :n n)))       ;; Busted for n=1
+        do (assert-equalp (mjr_matt_det-test :mp-cauchy        :x x)      (mjr_mat_det (mjr_matt_make-test :mp-cauchy      :x x)))       ;; Busted for n=1
+        do (assert-equalp (mjr_matt_det-test :mp-vandermonde   :x x)      (mjr_mat_det (mjr_matt_make-test :mp-vandermonde :x x)))       ;; Busted for n=1
+        do (assert-equalp (mjr_matt_det-test :mp-cauchy        :x x :y y) (mjr_mat_det (mjr_matt_make-test :mp-cauchy      :x x :y y)))  ;; Busted for n=1
+        do (assert-equalp (mjr_matt_det-test :mp-pei           :n n :b b) (mjr_mat_det (mjr_matt_make-test :mp-pei         :n n :b b)))
+        ;; Make sure special cases of Cauchy are reproducible with :mp-cauchy
+        do (assert-equalp (mjr_matt_make-test :mp-parter :n n)
+                          (mjr_matt_make-test :mp-cauchy
+                                                :x (mjr_vec_+ 1/2 (mjr_vec_make-seq :start 1 :end n))
+                                                :y (mjr_vec_- (mjr_vec_make-seq :start 1 :end n))))
+        do (assert-equalp (mjr_matt_make-test :mp-hilbert :n n)
+                          (mjr_matt_make-test :mp-cauchy
+                                                :x (mjr_vec_- (mjr_vec_make-seq :start 1 :end n) 1)
+                                                :y (mjr_vec_make-seq :start 1 :end n)))
+
+        do (assert-equalp (mjr_matt_make-test :mp-ris :n n)
+                          (mjr_matt_make-test :mp-cauchy
+                                                :x (mjr_vec_+ (+ 3 (* 2 n)) (mjr_vec_* -2 (mjr_vec_make-seq :start 1 :end n)))
+                                                :y (mjr_vec_* -2 (mjr_vec_make-seq :start 1 :end n))))
+        )
+
+  ; Transformation matrices have some special properties...
+  (dotimes (i 100)
+    (let* ((lx (mjr_prng_int-co 3 20))
+           (x  (mjr_vec_ewbo (mjr_prng_vector lx #'mjr_prng_int-co 0 10)
+                             (mjr_prng_vector lx #'mjr_prng_int-co 0 (if (evenp i) 1 10))
+                             #'complex))
+           (n  (mjr_prng_random lx))
+           (m  (loop for r = (mjr_prng_random lx)
+                     when (not (= n r))
+                     do (return r)))
+           (hm  (mjr_matt_make-test :mp-householder   :x x :n n))
+           (h2  (mjr_matt_make-test :mp-householder-2 :x x :n n :m m))
+           (g2  (mjr_matt_make-test :mp-givens-2      :x x :n n :m m))
+           (k   (+ (max m n) (mjr_prng_int-co 1 4)))
+           (e1  (mjr_matt_make-test :mp-gauss-1            :n n :m m :k k))
+           (f   (if (evenp i) (mjr_prng_int-co 1 10) (complex (mjr_prng_int-co 1 10) (mjr_prng_int-co 1 10))))
+           (e2  (mjr_matt_make-test :mp-gauss-2            :n n      :k k :a f))
+           (e3  (mjr_matt_make-test :mp-gauss-3            :n n :m m :k k :a f))
+           )
+      (assert-true (mjr_mat_test-property-struct hm :mp-hermitian))        ;; Householder are hermitian
+      (assert-true (mjr_mat_test-property-math hm :mp-unitary))            ;; Householder are unitary
+      (if (evenp i)
+          (progn
+            (assert-true (mjr_mat_test-property-struct hm :mp-symmetric))  ;; Householder are hermitian
+            (assert-true (mjr_mat_test-property-math hm :mp-orthogonal)))) ;; Householder are orthogonal
+      (assert-true (mjr_cmp_= -1 (mjr_mat_det hm) 1e-5))                   ;; Householder are det=-1
+      (assert-true (mjr_cmp_=  1 (mjr_mat_det g2) 1e-5))                   ;; Givens are det=1
+      (assert-true (mjr_cmp_= -1 (mjr_mat_det h2) 1e-5))                   ;; Householder are det=-1
+      (assert-true (mjr_cmp_= -1 (mjr_mat_det e1) 1e-5))                   ;; Gauss type 1 are det=-1
+      (assert-true (mjr_cmp_=  f (mjr_mat_det e2) 1e-5))                   ;; Gauss type 2 are det=f
+      (assert-true (mjr_cmp_=  1 (mjr_mat_det e3) 1e-5))                   ;; Gauss type 3 are det=1
+      ))
+
+  ;; Verify matrix size and element data types for 50 random cases
+  (dotimes (i 50)
+    (let* ((r (mjr_prng_int-co 1 20))
+           (c (mjr_prng_int-co 1 20))
+           (mi (mjr_matt_make-test :mp-random :m r :n c :a 10))
+           (mf (mjr_matt_make-test :mp-random :m r :n c :a 10.0)))
+      (assert-true (mjr_mat_test-property-struct mi :mp-integer))
+      (assert-true (mjr_mat_test-property-struct mf :mp-real))
+      (assert-equal r (mjr_mat_rows mi))
+      (assert-equal r (mjr_mat_rows mf))
+      (assert-equal c (mjr_mat_cols mi))
+      (assert-equal c (mjr_mat_cols mf))))
+  )
+
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(run-tests)
