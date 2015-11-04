@@ -33,23 +33,23 @@ optimized colorization functions.
     We can colorize four kinds of scalar domains:
     
        |------------------------+----------+-----------+-------------+-------------|
-       | colorize input domain  | Z_n      | Z         | I=[0,1]     | R           |
+       |                        | Z_n      | Z         | I=[0,1]     | R           |
        |------------------------+----------+-----------+-------------+-------------|
        | cardinality            | finite   | countable | uncountable | uncountable |
-       | b/ub                   | bounded  | unbounded | bounded     | unbounded   |
-       | d/c                    | discrete | discrete  | continuous  | continuous  |
-       | colorize output range  | tru rgb  | tru rgb   | real rgb    | real rgb    |
+       | bounded/unbounded      | bounded  | unbounded | bounded     | unbounded   |
+       | discrete/continuous    | discrete | discrete  | continuous  | continuous  |
+       | colorspace             | :cs-tru  | :cs-tru   | :cs-rgb     | :cs-rgb     |
        |------------------------+----------+-----------+-------------+-------------|
     
     We can also color four kinds of non-scalar domains:
     
        |------------------------+-------------+-------------+-------------+-------------|
-       | colorize input domain  | I^3         | R^3         | I^2         | R^2         |
+       |                        | I^3         | R^3         | I^2         | R^2         |
        |------------------------+-------------+-------------+-------------+-------------|
        | cardinality            | uncountable | uncountable | uncountable | uncountable |
-       | b/ub                   | bounded     | unbounded   | bounded     | unbounded   |
-       | d/c                    | continuous  | continuous  | continuous  | continuous  |
-       | colorize output range  | real rgb    | real rgb    | real rgb    | real rgb    |
+       | bounded/unbounded      | bounded     | unbounded   | bounded     | unbounded   |
+       | discrete/continuous    | continuous  | continuous  | continuous  | continuous  |
+       | colorspace             | :cs-rgb     | :cs-rgb     | :cs-rgb     | :cs-rgb     |
        |------------------------+-------------+-------------+-------------+-------------|
     
     Gradients, multi-gradients, and pallets all can be mapped quite directly to scalar colorization schemes.  When passed as
@@ -61,10 +61,12 @@ optimized colorization functions.
        |------------+-------------------+----------------+---------|
        | continuous | string            | gradient       | yes     |
        | continuous | vector of strings | multi-gradient | yes     |
+       | continuous | function          | color-atom     | yes     |
        |------------+-------------------+----------------+---------|
        | discrete   | string            | gradient       | yes     |
        | discrete   | vector            | pallet         | yes     |
        | discrete   | vector of strings | multi-gradient | no      |
+       | discrete   | function          | color-atom     | yes     |
        |------------+-------------------+----------------+---------|"
   (documentation 'mjr_colorize_help 'function))
 
@@ -72,43 +74,49 @@ optimized colorization functions.
 (defun mjr_colorize_make-colorize-function (color-method color-space max-color data-range auto-scale)
   "Return a colorize function from a function, gradient, or pallet with optional argument scaling.
 Arguments:
-     * method ...... Function, gradient, multi-gradient, pallet
-                       It is interperted via it's type and the value of :color-space like so:
-                         * string .. gradient
-                         * vector .. pallet (when :color-space is :cs-tru)
-                         * vector .. multi-gradient (when :color-space is :cs-rgb)
-                         * else .... colorize atom (a function takeing one or more numbers and returning a color)
-     * color-space . Must be :cs-tru or :cs-rgb.  Default is :cs-tru
-     * max-color ... Positive integer, nil=infinite, or a real number in (0,1]
-     * auto-scale .. Use max-color and data-range to autoscale the input data
-     * data-range .. The range of the input data
-                       For z-color-method:
-                         * nil ...... all variable ranges are (infinite)
-                         * vector ... 1st two elements -> range for 1st arg, next 2 are for next var, etc...
+     * color-method .. Function, gradient, multi-gradient, pallet
+                         It is interpreted via it's type and the value of :color-space like so:
+                           * string .. gradient (when :color-space is :cs-tru or :cs-rgb)
+                           * vector .. pallet (when :color-space is :cs-tru)
+                           * vector .. multi-gradient (when :color-space is :cs-rgb)
+                           * else .... colorize atom (a function taking one or more numbers and returning a color)
+     * color-space ... Must be :cs-tru or :cs-rgb.  Default is :cs-tru
+     * max-color ..... Positive integer, nil=auto/infinite, or a real number in (0,1].  NIL means:
+                           * Automatically computed when color-space is :cs-tru or :cs-rgb and color-method
+                             is a string or vector
+                           * Infinity (auto-scale will not happen)
+     * auto-scale .... Use max-color and data-range to auto-scale the input data
+     * data-range .... The range of the input data
+                           * nil ...... all variable ranges are (infinite)
+                           * vector ... 1st two elements -> range for 1st arg, next 2 are for next var, etc...
 Examples
   * Take real numbers in [-5 5], and map them to the color gradient black-red
-    (mjr_colorize_make-colorize-function #(\"0R\" :cs-rgb 1 #(-5 5) 't))
+    (mjr_colorize_make-colorize-function \"0R\" :cs-rgb 1 #(-5 5) 't))
   * Take a tuple in [-5 5]x[-4 4]x[-3 3] and map it to the RGB color cube
     (mjr_colorize_make-colorize-function #'mjr_colorizer_i3-rgb-cube :cs-rgb 1 #(-5 5 -4 4 -3 3) 't)"
   (let* ((color-space (or color-space :cs-tru))
-         (fun         (if (eq color-space :cs-tru)
-                          (typecase color-method
-                            (string    (mjr_colorized_factory-from-gradient color-method))
-                            (vector    (mjr_colorized_factory-from-pallet color-method))
-                            (otherwise color-method))
-                          (typecase color-method
-                            (string    (mjr_colorizer_factory-from-gradient color-method))
-                            (vector    (mjr_colorizer_factory-from-multi-gradient color-method))
-                            (otherwise color-method))))
+         (fun         (typecase color-method
+                        (string    (case color-space
+                                     (:cs-tru (mjr_colorized_factory-from-gradient color-method))
+                                     (:cs-rgb (mjr_colorizer_factory-from-gradient color-method))
+                                     (otherwise (error "mjr_colorize_make-colorize-function: Gradients supported only for :cs-tru and :cs-rgb"))))
+                        (vector    (case color-space
+                                     (:cs-tru (mjr_colorized_factory-from-pallet color-method))
+                                     (:cs-rgb (mjr_colorizer_factory-from-multi-gradient color-method))
+                                     (otherwise (error "mjr_colorize_make-colorize-function: Multi-Gradients supported only for :cs-rgb, and pallets supported only for :cs-tru"))))
+                        (otherwise color-method)))
          (max-color   (or max-color
                           (if auto-scale
-                              (if (eq color-space :cs-tru)
-                                  (typecase color-method
-                                    (string    (mjr_colorized_ut-gradient-length color-method))
-                                    (vector    (mjr_colorized_ut-pallet-length   color-method)))
-                                  (typecase color-method
-                                    (string    1.0)
-                                    (vector    1.0)))))))
+                              (case color-space
+                                (:cs-tru (typecase color-method
+                                           (string    (mjr_colorized_ut-gradient-length color-method))
+                                           (vector    (mjr_colorized_ut-pallet-length   color-method))
+                                           (otherwise (error "mjr_colorize_make-colorize-function: max-color must be provided for auto-scale when color-method is not a string or vector!"))))
+                                (:cs-rgb (typecase color-method
+                                           (string    1.0)
+                                           (vector    1.0)
+                                           (otherwise (error "mjr_colorize_make-colorize-function: max-color must be provided for auto-scale when color-method is not a string or vector!"))))
+                                (otherwise (error "mjr_colorize_make-colorize-function: max-color must be provided for auto-scale when color-space is not :cs-tru or :cs-rgb!")))))))
     (if (and auto-scale data-range max-color)
         (lambda (&rest rest) (apply fun (loop for vval in rest
                                               for vidx from 0 by 2

@@ -19,13 +19,17 @@
         :MJR_GEOM
         :MJR_COMBC
         :MJR_COLORIZED
-        :MJR_MXP
-        :MJR_IMG)
+        :MJR_UTIL
+        :MJR_DQUAD
+        :MJR_DSIMP
+        :MJR_MXP)
   (:DOCUMENTATION "Brief: Produce Povray files!;")
   (:EXPORT #:mjr_pov_help
+           ;; TODO: Nix the following two after we finish the dsimp/dquad code.
            #:mjr_pov_make-from-gndata
            #:mjr_pov_make-from-func-r12-r13          
-           #:mjr_pov_tga-write-from-func-r2-r1
+           ;; Experimental
+           #:mjr_pov_make-from-dsimp
            ;; NOT EXPORTED
            ;; #:mjr_pov_code-curve
            ))
@@ -43,7 +47,15 @@ function) into Povray files.  The real workhorse in this package is the mjr_pov_
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_pov_code-curve (pts spline &optional (no-degenerate-check nil))
   "Return string with code to draw curve.
-Draw cylinder if spline is nil, a sphere_sweep otherwise (spline must be a string: 'cubic', 'linear', or 'b')"
+
+Arguments:
+ - PTS ................... Array of points that will be connected end-to-end.
+ - SPLINE ................ Spline type to use (NIL or a STRING)
+                             - NIL ....... Draw a cylinder connecting the points
+                             - 'cubic' ... Cubic interpolation using a sphere_sweep
+                             - 'linear' .. Linear interpolation using a sphere_sweep
+                             - 'b' ....... ???
+ - NO-DEGENERATE-CHECK .. Do not check for degenerate segments.  Faster if you know the segments are good."
   (let* ((pts (if no-degenerate-check
                   pts
                   (loop for y = nil then x
@@ -139,16 +151,16 @@ one element of DIMS must be 1 (no solid 3D objects.
       ;; Populate the array PTS (a linear point list we use later)
       (if (= 3 d1ct)
           (dotimes (i npts)
-            (setf (aref pts i) (vector (mjr_arr_aref-cmo-as-vector-mod lxdat i)
-                                       (mjr_arr_aref-cmo-as-vector-mod lydat i)
-                                       (mjr_arr_aref-cmo-as-vector-mod lzdat i))))
+            (setf (aref pts i) (vector (mjr_arr_aref-col-major-mod lxdat i)
+                                       (mjr_arr_aref-col-major-mod lydat i)
+                                       (mjr_arr_aref-col-major-mod lzdat i))))
           (let ((i 0))
             (dotimes (zi lzdim)
               (dotimes (yi lydim)
                 (dotimes (xi lxdim)
-                  (setf (aref pts i) (vector (mjr_arr_aref-cmo-as-vector-mod lxdat (if (> lxsiz lxdim) i xi)) 
-                                             (mjr_arr_aref-cmo-as-vector-mod lydat (if (> lysiz lydim) i yi))
-                                             (mjr_arr_aref-cmo-as-vector-mod lzdat (if (> lzsiz lzdim) i zi))))
+                  (setf (aref pts i) (vector (mjr_arr_aref-col-major-mod lxdat (if (> lxsiz lxdim) i xi)) 
+                                             (mjr_arr_aref-col-major-mod lydat (if (> lysiz lydim) i yi))
+                                             (mjr_arr_aref-col-major-mod lzdat (if (> lzsiz lzdim) i zi))))
                   (incf i))))))
       (if (= 1 d1ct) ;; Surface case (2d grid)
           (let ((nx (first  (remove-if (lambda (x) (= 1 x)) dims)))
@@ -181,7 +193,7 @@ one element of DIMS must be 1 (no solid 3D objects.
                            (if surface-color-dat
                                (progn (format dest "        texture_list { ~d, " npts)
                                       (dotimes (xi npts)
-                                        (format dest "texture{triTex pigment{rgb ~a}} " (mjr_vec_code (mjr_arr_aref-cmo-as-vector-mod surface-color-dat xi) :lang :lang-povray)))
+                                        (format dest "texture{triTex pigment{rgb ~a}} " (mjr_vec_code (mjr_arr_aref-col-major-mod surface-color-dat xi) :lang :lang-povray)))
                                       (format dest "}~%")))
                            (format dest "        face_indices { ~a " (* 2 (1- nx) (1- ny)))
                            (dotimes (xi (1- nx))
@@ -285,37 +297,154 @@ Arguments
                                 :draw-surfaces draw-surfaces :draw-curves draw-curves :draw-points draw-points :draw-surface-grid draw-surface-grid
                                 :use-mesh use-mesh :curve-spline curve-spline :surface-smooth surface-smooth))))
 
+;; TODO: An easy way to add a heigh field to a dquad object -- it can be dumped to TGA later.
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_pov_tga-write-from-func-r2-r1 (field-file map-file f &key 
-                                          xdat ydat
-                                          color-method max-color auto-scale arg-mode show-progress)
-  "Sample a real valued function on a regular 2D grid, and create a PovRay height field and image map TGA files."
-  (cond ((not (stringp field-file))    (error "mjr_pov_tga-write-from-func-r2-r1: FIELD-FILE must be a string!"))
-        ((not (stringp map-file))      (error "mjr_pov_tga-write-from-func-r2-r1:: MAP-FILE must be a string!")))
-  (if show-progress
-      (format 't "PROGRESS: mjr_pov_tga-write-from-func-r2-r1: Computing function values~%"))
-  (let* ((f    (apply #'mjr_mxp_string-or-func-to-lambda f "x" (if ydat (list "y"))))
-         (xdat (mjr_vvec_to-vec-maybe xdat))
-         (ydat (mjr_vvec_to-vec-maybe ydat))
-         (zdat (mjr_combc_gen-all-cross-product (list xdat ydat) :collect-value f :result-type :array :arg-mode arg-mode :show-progress show-progress)))
-    (if show-progress
-        (format 't "PROGRESS: mjr_pov_tga-write-from-func-r2-r1: Processing height field file.~%"))
-    (mjr_img_tga-write field-file
-                       (mjr_img_make-from-gndata zdat 
-                                                 :max-color      #xFFFF
-                                                 :auto-scale     't
-                                                 :color-space    :cs-tru
-                                                 :color-method   #'mjr_colorized_povray
-                                                 :show-progress  show-progress)
-                       :show-progress show-progress)
-    (if show-progress
-        (format 't "PROGRESS: mjr_pov_tga-write-from-func-r2-r1: Processing image map file.~%"))
-    (mjr_img_tga-write map-file
-                       (mjr_img_make-from-gndata zdat
-                                                 :color-method  color-method     
-                                                 :max-color     max-color     
-                                                 :auto-scale    auto-scale
-                                                 :color-space   :cs-tru
-                                                 :show-progress show-progress)
-                       :show-progress show-progress)))
+(defun mjr_pov_make-from-dsimp (out-file dsimp &key simplices color-data curve-spline surface-normal-data no-degenerate-check
+                                                 draw-0-simplex-vertexes
+                                                 draw-1-simplex-vertexes draw-1-simplex-edges
+                                                 draw-2-simplex-vertexes draw-2-simplex-edges draw-2-simplex-triangles)
+  "Generate POV-Ray data file from dsimp.  
+
+  :COLOR-DATA ........... 0-simplex COLOR data set (a dataset name or list containing the dataset simplex dimension and dataset
+                          index).  This dataset defines colors for 0-simplex spheres (not vertexes of 1-simplices & 2-simplices),
+                          and 2-simplex colors (color is interpolated across the triangle face based on vertex colors).  This
+                          argument has no impact on the colors of one simplex objects (the cylinders or sphere_sweep objects
+                          representing one simplices).
+  :NO-DEGENERATE-CHECK .. Print all simplices includeing degenerate ones.
+  :SURFACE-NORMAL-DATA .. Surface normals (a vector) at each vertex
+  :CURVE-SPLINE ......... If non-NIL, will be used as the spline type for a sphere_sweep object representing curves (1-simplices
+                          that are 'end-to-end').  When NIL, one simplices are simple cylinders.
+
+  Notes about the generated POV-Ray:
+   Various primitives represent different dsimp components:
+    * Spheres:   0-simplices, vertexes for 1-simplices, and vertexes for 2-simplices
+    * Cylinders: 1-simplices and edges for 2-simplices (sphere_sweep objects are used for 1-simplices when CURVE-SPLINE is non-NIL)
+    * Triangles: 2-simplices (grouped into a POV-Ray mesh2 object)
+   Names are defined for different parameters:
+    * sphTex0simp & sphDia0simp .. sphere primitive diameter & texture for a 0-simplex (not used if COLOR-DATA provided)
+    * sphTex1simp & sphDia1simp .. sphere primitive diameter & texture for a 1-simplex vertex
+    * cylTex1simp & cylDia1simp .. cylinder primitive diameter & texture for a 1-simplex line
+    * sphTex2simp & sphDia2simp .. sphere primitive diameter & texture for a 2-simplex vertex
+    * cylTex2simp & cylDia2simp .. cylinder primitive diameter & texture for a 2-simplex line
+    * spsTex1simp & spsDia1simp .. sphere sweep diameter & texture for curves constructed from 1-simplices
+    * triTex2simp ................ triangle primitive texture for a 2-simplex triangle (not used if COLOR-DATA provided)"
+  (let* ((simplices  (mjr_util_non-list-then-list simplices))
+         (do-0-simp  (member 0 simplices))
+         (do-1-simp  (member 1 simplices))
+         (do-2-simp  (member 2 simplices))
+         (points     (mjr_dsimp_get-simplex-array dsimp 0))
+         (npts       (length points))
+         (d-balls    (make-array (length points) :initial-element nil))
+         (d-cyls     (make-hash-table :test 'equal)))
+    (with-open-file (dest out-file  :direction :output :if-exists :supersede :if-does-not-exist :create)
+      (labels ((pvc   (pv) (mjr_vec_code pv :lang :lang-povray))
+               (oSph  (pt-idx s-dim) (if (not (aref d-balls pt-idx))
+                                         (progn (setf (aref d-balls pt-idx) 't)
+                                                (format dest "sphere { ~a, sphDia~dsimp texture { sphTex~dsimp } }~%" (pvc (aref points pt-idx)) s-dim s-dim))))
+               (oCyl  (pt-idx-1 pt-idx-2 s-dim) (let ((pt1 (aref points pt-idx-1))
+                                                      (pt2 (aref points pt-idx-2))
+                                                      (cky (if (<= pt-idx-1 pt-idx-2)
+                                                               (format nil "~d|~d" pt-idx-1 pt-idx-2)
+                                                               (format nil "~d|~d" pt-idx-2 pt-idx-1))))
+                                                  (if (not (gethash cky d-cyls))
+                                                      (progn (setf (gethash cky d-cyls ) 't)
+                                                             (if (or no-degenerate-check (not (mjr_geom_simplex-degeneratep nil pt1 pt2)))
+                                                                 (format dest "cylinder {~a, ~a, cylDia~dsimp texture { cylTex~dsimp } }~%" (pvc pt1) (pvc pt2) s-dim s-dim))))))
+               (oSS (pt-idxs)  (let* ((pts     (if no-degenerate-check
+                                                   pt-idxs
+                                                   (loop for y = nil then x
+                                                         for x-idx in pt-idxs
+                                                         for x = (aref points x-idx)
+                                                         when (or no-degenerate-check (null y) (not (mjr_geom_simplex-degeneratep nil x y)))
+                                                         collect x)))
+                                      (npts    (length pts))
+                                      (spline  (if (< npts 4) "linear" curve-spline))
+                                      (non-lin (not (string= "linear" spline))))
+                                 (if (> npts 1)
+                                     (progn (format dest "sphere_sweep { ~a_spline ~a" spline (if non-lin (+ 2 npts) npts))
+                                            (loop initially (if non-lin (format dest ", ~a, spsDia1simp" (pvc (mjr_vec_- (mjr_vec_* 2 (first pts)) (second pts)))))
+                                                  for y = nil then x
+                                                  for x in pts
+                                                  do (format dest ", ~a, spsDia1simp" (pvc x))
+                                                  finally (if non-lin  (format dest ", ~a, spsDia1simp" (pvc (mjr_vec_- (mjr_vec_* 2 x) y)))))
+                                            (format dest " texture { spsTex1simp } }~%"))))))
+        (if do-0-simp
+            (if draw-0-simplex-vertexes
+                (dotimes (pt-idx npts)
+                  (oSph pt-idx 0))))
+        (if do-1-simp
+            (if curve-spline
+                (loop with curve = nil
+                      for seg across (mjr_dsimp_get-simplex-array dsimp 1)
+                      do (cond ((null curve)                  (setf curve (list (aref seg 1) (aref seg 0))))
+                               ((= (car curve) (aref seg 0))  (push (aref seg 1) curve))
+                               ('t                            (progn (oSS curve)
+                                                                     (setf curve (list (aref seg 1) (aref seg 0))))))
+                      finally (oSS curve))
+                (progn (if draw-1-simplex-vertexes
+                           (loop for cur-simp across (mjr_dsimp_get-simplex-array dsimp 1)
+                                 do (loop for pt-idx across cur-simp
+                                          do (oSph pt-idx 1))))
+                       (if draw-1-simplex-edges
+                           (loop for cur-simp across (mjr_dsimp_get-simplex-array dsimp 1)
+                                 do (oCyl (aref cur-simp 0) (aref cur-simp 1) 1))))))
+        (if do-2-simp
+            (progn (if draw-2-simplex-vertexes
+                       (loop for cur-simp across (mjr_dsimp_get-simplex-array dsimp 2)
+                             do (loop for pt-idx across cur-simp
+                                      do (oSph pt-idx 2))))
+                   (if draw-2-simplex-edges
+                       (loop for cur-simp across (mjr_dsimp_get-simplex-array dsimp 2)
+                             do (loop for i from 0 upto 2
+                                      do (oCyl (mjr_arr_svref-mod cur-simp i) (mjr_arr_svref-mod cur-simp (1+ i)) 2))))
+                   (if draw-2-simplex-triangles
+                       (progn (format dest "mesh2 {~%")
+                              ;; POINTS
+                              (format dest "  vertex_vectors {~%")
+                              (format dest "    ~d" npts)
+                              (loop for pt across points
+                                    do  (format dest ",~a" (pvc pt)))
+                              (format dest "~%")
+                              (format dest "  }~%")
+                              ;; NORMALS
+                              (if surface-normal-data
+                                  (let* ((normals (mjr_dsimp_get-data-array dsimp surface-normal-data)))
+                                    (format dest "  normal_vectors {~%")
+                                    (format dest "    ~d" (length normals))
+                                    (loop for a-nrml across normals
+                                          do  (format dest ",~a" (pvc a-nrml)))
+                                    (format dest "~%")
+                                    (format dest "  }~%")))
+                              ;; TEXTURES
+                              (if color-data
+                                  (let* ((colors (mjr_dsimp_get-data-array dsimp color-data))
+                                         (ncol   (length colors)))
+                                    (format dest "  texture_list {~%")
+                                    (format dest "    ~d,~%" ncol)
+                                    (loop for  a-clr across colors
+                                          for  lft downfrom (1- ncol)
+                                          do   (format dest "    texture { pigment { rgb ~a } }" (pvc a-clr))
+                                          when (not (zerop lft))
+                                          do   (format dest ",~%"))
+                                    (format dest "  }~%")))
+                              ;; TRIANGLES
+                              (let* ((triangles (mjr_dsimp_get-simplex-array dsimp 2))
+                                     (ntri      (length triangles)))
+                                (format dest "  face_indices {~%")
+                                (format dest "    ~d,~%" ntri)
+                                (loop for  a-tri across triangles
+                                      for  lft downfrom (1- ntri)
+                                      do   (format dest "    ~a" (pvc a-tri))
+                                      do (if color-data
+                                             (format dest ", ~d, ~d, ~d" (aref a-tri 0) (aref a-tri 1) (aref a-tri 2)))
+                                      when (not (zerop lft))
+                                      do   (format dest ",~%"))
+                                (format dest "~%")
+                                (format dest "  }~%"))
+                              ;; MESH COLOR
+                              (if (not color-data)
+                                  (format dest "  texture { triTex2simp }~%"))
+                              ;; MESH OBJECT CLOSE 
+                              (format dest "}~%")))))))))
+

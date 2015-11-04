@@ -28,7 +28,7 @@
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_intu_divides? (n1 n2)
-  "Return the quotient N2/N1 if N1 divides N2, and NILL otherwise."
+  "Return the quotient N2/N1 if N1 divides N2, and NIL otherwise."
   (multiple-value-bind (quo rem) (truncate n2 n1)
     (if (zerop rem)
         quo)))

@@ -250,7 +250,7 @@ Unit Representations
                                syntax, * indicates a product.  The ^ is for exponents.  The exponent only applies to the symbol
                                immediately preceding the ^.  Exponents must be integers. All symbols to the left of the / are on
                                the top, and all symbols on the right are on the bottom -- so a*b/c*d is (in traditional algebra
-                               syntax) (a*b)/(c*d).  A / with nothing on the left is the same as having a 1 on the left -- i..e
+                               syntax) (a*b)/(c*d).  A / with nothing on the left is the same as having a 1 on the left -- i.e.
                                everything on the right is on the bottom of the fraction. parentheses are ignored. Examples:
 
                                     * Frequency    =  1/s*s    = /s*s     = /s^2    

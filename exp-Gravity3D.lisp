@@ -48,10 +48,27 @@
              (f2 (x) (if (bl x)                            ;; Force vector 2 spheres
                          (mjr_vec_+ (f p1 r1 x 10) (f p2 r2 x 10))
                          #(0 0 0))))
-      (mjr_vtk_grid-from-func "exp-Gravity3D-OUT.vtk"
-                             :v-func (list #'f1 #'f2)
-                             :v-names (list "1sph" "2sph")
-                             :arg-mode :arg-vector
-                             :xdat '(:start -3000 :end 3000.0 :len 60)
-                             :ydat '(:start -3000 :end 3000.0 :len 60)
-                             :zdat '(:start     0 :end 3000.0 :len 60)))))
+
+      (let ((daData (mjr_dquad_make-from-axis "x" '(:start -3000 :end 3000.0 :len 60)
+                                              "y" '(:start -3000 :end 3000.0 :len 60)
+                                              "z" '(:start     0 :end 3000.0 :len 60))))
+
+        (print "Compute 1sph...")
+        (mjr_dquad_add-data-from-map daData
+                                     #'f1
+                                     :axes 't
+                                     :ano-nam "1sph"
+                                     :ano-typ :ano-typ-rvec
+                                     :arg-mode :arg-vector)
+
+        (print "Compute 2sph...")
+        (mjr_dquad_add-data-from-map daData
+                                     #'f2
+                                     :axes 't
+                                     :ano-nam "2sph"
+                                     :ano-typ :ano-typ-rvec
+                                     :arg-mode :arg-vector)
+        (print "Dumping VTK...")
+        (mjr_vtk_from-dquad "exp-Gravity3D-OUT.vtk" daData)))))
+             
+                             

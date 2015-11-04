@@ -9,7 +9,7 @@
 ;;
 ;;            TODO: Integrate data instead of a function
 ;;            TODO: Arc length of f:R->R^n on an interval [a,b] via various base integration rules
-;;            
+;;
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defpackage :MJR_INTG
@@ -149,7 +149,7 @@ This is a pathological example
 Each sub-interval of the given partition is recursively bisected until the error estimate on each interval is below THE-ERR, the
 number of function evaluations grows beyond MAX-EVALS, or the intervals become smaller than MIN-WIDTH.
 
-If only :start and :end are given fo the partition, then :len will be set to 2.
+If only :start and :end are given of the partition, then :len will be set to 2.
 
 If the error goal is satisfied, then the return is the integral approximation and the number of function evaluations. If any of the
 limits are violated on any part of the interval, then the return will be nil, the integral approximation, the number of function
@@ -304,7 +304,7 @@ then nil, the integral approximation, and the number of function evaluations are
 (defun mjr_intg_loc-adp-dnc-trapezoidal (fun vvec &key min-width max-evals (good-err-stop 2) (the-err 1e-5) suppress-warnings show-progress)
   "Compute the definite integral of FUN between A and B using a doubly adaptive trapezoidal rule.
 
-The initial intervals specified by the virutal vector passed in vvec are recursively bisected until intervals are obtained that are
+The initial intervals specified by the virtual vector passed in vvec are recursively bisected until intervals are obtained that are
 the result of :GOOD-ERR-STOP consecutive iterations with an integral approximation that changes by less than :THE-ERR scaled for the
 interval's size.  If the error goal is satisfied, then the return is the integral approximation and the number of times the function
 was evaluated. If :MAX-EVALS is violated, the return is NIL and the number of times the function was evaluated. If an interval with
@@ -1226,7 +1226,7 @@ References:
   "Compute the definite integral of FUN between A and B using the given integration method.  
 
 The order is stepped from order-min to order-max by order-step until the difference in two successive iterations is less than err.
-Here are some possible values for imethod:
+Here are some possible values for method:
 
    * #'mjr_intg_simple-newton-cotes   -- :order-min 3    :order-max 15     :order-step 1
    * #'mjr_intg_simple-gauss-legendre -- :order-min 2    :order-max 20     :order-step 1

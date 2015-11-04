@@ -107,7 +107,7 @@ References:
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_polygfp_factor-berlekamp (p poly)
-  "Factor the square-free polynomal POLY
+  "Factor the square-free polynomial POLY
 
 References:
   Elwyn Berlekamp (1967); Factoring Polynomials Over Finite Fields; Bell Systems Technical Journal 46
@@ -118,7 +118,7 @@ References:
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_polygfp_factor-cantor-zassenhaus (p poly)
-  "Factor the square-free polynomal POLY
+  "Factor the square-free polynomial POLY
 
 An equal-degree factorization algorithm.
 
@@ -131,7 +131,7 @@ References:
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_polygfp_factor-shoup (p poly)
-  "Factor the square-free polynomal POLY (note that p>2)
+  "Factor the square-free polynomial POLY (note that p>2)
 
 An equal-degree factorization algorithm.
 
@@ -140,5 +140,3 @@ References:
   http://en.wikipedia.org/wiki/Factorization_of_polynomial_over_finite_field_and_irreducibility_tests"
   ;; MJR TODO NOTE <2011-11-15 21:03:20 CST> mjr_polygfp_factor-shoup: IMPLEMENT!
   (or p poly))
-
-

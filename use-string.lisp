@@ -73,7 +73,7 @@ Notes:
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_string_split-if (the-string split-predicate &optional max-find)
-  "Split the string up on the characters for shich SPLIT-PREDICATE is non-NIL.  Returns a list of strings."
+  "Split the string up on the characters for which SPLIT-PREDICATE is non-NIL.  Returns a list of strings."
   (cond ((and max-find (< max-find 1))            (error "mjr_string_split-if: MAX-FIND must be greater than 0 if provided"))
         ((and max-find (not (numberp max-find)))  (error "mjr_string_split-if: MAX-FIND must be NIL or a number"))
         ((and max-find (not (integerp max-find))) (error "mjr_string_split-if: MAX-FIND must be NIL or an integer")))
@@ -158,7 +158,7 @@ SEE: cl-ppcre:split for an equivalent using a RegEx"
 The algorithm is greedy -- i.e. largest string that matches is found.
 :NO-RAT and :NO-FLOAT can suppress the matching of rationals and floating point numbers respectively.
 Rationals, integers, floating point Numbers are all supported.
-If a number is found, then a second return value repreents the type of the number found (:integer, :rational, :float)"
+If a number is found, then a second return value represents the type of the number found (:integer, :rational, :float)"
   (let ((len (length the-string))
         (typ :integer))
     (if (> len start)
@@ -241,4 +241,4 @@ The algorithm is greedy -- i.e. largest string that matches is found."
 ; 0         0         0         0         0         0         0         0         0         0         1         1         1         1         1         1         1         1         1         1
 ; 0         1         2         3         4         5         6         7         8         9         0         1         1         3         4         5         6         7         8         9
 ; 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-;"  now + is the tiem   323  for  42343 all good    men 243 23 to come to the aid of their   country   "
+;"  now + is the time   323  for  42343 all good    men 243 23 to come to the aid of their   country   "

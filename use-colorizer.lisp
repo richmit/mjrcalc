@@ -25,6 +25,9 @@
            ;; Factory functions: gradients & multi-gradients
            #:mjr_colorizer_factory-from-gradient
            #:mjr_colorizer_factory-from-multi-gradient
+           ;; Filter functions used to modify inputs and then pass the result to a color function
+           #:mjr_colorizer_filter_log #:mjr_colorizer_filter_scale
+           #:mjr_colorizer_filter_shift #:mjr_colorizer_filter_shift-log #:mjr_colorizer_filter_zero-log
            ;; Colorize $R^1$
            #:mjr_colorizer_r1-rgb #:mjr_colorizer_r1-checker
            ;; Colorize $R^2$
@@ -44,9 +47,35 @@
 
 (in-package :MJR_COLORIZER)
 
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_colorizer_filter_log (func &rest rest)
+  "Compute the logarithm of each element of REST, and apply FUNC to the result"
+  (apply func (mapcar #'log rest)))
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_colorizer_filter_scale (func scale-list &rest rest)
+  "Multiply the scale list components to the corresponding values in rest, and  apply FUNC to the result"
+  (apply func (mapcar #'* scale-list rest)))
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_colorizer_filter_shift (func shift-list &rest rest)
+  "Add the shift list components to the corresponding values in rest, and  apply FUNC to the result"
+  (apply func (mapcar #'+ shift-list rest)))
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_colorizer_filter_shift-log (func s &rest rest)
+  "Add S and compute the logarithm of each element of REST, and apply FUNC to the result"
+  (apply func (mapcar (lambda (x) (log (+ s x))) rest)))
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_colorizer_filter_zero-log (func &rest rest)
+  "Compute logarithm of non-zero elements of REST, and apply FUNC to the result"
+  (apply func (mapcar (lambda (x) (if (zerop x) 0 (log x))) rest)))
+
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_colorizer_help ()
- "Colorize euclidean spaces of dimensions one, two, and three -- used for visulazation.
+ "Colorize euclidean spaces of dimensions one, two, and three -- used for visualization.
 
 All colors are returned as :cs-rgb (i.e. RGB components are real numbers in [0,1]).
 
@@ -265,14 +294,14 @@ References:
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_colorizer_r1-checker (x)
-  "red and blue intervals"
+  "Map color to the real line with one unit wide red and blue intervals."
   (if (oddp (floor x))
       (vector 0 0 1)
       (vector 1 0 0)))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_colorizer_r3-rgb (x-or-vec &optional y-or-nil z-or-nil)
-  "Map color to R^3 by stretching out the RGB color cube to infinite size"
+  "Map color to R^3 by stretching out the RGB color cube to infinite size."
   (multiple-value-bind (x y z) (mjr_util_get-all-elements-or-args x-or-vec y-or-nil z-or-nil)
     (let ((r (+ 1/2 (/ (atan x) pi)))
           (g (+ 1/2 (/ (atan y) pi)))
@@ -344,4 +373,3 @@ References:
 (defun mjr_colorizer_factory-from-multi-gradient (multi-gradient)
   "Return a function that takes a real number in [0,1], and returns a color."
     (lambda (z) (mjr_colorizer_ut-rgb-from-multi-gradient z multi-gradient)))
-

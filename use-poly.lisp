@@ -38,7 +38,7 @@
            #:mjr_poly_truncate #:mjr_poly_rem #:mjr_poly_mod #:mjr_poly_divides?  #:mjr_poly_gcd #:mjr_poly_degree #:mjr_poly_leading-coeff
            #:mjr_poly_constant-coeff #:mjr_poly_zerop #:mjr_poly_onep #:mjr_poly_constantp #:mjr_poly_simplify #:mjr_poly_eval #:mjr_poly_subst
            #:mjr_poly_density #:mjr_poly_index
-           ;; Implimented here..
+           ;; Implemented here..
 
            #:mjr_poly_imul
 
@@ -125,14 +125,14 @@ coefficients), this data structure is inefficient in both space and time for spa
 This library is a work in progress, but it has enough functionality to be useful.  Still, some care should be exercised when using
 it.
 
-Tags: (G) means the function is provided by GPOLY and a (!) means the function is not yet implimented.  Function names have been
-abreviated in this list by replaceing 'mjr_poly_' iwth 'MP_'.
+Tags: (G) means the function is provided by GPOLY and a (!) means the function is not yet implemented.  Function names have been
+abbreviated in this list by replacing 'mjr_poly_' with 'MP_'.
 
   * Strings & Printing
   ** MP_print MP_code
   * Evaluation
   ** MP_eval(G) MP_eval-poly-and-first-n-derivatives MP_seq-eval
-  * Arithmatic
+  * Arithmetic
   ** MP_+(G) MP_-(G) MP_*(G) MP_iexpt(G) MP_rem(G) MP_mod(G) MP_truncate(G) MP_gcd(G) MP_gcd-primitive MP_imul MP_divides?(G)
   * Coefficient access
   ** MP_coeff(G) MP_leading-coeff(G) MP_constant-coeff(G)
@@ -151,7 +151,7 @@ abreviated in this list by replaceing 'mjr_poly_' iwth 'MP_'.
   *** MP_root-search-max-magnitude
   ** Bounding roots:
   *** MP_root-bound-all MP_root-bound-positive
-  ** Seporateing roots (a root is 'seporated' by finding an interval that contains it but no other roots):
+  ** Separating roots (a root is 'separated' by finding an interval that contains it but no other roots):
   *** MP_root-separate-largest-real MP_root-separate-real(!)
   ** Counting distinct roots
   *** MP_root-count-distinct-real MP_root-count-distinct-interval MP_root-count-distinct-positive
@@ -354,7 +354,7 @@ While the result is equivalent to (MJR_POLY_TRUNCATE POLY (VECTOR 1 (- CONST))),
 (defun mjr_poly_shift (b poly)
   "Shift POLY right B units (or left if B is negative).
 References:
-;; MJR TODO NOTE <2011-11-23 13:07:23 CST> mjr_poly_shift: Add a refrence here.  The algorithm is the 'fast taylor shift'.  The pink book or sure.  Perhaps Prasolov too..."
+;; MJR TODO NOTE <2011-11-23 13:07:23 CST> mjr_poly_shift: Add a reference here.  The algorithm is the 'fast taylor shift'.  The pink book or sure.  Perhaps Prasolov too..."
   (let ((new-poly (mjr_poly_simplify (copy-seq poly)))
         (b        (- b)))
     (mjr_poly_simplify (dotimes (i (length new-poly) new-poly)
@@ -523,7 +523,7 @@ Unfortunately the vulgarities of floating point arithmetic can destroy this almo
 
 NOTE: A polynomial $p(x)=\sum_{j=0}^na_jx^j\in\mathbb{Z}[x]$ is primitive if $\mathrm{GCD}(a_0,\cdots,a_n)=1$ -- i.e. the
 coefficients are relatively prime. Gauss's lemma: If $p$ and $q$ are primitive, then $p\cdot q$ primitive, and if a
-$p\in\mathbb{Z}[x]$ is irreducible over the $\mathbb{Z}$, then the same polynomial considerd in $\mathbb{Q}[x]$ is also irreducible
+$p\in\mathbb{Z}[x]$ is irreducible over the $\mathbb{Z}$, then the same polynomial considered in $\mathbb{Q}[x]$ is also irreducible
 over $\mathbb{Q}$.
 
 References:
@@ -584,7 +584,7 @@ Let $p$ be a real polynomial of degree $n>0$, then the Fourier sequence of $p$ i
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_poly_count-sign-changes (seq)
-  "Return the number of sign changs in seq (vector or list) -- zeros are ignored"
+  "Return the number of sign changes in seq (vector or list) -- zeros are ignored"
   (if (vectorp seq)
       (loop for cur-elt across seq
             for lst-sgn = nil then (if (zerop cur-sgn) lst-sgn cur-sgn)
@@ -601,7 +601,7 @@ Let $p$ be a real polynomial of degree $n>0$, then the Fourier sequence of $p$ i
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_poly_scount-sturm (p l r &optional sturm-sequence)
-  "Compute the diffrence in the sign changes for $S(x+l)$ and $S(x+h)$ where S is the given Sturm sequence or the canonical one.
+  "Compute the difference in the sign changes for $S(x+l)$ and $S(x+h)$ where S is the given Sturm sequence or the canonical one.
 
 The return will be the number of distinct real roots the polynomial has in the interval $(l,h]$ when:
   1) sturm-sequence is NIL or the canonical Sturm sequence
@@ -639,7 +639,7 @@ References:
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_poly_scount-budan (p l h)
-  "Compute the diffrence in the sign changes for $p(x+l)$ and $p(x+h)$
+  "Compute the difference in the sign changes for $p(x+l)$ and $p(x+h)$
 
 Budan's theorem:\\\\
   Let $p\\in\\mathbb{R}[x]$ with degree $n>0$ and $l,r\\in \\mathbb{R}$ with $l<r$ and $p(r)\\ne0$. Let $v_l$ and $v_r$ be the sign
@@ -660,7 +660,7 @@ References:
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_poly_scount-fourier (p l h)
-  "Compute the diffrence in the sign changes for $F(x+l)$ and $F(x+h)$ where F is the 'Fourier Sequence' for $p$
+  "Compute the difference in the sign changes for $F(x+l)$ and $F(x+h)$ where F is the 'Fourier Sequence' for $p$
 
 Fourier's theorem:\\\\
   Let $p$ be a real polynomial of degree $n>0$ and $l,r\\in \\mathbb{R}$ with $l<r$ and $p(r)\\ne0$. Let $F_\\text{seq}(x)$ be the
@@ -879,7 +879,7 @@ mjr_poly_zap-zero-roots and EPS are used to count zero roots (mjr_poly_2primitiv
                                                                               (mjr_poly_root-count-distinct-negative-zero-positive poly)
                                                                               (values 0 nil 0))
         (if (and num-zero-roots-s (not (= num-zero-roots-s num-zero-roots)))
-            (error "mjr_poly_root-count-distinct-negative-zero-positive: Inconsistant zero root counts!"))
+            (error "mjr_poly_root-count-distinct-negative-zero-positive: Inconsistent zero root counts!"))
         ;;(format 't "~10d ~10d ~10d~%" max-pos-roots num-zero-roots max-neg-roots)
         ;;(format 't "~10d ~10d ~10d~%" min-pos-roots num-zero-roots-s min-neg-roots)
         (loop for num-not0-roots from (- num-roots num-zero-roots) downto (+ min-pos-roots min-neg-roots) by 2
@@ -995,7 +995,7 @@ See the documentation for MJR_NLEQ_ROOT-LAGUERRE"
   "Use the canonical sturm-sequence find an interval containing the largest real root and no other roots.
 
 An open interval $(a,b)$ containing the largest real root (and no other roots) is found.  This interval will be no wider than :XEPS,
-and will contain no roots other than the largest real one.  The return of this function will two values corrisponding to the left
+and will contain no roots other than the largest real one.  The return of this function will two values corresponding to the left
 and right endpoints of the interval.  In the case of a polynomial with no real roots, then (values nil nil) will be returned. If the
 polynomial is rational, then the interval endpoints will be as well.
 
@@ -1286,7 +1286,7 @@ The algorithm:
                                      (setf wpoly wpoly2)))
                                (if show-warnings (warn "mjr_poly_root-solve-search-deflate: Numerical instability detected: root of deflated poly not a root of original poly!"))))
                          (if show-warnings (warn "mjr_poly_root-solve-search-deflate: laguerre failed to converge: ~a ~a ~a" x-bst w-bst ex-why))))
-                   (if show-warnings (warn "mjr_poly_root-solve-search-deflate: Ignoreing unrefined root: ~a" x-bst))))
+                   (if show-warnings (warn "mjr_poly_root-solve-search-deflate: Ignoring unrefined root: ~a" x-bst))))
           do (if (and (= itr (truncate trys 2)) show-warnings) (warn "mjr_poly_root-solve-search-deflate: laguerre having difficulty converging"))
           do (if show-progress (format 't "ROOT:  ~a~%" roots)))
     (values roots pvals wpoly)))
@@ -1436,7 +1436,7 @@ This is not a fast function, but it sure is handy.  A few property tests exist a
                                 (if (or (not (mjr_poly_test-property poly :pp-rational))
                                         (mjr_poly_test-property poly :pp-complex))
                                     nil
-                                    (error "mjr_poly_test-property: Irreducibility tests not implemented for integer or rational polynomials yet!"))))
+                                    (error "mjr_poly_test-property: Irreducibly tests not implemented for integer or rational polynomials yet!"))))
           (:pp-primitive    (and (mjr_poly_test-property poly :pp-integer)
                                  (= 1 (reduce #'gcd poly))))
           (:pp-square-free  (mjr_poly_test-property (mjr_poly_gcd (mjr_poly_diff poly) poly) :pp-identity))

@@ -160,40 +160,41 @@ max(sin) @ pi/2,2*pi; min(sin) @ 3*pi/2,2*pi, max(cos) @ 0,2*pi, min(cos) @ pi,2
   "Return a string using the syntax of the selected programming language or computational environment."
   (if (not (numberp the-number))
       (error "mjr_numu_code: Argument must be a number!"))
-  (let* ((bams (case lang            ;;    rea  cplx                      int  rat
-                 (:lang-povray       (list "~F" "<~a,~a>"                 "~D" "~F"))
-                 (:lang-mathematica  (list "~F" "(~a+I~a)"                "~D" "~S"))
-                 (:lang-maple        (list "~F" "(~a+i*~a)"               "~D" "~S"))
-                 ((:lang-maxima
-                   :lang-axiom
-                   :lang-open-axiom) (list "~F" "(~a+~a*%i)"              "~D" "~S"))
-                 (:lang-M2           (list "~F" "(~a+~a*ii)"              "~D" "~S"))
+  (let* ((bams (case lang            ;;    rea            cplx                      int  rat
+                 (:lang-vtk          (list "~,15,,,,,'eG" nil                       "~D" "~,15,,,,,'eG"))
+                 (:lang-povray       (list "~,15,,,,,'eG" "<~a,~a>"                 "~D" "~,15,,,,,'eG"))
                  ((:lang-matlab
                    :lang-octave
                    :lang-scilab
                    :lang-euler
                    :lang-r
-                   :lang-gap)        (list "~F" "(~a+~ai)"                "~D" "~F"))
+                   :lang-gap)        (list "~,15,,,,,'eG" "(~a+~ai)"                "~D" "~,15,,,,,'eG"))
+                 (:lang-mathematica  (list "~,15,,,,,'eG" "(~a+I~a)"                "~D" "~S"))
+                 (:lang-maple        (list "~,15,,,,,'eG" "(~a+i*~a)"               "~D" "~S"))
+                 ((:lang-maxima
+                   :lang-axiom
+                   :lang-open-axiom) (list "~,15,,,,,'eG" "(~a+~a*%i)"              "~D" "~S"))
+                 (:lang-M2           (list "~,15,,,,,'eG" "(~a+~a*ii)"              "~D" "~S"))
                  ((:lang-latex
                    :lang-pdflatex
                    :lang-amstex
-                   :lang-tex)        (list "~F" "(~a+~a i)"               "~D" "\\frac{~a}{~a}"))
+                   :lang-tex)        (list "~,15,,,,,'eG" "(~a+~a i)"               "~D" "\\frac{~a}{~a}"))
                  ((:lang-c99
-                   :lang-c)          (list "~F" "(~a+~aI)"                "~D" "~F"))
+                   :lang-c)          (list "~,15,,,,,'eG" "(~a+~aI)"                "~D" "~,15,,,,,'eG"))
                  ((:lang-gp
                    :lang-pari
-                   :lang-pari/gp)    (list "~F" "(~a+~a*I)"               "~D" "~F"))
-                 (:lang-c++          (list "~F" "complex<double>(~a,~a)"  "~D" "~F"))
-                 (:lang-ruby         (list "~F" "Complex(~a,~a)"          "~D" "~F"))
-                 (:lang-idl          (list "~F" "complex(~a,~a)"          "~D" "~F"))
+                   :lang-pari/gp)    (list "~,15,,,,,'eG" "(~a+~a*I)"               "~D" "~,15,,,,,'eG"))
+                 (:lang-c++          (list "~,15,,,,,'eG" "complex<double>(~a,~a)"  "~D" "~,15,,,,,'eG"))
+                 (:lang-ruby         (list "~,15,,,,,'eG" "Complex(~a,~a)"          "~D" "~,15,,,,,'eG"))
+                 (:lang-idl          (list "~,15,,,,,'eG" "complex(~a,~a)"          "~D" "~,15,,,,,'eG"))
                  ((:lang-hp48
                    :lang-f77   
                    :lang-r90     
-                   :lang-fortran)    (list "~F" "(~a,~a)"                 "~D" "~F"))
-                 (:lang-python       (list "~F" "(~a+~aj)"                "~D" "~F"))
-                 (:lang-csv          (list "~F" "(~a+i~a)"                "~D" "~F"))
-                 (:lang-csvl         (list "~F" "~s"                      "~D" "~S"))
-                 (:lang-lisp         (list "~F" "~s"                      "~D" "~S"))
+                   :lang-fortran)    (list "~,15,,,,,'eG" "(~a,~a)"                 "~D" "~,15,,,,,'eG"))
+                 (:lang-python       (list "~,15,,,,,'eG" "(~a+~aj)"                "~D" "~,15,,,,,'eG"))
+                 (:lang-csv          (list "~,15,,,,,'eG" "(~a+i~a)"                "~D" "~,15,,,,,'eG"))
+                 (:lang-csvl         (list "~,15,,,,,'eG" "~s"                      "~D" "~S"))
+                 (:lang-lisp         (list "~,15,,,,,'eG" "~s"                      "~D" "~S"))
                  ('t                 (error "mjr_numu_code: Language unsupported!")))))
     (typecase the-number
       (complex   (if (= 1 (count #\~ (nth 1 bams)))
@@ -207,7 +208,7 @@ max(sin) @ pi/2,2*pi; min(sin) @ 3*pi/2,2*pi, max(cos) @ 0,2*pi, min(cos) @ pi,2
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_numu_cubert (x &key (aggressive-conversion nil))
-  "Compute the cube root of X.  Real roots are prefered over complex ones"
+  "Compute the cube root of X.  Real roots are preferred over complex ones"
   (and aggressive-conversion)
   (if (realp x)
       (* (signum x) (expt (abs x) 1/3))
@@ -384,4 +385,3 @@ For exact answers when the arguments are integers and non-negative, use MJR_COMB
   (if (floatp val)
       (float val 0.0d0)
       val))
-

@@ -27,10 +27,7 @@ df/dxy = -240000*x*y^2+480000*x^3*y+800*x*y-800*y-240000*x^5-1600*x^3+2400*x^2-8
 df/dyx = -240000*x*y^2+480000*x^3*y+800*x*y-800*y-240000*x^5-1600*x^3+2400*x^2-800*x
 df/dyy = 120000*y^2-240000*x^2*y+120000*x^4+400*x^2-800*x+400
 Global Minimum: f(1,1)=0
-Nice plot:
-   (mjr_plot_func-r2-r1 #'ROSENBROCK-BANANA :xlim '(-1.5 2) :ylim '(-0.75 3) :type :f :zlim '(-1 1000))
-   (mjr_vtk_grid-from-func \"opt-tests-rosenbrock-banana.vtk\" :s-func #'ROSENBROCK-BANANA :xdat '(:start -1.5 :end 2 :len 500) :ydat '(:start -0.75 :end 3 :len 500))
-"
+For a nice plot see: exp-ClassicOptBanana.lisp"
   (values (+ (* 100 (EXPT (- Y (EXPT X 2)) 2)) (EXPT (- 1 X) 2))
           (make-array 2 :initial-contents (list 
                                            (+ (- (* 400 X (- Y (EXPT X 2)))) (- (* 2 (- 1 X))))
@@ -61,14 +58,7 @@ df/dyx = 24*y-32
 df/dyy = 60*y^4-160*y^3+24*y^2-480*y+24*x+24
 Global Minimum: f(5,4)=0
 Local Minimum:  f(11.41, -0.8986)=48.9842
-Nice pic of the global minimum:
-   (mjr_plot_func-r2-r1 (lambda (x y) (min 100 (freudenstein-roth x y))) :zlim '(-0 200) :type :f :n 75 :m 75 :xlim '(-5 15) :ylim '(3.65 4.27))
-Nice pic showing both extrema above:
-   (mjr_plot_func-r2-r1 (lambda (x y) (min 100 (freudenstein-roth x y))) :zlim '(-0 200) :type :f :n 75 :m 75 :xlim '(-4 23) :ylim '(-2 5))
-Nice pic of the local minimum above:
-   (mjr_plot_func-r2-r1 (lambda (x y) (min 100 (freudenstein-roth x y))) :zlim '(-0 200) :type :f :n 75 :m 75 :xlim '(-4 23) :ylim '(-2 5))
-VTK Version:
-(mjr_vtk_grid-from-func \"opt-tests-freudenstein-roth.vtk\" :s-func #'freudenstein-roth :xdat '(:start -4 :end 23 :len 500) :ydat '(:start -2 :end 5 :len 500))"
+For a nice plot see: exp-ClassicOptFreudensteinRoth.lisp"
   (values (+ (EXPT (+ (- 13) X (* (- (* (- 5 Y) Y) 2) Y)) 2)
              (EXPT (+ (- 29) X (* (- (* (+ Y 1) Y) 14) Y)) 2))
           (make-array 2 :initial-contents (list 

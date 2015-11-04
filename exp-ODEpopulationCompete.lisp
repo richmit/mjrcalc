@@ -11,11 +11,11 @@
 ;;            
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(mjr_vtk_grid-from-func "exp-ODEpopulationCompete.vtk"
-                        :s-func (lambda (x y) (vector (* y (- 3 (* 5 x) y))
-                                                      (* x (- 1 x y))))
-                        :xdat '(:start 0 :end 1 :len 60)
-                        :ydat '(:start 0 :end 1 :len 60))
-
-
-
+(mjr_vtk_from-dquad "exp-ODEpopulationCompete-OUT.vtk"
+                    (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" '(:start 0 :end 1 :len 60)
+                                                                           "y" '(:start 0 :end 1 :len 60))
+                                                 (lambda (x y) (vector (* y (- 3 (* 5 x) y))
+                                                                       (* x (- 1 x y))))
+                                                 :axes 't
+                                                 :ano-nam "Population"
+                                                 :ano-typ :ano-typ-rvec))

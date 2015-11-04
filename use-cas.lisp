@@ -142,7 +142,7 @@ Examples: (- a)   => (* -1 a)
 (defun mjr_cas_fix-int-expt (expr)
   "Fix expt calls when the exponent is an integer.
 Rules:
-  - exp(x) => %e^x  (NOT IMPLIMENTED YET)
+  - exp(x) => %e^x  (NOT IMPLEMENTED YET)
   - sqrt(x) => x^(1/2)
   - a^n (n is an integer) => a can not be a number, product, or power
   - a^(m/n) (a a number, n/m a reduced fraction) => Evaluate a^m and raise to 1/n."
@@ -249,8 +249,8 @@ Rules:
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_cas_collect-over-sum (expr)
   "Collect like products over sums.  Example: n*a+m*a => (n+m)*a"
-  ;; This is a very slow function -- very poorly implimented, but it was easy to write. :)
-  ;; Requires that the produts in the sum have numbers at the front.
+  ;; This is a very slow function -- very poorly implemented, but it was easy to write. :)
+  ;; Requires that the products in the sum have numbers at the front.
   (flet ((bnp (x) (if (and (mjr_mxp_op-in? x "*") (numberp (cadr x)))
                       (list (cadr x) (cddr x))
                       (list 1        (list x)))))
@@ -308,13 +308,13 @@ Rules:
   (labels ((mjr_cas_canonize1 (expr) (mjr_cas_collect-over-sum
                                       (mjr_cas_collect-over-prod
                                        (mjr_cas_sort-args
-                                        (mjr_cas_commute-eval-num-in-prod  ;; Can crete integers (when sums collapse to a number)
-                                         (mjr_cas_commute-eval-num-in-sum  ;; Can crete integers (when sums collapse to a number)
+                                        (mjr_cas_commute-eval-num-in-prod  ;; Can create integers (when sums collapse to a number)
+                                         (mjr_cas_commute-eval-num-in-sum  ;; Can create integers (when sums collapse to a number)
                                           (mjr_cas_nary-comb
                                            (mjr_cas_wack-pos
                                             (mjr_cas_wack-minus            ;; Can create products
                                              (mjr_cas_fix-int-expt         ;; Can create products
-                                              (mjr_cas_wack-division       ;; Can crete exponents
+                                              (mjr_cas_wack-division       ;; Can create exponents
                                                (mjr_cas_wack-int-fact      ;; Can create integers
                                                 expr)))))))))))))
     (mjr_cas_do-till-noop expr #'mjr_cas_canonize1)))

@@ -38,7 +38,7 @@ Funcs:
  mjr_date_convert                        Convert between date formats.  See doc string for supported formats.
     :dt-list :dt-string :dt-posix,
     :dt-lisp :dt-julian
- mjr_date_add-delta mjr_date_delta         Time diffrences
+ mjr_date_add-delta mjr_date_delta         Time differences
  mjr_date_unx-convert                    Convert between UNIX integer dates and a string (time2int.pl & time2int.pl)
  mjr_date_us-tz-utc-offset               Time zones
     :tz-adt  :tz-ast  :tz-edt :tz-est

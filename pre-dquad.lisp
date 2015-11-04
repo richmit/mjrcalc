@@ -7,18 +7,7 @@
 ;; @Keywords  lisp interactive math Quadrilateral Rectilinear Grid Data mesh lattice
 ;; @Std       Common Lisp
 ;;
-;;            Many packages in mjrcalc sample functions on a grid (:MJR_VTK, :MJR_PLOT, :MJR_POV, :MJR_IMG).  It is my hope that
-;;            this library can form the kernel of most of the computations for those other libraries.  It is also my hope that by
-;;            having an intermediate data structure for the data, the process of working with gridded data can be more flexible.
-;;
-;;            TODO:
-;;              * Dump a DQUAD list to
-;;                * POVRay File
-;;                * VTK File
-;;                * Image File
-;;                * GNUPlot PIPE
-;;              * Create DQUADs from functions (may be done with this bit)
-;;              * mjr_dquad_add-data-from-colorize
+;;            Many packages in MJRCALC work with data sets that need to be annotated with meta data (ex: :MJR_DQUAD & :MJR_DSIMP).  
 ;;
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
@@ -32,8 +21,10 @@
         :MJR_ANNOT)
   (:DOCUMENTATION "Brief: Data sets on QUADrilateral (rectilinear) grids.;")
   (:EXPORT #:mjr_dquad_help
-           ;; Create a dquad list from a set of axes
+           ;; Create a dquad list
            #:mjr_dquad_make-from-axis
+           #:mjr_dquad_make-from-func-r123-r123
+           #:mjr_dquad_make-from-func-c1-c1
            ;; Create data arrays from dquad lists
            #:mjr_dquad_map                     #:mjr_dquad_colorize
            ;; Add data data to a dquad list
@@ -45,8 +36,8 @@
            #:mjr_dquad_data-array-size         #:mjr_dquad_axis-vector-lengths
            #:mjr_dquad_data-count              #:mjr_dquad_axis-count
            ;; Get size elements from a dquad list
-           #:mjr_dquad_get-data-array          #:mjr_dquad_get-data-attr
-           #:mjr_dquad_get-axis-vector         #:mjr_dquad_get-axis-attr
+           #:mjr_dquad_get-data-array          #:mjr_dquad_get-data-ano
+           #:mjr_dquad_get-axis-vector         #:mjr_dquad_get-axis-ano
            ;; Persistence
            #:mjr_dquad_read-from-file          #:mjr_dquad_write-to-file
            ;; Internal use.  Not exported
@@ -94,7 +85,7 @@ this package as code outside the package should use the GET-THINGY functions!!!
 The axis-meta & data-meta objects are alists as described by MJR_ANNOT_HELP.  Each axis-vector MUST
 sorted. 
 
-Note that an axis-meta and data-meta alists MUST contain both the :ano-nam and :ano-typ attributes, and :ano-nam values should be
+Note that an axis-meta and data-meta alists MUST contain both the :ano-nam and :ano-typ keys, and :ano-nam values should be
 unique.
 
   Example: '(1
@@ -112,14 +103,13 @@ unique.
 
 Note that the input axis-vectors may be VVECs in which case they will be expanded into NEW, LISP vectors.  Note that all vectors
 provided will be COPIED into NEW vectors for the returned dquad list.  The values for the axis-meta may be lists or strings.  If
-they are strings, then an alist will be constructed with the string the value for the :ano-nam attribute and :ano-typ-real the value
-for the :ano-typ attribute.  If they are non-NIL lists, they will be placed into the returned dquad list as is -- the contents are
-not validated.  If they are NIL, then an error is returned.  "
+they are strings, then an alist will be constructed with the string the value for the :ano-nam key.  If they are non-NIL lists, they
+will be placed into the returned dquad list as is -- the contents are not validated.  If they are NIL, then an error is returned.  "
   (append (list (/ (length rest) 2))
           (loop for thingy in rest
                 for i from 1
                 if (oddp i)
-                collect (cond ((stringp thingy)  (list (cons :ano-nam thingy) (cons :ano-typ :ano-typ-real)))
+                collect (cond ((stringp thingy)  (list (cons :ano-nam thingy)))
                               ((null thingy)     (error "mjr_dquad_make-from-axis: axis-meta must not be nil"))
                               ((listp thingy)    thingy)
                               ('t                (error "mjr_dquad_make-from-axis: axis-meta was not a supported type")))
@@ -170,7 +160,7 @@ This function makes the assumption that axis-meta/axis-vector pairs start on ind
     (string    (loop with axis-count = (mjr_dquad_axis-count dquad)
                      for i from 1 upto axis-count
                      for idx = (mjr_dquad_get-first-axis-idx dquad) then (+ idx 2)
-                     when (string-equal axis-index-or-name (cdr (assoc :ano-nam (elt dquad (1- idx)))))
+                     when (string-equal axis-index-or-name (mjr_annot_get-value :ano-nam (elt dquad (1- idx))))
                      do (return (elt dquad idx))))
     (otherwise (error "mjr_dquad_get-axis-vector: Value for axis-index-or-name an integer or string!"))))
 
@@ -185,7 +175,7 @@ This function makes the assumption that axis-meta/axis-vector pairs start on ind
     (string    (loop with data-count = (mjr_dquad_data-count dquad)
                      for i from 1 upto data-count
                      for idx = (mjr_dquad_get-first-data-idx dquad) then (+ idx 2)
-                     when (string-equal data-index-or-name (cdr (assoc :ano-nam (elt dquad (1- idx)))))
+                     when (string-equal data-index-or-name (mjr_annot_get-value :ano-nam (elt dquad (1- idx))))
                      do (return (elt dquad idx))))
     (otherwise (error "mjr_dquad_get-data-array: Value for data-index-or-name an integer or string!"))))
 
@@ -200,40 +190,46 @@ This function makes the assumption that axis-meta/axis-vector pairs start on ind
   (mjr_dquad_axis-vector-lengths dquad))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_dquad_get-axis-attr (dquad axis-index-or-name attr-name)
-  "Return the value for the ATTR-NAME for the Nth axis in the DQUAD list"
-  (typecase axis-index-or-name
-    (integer   (let ((axis-count (mjr_dquad_axis-count dquad)))
-                 (cond ((<  axis-index-or-name 0)                     (error "mjr_dquad_get-axis-attr: Axis index too small!"))
-                       ((>= axis-index-or-name axis-count)            (error "mjr_dquad_get-axis-attr: Axis index too large!"))
-                       ((not (member attr-name '(:ano-nam :ano-typ))) (error "mjr_dquad_get-axis-attr: Invalid attr-name!")))
-                 (cdr (assoc attr-name (elt dquad (1- (+ (mjr_dquad_get-first-axis-idx dquad) (* 2 axis-index-or-name))))))))
-    (string    (loop with axis-count = (mjr_dquad_axis-count dquad)
-                     for i from 1 upto axis-count
-                     for idx = (mjr_dquad_get-first-axis-idx dquad) then (+ idx 2)
-                     when (string-equal axis-index-or-name (cdr (assoc :ano-nam (elt dquad (1- idx)))))
-                     do (return (cdr (assoc attr-name (elt dquad (1- idx)))))))
-    (otherwise (error "mjr_dquad_get-axis-attr: AXIS-INDEX-OR-NAME must be a string or integer"))))
+(defun mjr_dquad_get-axis-ano (dquad axis-index-or-name &optional ano-key)
+  "Return the value for the ano-key for the Nth axis in the DQUAD list.  Return entire annotation alist if ano-key is NIL"
+  (if ano-key (mjr_annot_check-ano-key ano-key))
+  (let ((anno-alist (typecase axis-index-or-name
+                      (integer   (let ((axis-count (mjr_dquad_axis-count dquad)))
+                                   (cond ((<  axis-index-or-name 0)          (error "mjr_dquad_get-axis-ano: Axis index too small!"))
+                                         ((>= axis-index-or-name axis-count) (error "mjr_dquad_get-axis-ano: Axis index too large!")))
+                                   (elt dquad (1- (+ (mjr_dquad_get-first-axis-idx dquad) (* 2 axis-index-or-name))))))
+                      (string    (loop with axis-count = (mjr_dquad_axis-count dquad)
+                                       for i from 1 upto axis-count
+                                       for idx = (mjr_dquad_get-first-axis-idx dquad) then (+ idx 2)
+                                       when (string-equal axis-index-or-name (mjr_annot_get-value :ano-nam (elt dquad (1- idx))))
+                                       do (return (elt dquad (1- idx)))))
+                      (otherwise (error "mjr_dquad_get-axis-ano: AXIS-INDEX-OR-NAME must be a string or integer")))))
+    (if ano-key
+        (mjr_annot_get-value ano-key anno-alist)
+        anno-alist)))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_dquad_get-data-attr (dquad data-index-or-name attr-name)
-  "Return the value for the ATTR-NAME for the Nth data array in the DQUAD list"
-  (typecase data-index-or-name
-    (integer   (let ((data-count (mjr_dquad_data-count dquad)))
-    (cond ((<  data-index-or-name  0)                                    (error "mjr_dquad_get-data-attr: Data index too small!"))
-          ((>= data-index-or-name  data-count)                           (error "mjr_dquad_get-data-attr: Data index too large!"))
-          ((not (member attr-name '(:ano-nam :ano-colorspace :ano-typ))) (error "mjr_dquad_get-data-attr: Invalid attr-name!")))
-    (cdr (assoc attr-name (elt dquad (1- (+ (+ 2 (* (mjr_dquad_axis-count dquad) 2)) (* 2 data-index-or-name ))))))))
-    (string    (loop with data-count = (mjr_dquad_data-count dquad)
-                     for i from 1 upto data-count
-                     for idx = (mjr_dquad_get-first-data-idx dquad) then (+ idx 2)
-                     when (string-equal data-index-or-name (cdr (assoc :ano-nam (elt dquad (1- idx)))))
-                     do (return (cdr (assoc attr-name (elt dquad (1- idx)))))))
-    (otherwise (error "mjr_dquad_get-data-attr: DATA-INDEX-OR-NAME must be a string or integer"))))
-
+(defun mjr_dquad_get-data-ano (dquad data-index-or-name &optional ano-key)
+  "Return the value for the ano-key for the Nth data array in the DQUAD list.  Return entire annotation alist if ano-key is NIL"
+  (if ano-key (mjr_annot_check-ano-key ano-key))
+  (let ((anno-alist (typecase data-index-or-name
+                      (integer   (let ((data-count (mjr_dquad_data-count dquad)))
+                                   (cond ((<  data-index-or-name  0)          (error "mjr_dquad_get-data-ano: Data index too small!"))
+                                         ((>= data-index-or-name  data-count) (error "mjr_dquad_get-data-ano: Data index too large!")))
+                                   (elt dquad (1- (+ (+ 2 (* (mjr_dquad_axis-count dquad) 2)) (* 2 data-index-or-name))))))
+                      (string    (loop with data-count = (mjr_dquad_data-count dquad)
+                                       for i from 1 upto data-count
+                                       for idx = (mjr_dquad_get-first-data-idx dquad) then (+ idx 2)
+                                       when (string-equal data-index-or-name (mjr_annot_get-value :ano-nam (elt dquad (1- idx))))
+                                       do (return (elt dquad (1- idx)))))
+                      (otherwise (error "mjr_dquad_get-data-ano: DATA-INDEX-OR-NAME must be a string or integer")))))
+    (if ano-key
+        (mjr_annot_get-value ano-key anno-alist)
+        anno-alist)))
+        
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defmacro mjr_dquad_fast_map101 (fn am axis-vectors data-arrays)
-  "Return an array produced by evaluateing FN on the elements of the cross product of the given vectors.  am is the argument mode."
+  "Return an array produced by evaluating FN on the elements of the cross product of the given vectors.  am is the argument mode."
   (let* ((num-axis (length axis-vectors))
          (arr-v   (gensym "arr-"))
          (vei-vl  (loop for i from 0 upto (1- num-axis)
@@ -255,7 +251,7 @@ This function makes the assumption that axis-meta/axis-vector pairs start on ind
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defmacro mjr_dquad_fast_map110 (fn am &rest vecs)
-  "Return an array produced by evaluateing FN on the elements of the cross product of the given vectors.  am is the argument mode."
+  "Return an array produced by evaluating FN on the elements of the cross product of the given vectors.  am is the argument mode."
   (let* ((num-vec (length vecs))
          (arr-v   (gensym "arr-"))
          (vei-vl  (loop for i from 0 upto (1- num-vec)
@@ -309,76 +305,77 @@ Supported combinations of axes, idxes, and data arguments:
               |    1 |     0 |    1 | Fully supported (mjr_dquad_fast_map101)           |
               |    1 |     1 |    1 | Not Supported!                                    |
               |------+-------+------+---------------------------------------------------|"
+  
   (let* ((arg-mode   (or arg-mode :arg-number))
-         (axis-count (mjr_dquad_axis-count dquad))
          (data-count (mjr_dquad_data-count dquad))
-         (data       (cond ((integerp data) (list data))
-                            ((listp data)   data)
-                            ('t            (if (< data-count 0)
-                                               (concatenate 'list (mjr_vvec_to-vec-maybe data-count)))))))
-    (if data
-        (cond ((not (every #'numberp data))               (error "mjr_dquad_map: An element of DATA was non-numeric"))
-              ((not (every #'integerp data))              (error "mjr_dquad_map: An element of DATA was not an integer"))
-              ((some (lambda (x) (< x 0)) data)           (error "mjr_dquad_map: An element of DATA was negative"))
-              ((some (lambda (x) (>= x axis-count)) data) (error "mjr_dquad_map: An element of DATA was too large"))))
+         (data       (typecase data
+                       (integer   (list data))
+                       (string    (list data))
+                       (list      data)
+                       (otherwise (if (not (zerop data-count)) (concatenate 'list (mjr_vvec_to-vec-maybe data-count)))))))
     (cond ((not (or axes idxes data)) (error "mjr_dquad_map: At least one of AXES, DATA, IDXES must be non-NIL"))
-          ((and idxes data)            (error "mjr_dquad_map: non-NIL DATA may not be combined with non-NIL IDXES")))
+          ((and idxes data)           (error "mjr_dquad_map: non-NIL DATA may not be combined with non-NIL IDXES")))
     (if (null data)
         (if (null axes)                                                                                                                                   ;; A I D
             (mjr_combc_gen-all-cross-product (mjr_dquad_axis-vector-lengths dquad) :collect-value f :result-type :array :arg-mode arg-mode)               ;; 0 1 0
             (if (null idxes)
                 (mjr_combc_gen-all-cross-product (mjr_dquad_get-all-axis dquad)                   :collect-value f :result-type :array :arg-mode arg-mode);; 1 0 0
                 (eval (macroexpand `(mjr_dquad_fast_map110 ,f ,arg-mode ,@(mjr_dquad_get-all-axis dquad))))))                                             ;; 1 1 0
-        (let ((da-dats (mapcar (lambda (i) (elt dquad (+ (+ 2 (* (mjr_dquad_axis-count dquad) 2)) (* 2 i)))) data)))
+        (let ((da-dats (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x)) data)))          
           (if (null axes)
               (apply #'mjr_arr_map (mjr_util_fun-adapt-x2x f arg-mode :arg-number) da-dats)                                                               ;; 0 ? 1
               (eval (macroexpand `(mjr_dquad_fast_map101 ,f ,arg-mode (,@(mjr_dquad_get-all-axis dquad)) (,@da-dats)))))))))                              ;; 1 0 1
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_dquad_colorize (dquad &key axes idxes data color-method color-space max-color data-range auto-scale)
-  "This is a helper function to create a colorization function and then apply it to DQUAD via MJR_DQUAD_MAP.
-
-Note that if the axes (or idxes) are used, the dquad must be 2D (i.e. two axes).  If just DATA is used, then the data may be of
-dimension greater than 2 in which case the result will not be a simple 2D image.  When the result is 2D, the result is compatible
-with the MJR_IMG library using a packing function of #'identity."
-  (cond ((and (or idxes axes)
-              (not (= 2 (mjr_dquad_axis-count dquad)))) (error "mjr_dquad_colorize: dquad must have only two axes!!"))
-        ((not (or axes idxes data))                     (error "mjr_dquad_colorize: At least one of AXES, IDXES, or DATA must be provided"))
-        ((and idxes data)                               (error "mjr_dquad_colorize: non-NIL DATA may not be combined with non-NIL IDXES")))
-
-  (let* ((data-count (mjr_dquad_data-count dquad))
-         (data       (or (mjr_util_non-list-then-list data)
-                         (concatenate 'list (mjr_vvec_to-vec-maybe (1- data-count)))))
-         (data-range (if (and auto-scale (null data-range))
-                         (apply #'concatenate 'vector (concatenate 'list
-                                                                   (if idxes (mapcar (lambda (x) (list 0 (1- x)))
-                                                                                     (mjr_dquad_axis-vector-lengths dquad)))
-                                                                   (if axes  (mapcar #'mjr_arr_min-max
-                                                                                     (mjr_dquad_get-all-axis dquad)))
-                                                                   (mapcar (lambda (x) (multiple-value-list (mjr_arr_min-max x)))
-                                                                           (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x)) data))))
-                         data-range)))
-    (mjr_dquad_map dquad (mjr_colorize_make-colorize-function color-method color-space max-color data-range auto-scale)
-                   :idxes idxes :axes axes :data data)))
-
-;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_dquad_add-data (dquad data-array &key ano-nam ano-typ ano-colorspace)
+(defun mjr_dquad_add-data (dquad data-array &key ano-nam ano-typ ano-colorspace ano-cpacking ano-units)
   "Destructively add the given data-array and and a data-meta list to dquad"
-  (cond ((not (equal (mjr_dquad_data-array-size dquad) (array-dimensions data-array))) (error "mjr_dquad_add-data: data-array of wrong size!!")))
-  (let ((ano-typ (or ano-typ :ano-typ-real)))
-    (nconc dquad
-           (list (loop for da-tag in (list :ano-nam :ano-typ :ano-colorspace)
-                       for da-val in (list ano-nam  ano-typ  ano-colorspace)
-                       when da-val
-                       collect (cons da-tag da-val)))
-           (list data-array))))
+  (cond ((not (equal (mjr_dquad_data-array-size dquad) (array-dimensions data-array))) (error "mjr_dquad_add-data: data-array of wrong size!!"))
+        ((mjr_dquad_get-data-ano dquad ano-nam :ano-nam)                               (error "mjr_dquad_add-data: data-array already exists :ano-nam!")))
+  (nconc dquad
+         (list (mjr_annot_make-alist ano-nam ano-typ ano-colorspace ano-cpacking ano-units))
+         (list data-array)))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-(defun mjr_dquad_add-data-from-map (dquad f &key axes idxes data ano-nam ano-typ ano-colorspace (arg-mode :arg-number))
+(defun mjr_dquad_add-data-from-map (dquad f &key axes idxes data ano-nam ano-typ ano-colorspace ano-cpacking (arg-mode :arg-number))
   "Destructively add a new data-array and data-meta to dquad by applying MJR_DQUAD_MAP to DQUAD and F."
   (let ((arg-mode   (or arg-mode :arg-number)))
     (mjr_dquad_add-data dquad (mjr_dquad_map dquad f :axes axes :idxes idxes :data data :arg-mode arg-mode)
-                        :ano-nam ano-nam :ano-typ ano-typ :ano-colorspace ano-colorspace)))
+                        :ano-nam ano-nam :ano-typ ano-typ :ano-colorspace ano-colorspace :ano-cpacking ano-cpacking)))
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_dquad_colorize (dquad &key axes idxes data color-method (max-color 1) data-range (auto-scale 't) ano-nam (ano-colorspace :CS-RGB))
+  "This is a helper function to create a colorization function and then apply it to DQUAD via MJR_DQUAD_MAP.
+
+Arguments:
+  - axes, idxes, data ................................... Same as in mjr_dquad_map
+  - color-method, max-color, data-range, & auto-scale ... As in mjr_colorize_make-colorize-function
+  - ano-colorspace, ano-nam ............................. As in mjr_dquad_add-data
+
+When the result is 2D, it is compatible with the MJR_IMG library using a packing function of #'identity."
+  (cond ((not (or axes idxes data)) (error "mjr_dquad_colorize: At least one of AXES, IDXES, or DATA must be provided"))
+        ((and idxes data)           (error "mjr_dquad_colorize: non-NIL DATA may not be combined with non-NIL IDXES"))
+        ((not ano-nam)              (error "mjr_dquad_colorize: ANO-NAM must be a non-NIL!"))
+        ((not (stringp ano-nam))    (error "mjr_dquad_colorize: ANO-NAM must be a string!")))
+; MJR SCM NOTE <2015-03-28 15:05:21 CDT> mjr_dquad_colorize: Better error checking on ano-nam argument.
+  (let* ((data-count (mjr_dquad_data-count dquad))
+         (data       (typecase data
+                       (string    (list data))
+                       (integer   (list data))
+                       (list      data)
+                       (otherwise (if (not (zerop data-count)) (concatenate 'list (mjr_vvec_to-vec-maybe data-count))))))
+         (data-range (or data-range
+                         (if auto-scale
+                             (apply #'concatenate 'vector (concatenate 'list
+                                                                       (if idxes (mapcar (lambda (x) (list 0 (1- x)))
+                                                                                         (mjr_dquad_axis-vector-lengths dquad)))
+                                                                       (if axes  (mapcar (lambda (x) (multiple-value-list (mjr_arr_min-max x)))
+                                                                                         (mjr_dquad_get-all-axis dquad)))
+                                                                       (mapcar (lambda (x) (multiple-value-list (mjr_arr_min-max x)))
+                                                                               (mapcar (lambda (x) (mjr_dquad_get-data-array dquad x)) data))))))))
+    (mjr_dquad_add-data-from-map dquad
+                                 (mjr_colorize_make-colorize-function color-method ano-colorspace max-color data-range auto-scale)
+                                 :idxes idxes :axes axes :data data
+                                 :ano-nam ano-nam :ano-typ :ano-typ-color :ano-colorspace ano-colorspace :ano-cpacking :CP-IDENTITY)))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
 (defun mjr_dquad_read-from-file (file-name)
@@ -432,4 +429,133 @@ Note that all data-array elements in the new dquad list are new, but meta data a
                   (list (copy-tree thingy))
                   (array (mjr_arr_copy thingy)))))
 
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_dquad_make-from-func-r123-r123 (func &key
+                                                  (func-lab "f")
+                                                  xdat ydat zdat (arg-mode :arg-number) (xlab "x") (ylab "y") (zlab "z")
+                                                  ax-color-meth  (ax-color-max-color  1) (ax-color-lab  "c") (ax-color-auto-scale  't) (ax-color-colorspace  :cs-rgb)
+                                                  f-color-meth   (f-color-max-color   1) (f-color-lab   "c") (f-color-auto-scale   't) (f-color-colorspace   :cs-rgb)
+                                                  all-color-meth (all-color-max-color 1) (all-color-lab "c") (all-color-auto-scale 't) (all-color-colorspace :cs-rgb))
+  "Transform one or more mathematical functions into a dquad or dsimp list
+     Arguments:
+       - func ................. A function or list of same
+       - func-lab ............. Labels (names) for func
+       - xdat ydat zdat ....... VVECs that define the domain
+       - xlab ylab zlab ....... Labels (names) for domain axes (xdat, ydat, and zdat)
+       - arg-mode ............. How args are passed to the functions.  May be a list
+       - u-close v-close ...... For :dsimp output.  Close the curve or surface
+       - X-color-lab .......... Labels (names) for *-color-meth
+       - X-color-meth ......... color-method or list of same.  See: MJR_COLORIZE_MAKE-COLORIZE-FUNCTION
+       - X-color-colorspace ... colorspace or list of same.  See: MJR_COLORIZE_MAKE-COLORIZE-FUNCTION
+       - X-color-auto-scale ... auto-scale or list of same.  See: MJR_COLORIZE_MAKE-COLORIZE-FUNCTION
+       - X-color-max-color .... max-color or list of same.  MJR_See: COLORIZE_MAKE-COLORIZE-FUNCTION
+                           -  X=ax .... axis              -- color functions receive x, y, z
+                           -  X=f ..... function          -- color functions receive f0, ..., n_{n-1}
+                           -  X=all ... axis and function -- color functions receive x, y, z, f0, ..., n_{n-1})"
+  (flet ((mkLabs (labs num) ;; Create NUM unique labels from list of labels in LABS
+           (if (<= num (length labs))
+               labs
+               (let ((good-labs nil))
+                 (loop for i from 0 upto (1- num)
+                       for b = (mjr_util_elt-mod labs i)
+                       do (loop for j from 0
+                                for n = (format nil "~a~d" b j)
+                                when (not (member n good-labs :test #'string=))
+                                return (push n good-labs))
+                       finally (return (reverse good-labs)))))))
+    (let* ((list-of-funcs           (mjr_util_non-list-then-list func))
+           (list-of-func-labs       (mkLabs (mjr_util_non-list-then-list func-lab) (length list-of-funcs)))
+           (list-of-ax-color-meths  (mjr_util_non-list-then-list ax-color-meth))
+           (list-of-ax-color-mc     (mjr_util_non-list-then-list ax-color-max-color))
+           (list-of-ax-color-as     (mjr_util_non-list-then-list ax-color-auto-scale))
+           (list-of-ax-color-cs     (mjr_util_non-list-then-list ax-color-colorspace))
+           (list-of-ax-color-labs   (mkLabs (mjr_util_non-list-then-list ax-color-lab) (length list-of-ax-color-meths)))
+           (list-of-f-color-meths   (mjr_util_non-list-then-list f-color-meth))
+           (list-of-f-color-mc      (mjr_util_non-list-then-list f-color-max-color))
+           (list-of-f-color-as      (mjr_util_non-list-then-list f-color-auto-scale))
+           (list-of-f-color-cs      (mjr_util_non-list-then-list f-color-colorspace))
+           (list-of-f-color-labs    (mkLabs (mjr_util_non-list-then-list f-color-lab) (length list-of-f-color-meths)))
+           (list-of-all-color-meths (mjr_util_non-list-then-list all-color-meth))
+           (list-of-all-color-mc    (mjr_util_non-list-then-list all-color-max-color))
+           (list-of-all-color-as    (mjr_util_non-list-then-list all-color-auto-scale))
+           (list-of-all-color-cs    (mjr_util_non-list-then-list all-color-colorspace))
+           (list-of-all-color-labs  (mkLabs (mjr_util_non-list-then-list all-color-lab) (length list-of-all-color-meths))))
+      (cond ((zerop (length list-of-funcs))         (error "mjr_dquad_make-from-func-r123-r123: FUNC must be provided!"))
+            ((not xdat)                             (error "mjr_dquad_make-from-func-r123-r123: XDAT must be provided!"))
+            ((and zdat (not ydat))                  (error "mjr_dquad_make-from-func-r123-r123: YDAT must be provided when ZDAT is provided!")))
+      (let ((daDquad (apply #'mjr_dquad_make-from-axis (concatenate 'list (list xlab xdat) (if ydat (list ylab ydat)) (if zdat (list zlab zdat))))))
+        (loop for i from 0
+              for f in list-of-funcs
+              for d-lab in list-of-func-labs
+              for d = (mjr_dquad_map daDquad f :axes 't :arg-mode arg-mode)
+              for d-val = (mjr_arr_aref-row-major d 0)
+              for d-typ = (typecase d-val
+                            (complex   :ano-typ-complex)
+                            (number    :ano-typ-real)
+                            (vector    (typecase (aref d-val 0)
+                                         (complex   :ano-typ-cvec)
+                                         (number    :ano-typ-rvec)
+                                         (otherwise (error "mjr_dquad_make-from-func-r123-r123: Function return type not supported!"))))
+                            (otherwise (error "mjr_dquad_make-from-func-r123-r123: Function return type not supported!")))
+              do (mjr_dquad_add-data daDquad d :ano-nam d-lab :ano-typ d-typ))
+        (if list-of-ax-color-meths
+            (loop for i from 0
+                  for c-cm  in list-of-ax-color-meths
+                  for c-lab in list-of-ax-color-labs
+                  for c-as  = (mjr_util_elt-mod list-of-ax-color-as i)
+                  for c-cs  = (mjr_util_elt-mod list-of-ax-color-cs i)
+                  for c-mc  = (mjr_util_elt-mod list-of-ax-color-mc i)                  
+                  do (mjr_dquad_colorize daDquad :color-method c-cm :axes 't :auto-scale c-as :ano-nam c-lab :max-color c-mc :ano-colorspace c-cs)))
+        (if list-of-f-color-meths
+            (let ((data-idxs (concatenate 'list (mjr_vvec_to-vec-maybe (length list-of-funcs)))))
+              (loop for i from 0
+                    for c-cm  in list-of-f-color-meths
+                    for c-lab in list-of-f-color-labs
+                    for c-as  = (mjr_util_elt-mod list-of-f-color-as i)
+                    for c-cs  = (mjr_util_elt-mod list-of-f-color-cs i)
+                    for c-mc  = (mjr_util_elt-mod list-of-f-color-mc i)                  
+                    do (mjr_dquad_colorize daDquad :color-method c-cm :data data-idxs :auto-scale c-as :ano-nam c-lab :max-color c-mc :ano-colorspace c-cs))))
+        (if list-of-all-color-meths
+            (let ((data-idxs (concatenate 'list (mjr_vvec_to-vec-maybe (length list-of-funcs)))))
+              (loop for i from 0
+                    for c-cm  in list-of-all-color-meths
+                    for c-lab in list-of-all-color-labs
+                    for c-as  = (mjr_util_elt-mod list-of-all-color-as i)
+                    for c-cs  = (mjr_util_elt-mod list-of-all-color-cs i)
+                    for c-mc  = (mjr_util_elt-mod list-of-all-color-mc i)                  
+                    do (mjr_dquad_colorize daDquad :color-method c-cm :axes 't :data data-idxs :auto-scale c-as :ano-nam c-lab :max-color c-mc :ano-colorspace c-cs))))
+        daDquad))))
 
+; MJR SCM NOTE <2015-02-28 13:36:22 CST> mjr_dquad_make-from-func-r123-r123: Support names for everything.  Super duper colorization.
+
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_dquad_make-from-func-c1-c1 (f &key rdat idat f_color z_color zf_color)
+
+  "Return a dquad list containing data useful for complex function visualization.
+
+The returned dquad list will containing the following:
+  - AXIS: real     -- Re(z)
+  - AXIS: imag     -- Im(z)
+  - DATA: z        -- A complex value in the domain.  When exported to VTK, this will yield two scalar values: z_real & z_imag
+  - DATA: f        -- f(z)                            When exported to VTK, this will yield two scalar values: f_real & f_imag
+  - DATA: f_abs    -- abs(f(z))
+  - DATA: f_phase  -- arg(f(z))
+  - DATA: z_color  -- z_color(z)                      Must return :cs-rgb colors See use-colorize.lisp and use-colorizer.lisp
+  - DATA: f_color  -- f_color(f(z))                   Must return :cs-rgb colors See use-colorize.lisp and use-colorizer.lisp
+  - DATA: zf_color -- zf_color(z, f(z))               Must return :cs-rgb colors See use-colorize.lisp and use-colorizer.lisp
+Note: Some tools will only use one color scalar in a data set"
+  (let* (;;(c-func  (mjr_mxp_string-or-func-to-lambda c-func "Z"))
+         ;;(f       (mjr_mxp_string-or-func-to-lambda f      "Z"))
+         (daDquad (mjr_dquad_make-from-axis "real" rdat
+                                            "imag" idat)))
+    (mjr_dquad_add-data-from-map daDquad #'complex    :axes 't     :ano-nam "z"        :ano-typ :ano-typ-complex)
+    (mjr_dquad_add-data-from-map daDquad f            :data 0      :ano-nam "f"        :ano-typ :ano-typ-complex)
+    (mjr_dquad_add-data-from-map daDquad #'abs        :data 1      :ano-nam "f_abs"    :ano-typ :ano-typ-real)
+    (mjr_dquad_add-data-from-map daDquad #'phase      :data 1      :ano-nam "f_phase"  :ano-typ :ano-typ-real)
+    (if z_color
+        (mjr_dquad_add-data-from-map daDquad z_color  :data 0      :ano-nam "z_color"  :ano-typ :ano-typ-color :ano-colorspace :cs-rgb))
+    (if zf_color
+        (mjr_dquad_add-data-from-map daDquad zf_color :data '(0 1) :ano-nam "zf_color" :ano-typ :ano-typ-color :ano-colorspace :cs-rgb))
+    (if f_color
+        (mjr_dquad_add-data-from-map daDquad f_color  :data 1      :ano-nam "f_color"  :ano-typ :ano-typ-color :ano-colorspace :cs-rgb))
+    daDquad))

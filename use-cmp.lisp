@@ -106,7 +106,7 @@ the mjr_fchk package for that.
 (defun mjr_cmp_oddp     (a &optional eps)  (and (mjr_cmp_integerp a eps) (oddp  (truncate a))))
 
 ;;----------------------------------------------------------------------------------------------------------------------------------
-;; Some usefull tests
+;; Some useful tests
 (defun mjr_cmp_negativep (a &optional eps)  (mjr_cmp_< a 0            eps))
 (defun mjr_cmp_positivep (a &optional eps)  (mjr_cmp_> a 0            eps))
 

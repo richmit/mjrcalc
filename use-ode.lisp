@@ -122,8 +122,8 @@ The primary 'Human Interface' functions are:
   * MJR_ODE_SLV-IVP-ERK-MESH     -- Solve ODE IVP via an explicit RK method at specified grid points
   * MJR_ODE_SLV-IVP-ERK-INTERVAL -- Solve ODE IVP via explicit RK method interval endpoint (with an adaptive mesh or single jump)
 
-The primary emphisis of this code base is to eanble one to easily compare various RK methods and experiment with new ones.  The
-functions above impliment the overall structure common to all RK algorithms, but leave the actual RK step to plugin functions.
+The primary emphasis of this code base is to enable one to easily compare various RK methods and experiment with new ones.  The
+functions above implement the overall structure common to all RK algorithms, but leave the actual RK step to plugin functions.
 
 Some vocabulary:
    * ERK      Explicit Runge-Kutta
@@ -135,7 +135,7 @@ Some vocabulary:
    * ODE      Ordinary Differential Equation
    * IVP      Initial Value Problem
 
-The following functions each impliment a the single step RK method sutable for use with the MJR_ODE_SLV-IVP-ERK-MESH and
+The following functions each implement a the single step RK method suitable for use with the MJR_ODE_SLV-IVP-ERK-MESH and
 MJR_ODE_SLV-IVP-ERK-INTERVAL functions:
 
   * mjr_ode_erk-step-euler-1               --  order 1      ERK
@@ -789,6 +789,3 @@ The return value will be a 2D array with a row for each mesh point, and a column
                        when show-progress
                        do (format 't "INFO(mjr_ode_slv-ivp-erk-mesh):     ~5d ~20f~%" i xi+1))))
     (make-array (list (length sol) (length (first sol))) :initial-contents sol)))
-
-
-

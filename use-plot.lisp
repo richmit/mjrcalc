@@ -16,6 +16,10 @@
         :MJR_POLY
         :MJR_UTIL
         :MJR_IMG
+        :MJR_COLOR
+        :MJR_ANNOT
+        :MJR_DQUAD
+        :MJR_DSIMP        
         :MJR_VVEC
         :MJR_MXP
         :MJR_COMBC
@@ -36,6 +40,8 @@
            ;; #:mjr_plot_drv-gnup-plot-data
            ;; Helper stuff
            ;; #:mjr_plot_dat-from-dat-or-lim
+           ;; Experimental
+           #:mjr_plot_plot-dsimp
            ))
 
 (in-package :MJR_PLOT)
@@ -214,7 +220,7 @@ If an active stream is not open, then create one."
                                                            (if (equal cur-type :rgb)
                                                                (let ((pcol (if (vectorp val)
                                                                                val
-                                                                               (mjr_img_cp-unpack-int8x3-int24 val))))
+                                                                               (mjr_color_cp-unpack-int8x3-int24 val))))
                                                                  (format nil "~F ~F ~F " (aref pcol 0) (aref pcol 1) (aref pcol 2)))
                                                                (format nil "~F " val))))))
             (if (and cur-span (zerop (mod (1+ pt-idx) cur-span))) (mjr_plot_drv-gnup-send-command ""))))
@@ -635,3 +641,56 @@ The first argument is assumed to be in the format returned by MJR_STATS_HIST."
 ;                   +--------+---+---+-----+-------+  
 
 
+;;----------------------------------------------------------------------------------------------------------------------------------
+(defun mjr_plot_plot-dsimp (dsimp simplices draw-vertexes &key (cords '(0 1 2)))
+  "Dump a datafile out sutable for GNUplot
+; MJR TODO NOTE <2015-04-04 15:50:23 CDT> mjr_plot_plot-dsimp: I don't know how I will integrate this yet.  Eventually, we need to send this data to the pipe, but it needs integrated with the other plot functions...
+simplices ...... List of simplex dimensions to output
+draw-vertexes .. Draw points only.  Otherwiese, output is lines.
+cords .......... Cordianates to output (for 3D, use '(0 1 2).  For 2D, pick two coords -- like '(0 1) for x-y)"
+  (let* ((points     (mjr_dsimp_get-simplex-array dsimp 0))
+         (d-balls    (make-array (length points) :initial-element nil))
+         (npts       (length points))
+         (d-cyls     (make-hash-table :test 'equal)))
+    (with-open-file (dest "foo.gnu"  :direction :output :if-exists :supersede :if-does-not-exist :create)
+      (labels ((pp   (pt) (progn (mapcar (lambda (c) (format dest "~f " (aref pt c))) cords)
+                                 (format dest "~%")))
+               (oPnt (pt-idx) (if (not (aref d-balls pt-idx))
+                                  (let ((pt1 (aref points pt-idx)))
+                                    (setf (aref d-balls pt-idx) 't)
+                                    (pp pt1))))
+               (oSeg (pt-idx-1 pt-idx-2) (let ((pt1 (aref points pt-idx-1))
+                                               (pt2 (aref points pt-idx-2))
+                                               (cky (if (<= pt-idx-1 pt-idx-2)
+                                                        (format nil "~d|~d" pt-idx-1 pt-idx-2)
+                                                        (format nil "~d|~d" pt-idx-2 pt-idx-1))))
+                                           (if (not (gethash cky d-cyls))
+                                               (progn (if (zerop (hash-table-count d-cyls))
+                                                          (pp pt1))
+                                                      (pp pt1)
+                                                      (pp pt2)
+                                                      (format dest "~%")
+                                                      (setf (gethash cky d-cyls ) 't))))))
+        (if draw-vertexes
+            (progn (if (member 0 simplices)
+                       (dotimes (pt-idx npts)
+                         (oPnt pt-idx)))
+                   (if (member 1 simplices)
+                       (loop for cur-simp across (mjr_dsimp_get-simplex-array dsimp 1)
+                             do (loop for pt-idx across cur-simp
+                                      do (oPnt pt-idx))))
+                   (if (member 2 simplices)
+                       (loop for cur-simp across (mjr_dsimp_get-simplex-array dsimp 2)
+                             do (loop for pt-idx across cur-simp
+                                      do (oPnt pt-idx)))))
+            (progn (if (member 1 simplices)
+                       (loop for cur-simp across (mjr_dsimp_get-simplex-array dsimp 1)
+                             do (oSeg (aref cur-simp 0) (aref cur-simp 1))))
+                   (if (member 2 simplices)
+                       (loop for cur-simp across (mjr_dsimp_get-simplex-array dsimp 2)
+                             do (loop for i from 0 upto 2
+                                      do (oSeg (mjr_arr_svref-mod cur-simp i) (mjr_arr_svref-mod cur-simp (1+ i))))))))))))
+
+;; dquad axes data
+;; (&key xdat ydat zdat dat datcols span type title xlab ylab zlab main xlim ylim zlim pal col)
+;; TODO ^
