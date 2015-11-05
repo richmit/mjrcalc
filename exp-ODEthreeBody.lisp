@@ -93,8 +93,9 @@
                                                                                           :algorithm #'mjr_ode_erk-step-euler-1
                                                                                           :return-all-steps 't)))))
             ;; Add a single data element with the path points.
-            (mjr_dquad_add-data-from-map sol #'vector :data '("y_0" "y_1") :ano-nam "path" :ano-typ :ano-typ-rvec)
+            (mjr_dquad_add-data-from-map sol #'vector :data '("y_0" "y_1") :ano-nam "path"     :ano-typ :ano-typ-rvec)
+            (mjr_dquad_add-data-from-map sol #'vector :data '("y_2" "y_3") :ano-nam "velocity" :ano-typ :ano-typ-rvec)
             ;; Dump it to a VTK file
             (mjr_vtk_from-dsimp (concatenate 'string "exp-ODEthreeBody-OUT-" (symbol-name action) ".vtk")  
-                                (mjr_dsimp_make-from-dquad sol 0 "path" :domain-data-names "time")
+                                (mjr_dsimp_make-from-dquad sol 0 "path" :domain-data-names "time" :data "velocity")
                                 :simplices 1)))))

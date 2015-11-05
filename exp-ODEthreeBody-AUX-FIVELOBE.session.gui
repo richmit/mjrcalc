@@ -27,27 +27,12 @@
             <Field name="defaultOrientation" type="int">0</Field>
         </Object>
         <Field name="postWhenShown" type="bool">false</Field>
-        <Object name="File open">
-            <Field name="x" type="int">0</Field>
-            <Field name="y" type="int">138</Field>
-            <Field name="width" type="int">640</Field>
-            <Field name="height" type="int">479</Field>
-            <Field name="visible" type="bool">false</Field>
-        </Object>
         <Object name="Information">
             <Field name="x" type="int">0</Field>
-            <Field name="y" type="int">225</Field>
+            <Field name="y" type="int">245</Field>
             <Field name="width" type="int">483</Field>
             <Field name="height" type="int">304</Field>
             <Field name="visible" type="bool">false</Field>
-        </Object>
-        <Object name="Rendering options">
-            <Field name="x" type="int">0</Field>
-            <Field name="y" type="int">166</Field>
-            <Field name="width" type="int">451</Field>
-            <Field name="height" type="int">423</Field>
-            <Field name="visible" type="bool">false</Field>
-            <Field name="posted" type="bool">false</Field>
         </Object>
         <Object name="MainWin">
             <Field name="x" type="int">0</Field>
@@ -58,7 +43,7 @@
         </Object>
         <Object name="Mesh plot attributes">
             <Field name="x" type="int">0</Field>
-            <Field name="y" type="int">103</Field>
+            <Field name="y" type="int">123</Field>
             <Field name="width" type="int">407</Field>
             <Field name="height" type="int">548</Field>
             <Field name="visible" type="bool">false</Field>
@@ -66,9 +51,17 @@
         </Object>
         <Object name="Pseudocolor plot attributes">
             <Field name="x" type="int">596</Field>
-            <Field name="y" type="int">76</Field>
+            <Field name="y" type="int">96</Field>
             <Field name="width" type="int">455</Field>
             <Field name="height" type="int">439</Field>
+            <Field name="visible" type="bool">false</Field>
+            <Field name="posted" type="bool">false</Field>
+        </Object>
+        <Object name="Vector plot attributes">
+            <Field name="x" type="int">-25</Field>
+            <Field name="y" type="int">76</Field>
+            <Field name="width" type="int">631</Field>
+            <Field name="height" type="int">391</Field>
             <Field name="visible" type="bool">false</Field>
             <Field name="posted" type="bool">false</Field>
         </Object>
