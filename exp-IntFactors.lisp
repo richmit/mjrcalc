@@ -2,12 +2,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      exp-IntFactors.lisp
-;; @author    Mitch Richling <http://www.mitchr.me>
+;; @author    Mitch Richling <https://www.mitchr.me>
 ;; @brief     For the integers n in [1,72], list the first integer such that it has n unique divisors.@EOL
 ;; @std       Common Lisp
 ;; @copyright 
 ;;  @parblock
-;;  Copyright (c) 1992,1994,1997,1998,2004,2008,2012,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
+;;  Copyright (c) 1992,1994,1997,1998,2004,2008,2012,2015, Mitchell Jay Richling <https://www.mitchr.me> All rights reserved.
 ;;
 ;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;

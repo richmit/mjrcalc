@@ -2,13 +2,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      tst-mxp.lisp
-;; @author    Mitch Richling <http://www.mitchr.me>
+;; @author    Mitch Richling <https://www.mitchr.me>
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-mxp.lisp
 ;; @copyright
 ;;  @parblock
-;;  Copyright (c) 1996,2010,2011,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
+;;  Copyright (c) 1996,2010,2011,2013,2015, Mitchell Jay Richling <https://www.mitchr.me> All rights reserved.
 ;;
 ;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;

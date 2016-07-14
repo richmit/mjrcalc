@@ -1,13 +1,13 @@
 ;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;; @file      pre-fsamp.lisp
-;; @author    Mitch Richling <http://www.mitchr.me>
+;; @file      use-fsamp.lisp
+;; @author    Mitch Richling <https://www.mitchr.me>
 ;; @brief     Sample mathematical functions and create DQUADs and DSIMPs.@EOL
 ;; @std       Common Lisp
 ;; @copyright
 ;;  @parblock
-;;  Copyright (c) 1991, 1992, 1994, 1997, 2008, 2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
+;;  Copyright (c) 1991, 1992, 1994, 1997, 2008, 2015, Mitchell Jay Richling <https://www.mitchr.me> All rights reserved.
 ;;
 ;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;

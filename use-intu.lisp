@@ -2,13 +2,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      use-intu.lisp
-;; @author    Mitch Richling <http://www.mitchr.me>
+;; @author    Mitch Richling <https://www.mitchr.me>
 ;; @brief     Handy integer utilities.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-intu.lisp
 ;; @copyright
 ;;  @parblock
-;;  Copyright (c) 1997,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
+;;  Copyright (c) 1997,2008,2013,2015, Mitchell Jay Richling <https://www.mitchr.me> All rights reserved.
 ;;
 ;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
@@ -35,7 +35,8 @@
         :MJR_CMP)
   (:DOCUMENTATION "Brief: Handy integer utilities.;")
   (:EXPORT #:mjr_intu_help
-           #:mjr_intu_pc #:mjr_intu_px
+           #:mjr_intu_pa #:mjr_intu_pbb
+           #:mjr_intu_pd #:mjr_intu_px #:mjr_intu_po #:mjr_intu_pb
            #:mjr_intu_divides?
            #:mjr_intu_extended-gcd
            #:mjr_intu_quadratic-residue?
@@ -77,27 +78,76 @@
     (and (= n-pow n) m)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_intu_pc (x)
-  "Convert integer to a string in decimal representation with commas."
-  (cond ((complexp x)      (error "mjr_intu_pc: Argument must not be complex"))
-        ((not (numberp x)) (error "mjr_intu_pc: Argument must be a number")))
-  (if (integerp x)
-      (format nil "~:d" x)
-      (if (mjr_cmp_= (round x) x)
-          (format nil "~:d" (round x))
-          (error "mjr_intu_pc: Argument was not close enough to an integer to print!"))))
-
+(defun mjr_intu_pg (x &key (separator-digits 3) (separator-character " ") (base 10))
+  "Convert integer to a string in base BASE representation with place separator symbols of SEPARATOR-CHARACTER every SEPARATOR-DIGITS digits."
+  (cond ((complexp x)      (error "mjr_intu_pg: Argument must not be complex"))
+        ((not (numberp x)) (error "mjr_intu_pg: Argument must be a number")))
+  (if (mjr_cmp_= (round x) x)
+      (format nil (format nil "~~~d,,,'~a,~d:r" base separator-character separator-digits) (round x))
+      (error "mjr_intu_pg: Argument was not close enough to an integer to print!")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_intu_px (x)
-  "Convert integer to a string in hexadecimal representation."
-  (cond ((complexp x)      (error "mjr_intu_px: Argument must not be complex"))
-        ((not (numberp x)) (error "mjr_intu_px: Argument must be a number")))
-  (if (integerp x)
-      (format nil "~x" x)
-      (if (mjr_cmp_= (round x) x)
-          (format nil "~x" (round x))
-          (error "mjr_intu_px: Argument was not close enough to an integer to print!"))))
+(defun mjr_intu_pd (x &key (separator-digits 3) (separator-character ","))
+  "Convert integer to a string in decimal representation with commas every three digits."
+  (mjr_intu_pg x :separator-digits separator-digits :separator-character separator-character :base 10))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_intu_px (x &key (separator-digits 4) (separator-character " "))
+  "Convert integer to a string in hexadecimal representation with spaces every four digits."
+  (mjr_intu_pg x :separator-digits separator-digits :separator-character separator-character :base 16))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_intu_po (x &key (separator-digits 3) (separator-character " "))
+  "Convert integer to a string in octal representation with spaces every three digits."
+  (mjr_intu_pg x :separator-digits separator-digits :separator-character separator-character :base 8))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_intu_pa (x)
+  "Convert an integer into a string containing representations in hexadecimal, decimal, octal, and binary."
+  (let ((printwid (+ 4 (length (mjr_intu_pb x)))))
+  (format nil (format nil "~%~~~d@a HEX~%~~~d@a DEC~%~~~d@a OCT~%~~~d@a BIN~%" printwid printwid printwid printwid)
+          (mjr_intu_px x)
+          (mjr_intu_pd x)
+          (mjr_intu_po x)
+          (mjr_intu_pb x)
+          )))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_intu_pbb (x &key (index-base 0))
+  "Convert integer to a binary string with bit and byte index positions marked."
+  (let* ((str  (format nil "~b" x))
+         (len  (1- (length str)))
+         (ndg  (length (mjr_intu_convert-to-digit-list len)))
+         (idxs (make-array ndg :initial-element ""))
+         (bb0   "")
+         (bb1   "")
+         (b1?   (loop for i from len downto 0
+                      for dl = (mjr_intu_convert-to-digit-list (+ i index-base))
+                      for bytei = (mjr_intu_convert-to-digit-list (+ (truncate (- len i) 8) index-base))
+                      for bytei0 = (first bytei)
+                      for bytei1 = (or (second bytei) 0)
+                      do (loop for j from 0 upto (1- ndg)
+                               for d = (format nil "~d" (or (nth j dl) 0))
+                               do (setf (aref idxs j) (concatenate 'string (aref idxs j) d)))
+                      do (setf bb0 (concatenate 'string (if (zerop (mod (- len i) 8)) (format nil "~d" bytei0) " ") bb0))
+                      do (setf bb1 (concatenate 'string (if (zerop (mod (- len i) 8)) (format nil "~d" bytei1) " ") bb1))
+                      maximize bytei1)))
+    (apply #'concatenate 'string (append (loop for j from (1- ndg) downto 0
+                                               collect (format nil "~%")
+                                               collect (aref idxs j))
+                                         (list (format nil "~%")
+                                               str
+                                               (format nil "~%"))
+                                         (if (> b1? 0)
+                                             (list bb1
+                                                   (format nil "~%")))
+                                         (list bb0
+                                               (format nil "~%"))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_intu_pb (x &key (separator-digits 8) (separator-character " "))
+  "Convert integer to a string in binary representation with spaces every 8 digits."
+  (mjr_intu_pg x :separator-digits separator-digits :separator-character separator-character :base 2))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intu_extended-gcd (a b)
