@@ -2,12 +2,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      exp-PrimePairs.lisp
-;; @author    Mitch Richling <http://www.mitchr.me>
+;; @author    Mitch Richling <https://www.mitchr.me>
 ;; @brief     Find composite numbers which are the product of two primes that are a distance of d apart where d in [1, 150].@EOL
 ;; @std       Common Lisp
 ;; @copyright 
 ;;  @parblock
-;;  Copyright (c) 1992,1994,1997,1998,2004,2008,2012,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
+;;  Copyright (c) 1992,1994,1997,1998,2004,2008,2012,2015, Mitchell Jay Richling <https://www.mitchr.me> All rights reserved.
 ;;
 ;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;

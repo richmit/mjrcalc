@@ -2,13 +2,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      use-nleq.lisp
-;; @author    Mitch Richling <http://www.mitchr.me>
+;; @author    Mitch Richling <https://www.mitchr.me>
 ;; @brief     Non-linear equation root finding.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-nleq.lisp
 ;; @copyright
 ;;  @parblock
-;;  Copyright (c) 1997,1998,2004,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
+;;  Copyright (c) 1997,1998,2004,2013,2015, Mitchell Jay Richling <https://www.mitchr.me> All rights reserved.
 ;;
 ;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;

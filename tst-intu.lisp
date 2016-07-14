@@ -2,13 +2,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;; @file      tst-intu.lisp
-;; @author    Mitch Richling <http://www.mitchr.me>
+;; @author    Mitch Richling <https://www.mitchr.me>
 ;; @brief     Unit Tests.@EOL
 ;; @std       Common Lisp
 ;; @see       use-intu.lisp
 ;; @copyright
 ;;  @parblock
-;;  Copyright (c) 1997,2008,2013,2015, Mitchell Jay Richling <http://www.mitchr.me> All rights reserved.
+;;  Copyright (c) 1997,2008,2013,2015, Mitchell Jay Richling <https://www.mitchr.me> All rights reserved.
 ;;
 ;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
@@ -72,37 +72,37 @@
     (values lastx lasty (+ (* a lastx) (* b lasty)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-test mjr_intu_pc
-  (assert-equal "0"               (mjr_intu_pc 0))
-  (assert-equal "1"               (mjr_intu_pc 1))
-  (assert-equal "10"              (mjr_intu_pc 10))
-  (assert-equal "100"             (mjr_intu_pc 100))
-  (assert-equal "1,000"           (mjr_intu_pc 1000))
-  (assert-equal "10,000"          (mjr_intu_pc 10000))
-  (assert-equal "100,000"         (mjr_intu_pc 100000))
-  (assert-equal "1,000,000"       (mjr_intu_pc 1000000))
-  (assert-equal "10,000,000"      (mjr_intu_pc 10000000))
-  (assert-equal "100,000,000"     (mjr_intu_pc 100000000))
-  (assert-equal "1,000,000,000"   (mjr_intu_pc 1000000000))
-  (assert-equal "10,000,000,000"  (mjr_intu_pc 10000000000))
-  (assert-equal "-1"              (mjr_intu_pc -1))
-  (assert-equal "-10"             (mjr_intu_pc -10))
-  (assert-equal "-100"            (mjr_intu_pc -100))
-  (assert-equal "-1,000"          (mjr_intu_pc -1000))
-  (assert-equal "-10,000"         (mjr_intu_pc -10000))
-  (assert-equal "-100,000"        (mjr_intu_pc -100000))
-  (assert-equal "-1,000,000"      (mjr_intu_pc -1000000))
-  (assert-equal "-10,000,000"     (mjr_intu_pc -10000000))
-  (assert-equal "-100,000,000"    (mjr_intu_pc -100000000))
-  (assert-equal "-1,000,000,000"  (mjr_intu_pc -1000000000))
-  (assert-equal "-10,000,000,000" (mjr_intu_pc -10000000000))
-  (assert-equal "10,000,000,000"  (mjr_intu_pc 10000000000.00000001))
-  (assert-equal "-10,000,000,000" (mjr_intu_pc -10000000000.00000001))
+(define-test mjr_intu_pd
+  (assert-equal "0"               (mjr_intu_pd 0))
+  (assert-equal "1"               (mjr_intu_pd 1))
+  (assert-equal "10"              (mjr_intu_pd 10))
+  (assert-equal "100"             (mjr_intu_pd 100))
+  (assert-equal "1,000"           (mjr_intu_pd 1000))
+  (assert-equal "10,000"          (mjr_intu_pd 10000))
+  (assert-equal "100,000"         (mjr_intu_pd 100000))
+  (assert-equal "1,000,000"       (mjr_intu_pd 1000000))
+  (assert-equal "10,000,000"      (mjr_intu_pd 10000000))
+  (assert-equal "100,000,000"     (mjr_intu_pd 100000000))
+  (assert-equal "1,000,000,000"   (mjr_intu_pd 1000000000))
+  (assert-equal "10,000,000,000"  (mjr_intu_pd 10000000000))
+  (assert-equal "-1"              (mjr_intu_pd -1))
+  (assert-equal "-10"             (mjr_intu_pd -10))
+  (assert-equal "-100"            (mjr_intu_pd -100))
+  (assert-equal "-1,000"          (mjr_intu_pd -1000))
+  (assert-equal "-10,000"         (mjr_intu_pd -10000))
+  (assert-equal "-100,000"        (mjr_intu_pd -100000))
+  (assert-equal "-1,000,000"      (mjr_intu_pd -1000000))
+  (assert-equal "-10,000,000"     (mjr_intu_pd -10000000))
+  (assert-equal "-100,000,000"    (mjr_intu_pd -100000000))
+  (assert-equal "-1,000,000,000"  (mjr_intu_pd -1000000000))
+  (assert-equal "-10,000,000,000" (mjr_intu_pd -10000000000))
+  (assert-equal "10,000,000,000"  (mjr_intu_pd 10000000000.00000001))
+  (assert-equal "-10,000,000,000" (mjr_intu_pd -10000000000.00000001))
   ;; Errors
-  (assert-error 'error            (mjr_intu_pc 't))
-  (assert-error 'error            (mjr_intu_pc #C(1 1)))
-  (assert-error 'error            (mjr_intu_pc 1/2))
-  (assert-error 'error            (mjr_intu_pc 1.4))
+  (assert-error 'error            (mjr_intu_pd 't))
+  (assert-error 'error            (mjr_intu_pd #C(1 1)))
+  (assert-error 'error            (mjr_intu_pd 1/2))
+  (assert-error 'error            (mjr_intu_pd 1.4))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

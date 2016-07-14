@@ -1,8 +1,8 @@
 ;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;; @file      pre-gnupl.lisp
-;; @author    Mitch Richling <http://www.mitchr.me>
+;; @file      use-gnupl.lisp
+;; @author    Mitch Richling <https://www.mitchr.me>
 ;; @brief     Plotting dquads with GNUPlot.@EOL
 ;; @std       Common Lisp
 ;; @copyright
