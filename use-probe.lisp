@@ -39,7 +39,7 @@
 (defpackage :MJR_PROBE
   (:USE :COMMON-LISP
         :MJR_PRNG
-        :MJR_QMESH)
+        :MJR_PWF)
   (:DOCUMENTATION "Brief: Empirical probability distriubtions.;")
   (:EXPORT #:mjr_probe_help
            #:mjr_probe_ewt2ecwt #:mjr_probe_ecwt2ewt
@@ -259,7 +259,7 @@ Functions provided:
   "Return a function that computes the ICDF (i.e. icdf(r)=PROB(X<=r)."
   (let ((ecdf (mjr_probe_ecwt2ecdf (map 'vector (lambda (x) (float x 1.0d0)) ecwt))))
     (eval `(lambda (r)
-             (let ((i (mjr_qmesh_search-vec :interval-type-left-closed ,ecdf r)))
+             (let ((i (mjr_pwf_search-interval-mesh :interval-type-left-closed ,ecdf r)))
                (case i
                  (-1        0)
                  (-2        ,(1- (length ecdf)))

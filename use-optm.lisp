@@ -168,7 +168,6 @@ F must take a single argument -- a vector of n elements."
       (if (null got-explor)
           (setf delta (* delta delta-factor))))))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_optm_minimize-hooke-jeeves (f x0 &key (delta-min 1e-5) (delta-max 1) (delta-factor 1/2)
                                                  (max-itr 1000) arg-mode (show-progress nil))

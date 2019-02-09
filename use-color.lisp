@@ -65,6 +65,7 @@
            #:mjr_color_make-unpacker-color-space-converter-and-packer
            ;; Misc
            #:mjr_color_get-chan-max #:mjr_color_get-num-chan
+           #:mjr_color_tru2hex-color-string
          ))
 
 (in-package :MJR_COLOR)
@@ -342,6 +343,12 @@ If the return would normally be the identity function, then the value of IDENTIT
                     (:cs-hsv   #'mjr_color_convert-hsl2hsv)
                     (otherwise (error "mjr_color_make-color-space-converter: Conversion not supported :OUT-COLOR-SPACE: ~s~%" out-color-space))))
         (otherwise (error "mjr_color_make-color-space-converter: Unknown value for :IN-COLOR-SPACE: ~s~%" in-color-space)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_color_tru2hex-color-string (r g b)
+  "Consume truecolor R, G, & B integers in [0, 255], and return an HTML hex string.
+Note R, G, & B will be truncated to integers if they are not integers already, and then they will be mod'ed by 256."
+  (format nil "#~2,'0x~2,'0x~2,'0x" (mod (truncate r) 256) (mod (truncate g) 256) (mod (truncate b) 256)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_color_make-rgb-from-spec (red-or-color-spec &optional green-or-nil blue-or-nil)

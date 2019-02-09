@@ -54,7 +54,7 @@
 
 The x-min x-max y-min y-max arguments specify the part of the image to write to the file."
   (if show-progress
-      (format 't "PROGRESS: mjr_tga_from-dquad: Begin TGA file write~%"))
+      (format 't "PROGRESS: mjr_tga_from-array: Begin TGA file write~%"))
   (let* ((cuc     (mjr_color_make-unpacker-color-space-converter-and-packer color-packing color-space :cs-tru :cp-none))
          (img-wid (array-dimension img-array 0))
          (img-tal (array-dimension img-array 1))
@@ -89,7 +89,7 @@ The x-min x-max y-min y-max arguments specify the part of the image to write to 
                                (write-byte (aref color24 1) out-d)      ;; green
                                (write-byte (aref color24 0) out-d))))) ;; red
     (if show-progress
-        (format 't "PROGRESS: mjr_tga_from-dquad: Completed TGA file write~%"))))
+        (format 't "PROGRESS: mjr_tga_from-array: Completed TGA file write~%"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_tga_to-array (file-name &key (ano-typ :ano-typ-truint) show-progress)

@@ -59,31 +59,34 @@
 ;;
 ;;  Testing History:
 ;;
-;;        |------------+---------------------+-----------------+------------+--------+-------|
-;;        | Test  Date | Lisp Implementation |    Lisp Version | OS Version | Status | Hacks |
-;;        |------------+---------------------+-----------------+------------+--------+-------|
-;;        | 2015-02-01 | ABCL                |           1.3.1 | debian 7.7 | WORKS  |       |
-;;        | 2015-02-01 | Allegro CL Express  |             9.0 | debian 7.7 | WORKS  | A & B |
-;;        | 2015-02-01 | CMUCL               |             20f | debian 7.7 | WORKS  |       |
-;;        | 2015-02-01 | ECL                 |          11.1.1 | debian 7.7 | WORKS  | B     |
-;;        | 2015-02-01 | GCL                 |           2.6.7 | debian 7.7 | BROKEN |       |
-;;        | 2015-02-01 | GCL                 |           2.6.9 | debian 7.7 | BROKEN |       |
-;;        | 2015-02-01 | LispWorks Personal  |           6.1.1 | debian 7.7 | WORKS  |       |
-;;        | 2015-02-01 | SBCL                |           1.2.8 | debian 7.7 | WORKS  |       |
-;;        | 2015-02-01 | SBCL                |          1.2.11 | debian 7.7 | WORKS  |       |
-;;        | 2015-02-01 | SBCL                | 1.0.57.0.debian | debian 7.7 | WORKS  | A     |
-;;        | 2015-02-01 | clisp               |            2.49 | debian 7.7 | WORKS  | A     |
-;;        |------------+---------------------+-----------------+------------+--------+-------|
-;;        | 2015-09-16 | ABCL                |           1.3.2 | debian 8.2 | WORKS  |       |
-;;        | 2015-09-16 | CCL                 |            1.10 | debian 8.2 | WORKS  | A     |
-;;        | 2015-09-16 | CMUCL               |             20d | debian 8.2 | WORKS  |       |
-;;        | 2015-09-16 | CMUCL               |             20f | debian 8.2 | WORKS  |       |
-;;        | 2015-09-16 | CMUCL               |     21a 2015-09 | debian 8.2 | WORKS  |       |
-;;        | 2015-09-16 | ECL                 |          15.3.7 | debian 8.2 | WORKS  | B     |
-;;        | 2015-09-16 | SBCL                |          1.2.14 | debian 8.2 | WORKS  |       |
-;;        | 2015-09-16 | SBCL                |    1.2.4.debian | debian 8.2 | WORKS  |       |
-;;        | 2015-09-16 | clisp               |            2.49 | debian 8.2 | WORKS  | A     |
-;;        |------------+---------------------+-----------------+------------+--------+-------|
+;;      |------------+---------------------+-----------------+---------------------+--------+-------+--------------------------------------------------|
+;;      | Test  Date | Lisp Implementation |    Lisp Version | OS Version          | Status | Hacks | Notes                                            |
+;;      |------------+---------------------+-----------------+---------------------+--------+-------+--------------------------------------------------|
+;;      | 2015-02-01 | ABCL                |           1.3.1 | debian 7.7          | WORKS  |       |                                                  |
+;;      | 2015-02-01 | Allegro CL Express  |             9.0 | debian 7.7          | WORKS  | A & B |                                                  |
+;;      | 2015-02-01 | CMUCL               |             20f | debian 7.7          | WORKS  |       |                                                  |
+;;      | 2015-02-01 | ECL                 |          11.1.1 | debian 7.7          | WORKS  | B     |                                                  |
+;;      | 2015-02-01 | GCL                 |           2.6.7 | debian 7.7          | BROKEN |       |                                                  |
+;;      | 2015-02-01 | GCL                 |           2.6.9 | debian 7.7          | BROKEN |       |                                                  |
+;;      | 2015-02-01 | LispWorks Personal  |           6.1.1 | debian 7.7          | WORKS  |       |                                                  |
+;;      | 2015-02-01 | SBCL                |           1.2.8 | debian 7.7          | WORKS  |       |                                                  |
+;;      | 2015-02-01 | SBCL                |          1.2.11 | debian 7.7          | WORKS  |       |                                                  |
+;;      | 2015-02-01 | SBCL                | 1.0.57.0.debian | debian 7.7          | WORKS  | A     |                                                  |
+;;      | 2015-02-01 | clisp               |            2.49 | debian 7.7          | WORKS  | A     |                                                  |
+;;      |------------+---------------------+-----------------+---------------------+--------+-------+--------------------------------------------------|
+;;      | 2015-09-16 | ABCL                |           1.3.2 | debian 8.2          | WORKS  |       |                                                  |
+;;      | 2015-09-16 | CCL                 |            1.10 | debian 8.2          | WORKS  | A     |                                                  |
+;;      | 2015-09-16 | CMUCL               |             20d | debian 8.2          | WORKS  |       |                                                  |
+;;      | 2015-09-16 | CMUCL               |             20f | debian 8.2          | WORKS  |       |                                                  |
+;;      | 2015-09-16 | CMUCL               |     21a 2015-09 | debian 8.2          | WORKS  |       |                                                  |
+;;      | 2015-09-16 | ECL                 |          15.3.7 | debian 8.2          | WORKS  | B     |                                                  |
+;;      | 2015-09-16 | SBCL                |          1.2.14 | debian 8.2          | WORKS  |       |                                                  |
+;;      | 2015-09-16 | SBCL                |    1.2.4.debian | debian 8.2          | WORKS  |       |                                                  |
+;;      | 2015-09-16 | clisp               |            2.49 | debian 8.2          | WORKS  | A     |                                                  |
+;;      |------------+---------------------+-----------------+---------------------+--------+-------+--------------------------------------------------|
+;;      | 2019-01-30 | SBCL                |          1.4.14 | Windows 10 Pro 1809 | WORKS  | B     | Running in MSYS2 shell                           |
+;;      | 2019-01-30 | SBCL                |   1.3.14.debian | Debian 9.6          | WORKS  |       | Windows store Debian App/WSL/Windows 10 Pro 1809 |
+;;      |------------+---------------------+-----------------+---------------------+--------+-------+--------------------------------------------------|
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -96,6 +99,7 @@
                                                                 "~/.local/share/common-lisp/source/asdf/asdf.lisp"
                                                                 "asdf.lisp"
                                                                 "~/quicklisp/asdf.lisp"
+                                                                "C:/msys64/home/richmit/quicklisp/quicklisp/"
                                                                 "../olispy/asdf/asdf.lisp"))))
                          (if asdf-file
                              (progn (load asdf-file)
@@ -108,8 +112,10 @@
 ;; HACK-B
 ;; Some LISPS don't load things from subdirectories of the standard ASDF locations.  Change to suit your environment.
 #+(or ECL ALLEGRO CCL) (let ((mjrcalc-file (find-if #'probe-file '("~/.local/share/common-lisp/source/mjrcalc/"
+                                                                   "C:/msys64/home/richmit/.local/share/common-lisp/source/mjrcalc/"
                                                                    "~/common-lisp/mjrcalc/"))))
-                         (if mjrcalc-file
+                         (if (and mjrcalc-file
+                                  (not (find mjrcalc-file asdf:*central-registry* :test #'string-equal)))
                              (push mjrcalc-file asdf:*central-registry*)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

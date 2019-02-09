@@ -7,7 +7,7 @@
 ;; @std       Common Lisp
 ;; @copyright
 ;;  @parblock
-;;  Copyright 1997,1998,2004,2008,2013,2015 by Mitch Richling.  All rights reserved.
+;;  Copyright 1997,1998,2004,2008,2013,2015,2019 by Mitch Richling.  All rights reserved.
 ;;
 ;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
@@ -28,6 +28,7 @@
 ;;  @endparblock
 ;; @todo      Support vector fields: plot 'file.dat' using 1:2:3:4 with vectors head filled lt 2.@EOL@EOL
 ;; @todo      unit-tests!@EOL@EOL
+;; @todo      Add support for NaN values in dquads!!!  set datafile missing "NaN"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -36,6 +37,7 @@
         :MJR_UTIL
         :MJR_COLOR
         :MJR_DQUAD
+        :MJR_DSIMP
         :MJR_ANNOT
         :MJR_VVEC
         :MJR_ARR)
@@ -46,48 +48,90 @@
            #:mjr_gnupl_send-command
            #:mjr_gnupl_send-reset
            #:mjr_gnupl_dquad
+           #:mjr_gnupl_dsimp
            #:*mjr_gnupl_gnuplot-stream-echo*
+           #:*mjr_gnupl_gnuplot-connect-method*
            ;; Global variables (NOT EXPORTED)
+           ;; #:*mjr_gnupl_gnuplot-term* 
            ;; #:*mjr_gnupl_gnuplot-stream*
-           ;; #:*mjr_gnupl_gnuplot-fifo*
+           ;; #:*mjr_gnupl_gnuplot-fifo-name*
+           ;; #:*mjr_gnupl_gnuplot-exec-path*
            ))
 
 (in-package :MJR_GNUPL)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_gnupl_help ()
-  "Help for MJR_GNUPL: Plotting dquads with GNUPlot
+  "Help for MJR_GNUPL: Plotting data (DQUADS, DSIMP, BQTREE) with GNUPlot
 
 This package provides a simple interface for quickly plotting dquad lists via GNUPlot."
   (documentation 'mjr_gnupl_help 'function))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar *mjr_gnupl_gnuplot-stream* nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar *mjr_gnupl_gnuplot-stream-echo* nil
   "Duplicate all gnuplot commands to standard out for debug")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar *mjr_gnupl_gnuplot-fifo*
-  (namestring (merge-pathnames (user-homedir-pathname) ".mjrcalc-mjr_gunpl-fifo"))
-  "Set this to a FIFO file connected to a running gnuplot process.
+(defvar *mjr_gnupl_gnuplot-connect-method* :mjr_gnupl_use-exec
+  "Method to use for connecting to gnuplot.  
+      * :mjr_gnupl_use-exec -- start a gnuplot process and connect to it
+      * :mjr_gnupl_use-fifo -- connect to a fifo that is already connected to a running gnuplot")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar *mjr_gnupl_gnuplot-term* (if (find :unix *features*) "x11")
+  "Set to the gnuplot terminal")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar *mjr_gnupl_gnuplot-stream* nil)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar *mjr_gnupl_gnuplot-exec-path* (find-if #'probe-file '("/usr/local/bin/gnuplot"
+                                                              "/usr/bin/gnuplot"
+                                                              "/bin/gnuplot"
+                                                              "/opt/local/bin/gnuplot"
+                                                              "/opt/bin/gnuplot"
+                                                              "C:\\msys64\\mingw64\\bin\\gnuplot.exe"
+                                                              "C:\\msys32\\mingw64\\bin\\gnuplot.exe"))
+    "Set this to a the fully qualified filename of the gnuplot executable.")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar *mjr_gnupl_gnuplot-fifo-name* (if (probe-file (user-homedir-pathname))
+                                          (namestring (merge-pathnames (user-homedir-pathname) ".mjrcalc-mjr_gunpl-fifo")))
+  "Set this to a FIFO file name connected to a running gnuplot process.
 
 See the gnuplotGO.sh script for one way to make sure that a gnuplot process is always running and listening to the FIFO.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_gnupl_connect ()
-  "If not only open, then open the GNUplot FIFO stream."
+  "If not already open, then open the GNUplot FIFO stream."
   (or *mjr_gnupl_gnuplot-stream*
-      (progn (if (not *mjr_gnupl_gnuplot-fifo*)
-                 (error "mjr_gnupl_send-command: No gnuplot FIFO configured (See: *MJR_GNUPL_GNUPLOT-FIFO*)!")
-                 (progn (print "If the reader prompt hasn't returned, then start-up a listening gnuplot!!")
-                        (format *mjr_gnupl_gnuplot-stream* "unset output~%")
-                        (setq *mjr_gnupl_gnuplot-stream* (open *mjr_gnupl_gnuplot-fifo* :direction :output :if-exists  :overwrite))
-                        (format *mjr_gnupl_gnuplot-stream* "set term x11~%")
-                        (format *mjr_gnupl_gnuplot-stream* "reset~%")
-                        (force-output *mjr_gnupl_gnuplot-stream*)
-                        *mjr_gnupl_gnuplot-stream*)))))
+      (case *mjr_gnupl_gnuplot-connect-method*
+        (:mjr_gnupl_use-fifo (if (not (and *mjr_gnupl_gnuplot-fifo-name* (probe-file *mjr_gnupl_gnuplot-fifo-name*)))
+                                 (error "mjr_gnupl_connect: Can't use *mjr_gnupl_gnuplot-fifo-name*")
+                                 (progn (print "If the reader prompt hasn't returned, then start-up a listening gnuplot!!")
+                                        (format *mjr_gnupl_gnuplot-stream* "unset output~%")
+                                        (setq *mjr_gnupl_gnuplot-stream* (open *mjr_gnupl_gnuplot-fifo-name* :direction :output :if-exists  :overwrite))
+                                        (if *mjr_gnupl_gnuplot-term*
+                                            (format *mjr_gnupl_gnuplot-stream* "set term ~s~%" *mjr_gnupl_gnuplot-term*))
+                                        (format *mjr_gnupl_gnuplot-stream* "reset~%")
+                                        (force-output *mjr_gnupl_gnuplot-stream*)
+                                        *mjr_gnupl_gnuplot-stream*)))
+        (:mjr_gnupl_use-exec (if (not *mjr_gnupl_gnuplot-exec-path*)
+                                 (error "mjr_gnupl_connect: Can's use *mjr_gnupl_gnuplot-exec-path* -- NOT SET!")
+                                 (if (not (probe-file *mjr_gnupl_gnuplot-exec-path*))
+                                     (error "mjr_gnupl_connect: Can's use *mjr_gnupl_gnuplot-exec-path* -- FILE NOT FOUND (~s)!" *mjr_gnupl_gnuplot-exec-path*)
+                                     (progn
+                                       #+sbcl      (setq *mjr_gnupl_gnuplot-stream* (sb-ext:process-input  (sb-ext:run-program          *mjr_gnupl_gnuplot-exec-path* nil :input :stream :output nil :wait nil :search t)))
+                                       #+clisp     (setq *mjr_gnupl_gnuplot-stream*                        (ext:make-pipe-output-stream *mjr_gnupl_gnuplot-exec-path*))
+                                       #+ecl       (setq *mjr_gnupl_gnuplot-stream*                        (ext:run-program             *mjr_gnupl_gnuplot-exec-path* nil :input :stream :output t   :wait nil :error :output))
+                                       #+abcl      (setq *mjr_gnupl_gnuplot-stream* (system::process-input (system::run-program         *mjr_gnupl_gnuplot-exec-path* nil                            :wait nil)))
+                                       #-(or clisp sbcl ecl abcl) (error "mjr_gnupl_connect: Can't figure out how to run GNUplot.")
+                                       (if *mjr_gnupl_gnuplot-term*
+                                           (format *mjr_gnupl_gnuplot-stream* "set term ~s~%" *mjr_gnupl_gnuplot-term*))
+                                       (format *mjr_gnupl_gnuplot-stream* "reset~%")
+                                       (force-output *mjr_gnupl_gnuplot-stream*)
+                                       *mjr_gnupl_gnuplot-stream*))))
+        (otherwise           (warn "mjr_gnupl_connect: *mjr_gnupl_gnuplot-connect-method* not set correctly!!")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_gnupl_disconnect ()
@@ -98,7 +142,7 @@ See the gnuplotGO.sh script for one way to make sure that a gnuplot process is a
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_gnupl_send-command (command &optional alternate-gnuplot-stream)
-  "Send a command to gnuplot to the *MJR_GNUPL_GNUPLOT-FIFO* -- or ALTERNATE-GNUPLOT-STREAM if it is non-NIL."
+  "Send a command to gnuplot to the *MJR_GNUPL_GNUPLOT-FIFO-NAME* -- or ALTERNATE-GNUPLOT-STREAM if it is non-NIL."
   (if alternate-gnuplot-stream
       (progn (format alternate-gnuplot-stream "~a ~%" command)
              (force-output alternate-gnuplot-stream))
@@ -112,7 +156,8 @@ See the gnuplotGO.sh script for one way to make sure that a gnuplot process is a
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_gnupl_send-reset ( &optional alternate-gnuplot-stream)
   (mjr_gnupl_send-command "unset output" alternate-gnuplot-stream)
-  (mjr_gnupl_send-command "set term x11" alternate-gnuplot-stream)
+  (if *mjr_gnupl_gnuplot-term*
+      (mjr_gnupl_send-command (format nil "set term ~s~%" *mjr_gnupl_gnuplot-term*) alternate-gnuplot-stream))
   (mjr_gnupl_send-command "reset"        alternate-gnuplot-stream))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -171,7 +216,7 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
                                                    ("hsv"       . "3,2,2")    ("gray"    . "3,3,3")    ("grey" . "3,3,3"))
                                              :test #'string=))
                                  pal)) alternate-gnuplot-stream)
-               (mjr_gnupl_send-command "set  hidden3d" alternate-gnuplot-stream)
+               (mjr_gnupl_send-command "set hidden3d" alternate-gnuplot-stream)
                ;;(mjr_gnupl_send-command "set pm3d depthorder")
                (mjr_gnupl_send-command "set style fill solid 1.00" alternate-gnuplot-stream)))
       ;; The plot command
@@ -248,3 +293,66 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
                    (otherwise (error "mjr_gnupl_dquad: Range dimension ~d is not support with domain dimension of 2" rdim)))
                  (mjr_gnupl_send-command  "e" alternate-gnuplot-stream))))
           (otherwise (error "mjr_gnupl_dquad: Domain dimension of ~d is not supported!" ddim))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_gnupl_dsimp (dsimp &key
+                                (dimx 0) (dimy 1) (dimz nil)
+                                (simplices 1)
+                                (type :l) col
+                                xlab ylab zlab main
+                                xlim ylim zlim
+                                alternate-gnuplot-stream)  
+  "Plot the points and/or edges of 0, 1, or 2 simplices of a dsimp object with GNUplot.
+
+No attempt is made to draw a point or segment only one time -- i.e. when drawing 2-simplices forming a surface mesh, most edges will be draw twice and most
+vertexes will be drawn three times.  For best performance, use :simplices 0 when using :type :p.  When available, use 1-simplices for edge drawing instead of
+2-simplices."
+  ;; Setup the plot
+  (mjr_gnupl_send-reset)
+  (mjr_gnupl_send-command (format nil "set xlabel \"~a\"" (or xlab "")) alternate-gnuplot-stream)
+  (mjr_gnupl_send-command (format nil "set ylabel \"~a\"" (or ylab "")) alternate-gnuplot-stream)
+  (mjr_gnupl_send-command (format nil "set zlabel \"~a\"" (or zlab "")) alternate-gnuplot-stream)
+  (mjr_gnupl_send-command (format nil "set title \"~a\""  (or main "")) alternate-gnuplot-stream)
+  (mjr_gnupl_send-command "set zeroaxis" alternate-gnuplot-stream)
+  (mjr_gnupl_send-command "set autoscale" alternate-gnuplot-stream)
+  (mjr_gnupl_send-command "set autoscale fix" alternate-gnuplot-stream)
+  (if xlim (mjr_gnupl_send-command (format nil "set xrange [~f:~f]" (first xlim) (second xlim)) alternate-gnuplot-stream))
+  (if ylim (mjr_gnupl_send-command (format nil "set yrange [~f:~f]" (first ylim) (second ylim)) alternate-gnuplot-stream))
+  (if zlim (mjr_gnupl_send-command (format nil "set zrange [~f:~f]" (first zlim) (second zlim)) alternate-gnuplot-stream))
+  ;; The plot command
+  (mjr_gnupl_send-command (format nil "~a '-' using ~a notitle with ~a ~a ~%"
+                                  (if dimz "splot " "plot ")
+                                  (if dimz "1:2:3 " "1:2 ")
+                                  (or (cdr (assoc type
+                                                  '((:l . "lines")
+                                                    (:d . "dots")
+                                                    (:b . "linespoints")
+                                                    (:h . "impulses")
+                                                    (:p . "points"))
+                                                  :test #'string-equal))
+                                      "lines")
+                                  (if col
+                                      (format nil "linecolor rgb \"~a\"" col)
+                                      ""))
+                          alternate-gnuplot-stream)
+  ;; Send the data
+  (flet ((fmt-pnt (p) (with-output-to-string (ss)
+                        (format ss "~F ~F" (aref p dimx) (aref p dimy))
+                        (if dimz (format ss " ~F" (aref p dimz))))))
+    (cond ((= 0 simplices) (loop for point across (mjr_dsimp_get-simplex-array dsimp 0)
+                                 do (mjr_gnupl_send-command (fmt-pnt point))))
+          ((= 1 simplices) (loop with points = (mjr_dsimp_get-simplex-array dsimp 0)
+                                 for simplex across (mjr_dsimp_get-simplex-array dsimp 1)
+                                 for p0 = (aref points (aref simplex 0))
+                                 for p1 = (aref points (aref simplex 1))
+                                 do (mjr_gnupl_send-command (format nil (if dimz "~a~%~a~%~%" "~a~%~a~%") (fmt-pnt p0) (fmt-pnt p1)))))
+          ((= 2 simplices) (loop with points = (mjr_dsimp_get-simplex-array dsimp 0)
+                                 for simplex across (mjr_dsimp_get-simplex-array dsimp 2)
+                                 for p0 = (aref points (aref simplex 0))
+                                 for p1 = (aref points (aref simplex 1))
+                                 for p2 = (aref points (aref simplex 2))                                 
+                                 do (mjr_gnupl_send-command (format nil (if dimz "~a~%~a~%~%" "~a~%~a~%") (fmt-pnt p0) (fmt-pnt p1)))
+                                 do (mjr_gnupl_send-command (format nil (if dimz "~a~%~a~%~%" "~a~%~a~%") (fmt-pnt p1) (fmt-pnt p2)))
+                                 do (mjr_gnupl_send-command (format nil (if dimz "~a~%~a~%~%" "~a~%~a~%") (fmt-pnt p2) (fmt-pnt p0)))))
+          ('t              (error "mjr_gnupl_dsimp: Only 0, 1, and 2 simplexes are supported!")))
+    (mjr_gnupl_send-command  "e" alternate-gnuplot-stream)))

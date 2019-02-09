@@ -137,6 +137,11 @@ of the following possible annotation keys:
           ((not (stringp ano-nam))       (error "mjr_annot_check-ano-nam: :ano-nam must be a string"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_annot_typ-colorp (ano-typ)
+  "Return non-NIL if ano-type is a color type."
+  (member ano-typ '(:ano-typ-truvec :ano-typ-truint :ano-typ-rgbvec :ano-typ-hsvvec :ano-typ-hslvec)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_ano-typ< (key1 key2)
   "A comparison function on possible :ano-typ values.
 
@@ -159,11 +164,6 @@ The order is compatible with the order in which data sets are required to appear
         for da-val in (list  ano-nam  ano-typ  ano-units)
         when da-val
         collect (cons da-key da-val)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_annot_typ-colorp (ano-typ)
-  "Return non-NIL if ano-type is a color type."
-  (member ano-typ '(:ano-typ-truvec :ano-typ-truint :ano-typ-rgbvec :ano-typ-hsvvec :ano-typ-hslvec)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_annot_typ-vectorp (ano-typ)

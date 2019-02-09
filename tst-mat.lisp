@@ -30,7 +30,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defpackage :MJR_MAT-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_MAT :MJR_VEC :MJR_PRNG :MJR_MATT :MJR_ARR))
+(defpackage :MJR_MAT-TESTS (:USE :COMMON-LISP :LISP-UNIT :MJR_MAT :MJR_VEC :MJR_PRNG :MJR_MATT :MJR_ARR :MJR_EPS))
 
 (in-package :MJR_MAT-TESTS)
 
@@ -508,7 +508,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (dotimes (i 20)
     (let* ((r (mjr_prng_int-co 1 10))
            (c (mjr_prng_int-co 1 10))
-           (m (mjr_mat_float (mjr_matt_make-test :mp-random :m r :n c :a 10))))
+           (m (mjr_mat_float (mjr_matt_make-random :mp-real :m r :n c :a 10))))
       (assert-equalp (* r c) (loop for ri from 0 upto (1- r)
                                    sum (loop for ci from 0 upto (1- c)
                                              when (floatp (aref m ri ci))
@@ -525,7 +525,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (dotimes (i 20)
     (let* ((r (mjr_prng_int-co 1 10))
            (c (mjr_prng_int-co 1 10))
-           (m (mjr_mat_rationalize (mjr_matt_make-test :mp-random :m r :n c :a 10))))
+           (m (mjr_mat_rationalize (mjr_matt_make-random :mp-real :m r :n c :a 10))))
       (assert-equalp (* r c) (loop for ri from 0 upto (1- r)
                                    sum (loop for ci from 0 upto (1- c)
                                              when (rationalp (aref m ri ci))
@@ -605,7 +605,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (with-output-to-string (*standard-output* nil)
     ;; Make sure it always returns MATRIX
     (dotimes (i 20)
-      (let* ((mr (mjr_matt_make-test :mp-random :m (mjr_prng_int-co 1 10) :n (mjr_prng_int-co 1 10) :a 10)))
+      (let* ((mr (mjr_matt_make-random :mp-real :m (mjr_prng_int-co 1 10) :n (mjr_prng_int-co 1 10) :a 10)))
         (assert-equalp mr                 (mjr_mat_print mr))
         (assert-equalp mr                 (mjr_mat_print mr :fmt-str "~f"))
         (assert-equalp mr                 (mjr_mat_print mr :fmt-type "~f"))
@@ -760,7 +760,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-true  (> 0.001 (abs (- 16.881943 (mjr_mat_norm m  :norm :frobenius)))))
   (assert-equal 285 (mjr_mat_norm m  :norm :frobenius-sq))
   (dotimes (i 20)
-    (let* ((m (mjr_mat_float (mjr_matt_make-test :mp-random :m (mjr_prng_int-co 1 10) :n (mjr_prng_int-co 1 10) :a 10))))
+    (let* ((m (mjr_mat_float (mjr_matt_make-random :mp-real :m (mjr_prng_int-co 1 10) :n (mjr_prng_int-co 1 10) :a 10))))
       (assert-equalp (mjr_mat_norm m :norm :one) (mjr_mat_norm m :norm 1))))
   )
 
@@ -863,7 +863,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   (assert-equalp (values #2A((1 0 0) (0 -3 0) (0 0 -1))     #(0 1 2))      (mjr_mat_eliminate mi :full-elim 't :pivot-row :first-non-zero))
   (assert-equalp (values #2A((1 0 0) (0 -3 0) (0 0 -1))     #(0 1 2))      (mjr_mat_eliminate mi :full-elim 't :pivot-row :min-non-zero-top))
   (dotimes (i 50)
-    (let* ((mr (mjr_matt_make-test :mp-random :m (mjr_prng_int-co 1 20) :n (mjr_prng_int-co 1 20) :a 100)))
+    (let* ((mr (mjr_matt_make-random :mp-real :m (mjr_prng_int-co 1 20) :n (mjr_prng_int-co 1 20) :a 100)))
       (assert-equalp (mjr_mat_eliminate mr) (mjr_mat_eliminate mr :pivot-row :max-non-zero))))
   ;; XREF: This function is heavily tested in mjr_mat_det-ge, mjr_mat_solve-sys-sge, mjr_mat_inv-sge, and mjr_mat_rank-sge .
   )
@@ -1107,7 +1107,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   ;; Make sure mjr_mat_inv-fl is consistent with mjr_mat_inv.
   (loop for n from 1 upto 3
         do (loop for i from 1 upto 10
-                 for a  = (mjr_matt_make-test :mp-random :m n :a 100)
+                 for a  = (mjr_matt_make-random :mp-real :m n :a 100)
                  for ai = (mjr_mat_inv-small a)
                  when ai
                  do (assert-true (mjr_mat_test-property-struct (mjr_mat_* a ai) :mp-identity))
@@ -1138,6 +1138,55 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
       (assert-equalp pr (mjr_mat_cpoly (mjr_mat_make-poly-companion pr :form :transpose)))))
 )
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_mat_det_matrix-properties
+  ;; Test special case code: :mp-pos-def
+  (dotimes (i 500)
+    (let* ((rc (mjr_prng_int-co 5 15))
+           (rl (mjr_matt_make-random :mp-l-triangular :m rc :a 1 :b 10))
+           (rd (mjr_matt_make-random :mp-diagonal :m rc :a 1 :b 10))
+           (rm (mjr_mat_* rl rd (mjr_mat_transpose rl)))
+           (d1 (mjr_mat_det rm))
+           (d2 (mjr_mat_det rm :mp-pos-def)))
+      (assert-equalp d1 d2 (list :mp-pos-def rm))))
+
+  ;; Test special case code: :mp-tri-diagonal
+  (dotimes (i 500)
+    (let* ((rm (mjr_matt_make-random :mp-m-diagonal :m (mjr_prng_int-co 5 15) :k 2 :a -10 :b 10))
+           (d1 (mjr_mat_det rm))
+           (d2 (mjr_mat_det rm :mp-tri-diagonal)))
+      (assert-equalp d1 d2 (list :mp-tri-diagonal rm))))
+
+  ;; Test special case code: :mp-u-triangular
+  (dotimes (i 500)
+    (let* ((rm (mjr_matt_make-random :mp-u-triangular :m (mjr_prng_int-co 5 15) :a -10 :b 10))
+           (d1 (mjr_mat_det rm))
+           (d2 (mjr_mat_det rm :mp-u-triangular)))
+      (assert-equalp d1 d2 (list :mp-u-triangular rm))))
+
+  ;; Test special case code: :mp-l-triangular
+  (dotimes (i 500)
+    (let* ((rm (mjr_matt_make-random :mp-l-triangular :m (mjr_prng_int-co 5 15) :a -10 :b 10))
+           (d1 (mjr_mat_det rm))
+           (d2 (mjr_mat_det rm :mp-l-triangular)))
+      (assert-equalp d1 d2 (list :mp-l-triangular rm))))
+
+  ;; Test special case code: :mp-diagonal
+  (dotimes (i 500)
+    (let* ((rm (mjr_matt_make-random :mp-diagonal :m (mjr_prng_int-co 5 15) :a -10 :b 10))
+           (d1 (mjr_mat_det rm))
+           (d2 (mjr_mat_det rm :mp-diagonal)))
+      (assert-equalp d1 d2 (list :mp-diagonal rm))))
+
+  ;; Test special case code: :mp-bogus -- just make sure we fall back to general method
+  (let* ((rm (mjr_matt_make-random :mp-real :m (mjr_prng_int-co 5 15) :a -10 :b 10))
+         (d1 (mjr_mat_det rm))
+         (d2 (mjr_mat_det rm :mp-bogus)))
+    (assert-equalp d1 d2 (list :mp-bogus rm)))
+  
+  )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_mat_xxx_det
   ;; Make sure that all the det functions agree.
@@ -1145,9 +1194,9 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
         do (loop for i from 1 upto 100
                  for rc = (mjr_prng_int-cc 1 j)
                  for rr = (mjr_prng_int-cc 1 j)
-                 for a  = (mjr_matt_make-test :mp-random :m rr :n rc :a 100)
-                 for b  = (mjr_matt_make-test :mp-random :m rr :n rr :a 1000) ;; Much more likely to be invertible
-                 for c  = (mjr_matt_make-test :mp-random :m rr :n rr :a 10)   ;; Much likely to be invertible
+                 for a  = (mjr_matt_make-random :mp-real :m rr :n rc :a 100)
+                 for b  = (mjr_matt_make-random :mp-real :m rr :n rr :a 1000) ;; Much more likely to be invertible
+                 for c  = (mjr_matt_make-random :mp-real :m rr :n rr :a 10)   ;; Much likely to be invertible
                  for ad = (mjr_mat_det a)
                  for bd = (mjr_mat_det b)
                  for cd = (mjr_mat_det c)
@@ -1178,9 +1227,9 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
         do (loop for i from 1 upto 300
                  for rc = (mjr_prng_int-cc 1 j)
                  for rr = (mjr_prng_int-cc 1 j)
-                 for a  = (mjr_matt_make-test :mp-random :m rr :n rc :a 100)
-                 for b  = (mjr_matt_make-test :mp-random :m rr :n rr :a 1000) ;; Much more likely to be invertible
-                 for c  = (mjr_matt_make-test :mp-random :m rr :n rr :a 10)   ;; Much likely to be invertible
+                 for a  = (mjr_matt_make-random :mp-real :m rr :n rc :a 100)
+                 for b  = (mjr_matt_make-random :mp-real :m rr :n rr :a 1000) ;; Much more likely to be invertible
+                 for c  = (mjr_matt_make-random :mp-real :m rr :n rr :a 10)   ;; Much likely to be invertible
                  for ai = (mjr_mat_inv a)
                  for bi = (mjr_mat_inv b)
                  for ci = (mjr_mat_inv c)
@@ -1208,7 +1257,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   ;;      product is the original matrix.
   (dotimes (i 50)
     (let* ((rc (mjr_prng_int-co 1 16))
-           (mr (mjr_matt_make-test :mp-random :m rc :a 100))
+           (mr (mjr_matt_make-random :mp-real :m rc :a 100))
            (dd (mjr_mat_det mr)))
       (if (not (zerop dd))
           (let* ((mri (mjr_mat_inv mr)))
@@ -1221,7 +1270,7 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   ;; Make sure mjr_mat_cpoly and mjr_mat_cpoly-det have same value.
   (dotimes (i 50)
     (let* ((rc (mjr_prng_int-co 1 10))
-           (mr (mjr_matt_make-test :mp-random :m rc :a 100))
+           (mr (mjr_matt_make-random :mp-real :m rc :a 100))
            (cp (mjr_mat_cpoly mr)))
       (assert-equalp cp (mjr_mat_cpoly-det mr))
       (assert-equalp cp (mjr_mat_cpoly-fl  mr)))))
@@ -1287,5 +1336,82 @@ This implementation is pretty, but slow.  It is a good test for MJR_MAT_ELIMINAT
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_mat_factor-ldlt
+  (multiple-value-bind (l d) (mjr_mat_factor-ldlt #2a((4 12 -16)(12 37 -43)(-16 -43 98)))
+    (assert-equalp #2A((1 0 0) (3 1 0) (-4 5 1)) l)
+    (assert-equalp #2A((4 0 0) (0 1 0) (0 0 9))  d))
+  ;; Generate some square, positive definite matrixes.  For each M, compute L&D, and check M==L*D*t(L)
+  (dotimes (i 1000)
+    (let* ((rc (mjr_prng_int-co 1 15))
+           (rl (mjr_matt_make-random :mp-l-triangular :m rc :a 1 :b 10))
+           (rd (mjr_matt_make-random :mp-diagonal :m rc :a 1 :b 10))
+           (rm (mjr_mat_* rl rd (mjr_mat_transpose rl)))
+           (m  (multiple-value-bind (l d) (mjr_mat_factor-ldlt rm) (mjr_mat_* l d (mjr_mat_transpose l)))))
+      (assert-equalp rm m rm)))
+  ;; TODO: like above, but with :mp-cauchy
+  (dotimes (i 1000)
+    (let* ((rm (mjr_matt_make-test :mp-cauchy :m (mjr_prng_int-co 1 15)))
+           (m  (multiple-value-bind (l d) (mjr_mat_factor-ldlt rm) (mjr_mat_* l d (mjr_mat_transpose l)))))
+      (assert-equalp rm m rm)))
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-test mjr_mat_solve-sys-itr
+    (loop for (simf simfp) in (list (list #'mjr_mat_sis-gauss-seidel)
+                                    (list #'mjr_mat_sis-jacobi)
+                                    (list #'mjr_mat_sis-sor :sim-fun-parm 1.53))
+          do (assert-equality #'mjr_eps_= 
+                              #(1/2 0 3/2 0 5/2 0 3/2 0 1/2)
+                              (apply #'mjr_mat_solve-sys-itr
+                                     (list 
+                                      (mjr_mat_+ (mjr_mat_make-identity 9 2)
+                                                 (mjr_mat_make-diag #(1 1 1 1 1 1 1 1) 1)
+                                                 (mjr_mat_make-diag #(1 1 1 1 1 1 1 1) -1))
+                                      #(1 2 3 4 5 4 3 2 1)
+                                      (mjr_vec_make-const 9 0)
+                                      :show-progress nil
+                                      :max-itr 1000 :xeps 1e-20 :yeps 1e-5
+                                      :sim-fun #'mjr_mat_sis-jacobi)))
+          )
+
+;; Source: http://s-mat-pcs.oulu.fi/~mpa/matreng/
+;; Retrieved: 2010-12-09
+;; (mjr_mat_solve-sys-sim #2a((4 1 -1)(2 7 1)(1 -3 12)) #(3 19 31) #(0 0 0) :show-progress 't :max-itr 30 :xeps 1e-20 :yeps 1e-5 :sim-fun #'mjr_mat_sis-jacobi)
+;;   x0 = #(0.000000000000000d0 0.000000000000000d0 0.000000000000000d0)
+;;   x1 = #(0.750000000000000d0 2.714285714285714d0 2.583333333333333d0)
+;;   x2 = #(0.717261904761904d0 2.130952380952381d0 3.199404761904761d0)
+;;   x3 = #(1.017113095238095d0 2.052295918367347d0 3.056299603174603d0)
+;;   x4 = #(1.001000921201814d0 1.987067743764172d0 3.011647888321995d0)
+;; 
+;; ANS: #(1 2 3)
+
+
+;; Source: http://people.fh-landshut.de/~maurer/numeth/node55.html
+;; Retrieved: 2010-12-09
+;; (mjr_mat_solve-sys-sim #2a((4 1 0)(2 4 1)(1 2 2)) #(6 13 11) #(0 0 0) :show-progress 't :max-itr 30 :xeps 1e-20 :yeps 1e-5 :sim-fun #'mjr_mat_sis-sor :sim-fun-parm 1.2)
+;;  x0 = #(0.000000000000000d0 0.0000000000000000d0 0.000000000000000d0)
+;;  x1 = #(1.800000071525573d0 2.8200000691413862d0 2.135999958992001d0)
+;;  x2 = #(0.593999917030330d0 2.3388000291347533d0 3.009840057744981d0)
+;;  x3 = #(0.979560023174289d0 1.9415519471597609d0 3.080433640759854d0)
+;;  x4 = #(1.021622412888623d0 1.9745860719195756d0 3.001436534672301d0)
+;;  x5 = #(1.003299695118323d0 2.0026720092594354d0 2.994526464608642d0)
+;; 
+;; ANS: #(1 2 3)
+
+
+;; Source: http://s-mat-pcs.oulu.fi/~mpa/matreng/
+;; Retrieved: 2010-12-09
+;; (mjr_mat_solve-sys-sim #2a((4 1 -1)(2 7 1)(1 -3 12)) #(3 19 31) #(0 0 0) :show-progress 't :max-itr 30 :xeps 1e-20 :yeps 1e-5 :sim-fun #'mjr_mat_gauss-seidel)
+;;  x0 = #(0.000000000000000d0 0.0000000000000000d0 0.000000000000000d0)
+;;  x1 = #(0.750000000000000d0 2.5000000000000000d0 3.145833333333333d0)
+;;  x2 = #(0.911458333333333d0 2.0044642857142856d0 3.008494543650793d0)
+;;  x3 = #(1.001007564484127d0 1.9984986181972788d0 2.999540690842309d0)
+;;  x4 = #(1.000260518161257d0 1.9999911818335963d0 2.999976085611627d0)
+;; 
+;; ANS: #(1 2 3)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (run-tests
+;; '(mjr_mat_det_matrix-properties)
  )

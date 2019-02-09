@@ -119,7 +119,7 @@
   (loop for i from 1 upto 50
         for m = (mjr_prng_int-cc 1 10)
         for n = (mjr_prng_int-cc 1 10)
-        for x = (mjr_matt_make-test :mp-random :m m :n n :a -10.0 :b 10.0)
+        for x = (mjr_matt_make-random :mp-real :m m :n n :a -10.0 :b 10.0)
         do  (assert-equality (mjr_eps_make-fixed= -0.1) (mjr_dft_dft-naive x) (mjr_dft_dft x)))
   )
 
@@ -149,7 +149,7 @@
   (loop for i from 1 upto 50
         for m = (mjr_prng_int-cc 1 10)
         for n = (mjr_prng_int-cc 1 10)
-        for x = (mjr_matt_make-test :mp-random :m m :n n :a -10.0 :b 10.0)
+        for x = (mjr_matt_make-random :mp-real :m m :n n :a -10.0 :b 10.0)
         for xd  = (mjr_dft_dft  x)
         for xi  = (mjr_dft_idft x)
         for xid = (mjr_dft_dft  xi)

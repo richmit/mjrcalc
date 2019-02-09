@@ -79,11 +79,15 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intu_pg (x &key (separator-digits 3) (separator-character " ") (base 10))
-  "Convert integer to a string in base BASE representation with place separator symbols of SEPARATOR-CHARACTER every SEPARATOR-DIGITS digits."
+  "Convert integer to a string in base BASE representation with place separator symbols of SEPARATOR-CHARACTER every SEPARATOR-DIGITS digits.
+
+If SEPARATOR-DIGITS is NIL, then no separations are printed -- SEPARATOR-DIGITS is ignored."
   (cond ((complexp x)      (error "mjr_intu_pg: Argument must not be complex"))
         ((not (numberp x)) (error "mjr_intu_pg: Argument must be a number")))
   (if (mjr_cmp_= (round x) x)
-      (format nil (format nil "~~~d,,,'~a,~d:r" base separator-character separator-digits) (round x))
+      (if separator-character
+          (format nil (format nil "~~~d,,,'~a,~d:r" base separator-character separator-digits) (round x))
+          (format nil (format nil "~~~dr" base) (round x)))
       (error "mjr_intu_pg: Argument was not close enough to an integer to print!")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -102,6 +106,11 @@
   (mjr_intu_pg x :separator-digits separator-digits :separator-character separator-character :base 8))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_intu_pb (x &key (separator-digits 8) (separator-character " "))
+  "Convert integer to a string in binary representation with spaces every 8 digits."
+  (mjr_intu_pg x :separator-digits separator-digits :separator-character separator-character :base 2))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intu_pa (x)
   "Convert an integer into a string containing representations in hexadecimal, decimal, octal, and binary."
   (let ((printwid (+ 4 (length (mjr_intu_pb x)))))
@@ -111,6 +120,16 @@
           (mjr_intu_po x)
           (mjr_intu_pb x)
           )))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_intu_convert-to-digit-list (n &optional in-order)
+  "Convert an integer into a list of digits"
+  (funcall (if in-order
+               #'reverse
+               #'identity)
+           (loop for (n-left dig) = (multiple-value-list (truncate n 10)) then (multiple-value-list (truncate n-left 10))
+              collect dig
+              until (zerop n-left))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intu_pbb (x &key (index-base 0))
@@ -143,11 +162,6 @@
                                                    (format nil "~%")))
                                          (list bb0
                                                (format nil "~%"))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_intu_pb (x &key (separator-digits 8) (separator-character " "))
-  "Convert integer to a string in binary representation with spaces every 8 digits."
-  (mjr_intu_pg x :separator-digits separator-digits :separator-character separator-character :base 2))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intu_extended-gcd (a b)
@@ -183,16 +197,6 @@ References:
   (loop for (n-left dig) = (multiple-value-list (truncate n 10)) then (multiple-value-list (truncate n-left 10))
      sum dig
      until (zerop n-left)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_intu_convert-to-digit-list (n &optional in-order)
-  "Convert an integer into a list of digits"
-  (funcall (if in-order
-               #'reverse
-               #'identity)
-           (loop for (n-left dig) = (multiple-value-list (truncate n 10)) then (multiple-value-list (truncate n-left 10))
-              collect dig
-              until (zerop n-left))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_intu_convert-from-digit-list (dig-list &optional in-order)

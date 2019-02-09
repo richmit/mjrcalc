@@ -91,6 +91,7 @@
         do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-hankel    :x x :y y) :mp-hankel))
         do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-toeplitz  :x x :y y) :mp-toeplitz))
         do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-pei       :n n :b b) :mp-persymmetric :mp-symmetric))
+        do (assert-true (mjr_mat_test-property-struct (mjr_matt_make-test :mp-clement   :n n)      :mp-diag-zero :mp-tri-diagonal))
         ;; Make sure det matches
         do (assert-equalp (mjr_matt_det-test :mp-cauchy        :n n)      (mjr_mat_det (mjr_matt_make-test :mp-cauchy      :n n)))       ;; Busted for n=1
         do (assert-equalp (mjr_matt_det-test :mp-hankel        :n n)      (mjr_mat_det (mjr_matt_make-test :mp-hankel      :n n)))
@@ -101,6 +102,8 @@
         do (assert-equalp (mjr_matt_det-test :mp-vandermonde   :x x)      (mjr_mat_det (mjr_matt_make-test :mp-vandermonde :x x)))       ;; Busted for n=1
         do (assert-equalp (mjr_matt_det-test :mp-cauchy        :x x :y y) (mjr_mat_det (mjr_matt_make-test :mp-cauchy      :x x :y y)))  ;; Busted for n=1
         do (assert-equalp (mjr_matt_det-test :mp-pei           :n n :b b) (mjr_mat_det (mjr_matt_make-test :mp-pei         :n n :b b)))
+        do (assert-equalp (mjr_matt_det-test :mp-clement       :n n)      (mjr_mat_det (mjr_matt_make-test :mp-clement     :n n)))
+
         ;; Make sure special cases of Cauchy are reproducible with :mp-cauchy
         do (assert-equalp (mjr_matt_make-test :mp-parter :n n)
                           (mjr_matt_make-test :mp-cauchy
@@ -149,21 +152,48 @@
       (assert-equality (mjr_eps_make-fixed= 0.00001)  f (mjr_mat_det e2))  ;; Gauss type 2 are det=f
       (assert-equality (mjr_eps_make-fixed= 0.00001)  1 (mjr_mat_det e3))  ;; Gauss type 3 are det=1
       ))
+  )
 
-  ;; Verify matrix size and element data types for 50 random cases
+(define-test mjr_matt_make-random
+  ;; Verify matrix size and structure for 50 random cases
+  (dotimes (i 50)
+    (let* ((r (mjr_prng_int-co 1 20))
+           (c (mjr_prng_int-co 1 20)))
+      (dolist (the-mp '(
+                        :mp-real
+                        :mp-diagonal
+                        :mp-l-triangular  
+                        :mp-u-triangular  
+                        :mp-complex       
+                        :mp-rational      
+                        ))
+        (let ((m (mjr_matt_make-random the-mp :m r :n c :a 1 :b 10)))
+          (assert-true (mjr_mat_test-property-struct m the-mp) (list the-mp r c m))
+          (assert-equal r (mjr_mat_rows m) (list the-mp r c m))
+          (assert-equal c (mjr_mat_cols m) (list the-mp r c m))))))
+
+  ;; Verify matrix size and structure for 50 random cases
   (dotimes (i 50)
     (let* ((r (mjr_prng_int-co 1 20))
            (c (mjr_prng_int-co 1 20))
-           (mi (mjr_matt_make-test :mp-random :m r :n c :a 10))
-           (mf (mjr_matt_make-test :mp-random :m r :n c :a 10.0)))
-      (assert-true (mjr_mat_test-property-struct mi :mp-integer))
-      (assert-true (mjr_mat_test-property-struct mf :mp-real))
-      (assert-equal r (mjr_mat_rows mi))
-      (assert-equal r (mjr_mat_rows mf))
-      (assert-equal c (mjr_mat_cols mi))
-      (assert-equal c (mjr_mat_cols mf))))
+           (s (max r c)))
+      (dolist (the-mp '(:mp-symmetric :mp-hermitian))
+        (let ((m (mjr_matt_make-random the-mp :m r :n c :a 1 :b 10)))
+          (assert-true (mjr_mat_test-property-struct m the-mp) (list the-mp r c m))
+          (assert-equal s (mjr_mat_rows m) (list the-mp r c m))
+          (assert-equal s (mjr_mat_cols m) (list the-mp r c m))))))
+  
+  ;; Verify matrix size and structure for 50 random cases
+  (dotimes (i 50)
+    (let* ((r (mjr_prng_int-co 1 20))
+           (c (mjr_prng_int-co 1 20))
+           (m (mjr_matt_make-random :mp-m-diagonal :m r :n c :a 1 :b 10 :k 1)))
+          (assert-true (mjr_mat_test-property-struct m :mp-tri-diagonal) (list :mp-m-diagonal r c m))
+          (assert-equal r (mjr_mat_rows m) (list :mp-m-diagonal r c m))
+          (assert-equal c (mjr_mat_cols m) (list :mp-m-diagonal r c m))))
   )
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(run-tests)
+(run-tests
+;; '(mjr_matt_make-random)
+ )

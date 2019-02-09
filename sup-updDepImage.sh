@@ -5,12 +5,11 @@
 ##
 # @file      sup-updDepImage.sh
 # @author    Mitch Richling <https://www.mitchr.me>
-# @Copyright Copyright 2015 by Mitch Richling.  All rights reserved.
+# @Copyright Copyright 2015,2019 by Mitch Richling.  All rights reserved.
 # @Revision  $Revision: 1.14 $ 
-# @SCMdate   $Date: 2015/01/31 20:24:26 $
 # @brief     Update the dependency graph images used on the web page.@EOL
-# @Keywords  
-# @Std       bash
+# @Keywords  dot
+# @Std       bash graphviz
 #
 #            
 #            
@@ -33,4 +32,11 @@ convert -resize 700x grnt.png grntZ.png
 #xpdf -fullscreen -z page gr.pdf
 #xpdf -fullscreen -z page grnt.pdf
 
-pqiv -f grnt.png gr.png 
+# start gr.pdf
+# start grnt.pdf
+
+#pqiv -f grnt.png gr.png
+
+start gr.png
+start grnt.png
+

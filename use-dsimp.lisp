@@ -39,6 +39,7 @@
         :MJR_VVEC
         :MJR_DQUAD
         :MJR_UTIL
+        :MJR_COLOR
         :MJR_ARR
         :MJR_VEC
         :MJR_GEOM
@@ -68,6 +69,9 @@
            ;; Persistence
            #:mjr_dsimp_read-from-file
            #:mjr_dsimp_write-to-file
+           ;; 2D Simplex Persistence
+           #:mjr_dsimp_dump2d-ply-file
+           #:mjr_dsimp_dump2d-obj-file
            ))
 
 (in-package :MJR_DSIMP)
@@ -667,3 +671,90 @@ Arguments:
                     ;; Add range data
                     (apply #'mjr_dsimp_convert-points-do-data new-dsimp rdnam)
                     new-dsimp)))))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_dsimp_dump2d-ply-file (out-file dsimp &key color-data)
+  "Generate a Polygon File Format (PLY) file with 2-simplices with optional vertex color data from dsimp.
+
+The use primary use case is to easily get a triangulation into more artistically oriented 3D modeling tools like Blender and meshlab.
+This function is also handy for quickly looking at a surface with 3D object viewers like mview before loading into more cumbersome tools.
+
+See the :POV and :VTK packages for more sophisticated rendering options and data export options respectively.
+
+Note this format is sometimes called the 'Stanford Triangle Format'.  See: https://en.wikipedia.org/wiki/PLY_%28file_format%29
+
+The :COLOR-DATA argument is a 0-simplex COLOR data set (a dataset name or list containing the dataset simplex dimension and dataset index).  This
+dataset defines colors for vertexes of 2-simplices.  Note meshlab supports vertex color, but many tools do not (ParaView & Blender)
+
+  - Simple surface dump to ply file
+
+      (mjr_dsimp_dump2d-ply-file \"surf.ply\"
+                                 (mjr_fsamp_ds-func-r123-r123 (lambda (x y) (* .5 (abs (- (expt (complex x y) 3) 1))))
+                                                              :xdat '(:start -1.1 :end 1.1 :len 50)
+                                                              :ydat '(:start -1.1 :end 1.1 :len 50)
+                                                              :arg-mode :arg-number))
+
+  - Simple surface dump to ply file with vertex color
+
+      (let ((a-dquad (mjr_fsamp_dq-func-c1-c1 (lambda (c) (* 0.5 (- (expt c 3) 1)))
+                                              :rdat '(:start -1.1 :end 1.1 :len 50)
+                                              :idat '(:start -1.1 :end 1.1 :len 50))))
+        (mjr_dquad_colorize a-dquad :data \"f_abs\" :color-method \"BCGYR\" :ano-nam \"col\")
+        (let ((a-dsimp (mjr_dsimp_make-from-dquad a-dquad '(\"real\" \"imag\") \"f_abs\" :data \"col\")))
+          (mjr_dsimp_dump2d-ply-file \"surf.ply\" a-dsimp :color-data \"col\")))"
+  (let* ((pnts (mjr_dsimp_get-simplex-array dsimp 0))
+         (tris (mjr_dsimp_get-simplex-array dsimp 2))
+         (npts (length pnts))
+         (ntri (length tris)))
+    (with-open-file (dest out-file  :direction :output :if-exists :supersede :if-does-not-exist :create)
+      (format dest "ply~%")
+      (format dest "format ascii 1.0~%")
+      (format dest "comment author: Mitch Richling~%")
+      (format dest "element vertex ~d~%" npts)
+      (format dest "property float x~%")
+      (format dest "property float y~%")
+      (format dest "property float z~%")
+      (if color-data
+          (progn 
+            (format dest "property uchar red~%")
+            (format dest "property uchar green~%")
+            (format dest "property uchar blue~%")))
+      (format dest "element face ~d~%" ntri)
+      (format dest "property list uchar int vertex_index~%")
+      (format dest "end_header~%")
+      (if color-data
+          (let* ((colors (mjr_dsimp_get-data-array dsimp color-data))
+                 (dattyp (mjr_dsimp_get-data-ano dsimp color-data :ano-typ))
+                 (cuc    (mjr_color_make-unpacker-color-space-converter-and-packer (mjr_annot_get-colorpacking dattyp)
+                                                                                   (mjr_annot_get-colorspace dattyp)
+                                                                                   :cs-tru :cp-none)))
+            (loop for clr across colors
+                  for tcl = (funcall cuc clr)
+                  for pnt across pnts
+                  do (format dest "~f ~f ~f ~d ~d ~d~%" (aref pnt 0) (aref pnt 1) (aref pnt 2) (aref tcl 0) (aref tcl 1) (aref tcl 2))))
+          (loop for pnt across pnts
+                do (format dest "~f ~f ~f~%" (aref pnt 0) (aref pnt 1)(aref pnt 2))))
+      (loop for  tri across tris
+            do (format dest "3 ~d ~d ~d~%" (aref tri 0) (aref tri 1) (aref tri 2))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_dsimp_dump2d-obj-file (out-file dsimp)
+  "Generate an OBJ file 2-simplices from dsimp.
+
+The use primary use case is to easily get a triangulation into more artistically oriented 3D modeling tools like Blender and meshlab.
+This function is also handy for quickly looking at a surface with 3D object viewers like g3dviewer before loading into more cumbersome tools.
+
+See the :POV and :VTK packages for more sophisticated rendering options and data export options respectively.
+
+Typical example of use:
+
+  (mjr_dsimp_dump2d-obj-file \"surf.obj\"
+                             (mjr_fsamp_ds-func-r123-r123 (lambda (x y) (* .5 (abs (- (expt (complex x y) 3) 1))))
+                                                          :xdat '(:start -1.1 :end 1.1 :len 50)
+                                                          :ydat '(:start -1.1 :end 1.1 :len 50)
+                                                          :arg-mode :arg-number))"
+  (with-open-file (dest out-file  :direction :output :if-exists :supersede :if-does-not-exist :create)
+    (loop for pnt across (mjr_dsimp_get-simplex-array dsimp 0)
+          do (format dest "v ~f ~f ~f~%" (aref pnt 0) (aref pnt 1) (aref pnt 2)))
+    (loop for  tri across (mjr_dsimp_get-simplex-array dsimp 2)
+          do (format dest "f ~d ~d ~d~%" (1+ (aref tri 0)) (1+ (aref tri 1)) (1+ (aref tri 2))))))

@@ -28,6 +28,7 @@
 ;;  DAMAGE.
 ;;  @endparblock
 ;; @todo      Need better unit-tests.                                                                             @EOL@EOL
+;; @todo      Better options for error checking *git-thingy* functions.  (:no-errors ??).                         @EOL@EOL
 ;; @warning   Experimental, but usable@EOL@EOL
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -183,11 +184,11 @@ This function makes the assumption that axis-meta/axis-vector pairs start on ind
                  (cond ((<  axis-index-or-name 0)          (error "mjr_dquad_get-axis-vector: Axis index too small!"))
                        ((>= axis-index-or-name axis-count) (error "mjr_dquad_get-axis-vector: Axis index too large!")))
                  (elt dquad (+ (mjr_dquad_get-first-axis-idx dquad) (* 2 axis-index-or-name)))))
-    (string    (loop with axis-count = (mjr_dquad_axis-count dquad)
+    (string     (loop with axis-count = (mjr_dquad_axis-count dquad)
                      for i from 1 upto axis-count
                      for idx = (mjr_dquad_get-first-axis-idx dquad) then (+ idx 2)
                      when (string-equal axis-index-or-name (mjr_annot_get-value :ano-nam (elt dquad (1- idx))))
-                     do (return (elt dquad idx))))
+                         do (return (elt dquad idx))))
     (otherwise (error "mjr_dquad_get-axis-vector: Value for axis-index-or-name an integer or string!"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

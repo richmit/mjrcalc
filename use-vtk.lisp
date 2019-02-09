@@ -54,12 +54,14 @@
 (defun mjr_vtk_help ()
   "Help for MJR_VTK: Create VTK files
 
-The goal is to provide some basic functionality for transforming mathematical data (in the form of an array or embedded in a function) into VTK files."
+The goal is to provide some basic functionality for transforming data in a DSIMP or DQUAD object into VTK files."
   (documentation 'mjr_vtk_help 'function))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_vtk_print-data-set  (dest data-array data-anno  npts)
-  "Dump a data set from a dquad list to DEST using VTK syntax."
+(defun mjr_vtk_print-data-set  (dest data-array data-anno npts)
+  "Write data (DATA-ARRAY) and annotations (DATA-ANNO) in ASCII VTK format to a stream (DEST)
+
+This is a library function used internally by MJR_VTK_FROM-DQUAD and MJR_VTK_FROM-DSIMP to write data arrays to a stream."
   (let ((data-type (mjr_annot_get-value :ano-typ data-anno))
         (data-name (mjr_annot_get-value :ano-nam data-anno)))
     (cond ((mjr_annot_typ-numberp data-type) (if (mjr_annot_typ-nums-real data-type)

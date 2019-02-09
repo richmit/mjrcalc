@@ -102,6 +102,11 @@
            #:mjr_mat_krylov-sequence #:mjr_mat_eigen-power-method
            #:mjr_mat_factor-ldlt
            #:mjr_mat_tridiagonalize-householder
+           ;; EVEN MORE EXPERIMENTAL:
+           #:mjr_mat_sis-jacobi
+           #:mjr_mat_sis-sor
+           #:mjr_mat_sis-gauss-seidel
+           #:mjr_mat_solve-sys-itr
            ))
 
 (in-package :MJR_MAT)
@@ -591,6 +596,7 @@ See mjr_mat_test-property-math for non-structural properties.
   :mp-diag-zero       - Diagonal elements are all zero                         (fuzzy)  Homogeneous on (a_{ij}, i, j)
   :mp-diag-pos        - Diagonal elements are positive                         (fuzzy)  Homogeneous on (a_{ij}, i, j)
   :mp-signature       - :mp-diagonal & :mp-diag-abs-unit                       (fuzzy)  Homogeneous on (a_{ij}, i, j)
+  :mp-m-diagonal      - Generalized mult-diagonal                              * CAN'T TEST * CAN'T TEST * CAN'T TEST *
   :mp-tri-diagonal    - 0's off the sub/main/super-diagonal                    (fuzzy)  Homogeneous on (a_{ij}, i, j)
   :mp-u-triangular    - only 0's below the diagonal                            (fuzzy)  Homogeneous on (a_{ij}, i, j)
   :mp-l-triangular    - only 0's above the diagonal                            (fuzzy)  Homogeneous on (a_{ij}, i, j)
@@ -628,10 +634,10 @@ See mjr_mat_test-property-math for non-structural properties.
               (:mp-toeplitz           (mjr_mat_every-idx (lambda (i j) (or (= i (1- rows)) (= j (1- cols)) (mjr_cmp_= (aref matrix i j) (aref matrix (1+ i) (1+ j)))))  matrix))
               (:mp-persymmetric       (mjr_mat_every-idx (lambda (i j) (mjr_cmp_= (aref matrix i j)                (aref matrix (- cols j 1) (- rows i 1))))  matrix))
               (:mp-perhermitian       (mjr_mat_every-idx (lambda (i j) (mjr_cmp_= (aref matrix i j)     (conjugate (aref matrix (- cols j 1) (- rows i 1))))) matrix))
-              (:mp-symmetric          (mjr_mat_every-idx (lambda (i j) (mjr_cmp_= (aref matrix i j)                (aref matrix j i)))                        matrix))
-              (:mp-hermitian          (mjr_mat_every-idx (lambda (i j) (mjr_cmp_= (aref matrix i j)     (conjugate (aref matrix j i))))                       matrix))
-              (:mp-antisymmetric      (mjr_mat_every-idx (lambda (i j) (mjr_cmp_= (- (aref matrix i j))            (aref matrix j i)))                        matrix))
-              (:mp-antihermitian      (mjr_mat_every-idx (lambda (i j) (mjr_cmp_= (- (aref matrix i j)) (conjugate (aref matrix j i))))                       matrix))
+              (:mp-symmetric          (mjr_mat_every-idx (lambda (i j) (or (> i j) (mjr_cmp_= (aref matrix i j)                (aref matrix j i))))           matrix))
+              (:mp-hermitian          (mjr_mat_every-idx (lambda (i j) (or (> i j) (mjr_cmp_= (aref matrix i j)     (conjugate (aref matrix j i)))))          matrix))
+              (:mp-antisymmetric      (mjr_mat_every-idx (lambda (i j) (or (> i j) (mjr_cmp_= (- (aref matrix i j))            (aref matrix j i))))           matrix))
+              (:mp-antihermitian      (mjr_mat_every-idx (lambda (i j) (or (> i j) (mjr_cmp_= (- (aref matrix i j)) (conjugate (aref matrix j i)))))          matrix))
               (:mp-diagonal           (mjr_mat_every-idx (lambda (i j) (or (= i j) (mjr_cmp_=0 (aref matrix i j)))) matrix))
               (:mp-diagonal-fr        (mjr_mat_every-idx (lambda (i j) (if (= i j) (mjr_cmp_!=0 (aref matrix i j)) (mjr_cmp_=0 (aref matrix i j)))) matrix))
               (:mp-signature          (mjr_mat_every-idx (lambda (i j) (if (= i j) (mjr_cmp_= 1 (abs (aref matrix i j))) (mjr_cmp_=0 (aref matrix i j)))) matrix))
@@ -700,7 +706,7 @@ See mjr_mat_test-property-math for non-structural properties.
                                          (mjr_cmp_= (aref matrix 0 1) (- (aref matrix 1 0)))
                                          (mjr_cmp_= 1 (- (* (aref matrix 0 0) (aref matrix 1 1))
                                                          (* (aref matrix 0 1) (aref matrix 1 0))))))
-            ('t                     (error "mjr_mat_test-property-struct: Matrix Property Unknown")))))))
+            (otherwise              (error "mjr_mat_test-property-struct: Matrix Property Unknown")))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mat_fill-stats (matrix &optional eps)
@@ -776,6 +782,67 @@ of :zp, :zbp, or :pnp."
         (format dest "~S~&" matrix))
     (if out-file (close dest)))
   matrix)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_mat_factor-ldlt (matrix &optional (return-d-as-vector nil))
+  "Return the LDLT decomposition (nil on failure) of a square, symetric, positive definite matrix.  L is lower triangular, and D is diagonal.
+
+If return-d-as-vector is 't, then D is a vector containing the diagonal elements.
+If the input is not symmetric or square, this function may fail silently returning invalid results.  
+
+Recover MATRIX with:
+   * return-d-as-vector is nil:      (mjr_mat_* L D                     (mjr_mat_transpose L)) 
+   * return-d-as-vector is not nil:  (mjr_mat_* L (mjr_mat_make-diag D) (mjr_mat_transpose L))
+
+This LTLT factorization is closely related to the Cholesky factorization C*t(C) in that C = L*sqrt(D).  Note that, unlike the Cholesky factorization, this
+algorithm has the charming characteristic of not taking square roots.  If the input matrix is rational, then the output will be rational as well.
+
+If the matrix is positive definite, this function will succeed; however, success doesn't imply that MATRIX is positive definite.  This function may be used to
+determine if MATRIX is positive definite.  If this function fails, then MATRIX is not positive.  If it success and: 1) all the diagonal elements of D must be
+positive, then MATRIX is positive definite.  2) if all the diagonal elements of D are non-negative with some being zero, then MATRIX is positive
+semi-definite."
+;; This function is performance sensitive as it may be used in tight loops in other functions.  Thus we have some oddities. 1) note the two almost identical
+;; loops selected by a gigantic if statement -- putting the if in side the loops would be much less code, but much slower.  Also note the use of loop to add
+;; things up instead of mjr_numu_sum
+  (if return-d-as-vector
+      (let* ((rows (mjr_mat_rows matrix))
+             (L    (mjr_mat_make-identity rows))
+             (D    (mjr_vec_make-const rows 1)))
+        (dotimes (row rows (values L D))
+          (dotimes (col rows)
+            (cond ((> row col) (let ((Dcol (aref D col)))
+                                 (if (mjr_cmp_=0 Dcol)
+                                     (return-from mjr_mat_factor-ldlt nil)
+                                     (setf (aref L row col)
+                                           (* (/ Dcol) (- (aref matrix row col)
+                                                          (loop for k from 0 upto (1- row)
+                                                                sum (* (aref L row k) (conjugate (aref L col k)) (aref D k)))))))))
+                  ((= row col) (setf (aref D row)
+                                     (- (aref matrix row col)
+                                        (if (= 0 col)
+                                            0
+                                            (loop for k from 0 upto (1- col)
+                                                  for lrk = (aref L row k)
+                                                  sum (* lrk (conjugate lrk) (aref D k)))))))))))
+      (let* ((rows (mjr_mat_rows matrix))
+             (L    (mjr_mat_make-identity rows))
+             (D    (mjr_mat_make-identity rows)))
+        (dotimes (row rows (values L D))
+          (dotimes (col rows)
+            (cond ((> row col) (let ((Dcol (aref D col col)))
+                                 (if (mjr_cmp_=0 Dcol)
+                                     (return-from mjr_mat_factor-ldlt nil)
+                                     (setf (aref L row col)
+                                           (* (/ Dcol) (- (aref matrix row col)
+                                                          (loop for k from 0 upto (1- row)
+                                                                sum (* (aref L row k) (conjugate (aref L col k)) (aref D k k)))))))))
+                  ((= row col) (setf (aref D row row)
+                                     (- (aref matrix row col)
+                                        (if (= 0 col)
+                                            0
+                                            (loop for k from 0 upto (1- col)
+                                                  for lrk = (aref L row k)
+                                                  sum (* lrk (conjugate lrk) (aref D k k)))))))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mat_rowop-swap (matrix row1 row2)
@@ -1495,15 +1562,6 @@ Any arguments beyond MATRIX will be passed on to MJR_MAT_ELIMINATE."
                  (mjr_numu_prod :start 0 :end (1- rows) :seq-fun (lambda (i) (aref newmat (aref row-perm i) i)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_mat_det (matrix)
-  "Compute the determinant using with an algorithm heuristically selected for speed.
-Current algorithm selection: 4x4 and smaller use mjr_mat_det-minor-expand and larger ones use mjr_mat_det-ge.
-To select an algorithm, or tune it, call the underlying determinant functions."
-  (let ((rows (mjr_mat_rows matrix)))
-    (cond ((<= rows 4)  (mjr_mat_det-small matrix))
-          ('t           (mjr_mat_det-ge matrix)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mat_solve-sys-sge (matrix b &rest rest)
   "Solve the linear system.  See MJR_MAT_SOLVE-SYS-SUB for details on return values."
   (multiple-value-bind (newmat row-perm newb)
@@ -1562,6 +1620,44 @@ Error if matrix is empty or not square."
   "Compute product of the diagonal elements"
   (reduce '* (mjr_mat_diag matrix)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_mat_det (matrix &optional the-mp)
+  "Compute the determinant using with an algorithm heuristically selected for speed.
+
+Current algorithm selection (first matching rule is used): 
+   * 4x4 and smaller                => MJR_MAT_DET-SMALL
+   * the-mp = :mp-diagonal          => MJR_MAT_DIAG-PROD
+   * the-mp = :mp-u-triangular      => MJR_MAT_DIAG-PROD 
+   * the-mp = :mp-l-triangular      => MJR_MAT_DIAG-PROD
+   * the-mp = :mp-pos-def           => Use MJR_MAT_FACTOR-LDLT to reduce to :MP-DIAGONAL cases
+   * the-mp = :mp-tri-diagonal      => Use recursive algorithm of complexity O(n)
+   * otherwise                      => MJR_MAT_DET-GE (which effectively reduces to the :MP-L-TRIANGULAR case)"
+  (let ((rows (mjr_mat_rows matrix)))
+    (if (<= rows 4)
+        (mjr_mat_det-small matrix)
+        (if (null the-mp)
+            (mjr_mat_det-ge matrix)
+            (case the-mp
+              (nil                    (print "GOG NIL"))
+              ((:mp-diagonal
+                :mp-u-triangular     
+                :mp-l-triangular)     (mjr_mat_diag-prod matrix))
+              (:mp-pos-def            (multiple-value-bind (l d) (mjr_mat_factor-ldlt matrix 't)
+                                        (if (null l)
+                                            (progn (warn "mjr_mat_det: THE-MP was invalid for given MATRIX!  Falling back to general methods!")
+                                                   (mjr_mat_det matrix))
+                                            (reduce #'* d))))
+               (:mp-tri-diagonal      (loop for n from 2 upto rows
+                                            for an   = (aref matrix (- n 1) (- n 1))
+                                            for bn-1 = (aref matrix (- n 2) (- n 1))
+                                            for cn-1 = (aref matrix (- n 1) (- n 2))
+                                            for fn-2 = 1 then fn-1
+                                            for fn-1 = (aref matrix 0 0) then fn
+                                            for fn   = (- (* an fn-1) (* cn-1 bn-1 fn-2))
+                                            finally (return fn)))
+              (otherwise              (progn (warn "mjr_mat_det: THE-MP was unusable!  Falling back to general methods!")
+                                             (mjr_mat_det matrix))))))))
+  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mat_cpoly-fl (matrix)
   "Compute the characteristic polynomial via the Faddeev-Leverrier algorithm"
@@ -1805,8 +1901,11 @@ If last-vec-only is non-nill, only the k'th vector will be returned -- not the w
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_mat_eigen-power-method (matrix &key v (max-itr 1000) eps)
+(defun mjr_mat_eigen-power-method (matrix &key v (max-itr 1000) eps show-progress)
   "Return eigenvector, associated eigenvalue, and an accuracy estimate.
+
+Why?  While considered primitive by many modern numerical analysts, the power method can exhibit miraculous levels of performance on very well-conditioned
+matrices.
 
 If the accuracy estimate is not nearly zero, then the eigenvalue/eigenvector are almost certainly wrong.  Uses mjr_cmp_=0 to tell when the iteration should
 end, the EPS argument is passed directly to mjr_cmp_=0.  MAX-ITR determines a maximal number of iterations to try before giving up."
@@ -1816,53 +1915,19 @@ end, the EPS argument is passed directly to mjr_cmp_=0.  MAX-ITR determines a ma
              (v      (or (and v (numberp v) (mjr_vec_make-e (1- v) :len rows)) v (mjr_vec_make-e 0 :len rows)))
              (evec   (loop for prv-v = nil then cur-v
                            for cur-v = (mjr_vec_normalize v) then (mjr_vec_normalize (mjr_mat_m2cv (mjr_mat_* matrix cur-v)))
+                           ;;for cur-v = (mjr_vec_normalize v #'mjr_vec_norm-infinity) then (mjr_vec_normalize (mjr_mat_m2cv (mjr_mat_* matrix cur-v)) #'mjr_vec_norm-infinity)
+                           for cur-e = (and prv-v (mjr_vec_norm-two-squared (mjr_vec_- cur-v prv-v)))
                            for i from 1 upto max-itr
+                           do (if (and show-progress cur-e)
+                                  (format 't "~7d ~20fd ~a~%" i cur-e cur-v))
                            when (= i max-itr)
                            return cur-v
-                           when (and prv-v (mjr_cmp_=0 (mjr_vec_norm-two-squared (mjr_vec_- cur-v prv-v)) eps))
+                           when (and cur-e (mjr_cmp_=0 cur-e eps))
                            return cur-v))
              (evl    (mjr_vec_/ (mjr_mat_m2cv (mjr_mat_* matrix evec)) evec))
              (mnl    (reduce #'mjr_cmp_abs-min evl))
              (mxl    (reduce #'mjr_cmp_abs-max evl)))
         (values evec (/ (+ mnl mxl) 2) (abs (- mxl mnl))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_mat_factor-ldlt (matrix &optional (return-d-as-vector nil))
-  "Return the LDLT decomposition of a square, positive definite matrix.  L is lower triangular, and D is diagonal.
-
-If return-d-as-vector is 't, then D is a vector containing the diagonal elements.  Returns nil on failure (not square, symmetric, positive definite, or
-invertible).
-
-Recover MATRIX with: (mjr_mat_* L D (mjr_mat_transpose L)) or (mjr_mat_* L (mjr_mat_make-diag D) (mjr_mat_transpose L))
-
-This LTLT factorization is closely related to the Cholesky factorization C*t(C) in that C = L*sqrt(D).  Note that this algorithm has the charming
-characteristic of not taking square roots, so if the input matrix is rational, then the output will be rational as well.
-
-If the matrix is positive definite, this function will succeed; however, success doesn't imply that MATRIX is positive definite.  To use this to determine if
-MATRIX is positive definite, this function must succeed and all the diagonal elements of D must be positive -- if they are not all positive, but are all
-non-negative, then MATRIX is positive semi-definite."
-  (if (mjr_mat_test-property-struct matrix :mp-shape-square :mp-symmetric :mp-shape-nonempty)
-      (let* ((rows (mjr_mat_rows matrix))
-             (L    (mjr_mat_make-identity rows))
-             (D    (if return-d-as-vector (mjr_vec_make-const rows 1) (mjr_mat_make-identity rows))))
-        (dotimes (row rows (values L D))
-          (dotimes (col rows)
-            (cond ((> row col)
-                   (let ((Dcol (if return-d-as-vector (aref D col) (aref D col col))))
-                     (if (mjr_cmp_=0 Dcol)
-                         (return-from mjr_mat_factor-ldlt nil)
-                         (setf (aref L row col)
-                               (* (/ Dcol)
-                                  (- (aref matrix row col)
-                                     (mjr_numu_sum :start 0 :end (1- col) :seq-fun
-                                                   (lambda (k) (* (aref L row k) (aref L col k)
-                                                                  (if return-d-as-vector (aref D k) (aref D k k)))))))))))
-                  ((= row col)
-                   (setf (apply #'aref (if return-d-as-vector (list D row) (list D row row)))
-                         (- (aref matrix row col)
-                            (mjr_numu_sum :start 0 :end (1- row)
-                                          :seq-fun (lambda (k) (* (aref L row k) (conjugate (aref L row k))
-                                                                  (if return-d-as-vector (aref D k) (aref D k k))))))))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mat_eliminate-similarity (matrix &key show-progress)
@@ -1891,3 +1956,108 @@ References:
                    (mjr_mat_apply-householder-many!! newmat gamma u 't))
               do (if show-progress (mjr_mat_print newmat :filter-func :zp)))
         (values newmat xform))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_mat_sis-jacobi (matrix b x0 x1)
+"Jacobi Iteration
+WARNING: The X1 array is changed IN PLACE!!!!!
+
+$x_1 = D^{-1}\cdot(b-R\cdot x_0)$.  Here $A=D+R$ where $D$ a diagonal matrix and $R$ has a zero diagonal.
+
+Refrences:
+  http://en.wikipedia.org/wiki/Jacobi_method
+  R Varga (2000); Matrix Iterative Analysis 2ed; ISBN: 9783540663218; p63
+  Yousef Saad (1996); Iterative Methods for Sparse Linear Systems; ch4, p105
+  Allaire & Kaber (2008); Numerical Linear Algebra; ISBN: 9780387341590; p147
+  Golub & Van Loan (2013); Matrix Computations 4ed; ISBN: 9781421407944; p611"
+  (let ((x-len (length x0)))
+    (dotimes (i x-len)
+      (setf (aref x1 i)
+            (* (/ (aref matrix i i))
+               (- (aref b i)
+                  (loop for j from 0 upto (1- x-len)
+                        when (not (= i j))
+                        sum (* (aref matrix i j)
+                               (aref x0 j)))))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_mat_sis-sor (matrix b x0 x1 w)
+  "Successive Over-Relaxation (SOR) Iteration 
+WARNING: The X1 array is changed IN PLACE!!!!!
+
+$$A x=b$$
+$$x^{(k+1)}_i  = (1-\omega)x^{(k)}_i + \frac{\omega}{a_{ii}} \left(b_i - \sum_{j>i} a_{ij}x^{(k)}_j - \sum_{j<i} a_{ij}x^{(k+1)}_j \right),\quad i=1,2,\ldots,n$$
+
+Notes:
+  * When w=1, mjr_mat_sis-sor == mjr_mat_sis-gauss-seidel
+Converges if:
+  * MATRIX is symmetric positive-definite and 0<w<2
+Fails to converge if (see Young 1971):
+  * w<=0
+  * w>=2
+Refrences:
+  http://en.wikipedia.org/wiki/Successive_over-relaxation
+  D.M. Young (1971); Iterative Solution of Large Linear Systems
+  R Varga (2000); Matrix Iterative Analysis 2ed; ISBN: 9783540663218
+  Yousef Saad (1996); Iterative Methods for Sparse Linear Systems
+  Allaire & Kaber (2008); Numerical Linear Algebra; ISBN: 9780387341590
+  Golub & Van Loan (2013); Matrix Computations 4ed; ISBN: 9781421407944; p619"
+  (let ((x-len (length x0)))
+    (dotimes (i x-len)
+      (setf (aref x1 i)
+            (+
+             (* (- 1 w) (aref x0 i))
+             (* (/ w (aref matrix i i))
+                (- (aref b i)
+                   (loop for j from 0 upto (1- x-len)
+                         when (not (= i j))
+                         sum (* (aref matrix i j)
+                                (if (> j i) 
+                                    (aref x0 j)
+                                    (aref x1 j)))))))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_mat_sis-gauss-seidel (matrix b x0 x1)
+  "Gauss Seidel Iteration
+WARNING: The X1 array is changed IN PLACE!!!!!
+
+Converges if MATRIX is:
+  * Symmetric positive-definite
+  * Strictly diagonally dominant
+  * Irreducibly diagonally dominant
+Refrences:
+  http://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method
+  TODO: Add refs"
+  (let ((x-len (length x0)))
+    (dotimes (i x-len)
+      (setf (aref x1 i)
+            (* (/ (aref matrix i i))
+               (- (aref b i)
+                  (loop for j from 0 upto (1- x-len)
+                        when (not (= i j))
+                        sum (* (aref matrix i j)
+                               (if (> j i) 
+                                   (aref x0 j)
+                                   (aref x1 j))))))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_mat_solve-sys-itr (matrix b x0 &key (sim-fun #'mjr_mat_sis-jacobi) (xeps 0.0001) (yeps 0.0001) (max-itr 1000) (show-progress nil) sim-fun-parm)
+  "Solve the linear system via a stationary iterative process
+The argument :sim-fun must be one of:
+  * #'mjr_mat_sis-jacobi
+  * #'mjr_mat_sis-sor
+  * #'mjr_mat_sis-gauss seidel"
+  (cond ((not (mjr_mat_test-property-struct matrix :mp-diag-non-zero)) (error "mjr_mat_solve-sys-jacobi: Zero on the diagonal!!")))
+  (loop with x-cur = (map 'vector (lambda (x) (float x 1d0)) x0)
+        with x-old = nil
+        with y-cur = nil
+        for i-cur from 0
+        do (progn
+             (setf y-cur (mjr_mat_m2cv (mjr_mat_* matrix x-cur)))
+             (if (mjr_eps_= y-cur b yeps)                              (return (values     x-cur y-cur i-cur "Y=0")))
+             (if (and x-old (mjr_eps_= x-cur x-old xeps))              (return (values nil x-cur y-cur i-cur "X-DELTA=0")))
+             (if show-progress
+                 (format 't "~5d ~80@s ~80@s ~%" i-cur x-cur y-cur))
+             (setf x-old (copy-seq x-cur))
+             (apply sim-fun matrix b x-old x-cur (if (listp sim-fun-parm) sim-fun-parm (list sim-fun-parm)))
+             (if (>= i-cur max-itr)                                    (return (values nil x-cur y-cur i-cur "MAX-ITR"))))))

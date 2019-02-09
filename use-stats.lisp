@@ -35,7 +35,7 @@
   (:USE :COMMON-LISP
         :MJR_UTIL
         :MJR_VVEC
-        :MJR_QMESH)
+        :MJR_PWF)
   (:DOCUMENTATION "Brief: Statistics: Averages, histograms, sub-samples, simple linear regression.;")
   (:EXPORT #:mjr_stats_help
            #:mjr_stats_avg #:mjr_stats_subtotal
@@ -285,8 +285,18 @@ This implementation uses the built in RANDOM function."
 
 if :density is non-NIL, then the output will be normalized to area 1.
 
-The DATA argument should be a vector for performance reasons, but lists are accepted too."
+The DATA argument should be a vector for performance reasons, but lists are accepted too.
 
+Example: compute a random vector, compute a histogram for vector, construct a function for histogram, and graph resulting function.
+  (let ((x0 1)
+        (x1 10))
+    (destructuring-bind (c b u o) (mjr_stats_hist (mjr_prng_vector 10000 #'mjr_prng_float-cc x0 x1) 
+                                                  :breaks (list :start x0 :end x1 :len 20) 
+                                                  :density 't)
+      (let ((f (mjr_pwf_func-step b c :left-tail-value u :right-tail-value o)))
+        (mjr_gnupl_dquad (mjr_fsamp_dq-func-r123-r123 f
+                                                      :xdat (list :start (1- x0) :end (1+ x1) :len 1000))
+                         :ylim '(0 1)))))"
   (let* ((data       (if (vectorp data) data (concatenate 'vector data)))
          (breaks     (mjr_vvec_to-vec (or breaks (list :start (reduce #'min data)
                                                        :end   (reduce #'max data)
@@ -296,7 +306,7 @@ The DATA argument should be a vector for performance reasons, but lists are acce
          (high-count 0)
          (all-count  (make-array nbrk :initial-element 0)))
     (loop for d across data
-          for b = (mjr_qmesh_search-vec interval-type breaks d)
+          for b = (mjr_pwf_search-interval-mesh interval-type breaks d)
           do (case b
                (-1        (incf low-count))
                (-2        (incf high-count))

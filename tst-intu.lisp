@@ -107,15 +107,15 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-test mjr_intu_px
-  (assert-equal "0"               (mjr_intu_px 0))
-  (assert-equal "1"               (mjr_intu_px 1))
-  (assert-equal "A"               (mjr_intu_px 10))
-  (assert-equal "C"               (mjr_intu_px 12))
-  (assert-equal "E"               (mjr_intu_px 14))
-  (assert-equal "10"              (mjr_intu_px 16))
-  (assert-equal "12"              (mjr_intu_px 18))
-  (assert-equal "ABCDEF"          (mjr_intu_px #xabcdef))
-  (assert-equal "123456789ABCDEF" (mjr_intu_px #x123456789abcdef))
+  (assert-equal "0"                  (mjr_intu_px 0))
+  (assert-equal "1"                  (mjr_intu_px 1))
+  (assert-equal "A"                  (mjr_intu_px 10))
+  (assert-equal "C"                  (mjr_intu_px 12))
+  (assert-equal "E"                  (mjr_intu_px 14))
+  (assert-equal "10"                 (mjr_intu_px 16))
+  (assert-equal "12"                 (mjr_intu_px 18))
+  (assert-equal "AB CDEF"            (mjr_intu_px #xabcdef))
+  (assert-equal "123 4567 89AB CDEF" (mjr_intu_px #x123456789abcdef))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

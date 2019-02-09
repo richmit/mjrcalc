@@ -43,6 +43,7 @@
   (:EXPORT #:mjr_matt_help
            #:mjr_matt_make-test
            #:mjr_matt_det-test
+           #:mjr_matt_make-random
            ))
 
 (in-package :MJR_MATT)
@@ -82,6 +83,12 @@ This package focuses on various 'test' matrices -- i.e. matrices that have an ex
                                             (lambda (i) (mjr_numu_prod :start 0 :end (1- len-x) :seq-fun
                                                                        (lambda (j) (+ (aref x i) (aref y j))))))))
       (:mp-pascal         1)
+      (:mp-clement        (if (oddp n)
+                              0
+                              (if (= n 2)
+                                  -1
+                                  (* (if (oddp (/ N 2)) -1 1) (mjr_numu_prod :start 0 :len (/ n 2) :step 2 :seq-fun
+                                                                             (lambda (i) (* (+ 1 i) (- n i 1))))))))
       (:mp-hilbert-i      (/ (apply #'mjr_matt_det-test :mp-hilbert     :x x :y y :a a :b b :n n :m m :f f)))
       (:mp-vandermonde-i  (/ (apply #'mjr_matt_det-test :mp-vandermonde :x x :y y :a a :b b :n n :m m :f f)))
       (:mp-hankel-i       (/ (apply #'mjr_matt_det-test :mp-hankel      :x x :y y :a a :b b :n n :m m :f f)))
@@ -89,6 +96,81 @@ This package focuses on various 'test' matrices -- i.e. matrices that have an ex
       (:mp-cauchy-i       (/ (apply #'mjr_matt_det-test :mp-cauchy      :x x :y y :a a :b b :n n :m m :f f)))
       (:mp-pascal-i       1)
       (otherwise          (error "mjr_matt_det-test: Unknown matrix type requested!!")))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_matt_make-random (the-sm &key a b k n m)
+  "Compute random matrix with special form
+
+  Notation
+     a,b   -- Scalars
+     k,n,m -- Integers
+
+  Symbol            Arguments   Description
+  :mp-real           m,n,a,b     Random mxn matrix with elements uniformly distributed on in [a,b)
+                                    Only one of a and b are provided => the range will be [0,a), [0,b), (a,0], or (b,0]
+                                    If both a and b are missing => the range will be [0.0, 1.0)
+                                    If only one of m and n are provided => T will be square
+  :mp-diagonal       m,n,a,b     Random diagonal matrix (off diagonal elements are zero)
+  :mp-l-triangular   m,n,a,b     Random lower triangular matrix (above diagonal elements are zero)
+  :mp-u-triangular   m,n,a,b     Random upper triangular matrix (below diagonal elements are zero)
+  :mp-m-diagonal     k,m,n,a,b   Random multi-diagonal matrix. k controls number of diagonals
+                                    Ex: k=1=>diagonal, k=2=>tridiagonal, etc...  k=2 by default
+  :mp-complex        m,n,a,b     Random mxn complex matrix.  a & b control the ranges for both realpart and imagpart
+  :mp-rational       m,n,a,b     Random mxn rational matrix. a & b control the ranges for both top and bottom. Default a=b=10
+  :mp-symmetric      m,n,a,b     Random square, real, symetric matrix with max(m,n) rows
+  :mp-hermitian      m,n,a,b     Random square, complex, hermitian matrix with max(m,n) rows"
+  (let* ((m     (or m n))
+         (n     (or n m)))
+    (case the-sm
+      (:mp-real          (let ((rll  (min (or (and a b) 0) (or a b 1.0)))
+                               (rul  (max (or (and a b) 0) (or a b 1.0))))
+                           (mjr_mat_make-from-func (lambda (i j) (progn i j (mjr_prng_tbd-uniform-co rll rul))) :rows m :cols n)))
+      (:mp-diagonal      (let ((rll  (min (or (and a b) 0) (or a b 1.0)))
+                               (rul  (max (or (and a b) 0) (or a b 1.0))))
+                           (mjr_mat_make-from-func (lambda (i j) (if (= i j) (mjr_prng_tbd-uniform-co rll rul) 0)) :rows m :cols n)))
+      (:mp-l-triangular  (let ((rll  (min (or (and a b) 0) (or a b 1.0)))
+                               (rul  (max (or (and a b) 0) (or a b 1.0))))
+                           (mjr_mat_make-from-func (lambda (i j) (if (>= i j) (mjr_prng_tbd-uniform-co rll rul) 0)) :rows m :cols n)))
+      (:mp-u-triangular  (let ((rll  (min (or (and a b) 0) (or a b 1.0)))
+                               (rul  (max (or (and a b) 0) (or a b 1.0))))
+                           (mjr_mat_make-from-func (lambda (i j) (if (<= i j) (mjr_prng_tbd-uniform-co rll rul) 0)) :rows m :cols n)))
+      (:mp-m-diagonal    (let ((rll  (min (or (and a b) 0) (or a b 1.0)))
+                               (rul  (max (or (and a b) 0) (or a b 1.0)))
+                               (k    (if k (1- k) 1)))
+                           (mjr_mat_make-from-func (lambda (i j) (if (< k (abs (- i j))) 0 (mjr_prng_tbd-uniform-co rll rul))) :rows m :cols n)))
+      (:mp-complex       (mjr_arr_binary-map2 (mjr_matt_make-random :mp-real  :m m :n n :a a :b b)
+                                              (mjr_matt_make-random :mp-real  :m m :n n :a a :b b)
+                                              #'complex))
+      (:mp-rational      (let ((rll  (min (or (and a b) 0) (or a b 10)))
+                               (rul  (max (or (and a b) 0) (or a b 10))))
+                           (mjr_mat_make-from-func (lambda (i j) (progn i j (/ (mjr_prng_tbd-uniform-co rll rul)
+                                                                               (loop for r = (mjr_prng_tbd-uniform-co rll rul)
+                                                                                     when (not (zerop r))
+                                                                                     do (return r))))) :rows m :cols n)))
+      (:mp-symmetric     (let* ((rll    (min (or (and a b) 0) (or a b 1.0)))
+                                (rul    (max (or (and a b) 0) (or a b 1.0)))
+                                (siz    (max m n))
+                                (newmat (make-array (list siz siz))))
+                           (loop for r from 0 upto (1- siz)
+                                 finally (return newmat)
+                                 do (loop for c from r upto (1- siz)
+                                          do (let ((rnum (mjr_prng_tbd-uniform-co rll rul)))
+                                               (setf (aref newmat r c) rnum
+                                                     (aref newmat c r) rnum))))))
+      (:mp-hermitian     (let* ((rll    (min (or (and a b) 0) (or a b 1.0)))
+                                (rul    (max (or (and a b) 0) (or a b 1.0)))
+                                (siz    (max m n))
+                                (newmat (make-array (list siz siz))))
+                           (loop for r from 0 upto (1- siz)
+                                 finally (return newmat)
+                                 do (loop for c from r upto (1- siz)
+                                          do (let ((rnum (complex (mjr_prng_tbd-uniform-co rll rul) (mjr_prng_tbd-uniform-co rll rul))))
+                                               (if (= c r)
+                                                   (setf (aref newmat c r) (realpart rnum))
+                                                   (setf (aref newmat r c) rnum
+                                                         (aref newmat c r) (conjugate rnum))))))))
+      (otherwise         (error "mjr_matt_make-random: Unknown matrix type (~s) requested!!" the-sm)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_matt_make-test (the-sm &key x y a b k n m f)
@@ -190,33 +272,23 @@ This package focuses on various 'test' matrices -- i.e. matrices that have an ex
                                     'wins'. T is persymmetric.
   :mp-toeplitz      X           T[i,j]=X[i-j] when i>=j, and T[i,j]=X[j-i] otherwise -- i.e. Y is set to X.
   :mp-toeplitz      n           X & Y are set to 1:n
-  :mp-random        m,n,a,b     T is an m by n random matrix with elements uniformly distributed on in [a,b)
-                                    Only one of a and b are provided => the range will be [0,a), [0,b), (a,0], or (b,0]
-                                    If both a and b are missing => the range will be [0.0, 1.0)
-                                    If only one of m and n are provided => T will be square
-  :mp-crandom       m,n,a,b     Complex version of :mp-random.  a&b control the ranges for both realpart and imagpart
-  :mp-rrandom       m,n,a,b     Rational version of :mp-random.  a&b control the ranges for both top and bottom. Default a=b=10
-  :mp-random-sym    m,n,a,b     T is an m by n random SYMMETRIC matrix
-                                    Computes a random matrix: (mjr_matt_make-test :mp-random :m m :n n :a a :b b)
-                                    Then computes the product of the matrix by its transpose
-  :mp-crandom-herm  m,n,a,b     Complex version of :mp-random-sym
-                                    Computes a random complex matrices: (mjr_matt_make-test :mp-crandom :m m :n n :a a :b b)
-                                    Then computes the product of the matrix by its transpose
-  :mp-gauss-1       k,m,n           Gauss transform matrix KxK that exchanges row N and M
-  :mp-gauss-2       k,n,a           Gauss transform matrix KxK that multiplies row N by A
-  :mp-gauss-3       X,m,n           Gauss transform matrix (row operation of type 3) that will zero out x[n] with x[m].
-  :mp-gauss-3       k,m,n,a         Gauss transform matrix KxK that will: x[n]<-x[m]*a+x[n]
-  :mp-givens-2      X,m,n           Givens transform matrix that will zero out x[n] with x[m].
-  :mp-givens-2      k,m,n,a         Givens transform matrix (KxK) with cos(a) and sin(a)
-  :mp-givens-2      k,m,n,a,b       Givens transform matrix (KxK) with cos=a and sin=b
-  :mp-householder   X,Y             Householder transform matrix that will transform X into Y -- |X|==|Y|.
-  :mp-householder   X,Y,n           Householder transform matrix that will zero out x except for x[n] and any x[i] with y[i] non-NILL.
-  :mp-householder   X,n             Householder transform matrix that will zero out x except for x[n].
-  :mp-householder-2 X,m,n           Householder transform matrix that will zero out x[n] with x[m].
-  :mp-householder-2 k,m,n,a         Householder transform matrix (KxK) with cos(a) and sin(a)
-  :mp-householder-2 k,m,n,a,b       Householder transform matrix (KxK) with cos=a and sin=b
-  :mp-hankel-cat    n               (mjr_mat_make-from-func (lambda (i j) (mjr_combe_catalan (+ i j -2))) :start 1 :end N);  DET=1; TODO: implement!!
-  :mp-hankel-cat-1  n               (mjr_mat_make-from-func (lambda (i j) (mjr_combe_catalan (+ i j -2))) :start 1 :end N);  DET=1; TODO: implement!!"
+  :mp-gauss-1       k,m,n       Gauss transform matrix KxK that exchanges row N and M
+  :mp-gauss-2       k,n,a       Gauss transform matrix KxK that multiplies row N by A
+  :mp-gauss-3       X,m,n       Gauss transform matrix (row operation of type 3) that will zero out x[n] with x[m].
+  :mp-gauss-3       k,m,n,a     Gauss transform matrix KxK that will: x[n]<-x[m]*a+x[n]
+  :mp-givens-2      X,m,n       Givens transform matrix that will zero out x[n] with x[m].
+  :mp-givens-2      k,m,n,a     Givens transform matrix (KxK) with cos(a) and sin(a)
+  :mp-givens-2      k,m,n,a,b   Givens transform matrix (KxK) with cos=a and sin=b
+  :mp-householder   X,Y         Householder transform matrix that will transform X into Y -- |X|==|Y|.
+  :mp-householder   X,Y,n       Householder transform matrix that will zero out x except for x[n] and any x[i] with y[i] non-NILL.
+  :mp-householder   X,n         Householder transform matrix that will zero out x except for x[n].
+  :mp-householder-2 X,m,n       Householder transform matrix that will zero out x[n] with x[m].
+  :mp-householder-2 k,m,n,a     Householder transform matrix (KxK) with cos(a) and sin(a)
+  :mp-householder-2 k,m,n,a,b   Householder transform matrix (KxK) with cos=a and sin=b
+  :mp-hankel-cat    n           (mjr_mat_make-from-func (lambda (i j) (mjr_combe_catalan (+ i j -2))) :start 1 :end N);  DET=1; TODO: implement!!
+  :mp-hankel-cat-1  n           (mjr_mat_make-from-func (lambda (i j) (mjr_combe_catalan (+ i j -2))) :start 1 :end N);  DET=1; TODO: implement!!
+  :mp-clement       n           T[i,i+1]=i+1, T[i,i-1] = n-i, other elements of T are 0. -- i.e. 1..m-1 on superdiagonal, the reverse on subdiagonal.
+                                Determinant is zero.  Eigenvalus are: -N, -N+2, -N+4, ..., N-2, N where N=n-1."
   (let* ((m     (or m n))
          (n     (or n m))
          (x?    (not (null x)))
@@ -224,8 +296,11 @@ This package focuses on various 'test' matrices -- i.e. matrices that have an ex
          (y?    (not (null y)))
          (y     (or y x))
          (len-x (and x (length x))))
-
     (case the-sm
+      (:mp-clement         (mjr_mat_make-from-func (lambda (i j) (cond ((= j (1+ i)) (+ 1 i))
+                                                                       ((= i (1+ j)) (- m i))
+                                                                       ('t   0)))
+                                                  :rows m :cols n))
       (:mp-sampling        (let* ((newmat (mjr_mat_make-from-func (lambda (i j) (if (= i j)
                                                                                     0
                                                                                     (/ (aref x i) (- (aref x i) (aref x j)))))
@@ -307,22 +382,6 @@ This package focuses on various 'test' matrices -- i.e. matrices that have an ex
                                                                          (if y? (aref y (- (+ i j 1) len-x)) 0))) :rows len-x)))
       (:mp-toeplitz        (mjr_mat_make-from-func (lambda (i j) (if (>= i j) (aref x (- i j)) (aref y (- j i)))) :rows len-x))
       (:mp-pascal          (mjr_mat_make-from-func (lambda (i j) (mjr_combe_comb (+ i j) i)) :rows n))
-      (:mp-random          (let ((rll  (min (or (and a b) 0) (or a b 1.0)))
-                                 (rul  (max (or (and a b) 0) (or a b 1.0))))
-                             (mjr_mat_make-from-func (lambda (i j) (progn i j (mjr_prng_tbd-uniform-co rll rul))) :rows m :cols n)))
-      (:mp-crandom         (mjr_arr_binary-map2 (mjr_matt_make-test :mp-random  :m m :n n :a a :b b)
-                                                (mjr_matt_make-test :mp-random  :m m :n n :a a :b b)
-                                                #' complex))
-      (:mp-rrandom         (let ((rll  (min (or (and a b) 0) (or a b 10)))
-                                 (rul  (max (or (and a b) 0) (or a b 10))))
-                             (mjr_mat_make-from-func (lambda (i j) (progn i j (/ (mjr_prng_tbd-uniform-co rll rul)
-                                                                                 (loop for r = (mjr_prng_tbd-uniform-co rll rul)
-                                                                                       when (not (zerop r))
-                                                                                       do (return r))))) :rows m :cols n)))
-      (:mp-random-sym      (let ((newmat (mjr_matt_make-test :mp-random  :m m :n n :a a :b b)))
-                             (mjr_mat_* newmat (mjr_mat_transpose newmat))))
-      (:mp-crandom-herm    (let ((newmat (mjr_matt_make-test :mp-crandom :m m :n n :a a :b b)))
-                             (mjr_mat_* newmat (mjr_mat_transpose newmat))))
       (:mp-gauss-1         (mjr_mat_apply-gauss-1!! (mjr_mat_make-identity k)     m n))
       (:mp-gauss-2         (mjr_mat_apply-gauss-2!! (mjr_mat_make-identity k)     a n))
       (:mp-gauss-3         (if k
