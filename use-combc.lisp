@@ -321,7 +321,7 @@ References:
                                         (arg-mode :arg-vector) (show-progress nil))
   "Generate all tuples.  See: mjr_combc_help.
 
-The value of :result-type determines for of the return results from :collect-value & :collect-if:
+The value of :result-type determines the type of the results returnd from :collect-value & :collect-if:
   * :list  -- list of :collect-value returns
   * :array -- array containing :collect-value returns
   * :table -- 2D array of tuples and :collect-value returns

@@ -3,7 +3,7 @@
 ;;;
 ;; @file      exp-IntrpRunge.lisp
 ;; @author    Mitch Richling <https://www.mitchr.me>
-;; @brief     Demonstrate how adding more interpolation poitns may lead to worse fit.@EOL
+;; @brief     Demonstrate how adding more interpolation points may lead to worse fit.@EOL
 ;; @std       Common Lisp
 ;; @copyright 
 ;;  @parblock

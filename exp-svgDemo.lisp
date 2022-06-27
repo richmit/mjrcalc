@@ -3,7 +3,7 @@
 ;;;
 ;; @file      exp-svgDemo.lisp
 ;; @author    Mitch Richling <https://www.mitchr.me>
-;; @brief     Demo of the SVG package.@EOF
+;; @brief     Demo of the SVG package.@EOL
 ;; @std       Common Lisp
 ;; @copyright 
 ;;  @parblock

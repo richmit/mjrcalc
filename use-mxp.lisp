@@ -73,17 +73,17 @@
 (defun mjr_mxp_help ()
   "MXP (Mathematical eXPressions)
 
-This package provides the core functionality required:
+This package provides the following functionality:
 
- 1) transform an infix-string into a mxp-tree.  That is to say, convert a LISP string representing an infix mathematical expression into a LISP tree (nested
+ 1) transform an INFIX-STRING into a MXP-TREE.  That is to say, convert a LISP string representing an infix mathematical expression into a LISP tree (nested
     lists) representing the logical structure of the expression
 
- 2) Convert a mxp-tree into other forms (like a LISP function, LISP code, or an infix-string)
+ 2) Convert a MXP-TREE into other forms (like a LISP function, LISP code, or an INFIX-STRING)
 
- 3) Preform 'structural' manipulations on an mxp-tree.  The word 'structural' is used to imply that this library preforms changes to an expression at the
+ 3) Preform 'structural' manipulations on an MXP-TREE.  The word 'structural' is used to imply that this library preforms changes to an expression at the
     structural level and not the mathematical level.  i.e. it is not a CAS, but rather a tool a CAS might use to manage expressions.
 
- 4) Provide some handy functions combining some of the above operations in ways commonly used by other code (i.e. directly transform an infix-string
+ 4) Provide some handy functions combining some of the above operations in ways commonly used by other code (i.e. directly transform an INFIX-STRING
     representing a mathematical function into a LISP function)
 
  While this package is primary useful for providing back-end functionality to other packages (like MJR_NLEQ, VTK.LISP, and POV.LISP), I have decided to design
@@ -114,16 +114,6 @@ Definitions:
           ((string-equal "-" op)    6)
           ((string-equal "=" op)    5)
           ((string-equal ":" op)    4))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;(defun mjr_mxp_op-type (op)
-;;  ""
-;;  (if (= 1 (length op))
-;;      (cond ((mjr_char_in-class op "*/+-") UNARY/BINARY)
-;;            ((mjr_char_in-class op "^=:")  BINARY)
-;;            ((mjr_char_in-class op "!")    POSTFIX))
-;;        FUNCTION))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_op-right-assocp (op)
@@ -320,7 +310,7 @@ Definitions:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_mxp_lisp-to-tree (lisp-code)
-  "Transforms the LISP expression in LISP-CODE into a mxp-tree"
+  "Transforms the LISP expression in LISP-CODE into a MXP-TREE"
   ;; Example: (mjr_mxp_lisp-to-tree '(+ a "234" b c (* d 345 f))) => ("+" "A" 234 "B" "C" ("*" "D" 345 "F"))
   (if (and lisp-code (listp lisp-code))
       (mapcar #'mjr_mxp_lisp-to-tree lisp-code)
@@ -534,7 +524,10 @@ operators (expt => ^ for example).  Some things are funny like unary minus and p
         (concatenate 'string
                      (if need-parn "(" "")
                      (if (= 1 (mjr_mxp_nargs expr))
-                         (format nil "~a(~a)" cur-op (mjr_mxp_nth-arg expr 0))
+                         (cond ((string-equal cur-op "/")        (format nil "1/(~a)" (mjr_mxp_tree-to-infix (mjr_mxp_nth-arg expr 0))))
+                               ((string-equal cur-op "*")        (format nil "(~a)" (mjr_mxp_tree-to-infix (mjr_mxp_nth-arg expr 0))))
+                               ((string-equal cur-op "+")        (format nil "(~a)" (mjr_mxp_tree-to-infix (mjr_mxp_nth-arg expr 0))))
+                               ('t                               (format nil "~a(~a)" cur-op (mjr_mxp_tree-to-infix (mjr_mxp_nth-arg expr 0)))))
                          (mjr_string_join cur-op
                                           (mjr_mxp_map-args expr #'mjr_mxp_tree-to-infix cur-prec)))
                      (if need-parn ")" "")))))

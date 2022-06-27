@@ -354,7 +354,9 @@ Value of :ALGORITHM determines how the computation is performed.
   * :floating  -- Use floating point approximations in the standard formula
 
 Classical formula:
-  $$\\frac{\\binom{n}{k}\\binom{m}{s-k}}{\\binom{m+n}{s}} = \\frac{m!n!s!(m+n-s)!}{k!(n-k)!(m+k-s)!(s-k)!(m+n)!}$$"
+  $$\\frac{\\binom{n}{k}\\binom{m}{s-k}}{\\binom{m+n}{s}} = \\frac{m!n!s!(m+n-s)!}{k!(n-k)!(m+k-s)!(s-k)!(m+n)!}$$
+
+@todo Consider improvements from Trong Wu's paper: zotero://select/items/0_9PWFP59D"
   (cond ((not (integerp m))        (error "mjr_probau_hypergeometric-pdf: M must be an integer!"))
         ((< m 0)                   (error "mjr_probau_hypergeometric-pdf: M must be non-negative!"))
         ((not (integerp n))        (error "mjr_probau_hypergeometric-pdf: N must be an integer!"))

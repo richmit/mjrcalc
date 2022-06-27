@@ -290,7 +290,7 @@ References:
         (vector 1 0 0))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_colorizer_r2--strip-y (realpart-or-complex-number &optional imagpart-or-nil)
+(defun mjr_colorizer_r2-strip-y (realpart-or-complex-number &optional imagpart-or-nil)
   "red and blue strips"
   (multiple-value-bind (x y) (mjr_util_get-all-elements-or-args realpart-or-complex-number imagpart-or-nil)
     (declare (ignore x))

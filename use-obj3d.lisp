@@ -1,13 +1,14 @@
 ;; -*- Mode:Lisp; Syntax:ANSI-Common-LISP; Coding:us-ascii-unix; fill-column:158 -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;; @file      exp-ClassicOptAckley.lisp
+;; @file      use-obj3d.lisp
 ;; @author    Mitch Richling <https://www.mitchr.me>
-;; @brief     Analysis of Ackley's classic optimization test function.@EOL
+;; @brief     OBJ 3d files.@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @see       N/A
+;; @copyright
 ;;  @parblock
-;;  Copyright (c) 2012, 2015, Mitchell Jay Richling <https://www.mitchr.me> All rights reserved.
+;;  Copyright (c) 1995, 2013, 2015, Mitchell Jay Richling <https://www.mitchr.me> All rights reserved.
 ;;
 ;;  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 ;;
@@ -29,35 +30,41 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun ackley (x &key (a 20.0d0) (b 0.2d0) (c (* 2.0d0 pi)))
-  "Ackley's Function.  Returns values for function.  Input is a VECTOR!
+(defpackage :MJR_OBJ3D
+  (:USE :COMMON-LISP
+        :MJR_DSIMP)
+  (:DOCUMENTATION "Brief: Create OBJ3D files.;")
+  (:EXPORT #:mjr_obj3d_help
+           #:mjr_obj3d_from-dsimp
+           ))
 
-$$f(\\overline{x})=a+\\exp(1)-a\\exp\\left(-b\\sqrt{\\frac{1}{d}\\sum_{i=1}^dx_i^2}\\right)-\\exp\\left(\\frac{1}{d}\\sum_{i=1}^d\\cos(cx_i)\\right)$$
-
-Recommended parameter values are: $a=20$, $b= \\frac{2}{10}$, and $c=2\\pi$.  Note that $d$ is the length of $\\overline{x}$.
-
-For the case $d=2$, we hvae:
-
-$$f_2(x,y)=a+\\exp(1)-a\\exp\\left(-b\\sqrt{\\frac{x^2+y^2}{d}}\\right)-\\exp\\left(\\frac{\\cos(cx)+\\cos(cy)}{d}\\right)$$
-
-Typical domain: $\\left[-\\frac{4096}{125}, \\frac{4096}{125}\\right]^d$
-
-Global Minimum: $f(\\overline{0})=0$"
-  (let ((d (length x)))
-    (- (+ a (exp 1))
-       (* a (exp (* (- b) (sqrt (/ (reduce #'+ (map 'list (lambda (xi) (* xi xi)) x)) d)))))
-       (exp (/ (reduce #'+ (map 'list (lambda (xi) (cos (* c xi))) x)) d)))))
+(in-package :MJR_OBJ3D)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(time (mjr_vtk_from-dquad "exp-ClassicOptAckley-OUT-2D.vtk" (mjr_fsamp_dq-func-r123-r123 #'ackley
-                                                                                         :xdat '(:start -4.0d0 :end 4 :len 300)
-                                                                                         :ydat '(:start -4.0d0 :end 4 :len 300)
-                                                                                         :arg-mode :arg-vector)))
+(defun mjr_obj3d_help ()
+  "Help for MJR_OBJ3D:
 
+Library for produceing OBJ 3D files -- from DSIMP objects.  In the future other source types and/or more complex PLY files may be added."
+  (documentation 'mjr_obj3d_help 'function))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(time (mjr_vtk_from-dquad "exp-ClassicOptAckley-OUT-3D.vtk" (mjr_fsamp_dq-func-r123-r123 #'ackley
-                                                                                         :xdat '(:start -4.0d0 :end 4 :len 50)
-                                                                                         :ydat '(:start -4.0d0 :end 4 :len 50)
-                                                                                         :zdat '(:start -4.0d0 :end 4 :len 50)
-                                                                                         :arg-mode :arg-vector)))
+(defun mjr_obj3d_from-dsimp (out-file dsimp)
+  "Generate an OBJ file 2-simplices from dsimp.
+
+The use primary use case is to easily get a triangulation into more artistically oriented 3D modeling tools like Blender and meshlab.
+This function is also handy for quickly looking at a surface with 3D object viewers like g3dviewer before loading into more cumbersome tools.
+
+See the :POV and :VTK packages for more sophisticated rendering options and data export options respectively.
+
+Typical example of use:
+
+  (mjr_dsimp_dump2d-obj-file \"surf.obj\"
+                             (mjr_fsamp_ds-func-r123-r123 (lambda (x y) (* .5 (abs (- (expt (complex x y) 3) 1))))
+                                                          :xdat '(:start -1.1 :end 1.1 :len 50)
+                                                          :ydat '(:start -1.1 :end 1.1 :len 50)
+                                                          :arg-mode :arg-number))"
+  (with-open-file (dest out-file  :direction :output :if-exists :supersede :if-does-not-exist :create)
+    (loop for pnt across (mjr_dsimp_get-simplex-array dsimp 0)
+          do (format dest "v ~f ~f ~f~%" (aref pnt 0) (aref pnt 1) (aref pnt 2)))
+    (loop for  tri across (mjr_dsimp_get-simplex-array dsimp 2)
+          do (format dest "f ~d ~d ~d~%" (1+ (aref tri 0)) (1+ (aref tri 1)) (1+ (aref tri 2))))))

@@ -38,6 +38,7 @@
   (:USE :COMMON-LISP
         :MJR_VVEC
         :MJR_DQUAD
+        :MJR_RPTREE
         :MJR_UTIL
         :MJR_COLOR
         :MJR_ARR
@@ -48,6 +49,7 @@
   (:DOCUMENTATION "Brief: Data sets on SIMPlicial complexes.;")
   (:EXPORT #:mjr_dsimp_help
            ;; Create dsimp lists
+           #:mjr_dsimp_make-from-rptree
            #:mjr_dsimp_make-from-dquad
            #:mjr_dsimp_make-from-points
            #:mjr_dsimp_make-from-xyz
@@ -69,9 +71,6 @@
            ;; Persistence
            #:mjr_dsimp_read-from-file
            #:mjr_dsimp_write-to-file
-           ;; 2D Simplex Persistence
-           #:mjr_dsimp_dump2d-ply-file
-           #:mjr_dsimp_dump2d-obj-file
            ))
 
 (in-package :MJR_DSIMP)
@@ -222,7 +221,7 @@ DATA-INDEX-OR-NAME may be:
                                      do (if fn (return fn))))
                       (list  (if simplex-dimension
                                  (error "mjr_dsimp_get-data-ano: SIMPLEX-DIMENSION must not be provided if DATA-INDEX-OR-NAME is an data-index/simplex-dimension pair!")
-                               (print (nth (+ 1 (* 2 (first data-index-or-name)) (nth (second data-index-or-name) (mjr_dsimp_simplex-indexes dsimp))) dsimp))))
+                                 (nth (+ 1 (* 2 (first data-index-or-name)) (nth (second data-index-or-name) (mjr_dsimp_simplex-indexes dsimp))) dsimp)))
                       (otherwise  (error "mjr_dsimp_get-data-ano: DATA-INDEX-OR-NAME must be a string or integer!")))))
     (if ano-key
         (mjr_annot_get-value ano-key anno-alist)
@@ -613,7 +612,7 @@ Arguments:
                                       do (push tri-i (aref pt-2-tri (aref tri-t 0)))
                                       do (push tri-i (aref pt-2-tri (aref tri-t 1)))
                                       do (push tri-i (aref pt-2-tri (aref tri-t 2)))
-                                      do (setf (aref tri-norm tri-i) (mjr_vec_normalize (mjr_geom_triangle-normal (map 'list (lambda (i) (aref points i)) tri-t)))))
+                                      do (setf (aref tri-norm tri-i) (mjr_vec_normalize (apply #'mjr_geom_triangle-normal (map 'list (lambda (i) (aref points i)) tri-t)))))
                                 (loop for tri-lst across pt-2-tri
                                       for pnt-idx from 0
                                       do (setf (aref new-norms pnt-idx) (mjr_vec_/ (apply #'mjr_vec_+ (mapcar (lambda (i) (aref tri-norm i)) tri-lst)) (length tri-lst))))
@@ -673,88 +672,101 @@ Arguments:
                     new-dsimp)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_dsimp_dump2d-ply-file (out-file dsimp &key color-data)
-  "Generate a Polygon File Format (PLY) file with 2-simplices with optional vertex color data from dsimp.
+(defun mjr_dsimp_make-from-rptree (rptree-instance depth &key
+                                                           func
+                                                           (arg-mode             :arg-number)
+                                                           (func-check           #'realp))
+  "Create a dsimp list from a rptree object.  Works on 2D rptree only!!
 
-The use primary use case is to easily get a triangulation into more artistically oriented 3D modeling tools like Blender and meshlab.
-This function is also handy for quickly looking at a surface with 3D object viewers like mview before loading into more cumbersome tools.
+       ############################################################################################################################################
+       ############################################################################################################################################
+       ==== Under Construction == Under Construction == Under Construction ==== Under Construction == Under Construction == Under Construction ====
+       ============================================================================================================================================
+       --------------------------------------------------------------------------------------------------------------------------------------------
+       
+                   #     #                                 #####                                                                                  
+                   #     # #    # #####  ###### #####     #     #  ####  #    #  ####  ##### #####  #    #  ####  ##### #  ####  #    #           
+                   #     # ##   # #    # #      #    #    #       #    # ##   # #        #   #    # #    # #    #   #   # #    # ##   #           
+                   #     # # #  # #    # #####  #    #    #       #    # # #  #  ####    #   #    # #    # #        #   # #    # # #  #           
+                   #     # #  # # #    # #      #####     #       #    # #  # #      #   #   #####  #    # #        #   # #    # #  # #           
+                   #     # #   ## #    # #      #   #     #     # #    # #   ## #    #   #   #   #  #    # #    #   #   # #    # #   ##           
+                    #####  #    # #####  ###### #    #     #####   ####  #    #  ####    #   #    #  ####   ####    #   #  ####  #    #           
 
-See the :POV and :VTK packages for more sophisticated rendering options and data export options respectively.
+       --------------------------------------------------------------------------------------------------------------------------------------------
+       ============================================================================================================================================
+       ==== Under Construction == Under Construction == Under Construction ==== Under Construction == Under Construction == Under Construction ====
+       ############################################################################################################################################
+       ############################################################################################################################################
 
-Note this format is sometimes called the 'Stanford Triangle Format'.  See: https://en.wikipedia.org/wiki/PLY_%28file_format%29
+DEPTH
+    * 0 ............ Each quad is triangulated into four quads
+    * 1 ............ Each quad can have as many as 8 triangles (vertices corresponding to neighbor children vertices) --  balanced trees have no holes
+    * MESH-POWER ... No holes no matter how unbalanced the tree is, but the result might contain terribly skinny triangles."
+  (or func arg-mode func-check)  ;; Unused arguments.  TODO: Use these to adjust triangulation around singularities.
+  (let* ((sim0-h2i   (make-hash-table))
+         (sim0-cnt   0)
+         (data-keys  (loop for c-k being the hash-keys of (mjr_rptree_struct-data rptree-instance)
+                           when (realp (gethash c-k (mjr_rptree_struct-data rptree-instance)))
+                           collect c-k))
+         (da-dsimp   (mjr_dsimp_make-from-points (loop for c-k in data-keys
+                                                       for c-i = (mjr_rptree_hash-key-2-coord rptree-instance c-k)
+                                                       for c-r = (mjr_rptree_coord-2-real rptree-instance c-i)
+                                                       for i from 0
+                                                       do (setf (gethash c-k sim0-h2i) i)
+                                                       do (incf sim0-cnt)
+                                                       collect (vector (aref c-r 0) (aref c-r 1) (gethash c-k (mjr_rptree_struct-data rptree-instance)))))))
+    (labels ((triangulate-quad (quad-coord)
+               (let ((children (mjr_rptree_quad-get-children rptree-instance quad-coord 1)))
+                 (if (and children (mjr_rptree_coord-has-value rptree-instance (first children)))
+                     (loop for c in children
+                           append (triangulate-quad c))
+                     (let* ((center-i (gethash (mjr_rptree_coord-2-hash-key rptree-instance quad-coord) sim0-h2i)))
+                       (if center-i
+                           (destructuring-bind (qv0 qv1 qv2 qv3) (mjr_rptree_quad-get-vertexes rptree-instance quad-coord)
+                             (declare (ignore qv1 qv2))
+                             (let* ((bndry-f  (mjr_rptree_quad-get-boundary-points rptree-instance quad-coord depth 't))
+                                    (bndry-c  (remove-if-not (lambda (c) (gethash (mjr_rptree_coord-2-hash-key rptree-instance c) sim0-h2i)) bndry-f))
+                                    (bndry-co (append (cdr (reverse  (remove-if-not (lambda (c) (= (aref qv0 0) (aref c 0))) bndry-c)))    ;; left
+                                                      (cdr           (remove-if-not (lambda (c) (= (aref qv0 1) (aref c 1))) bndry-c))     ;; bottom
+                                                      (cdr           (remove-if-not (lambda (c) (= (aref qv3 0) (aref c 0))) bndry-c))     ;; right
+                                                      (cdr (reverse  (remove-if-not (lambda (c) (= (aref qv3 1) (aref c 1))) bndry-c)))))
+                                    (bndry-i  (map 'vector (lambda (c) (gethash (mjr_rptree_coord-2-hash-key rptree-instance c) sim0-h2i)) bndry-co)))
+                               (loop with m = (length bndry-i)
+                                     for j from 0 upto (1- m)
+                                     for v1 = (aref bndry-i (mod j m))
+                                     for v2 = (aref bndry-i (mod (1+ j) m))
+                                     collect (vector v1 v2 center-i))))))))))
+      (mjr_dsimp_add-simplex-array da-dsimp (concatenate 'vector (triangulate-quad (mjr_rptree_level-0-quad-center rptree-instance))) 2))))
 
-The :COLOR-DATA argument is a 0-simplex COLOR data set (a dataset name or list containing the dataset simplex dimension and dataset index).  This
-dataset defines colors for vertexes of 2-simplices.  Note meshlab supports vertex color, but many tools do not (ParaView & Blender)
 
-  - Simple surface dump to ply file
-
-      (mjr_dsimp_dump2d-ply-file \"surf.ply\"
-                                 (mjr_fsamp_ds-func-r123-r123 (lambda (x y) (* .5 (abs (- (expt (complex x y) 3) 1))))
-                                                              :xdat '(:start -1.1 :end 1.1 :len 50)
-                                                              :ydat '(:start -1.1 :end 1.1 :len 50)
-                                                              :arg-mode :arg-number))
-
-  - Simple surface dump to ply file with vertex color
-
-      (let ((a-dquad (mjr_fsamp_dq-func-c1-c1 (lambda (c) (* 0.5 (- (expt c 3) 1)))
-                                              :rdat '(:start -1.1 :end 1.1 :len 50)
-                                              :idat '(:start -1.1 :end 1.1 :len 50))))
-        (mjr_dquad_colorize a-dquad :data \"f_abs\" :color-method \"BCGYR\" :ano-nam \"col\")
-        (let ((a-dsimp (mjr_dsimp_make-from-dquad a-dquad '(\"real\" \"imag\") \"f_abs\" :data \"col\")))
-          (mjr_dsimp_dump2d-ply-file \"surf.ply\" a-dsimp :color-data \"col\")))"
-  (let* ((pnts (mjr_dsimp_get-simplex-array dsimp 0))
-         (tris (mjr_dsimp_get-simplex-array dsimp 2))
-         (npts (length pnts))
-         (ntri (length tris)))
-    (with-open-file (dest out-file  :direction :output :if-exists :supersede :if-does-not-exist :create)
-      (format dest "ply~%")
-      (format dest "format ascii 1.0~%")
-      (format dest "comment author: Mitch Richling~%")
-      (format dest "element vertex ~d~%" npts)
-      (format dest "property float x~%")
-      (format dest "property float y~%")
-      (format dest "property float z~%")
-      (if color-data
-          (progn 
-            (format dest "property uchar red~%")
-            (format dest "property uchar green~%")
-            (format dest "property uchar blue~%")))
-      (format dest "element face ~d~%" ntri)
-      (format dest "property list uchar int vertex_index~%")
-      (format dest "end_header~%")
-      (if color-data
-          (let* ((colors (mjr_dsimp_get-data-array dsimp color-data))
-                 (dattyp (mjr_dsimp_get-data-ano dsimp color-data :ano-typ))
-                 (cuc    (mjr_color_make-unpacker-color-space-converter-and-packer (mjr_annot_get-colorpacking dattyp)
-                                                                                   (mjr_annot_get-colorspace dattyp)
-                                                                                   :cs-tru :cp-none)))
-            (loop for clr across colors
-                  for tcl = (funcall cuc clr)
-                  for pnt across pnts
-                  do (format dest "~f ~f ~f ~d ~d ~d~%" (aref pnt 0) (aref pnt 1) (aref pnt 2) (aref tcl 0) (aref tcl 1) (aref tcl 2))))
-          (loop for pnt across pnts
-                do (format dest "~f ~f ~f~%" (aref pnt 0) (aref pnt 1)(aref pnt 2))))
-      (loop for  tri across tris
-            do (format dest "3 ~d ~d ~d~%" (aref tri 0) (aref tri 1) (aref tri 2))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_dsimp_dump2d-obj-file (out-file dsimp)
-  "Generate an OBJ file 2-simplices from dsimp.
-
-The use primary use case is to easily get a triangulation into more artistically oriented 3D modeling tools like Blender and meshlab.
-This function is also handy for quickly looking at a surface with 3D object viewers like g3dviewer before loading into more cumbersome tools.
-
-See the :POV and :VTK packages for more sophisticated rendering options and data export options respectively.
-
-Typical example of use:
-
-  (mjr_dsimp_dump2d-obj-file \"surf.obj\"
-                             (mjr_fsamp_ds-func-r123-r123 (lambda (x y) (* .5 (abs (- (expt (complex x y) 3) 1))))
-                                                          :xdat '(:start -1.1 :end 1.1 :len 50)
-                                                          :ydat '(:start -1.1 :end 1.1 :len 50)
-                                                          :arg-mode :arg-number))"
-  (with-open-file (dest out-file  :direction :output :if-exists :supersede :if-does-not-exist :create)
-    (loop for pnt across (mjr_dsimp_get-simplex-array dsimp 0)
-          do (format dest "v ~f ~f ~f~%" (aref pnt 0) (aref pnt 1) (aref pnt 2)))
-    (loop for  tri across (mjr_dsimp_get-simplex-array dsimp 2)
-          do (format dest "f ~d ~d ~d~%" (1+ (aref tri 0)) (1+ (aref tri 1)) (1+ (aref tri 2))))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; TODO for RPTREE stuff (some of this is dsimp stuff and some of it's geometry related):
+;;   - Filter simplexes in a dsimp based on criteria (return a new dsimp)
+;;     - simplex crosses a given plane parallel to one of the axes
+;;       - Use case: level curves/surfaces
+;;     - simplex is partly in a region and partly outside it
+;;       - Use case: implicit curves/surfaces
+;;     - simplex is entirely contained in a region (or not contained in region)
+;;       - Use case: Throw out simplexes that are not interesting
+;;     - A projection of the simplex is partly in a region and partly outside it
+;;       - Use case: In R^3 with z=f(x,y).  we might define a curve in the x-y plane on which f(x, y) is singular.  This allows us to throw out any simplex that crosses the curve.
+;;     - A projection of the simplex is entirely contained in a region
+;;       - Use case: In R^3 with z=f(x,y).  We might define a region in the x-y plane on which f(x, y) is defined.  This allows us to throw out any simplex that is outside the domain.
+;;     - Simplex contains a point
+;;     - Projection of simplex contains a point
+;;       - Use case: In R^3 with z=f(x,y).  we might define a point in the x-y plane on which f(x, y) is singular.  This allows us to throw out any simplex that contains the singularity
+;;   - Given a dsimp and a slice, compute a intersection of the dsimp with the plan and return result as a new dsimp
+;;   - Given a simplex and a slice, compute a intersection of the simplex with the plan and return it as a simplex
+;;   - Given 2-simplexes in R^3 and a constant k, compute intersection of 2-simplexes and z=k -- it will be 0,1,2-simplexes, but only 1-simplexes represent non-degenerate case
+;;   - Solver that takes a function and a 1-simplex such that one end vertex is undefined for the function, and returns a maximal 1-simplex with both ends defined (void solver)
+;;   - For simplexes with some, but not all, undefined vertex function values create new, maximal, simplexes with edges/vertexes as close to the bad region as possible
+;;   - Take a dsimp and a function, and return a new dsimp the represents a level-set
+;;     - Option to make new simplexes when a given simplex crosses a singularity
+;;     - edge-splitting :middle ;; The way we break edges
+;;       - :middle      Break edges in the middle
+;;       - :linear      Break edges via linear interpolation -- same as :solve for linear functions.  Approximates :solve when triangles are small enough the function is near linear on each triangle
+;;       - :solve       Solve the function for zero on the edge.
+;;   - Take a dsimp and a function, and return a new dsimp that better approximates the function
+;;     - Ex: Fix triangles with one or two vertex singularities -- i.e. find longest non-singular edges, and for new triangles.
+;;   - Take a dsimp, a slice, and a function, and return a new dsimp that better approximates the curve/surface of the slice intersection
+;;   - Add bounding box clipping -- i.e. provide a dsimp & box, and get a clipped dsimp

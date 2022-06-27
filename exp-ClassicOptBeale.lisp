@@ -3,7 +3,7 @@
 ;;;
 ;; @file      exp-ClassicOptBeale.lisp
 ;; @author    Mitch Richling <https://www.mitchr.me>
-;; @brief     Analysis of the classic Beale optimization test function.@EOL
+;; @brief     Analysis of Beale's classic optimization test function.@EOL
 ;; @std       Common Lisp
 ;; @copyright 
 ;;  @parblock

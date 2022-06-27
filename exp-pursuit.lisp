@@ -3,7 +3,7 @@
 ;;;
 ;; @file      exp-pursuit.lisp
 ;; @author    Mitch Richling <https://www.mitchr.me>
-;; @brief     Drug smuggler boat path@EOL
+;; @brief     Some purpose problems.@EOL
 ;; @std       Common Lisp
 ;; @copyright 
 ;;  @parblock

@@ -44,7 +44,7 @@
         :MJR_VVEC)
   (:DOCUMENTATION "Brief: Mathematical vectors.;")
   (:EXPORT #:mjr_vec_help
-           #:mjr_vec_every-idx #:mjr_vec_e?
+           #:mjr_vec_every #:mjr_vec_some #:mjr_vec_every-idx #:mjr_vec_e?
            #:mjr_vec_make-const #:mjr_vec_make-from-func #:mjr_vec_make-seq #:mjr_vec_make-e
            #:mjr_vec_ewuo #:mjr_vec_ewbo
            #:mjr_vec_dot #:mjr_vec_triple-cross #:mjr_vec_cross #:mjr_vec_- #:mjr_vec_+ #:mjr_vec_/ #:mjr_vec_*
@@ -313,6 +313,20 @@ still gets wrong answers for some combinations of inputs ; however, it is better
 (defun mjr_vec_make-e (n &key (len 3) (zero-value 0) (one-value 1))
   "Make the Nth element of the LEN-dimensional standard basis."
   (mjr_vec_make-from-func (lambda (i) (if (= i n) one-value zero-value)) :len len))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_vec_every (pred &rest vecs)
+  "Just like EVERY, but works when vec is a number"
+  (if (numberp vecs)
+      (apply pred vecs)
+      (apply #'every pred vecs)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_vec_some (pred &rest vecs)
+  "Just like SOME, but works when vec is a number"
+  (if (numberp vecs)
+      (apply pred vecs)
+      (apply #'some pred vecs)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_vec_every-idx (pred vec)

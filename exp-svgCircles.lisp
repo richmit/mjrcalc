@@ -33,7 +33,7 @@
        (svgf    (mjr_svg_create "exp-svgCircles-OUT-frog.svg" :width 1000 :height 1000 :background "white" :xmin -1.2 :xmax 1.2 :ymin -1.2 :ymax 1.2)))
   (loop for k from 0 upto n
         for x = (* (cos (/ (* 11 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 10 pi k) n)) 2))))
-        for y = (* (sin (/ (* 17 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 12 pi k) n)) 2))))
+        for y = (- (* (sin (/ (* 17 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 12 pi k) n)) 2)))))
         for s = (+ 1/80 (* 1/10 (expt (sin (/ (* (* 56 ) pi k) n)) 2)))
         for r = (* 255 (/ (+ 0.5 (expt (sin (/ (* (* 56 ) pi k) n)) 4)) 2))
         for g = (* 255 (/ (+ 0.5 (expt (cos (/ (* (* 42 ) pi k) n)) 2)) 2))
@@ -71,8 +71,8 @@
 (let* ((n       10000)
        (svgf    (mjr_svg_create "exp-svgCircles-OUT-skinnyfrog.svg" :width 1000 :height 1000 :background "white" :xmin -1.2 :xmax 1.2 :ymin -1.2 :ymax 1.2)))
   (loop for k from 0 upto n
-        for x = (* (cos (/ (* 8 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 26 pi k) n)) 2))))
-        for y = (* (sin (/ (* 2 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 24 pi k) n)) 2))))
+        for x = (* (sin (/ (* 2 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 24 pi k) n)) 2))))
+        for y = (- (* (cos (/ (* 8 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 26 pi k) n)) 2)))))
         for s = (+ 1/80 (*  1/10 (expt (sin (/ (* (* 25 ) pi k) n)) 4)))
         for g = (* 255 (/ (+ 0.0 (expt (sin (/ (* (* 50 ) pi k) n)) 2)) 1.5))
         for r = (* 255 (/ (+ 0.0 (expt (cos (/ (* (* 50 ) pi k) n)) 6)) 1))
@@ -97,8 +97,8 @@
 (let* ((n       10000)
        (svgf    (mjr_svg_create "exp-svgCircles-OUT-craneknot.svg" :width 1000 :height 1000 :background "white" :xmin -1.2 :xmax 1.2 :ymin -1.2 :ymax 1.2)))
   (loop for k from 0 upto n
-        for x = (* (cos (/ (* 28 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 26 pi k) n)) 2))))
-        for y = (* (sin (/ (* 2 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 24 pi k) n)) 2))))
+        for x = (* (sin (/ (* 2 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 24 pi k) n)) 2))))
+        for y = (* (cos (/ (* 28 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 26 pi k) n)) 2))))
         for s = (+ 1/80 (*  1/10 (expt (sin (/ (* (* 50 ) pi k) n)) 4)))
         for g = (* 255 (/ (+ 0.0 (expt (sin (/ (* (* 50 ) pi k) n)) 2)) 1.5))
         for r = (* 255 (/ (+ 0.0 (expt (cos (/ (* (* 50 ) pi k) n)) 6)) 1))
@@ -110,8 +110,8 @@
 (let* ((n       20000)
        (svgf    (mjr_svg_create "exp-svgCircles-OUT-flight.svg" :width 1000 :height 1000 :background "white" :xmin -1.2 :xmax 1.2 :ymin -1.2 :ymax 1.2)))
   (loop for k from 0 upto n
-        for x = (* (cos (/ (* 48 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 26 pi k) n)) 2))))
-        for y = (* (sin (/ (* 2 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 24 pi k) n)) 2))))
+        for x = (* (sin (/ (* 2 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 24 pi k) n)) 2))))
+        for y = (* (cos (/ (* 48 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 26 pi k) n)) 2))))
         for s = (+ 1/80 (*  1/10 (expt (sin (/ (* (* 50 ) pi k) n)) 4)))
         for g = (* 255 (/ (+ 0.0 (expt (sin (/ (* (* 50 ) pi k) n)) 2)) 1.5))
         for r = (* 255 (/ (+ 0.0 (expt (cos (/ (* (* 50 ) pi k) n)) 6)) 1))
@@ -123,8 +123,8 @@
 (let* ((n       40000)
        (svgf    (mjr_svg_create "exp-svgCircles-OUT-turbulence.svg" :width 1000 :height 1000 :background "white" :xmin -1.2 :xmax 1.2 :ymin -1.2 :ymax 1.2)))
   (loop for k from 0 upto n
-        for x = (* (cos (/ (* 48 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 26 pi k) n)) 2))))
-        for y = (* (sin (/ (* 2 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 24 pi k) n)) 2))))
+        for x = (* (sin (/ (* 2 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 24 pi k) n)) 2))))
+        for y = (* (cos (/ (* 48 pi k) n)) (- 1 (* 3/4 (expt (cos (/ (* 26 pi k) n)) 2))))
         for s = (+ 1/80 (*  1/10 (expt (sin (/ (* (* 150 ) pi k) n)) 4)))
         for g = (* 255 (/ (+ 0.0 (expt (sin (/ (* (* 50 ) pi k) n)) 2)) 1.5))
         for r = (* 255 (/ (+ 0.0 (expt (cos (/ (* (* 50 ) pi k) n)) 6)) 1))

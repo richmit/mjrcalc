@@ -3,7 +3,7 @@
 ;;;
 ;; @file      exp-ClassicOptBanana.lisp
 ;; @author    Mitch Richling <https://www.mitchr.me>
-;; @brief     Analysis of the classic Rosenbrock banana optimization test function.@EOL
+;; @brief     Analysis of Rosenbrock's classic banana optimization test function.@EOL
 ;; @std       Common Lisp
 ;; @copyright 
 ;;  @parblock

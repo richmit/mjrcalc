@@ -3,7 +3,7 @@
 ;;;
 ;; @file      use-pwf.lisp
 ;; @author    Mitch Richling <https://www.mitchr.me>
-;; @brief     piecewise function stuff.@EOL
+;; @brief     PieceWise Function stuff.@EOL
 ;; @keywords  
 ;; @std       Common Lisp
 ;; @see       

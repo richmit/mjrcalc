@@ -38,6 +38,7 @@
            #:mjr_util_read-csv-file #:mjr_util_write-csv-file
            #:mjr_util_read-file #:mjr_util_write-file
            #:mjr_util_max-print-width
+           #:mjr_util_check-thing-and-contents
            #:mjr_util_get-all-elements-or-args
            #:mjr_util_get-kwarg-supplied #:mjr_util_get-kwarg-vals #:mjr_util_strip-kwarg #:mjr_util_strip-nil-val-kwarg
            #:mjr_util_partition-list-if
@@ -46,7 +47,7 @@
            #:mjr_util_random-permute-seq
            #:mjr_util_non-empty-seqp
            #:mjr_util_fun-adapt-eval-v #:mjr_util_func-args-to-vector #:mjr_util_fun-adapt-strap
-           #:mjr_util_fun-adapt-x2x
+           #:mjr_util_fun-adapt-x2x    #:mjr_util_fun-hostile-eval    #:mjr_util_fun-adapt-hostile-eval-v
            #:mjr_util_funcall-many-if #:mjr_util_funcall-one-if
            #:mjr_util_func-domain-rect-to-unit
            #:mjr_util_elt-mod
@@ -292,7 +293,7 @@ Example: (mjr_util_super-concatenate 'list 1 '(2) #(3) #2a((5 6)(7 8)) 9) => '(1
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_fun-adapt-eval-v (f x arg-mode)
-  "Evaluate the multivariate function F (R^N->A) on the vector x
+  "Evaluate the function F (R^N->A) on the vector x.  Usually N>1, but this is not a requirement.
 
 The function specified in the F argument takes a N numeric values.  :ARG-MODE: determines how the values are provided:
   * (arg-mode = :arg-number)  F takes N distinct arguments (each a number) DEFAULT
@@ -304,6 +305,39 @@ The function specified in the F argument takes a N numeric values.  :ARG-MODE: d
           ((eq arg-mode :arg-number)   (apply   f (concatenate 'list x)))
           ((eq arg-mode :arg-args)     (apply   f (concatenate 'list x)))
           ((eq arg-mode :arg-list)     (funcall f (concatenate 'list x))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_util_check-thing-and-contents (obj obj-pred &optional obj-elt-pred)
+  "Return non-NIL if object is non-NIL, OBJ-PRED applied to OBJ is non-NIL, and OBJ-ELT-PRED (when provided) is non-NIL when applied to every element of OBJ.
+
+Ex: Test that obj is a vector of real numbers: (mjr_util_check-type obj #'vectorp #'realp)"
+  (and obj
+       (funcall obj-pred obj)
+       (or (null obj-elt-pred)
+          (every obj-elt-pred obj))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_util_fun-adapt-hostile-eval-v (f v arg-mode valid-return-pred)
+  "Rather like a combination of MJR_UTIL_FUN-HOSTILE-EVAL combined with MJR_UTIL_FUN-ADAPT-EVAL-V."
+  (let* ((arg-mode (or arg-mode :arg-number))
+         (ret-val  (cond ((eq arg-mode :arg-vector)   (ignore-errors (funcall f v)))
+                         ((eq arg-mode :arg-number)   (ignore-errors (apply   f (concatenate 'list v))))
+                         ((eq arg-mode :arg-args)     (ignore-errors (apply   f (concatenate 'list v))))
+                         ((eq arg-mode :arg-list)     (ignore-errors (funcall f (concatenate 'list v)))))))
+    (if (or (not valid-return-pred) (funcall valid-return-pred ret-val))
+        ret-val)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_util_fun-hostile-eval (valid-return-pred func &rest x)
+  "Return value of FUNC applied to X, or NIL when function errors or return valid-return-pred returns NIL on function result."
+  (let ((ret-val (ignore-errors (apply func x))))
+    (if (or (not valid-return-pred) (funcall valid-return-pred ret-val))
+        ret-val)))
+
+  ;; * Real Number           #'realp
+  ;; * Real Vector           (lambda (x) (mjr_util_check-thing-and-contents x #'vectorp #'realp))
+  ;; * Any Type              nil
+  ;; * Number                #'numberp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_util_fun-adapt-x2x (f from-arg-mode to-arg-mode)
@@ -380,3 +414,12 @@ Ex: (mjr_util_fun-adapt-strap 'vector #'sin #'cos) ==> (lambda (x) (vector (cos 
   (if (listp thingy)
       thingy
       (list thingy)))
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (defun mjr_util_elt-to-str (expr)
+;;   "Recursively find every non-list thing in EXPR, and convert it to a string"
+;;   (typecase expr
+;;     (symbol     (format nil "~a" expr))
+;;     (list       (mapcar #'mjr_mxp_elt-to-str expr))
+;;     (otherwise  (format nil "~a" expr))))
+

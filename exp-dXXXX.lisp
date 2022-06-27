@@ -3,9 +3,9 @@
 ;;;
 ;; @file      exp-dXXXX.lisp
 ;; @author    Mitch Richling <https://www.mitchr.me>
-;; @brief     Example for :MJR_DQUAD.@EOL
+;; @brief     Example for DQUADs and DSIMPs.@EOL
 ;; @std       Common Lisp
-;; @copyright 
+;; @copyright
 ;;  @parblock
 ;;  Copyright (c) 2015, Mitchell Jay Richling <https://www.mitchr.me> All rights reserved.
 ;;
@@ -89,11 +89,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear Scalar Field in 3D
 (format 't "f-q-r3-r1~%")
-(setq f-q-r3-r1 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" (list :start -4 :end 4 :len len-vvr1) 
+(setq f-q-r3-r1 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" (list :start -4 :end 4 :len len-vvr1)
                                                                        "y" (list :start -5 :end 5 :len len-vvr2)
                                                                        "z" (list :start -6 :end 6 :len len-vvr3))
                                              (lambda (x y z) (* (- (sin x) (cos y)) (cos z)))
-                                             :axes 't 
+                                             :axes 't
                                              :ano-nam "z"
                                              :ano-typ :ano-typ-real))
 
@@ -103,15 +103,15 @@
 ;; Rectilinear Scalar Field in 2D
 ;; Rectilinear Surface in 3D -- i.e. the points [x, y, f(x,y)]
 (format 't "f-q-r2-r1~%")
-(setq f-q-r2-r1 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" (list :start -4 :end 4 :len len-vvr1) 
+(setq f-q-r2-r1 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" (list :start -4 :end 4 :len len-vvr1)
                                                                        "y" (list :start -5 :end 5 :len len-vvr2))
                                              (lambda (x y) (- (sin x) (cos y)))
-                                             :axes 't 
+                                             :axes 't
                                              :ano-nam "z"
                                              :ano-typ :ano-typ-real))
 (mjr_dquad_add-data-from-map f-q-r2-r1 (lambda (x y) (- (cos x) (cos y))) :axes '(0 1) :ano-nam "dz/dx" :ano-typ :ano-typ-real)
 (mjr_dquad_add-data-from-map f-q-r2-r1 (lambda (x y) (+ (sin x) (sin y))) :axes '(0 1) :ano-nam "dz/dy" :ano-typ :ano-typ-real)
-                                                          
+
 (mjr_dquad_colorize f-q-r2-r1 :data 0 :color-method "01"  :ano-nam "z_color")
 
 ;; (mjr_gnupl_dquad f-q-r2-r1 :data 0 :main "f-q-r2-r1" :type :l)
@@ -137,11 +137,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear 3D Vector Field 3D
 (format 't "f-q-r3-r3~%")
-(setq f-q-r3-r3 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" (list :start -2 :end 2 :len len-vvr1) 
+(setq f-q-r3-r3 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "x" (list :start -2 :end 2 :len len-vvr1)
                                                                        "y" (list :start -2 :end 2 :len len-vvr2)
                                                                        "z" (list :start -2 :end 2 :len len-vvr3))
                                              (lambda (x y z) (vector (* x x) (* y y) (* z z)))
-                                             :axes 't 
+                                             :axes 't
                                              :ano-nam "v"
                                              :ano-typ :ano-typ-rvec))
 
@@ -149,7 +149,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear 2D Vector Field 2D
-;; Parametric Surface in 3D -- i.e. the points [f_x(u, v), f_y(u, v), f_z(u, v)].  See: mjr_dsimp for options.
+;; Parametric Surface in 3D -- i.e. the points [f_x(u, v), f_y(u, v), f_z(u, v)].
 (format 't "f-q-r2-r3~%")
 (setq f-q-r2-r3 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "u" (list :start 0 :end 6.0 :len len-vvr1)
                                                                        "v" (list :start 0 :end 6.0 :len len-vvr2))
@@ -168,7 +168,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear 3D Vector Field 1D -- i.e. vectors with base points on the x-axis
-;; Parametric Curve in 3D -- i.e. the points [f_x(u), f_y(u), f_z(u)].  See: mjr_dsimp for options.
+;; Parametric Curve in 3D -- i.e. the points [f_x(u), f_y(u), f_z(u)].
 (format 't "f-q-r1-r3~%")
 (setq f-q-r1-r3 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "u" (list :start 0 :end 7.0 :len len-vvr1))
                                              (lambda (u) (vector (sin u) (cos u) (/ u 7.0)))
@@ -208,7 +208,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rectilinear 2D Vector Field 1D -- i.e. vectors with base points on the x-axis
-;; Parametric Curve in 2D -- i.e. the points [f_x(u), f_y(u)].  See: mjr_dsimp for options.
+;; Parametric Curve in 2D -- i.e. the points [f_x(u), f_y(u)].
 (format 't "f-q-r1-r2~%")
 (setq f-q-r1-r2 (mjr_dquad_add-data-from-map (mjr_dquad_make-from-axis "u" (list :start 0 :end 5.0 :len len-vvr1))
                                              (lambda (u) (vector (sin u) (cos u)))
@@ -295,7 +295,7 @@
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-oo-x00-tt-0lt.vtk" f-s-r2-r3-oo-x00-tt :simplices '(  1 2))
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-oo-xyd-tt-0l0.vtk" f-s-r2-r3-oo-xyd-tt :simplices '(  1  ))
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-oo-xyd-tt-0lt.vtk" f-s-r2-r3-oo-xyd-tt :simplices '(  1 2))
-                                                                                                   
+
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-oc-000-tt-000.vtk" f-s-r2-r3-oc-000-tt :simplices '(     ))
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-oc-000-tt-00t.vtk" f-s-r2-r3-oc-000-tt :simplices '(    2))
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-oc-00d-tt-0lt.vtk" f-s-r2-r3-oc-00d-tt :simplices '(  1 2))
@@ -303,7 +303,7 @@
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-oc-x00-tt-0lt.vtk" f-s-r2-r3-oc-x00-tt :simplices '(  1 2))
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-oc-xyd-tt-0l0.vtk" f-s-r2-r3-oc-xyd-tt :simplices '(  1  ))
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-oc-xyd-tt-0lt.vtk" f-s-r2-r3-oc-xyd-tt :simplices '(  1 2))
-                                                                                                   
+
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-co-000-tt-000.vtk" f-s-r2-r3-co-000-tt :simplices '(     ))
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-co-000-tt-00t.vtk" f-s-r2-r3-co-000-tt :simplices '(    2))
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-co-00d-tt-0lt.vtk" f-s-r2-r3-co-00d-tt :simplices '(  1 2))
@@ -311,7 +311,7 @@
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-co-x00-tt-0lt.vtk" f-s-r2-r3-co-x00-tt :simplices '(  1 2))
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-co-xyd-tt-0l0.vtk" f-s-r2-r3-co-xyd-tt :simplices '(  1  ))
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-co-xyd-tt-0lt.vtk" f-s-r2-r3-co-xyd-tt :simplices '(  1 2))
-                                                                                                   
+
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-cc-000-tt-000.vtk" f-s-r2-r3-cc-000-tt :simplices '(     ))
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-cc-000-tt-00t.vtk" f-s-r2-r3-cc-000-tt :simplices '(    2))
 (mjr_vtk_from-dsimp "exp-dXXXX-OUT-f-s-r2-r3-cc-00d-tt-0lt.vtk" f-s-r2-r3-cc-00d-tt :simplices '(  1 2))

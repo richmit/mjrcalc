@@ -349,7 +349,7 @@ This function is O(1) with a run time typically measured in micro-seconds with 2
   (if (zerop *mjr_prime_small-count*)
       (mjr_prime_init-small-prime-list))
   (cond ((zerop *mjr_prime_small-count*) (error "mjr_prime_primep-small: Could not initialize *mjr_prime_small-list*!"))
-        ((> n *mjr_prime_small-max*)   (error "mjr_prime_primep-small: The value of N must be less than *mjr_prime_small-max*")))
+        ((> n   *mjr_prime_small-max*)   (error "mjr_prime_primep-small: The value of N must be less than *mjr_prime_small-max*")))
   (if (> n 0)
       (let ((idx (mjr_prime_sieve-int2idx n)))
         (if (or (and idx (= (aref *mjr_prime_small-bitmap* idx) 1)) (= n 2) (= n 3) (= n 5)) 't))))
@@ -439,8 +439,9 @@ and END<N.  If END is too large, then it is clipped to (1-*MJR_PRIME_SMALL-COUNT
   "Return the index of the N-th small prime, or NIL if P is not in *MJR_PRIME_SMALL-MAX*.
 
 Examples:
-  * (mjr_prime_small-prime-index 0) => 2
-  * (mjr_prime_small-prime-index 1) => 3
+  * (mjr_prime_small-prime-index 2)  => 0
+  * (mjr_prime_small-prime-index 3)  => 1
+  * (mjr_prime_small-prime-index 23) => 8
 
 The only error case is when *mjr_prime_small-max* can not be initialized."
   (if (zerop *mjr_prime_small-count*)

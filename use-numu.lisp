@@ -54,6 +54,8 @@
 
            #:mjr_numu_csign #:mjr_numu_signum-pos
 
+           #:mjr_numu_same-sign #:mjr_numu_different-sign-none-zero
+
            #:mjr_numu_dabs
 
            #:mjr_numu_sqrt #:mjr_numu_cubert
@@ -189,6 +191,18 @@ most cases, the signum is multiplied by a value in this use case, and the produc
         1)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_numu_same-sign (x y)
+  "Returns non-NIL if x and y have the same sign. Zero is considered positive. "
+  (or (and (<= 0 x) (<= 0 y))
+      (and (> 0 x)  (> 0 y))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun mjr_numu_different-sign-none-zero (x y)
+  "Returns non-NIL if x and y have different signs and both are not zero."
+  (or (and (< 0 x) (> 0 y))
+      (and (> 0 x) (< 0 y))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_numu_fnd-max-periodic-point (seed period lower-bound upper-bound &optional eps)
   "Find the maximum number PP=seed+period*n such that n is an integer and lower-bound<=PP<=upper-bound
 
@@ -252,6 +266,7 @@ This is useful for finding special points (discontinuities, extrema, etc) for pe
                                   ('t                              (format nil "~D" x)))))
     (let* ((bams (case lang            ;;    rea           cplx                      int           rat
                    (:lang-vtk          (list #'fmtFloatSgl nil                       #'fmtSgnInt32 #'fmtFloatSgl))  ;; Some VTK readers won't read doubles!!
+                   (:lang-ply          (list #'fmtFloatSgl nil                       #'fmtSgnInt32 #'fmtFloatSgl))  ;; Use single floats for PLY files
                    (:lang-gnuplot      (list #'fmtFloatSgl nil                       #'fmtSgnInt32 #'fmtFloatSgl))
                    (:lang-povray       (list #'fmtFloatSgl "<~a,~a>"                 #'fmtSgnInt64 #'fmtRatFltSgl))
                    ((:lang-matlab

@@ -3,7 +3,7 @@
 ;;;
 ;; @file      use-gnupl.lisp
 ;; @author    Mitch Richling <https://www.mitchr.me>
-;; @brief     Plotting dquads with GNUPlot.@EOL
+;; @brief     Plotting DQUADs, DSIMPs, and RPTREEs with GNUPlot.@EOL
 ;; @std       Common Lisp
 ;; @copyright
 ;;  @parblock
@@ -41,7 +41,7 @@
         :MJR_ANNOT
         :MJR_VVEC
         :MJR_ARR)
-  (:DOCUMENTATION "Brief: Plotting dquads with GNUPlot.;")
+  (:DOCUMENTATION "Brief: Plotting DQUADs, DSIMPs, and RPTREEs with GNUPlot.;")
   (:EXPORT #:mjr_gnupl_help
            #:mjr_gnupl_connect
            #:mjr_gnupl_disconnect
@@ -62,7 +62,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_gnupl_help ()
-  "Help for MJR_GNUPL: Plotting data (DQUADS, DSIMP, BQTREE) with GNUPlot
+  "Help for MJR_GNUPL: Plotting data (DQUADS, DSIMP, RPTREE) with GNUPlot
 
 This package provides a simple interface for quickly plotting dquad lists via GNUPlot."
   (documentation 'mjr_gnupl_help 'function))
@@ -80,6 +80,23 @@ This package provides a simple interface for quickly plotting dquad lists via GN
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar *mjr_gnupl_gnuplot-term* (if (find :unix *features*) "x11")
   "Set to the gnuplot terminal")
+
+;; TODO: Add windows terminal
+;;:OS-WINDOWS 
+;; set term windows size 1920, 1080
+;;
+;; TODO: Set pixel size of x11 term
+;;
+;; TODO: Support images for output
+;;
+;; (mjr_gnupl_disconnect)
+;; (mjr_gnupl_connect)
+;; (mjr_gnupl_send-command "set term png size 1920, 1080*feat~%")
+;; (mjr_gnupl_send-command "set size 1, 1~%")
+;; (mjr_gnupl_send-command "set output \"gnupl.png\"~%")                                        
+;; ploty things
+;; (mjr_gnupl_send-command "set output~%")                                        
+;; (mjr_gnupl_disconnect))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar *mjr_gnupl_gnuplot-stream* nil)
@@ -111,25 +128,18 @@ See the gnuplotGO.sh script for one way to make sure that a gnuplot process is a
                                  (progn (print "If the reader prompt hasn't returned, then start-up a listening gnuplot!!")
                                         (format *mjr_gnupl_gnuplot-stream* "unset output~%")
                                         (setq *mjr_gnupl_gnuplot-stream* (open *mjr_gnupl_gnuplot-fifo-name* :direction :output :if-exists  :overwrite))
-                                        (if *mjr_gnupl_gnuplot-term*
-                                            (format *mjr_gnupl_gnuplot-stream* "set term ~s~%" *mjr_gnupl_gnuplot-term*))
-                                        (format *mjr_gnupl_gnuplot-stream* "reset~%")
-                                        (force-output *mjr_gnupl_gnuplot-stream*)
                                         *mjr_gnupl_gnuplot-stream*)))
         (:mjr_gnupl_use-exec (if (not *mjr_gnupl_gnuplot-exec-path*)
                                  (error "mjr_gnupl_connect: Can's use *mjr_gnupl_gnuplot-exec-path* -- NOT SET!")
                                  (if (not (probe-file *mjr_gnupl_gnuplot-exec-path*))
                                      (error "mjr_gnupl_connect: Can's use *mjr_gnupl_gnuplot-exec-path* -- FILE NOT FOUND (~s)!" *mjr_gnupl_gnuplot-exec-path*)
                                      (progn
+                                       (print "Starting up gnuplot process")
                                        #+sbcl      (setq *mjr_gnupl_gnuplot-stream* (sb-ext:process-input  (sb-ext:run-program          *mjr_gnupl_gnuplot-exec-path* nil :input :stream :output nil :wait nil :search t)))
                                        #+clisp     (setq *mjr_gnupl_gnuplot-stream*                        (ext:make-pipe-output-stream *mjr_gnupl_gnuplot-exec-path*))
                                        #+ecl       (setq *mjr_gnupl_gnuplot-stream*                        (ext:run-program             *mjr_gnupl_gnuplot-exec-path* nil :input :stream :output t   :wait nil :error :output))
                                        #+abcl      (setq *mjr_gnupl_gnuplot-stream* (system::process-input (system::run-program         *mjr_gnupl_gnuplot-exec-path* nil                            :wait nil)))
                                        #-(or clisp sbcl ecl abcl) (error "mjr_gnupl_connect: Can't figure out how to run GNUplot.")
-                                       (if *mjr_gnupl_gnuplot-term*
-                                           (format *mjr_gnupl_gnuplot-stream* "set term ~s~%" *mjr_gnupl_gnuplot-term*))
-                                       (format *mjr_gnupl_gnuplot-stream* "reset~%")
-                                       (force-output *mjr_gnupl_gnuplot-stream*)
                                        *mjr_gnupl_gnuplot-stream*))))
         (otherwise           (warn "mjr_gnupl_connect: *mjr_gnupl_gnuplot-connect-method* not set correctly!!")))))
 
@@ -141,31 +151,28 @@ See the gnuplotGO.sh script for one way to make sure that a gnuplot process is a
              (setq *mjr_gnupl_gnuplot-stream* nil))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_gnupl_send-command (command &optional alternate-gnuplot-stream)
-  "Send a command to gnuplot to the *MJR_GNUPL_GNUPLOT-FIFO-NAME* -- or ALTERNATE-GNUPLOT-STREAM if it is non-NIL."
-  (if alternate-gnuplot-stream
-      (progn (format alternate-gnuplot-stream "~a ~%" command)
-             (force-output alternate-gnuplot-stream))
+(defun mjr_gnupl_send-command (command)
+  "Send a command to gnuplot."
       (if (not (mjr_gnupl_connect))
           (error "mjr_gnupl_send-command: Could not communicate with gnuplot")
           (progn (format *mjr_gnupl_gnuplot-stream* "~a ~%" command)
                  (if *mjr_gnupl_gnuplot-stream-echo*
                      (format 't "~a ~%" command))
-                 (force-output *mjr_gnupl_gnuplot-stream*)))))
+                 (force-output *mjr_gnupl_gnuplot-stream*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun mjr_gnupl_send-reset ( &optional alternate-gnuplot-stream)
-  (mjr_gnupl_send-command "unset output" alternate-gnuplot-stream)
+(defun mjr_gnupl_send-reset ()
+  (mjr_gnupl_send-command "set output")
+  (mjr_gnupl_send-command "unset output")
   (if *mjr_gnupl_gnuplot-term*
-      (mjr_gnupl_send-command (format nil "set term ~s~%" *mjr_gnupl_gnuplot-term*) alternate-gnuplot-stream))
-  (mjr_gnupl_send-command "reset"        alternate-gnuplot-stream))
+      (mjr_gnupl_send-command (format nil "set term ~s~%" *mjr_gnupl_gnuplot-term*)))
+  (mjr_gnupl_send-command "reset"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mjr_gnupl_dquad (dquad &key data
                                 (type :l) (pal "default") col
                                 title xlab ylab zlab main
-                                xlim ylim zlim
-                                alternate-gnuplot-stream)
+                                xlim ylim zlim)
   "Plot a dquad object with GNUplot.
 
 If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppress titles entirely, set :TITLE to '(NIL) -- a list containing a NIL."
@@ -197,16 +204,16 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
                            (every (lambda (x) (not (or (string-equal :i x) (string-equal :rgb x)))) type))))
     ;; Setup the plot
     (mjr_gnupl_send-reset)
-    (mjr_gnupl_send-command (format nil "set xlabel \"~a\"" (or xlab "")) alternate-gnuplot-stream)
-    (mjr_gnupl_send-command (format nil "set ylabel \"~a\"" (or ylab "")) alternate-gnuplot-stream)
-    (mjr_gnupl_send-command (format nil "set zlabel \"~a\"" (or zlab "")) alternate-gnuplot-stream)
-    (mjr_gnupl_send-command (format nil "set title \"~a\""  (or main "")) alternate-gnuplot-stream)
-    (mjr_gnupl_send-command "set zeroaxis" alternate-gnuplot-stream)
-    (mjr_gnupl_send-command "set autoscale" alternate-gnuplot-stream)
-    (mjr_gnupl_send-command "set autoscale fix" alternate-gnuplot-stream)
-    (if xlim (mjr_gnupl_send-command (format nil "set xrange [~f:~f]" (first xlim) (second xlim)) alternate-gnuplot-stream))
-    (if ylim (mjr_gnupl_send-command (format nil "set yrange [~f:~f]" (first ylim) (second ylim)) alternate-gnuplot-stream))
-    (if zlim (mjr_gnupl_send-command (format nil "set zrange [~f:~f]" (first zlim) (second zlim)) alternate-gnuplot-stream))
+    (mjr_gnupl_send-command (format nil "set xlabel \"~a\"" (or xlab "")))
+    (mjr_gnupl_send-command (format nil "set ylabel \"~a\"" (or ylab "")))
+    (mjr_gnupl_send-command (format nil "set zlabel \"~a\"" (or zlab "")))
+    (mjr_gnupl_send-command (format nil "set title \"~a\""  (or main "")))
+    (mjr_gnupl_send-command "set zeroaxis")
+    (mjr_gnupl_send-command "set autoscale")
+    (mjr_gnupl_send-command "set autoscale fix")
+    (if xlim (mjr_gnupl_send-command (format nil "set xrange [~f:~f]" (first xlim) (second xlim))))
+    (if ylim (mjr_gnupl_send-command (format nil "set yrange [~f:~f]" (first ylim) (second ylim))))
+    (if zlim (mjr_gnupl_send-command (format nil "set zrange [~f:~f]" (first zlim) (second zlim))))
     (if (and dat3d pal)
         (progn (mjr_gnupl_send-command
                 (concatenate 'string
@@ -215,10 +222,10 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
                                                    ("printable" . "30,31,32") ("rainbow" . "33,13,10") ("afm"  . "34,35,36")
                                                    ("hsv"       . "3,2,2")    ("gray"    . "3,3,3")    ("grey" . "3,3,3"))
                                              :test #'string=))
-                                 pal)) alternate-gnuplot-stream)
-               (mjr_gnupl_send-command "set hidden3d" alternate-gnuplot-stream)
+                                 pal)))
+               (mjr_gnupl_send-command "set hidden3d")
                ;;(mjr_gnupl_send-command "set pm3d depthorder")
-               (mjr_gnupl_send-command "set style fill solid 1.00" alternate-gnuplot-stream)))
+               (mjr_gnupl_send-command "set style fill solid 1.00")))
       ;; The plot command
       (mjr_gnupl_send-command
        (with-output-to-string (ss)
@@ -239,7 +246,7 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
                    (if (and col (mjr_util_elt-mod col plt-idx))
                        (format nil "linecolor rgb \"~a\"" (mjr_util_elt-mod col plt-idx))
                        "")
-                   (if (= plt-idx (1- num-plt)) "" ", ")))) alternate-gnuplot-stream)
+                   (if (= plt-idx (1- num-plt)) "" ", ")))))
       ;; Send the data
       (let* ((xaxis (first axes))
              (yaxis (second axes))
@@ -251,16 +258,16 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
                  (case rdim
                    (1 (loop for x across xaxis
                             for d across (nth plt-idx data)
-                            do (mjr_gnupl_send-command (format nil "~F ~F " x d) alternate-gnuplot-stream)))
+                            do (mjr_gnupl_send-command (format nil "~F ~F " x d))))
                    (2 (case dtyp
                         (:ano-typ-complex (loop for d across (nth plt-idx data)
-                                                do (mjr_gnupl_send-command (format nil "~F ~F " (realpart d) (imagpart d)) alternate-gnuplot-stream)))
+                                                do (mjr_gnupl_send-command (format nil "~F ~F " (realpart d) (imagpart d)))))
                         (otherwise        (loop for d across (nth plt-idx data)
-                                                do (mjr_gnupl_send-command (format nil "~F ~F " (aref d 0) (aref d 1)) alternate-gnuplot-stream)))))
+                                                do (mjr_gnupl_send-command (format nil "~F ~F " (aref d 0) (aref d 1)))))))
                    (3 (loop for d across (nth plt-idx data)
-                            do (mjr_gnupl_send-command (format nil "~F ~F ~F " (aref d 0) (aref d 1) (aref d 2)) alternate-gnuplot-stream)))
+                            do (mjr_gnupl_send-command (format nil "~F ~F ~F " (aref d 0) (aref d 1) (aref d 2)))))
                    (otherwise (error "mjr_gnupl_dquad: Range dimension ~d is not support with domain dimension of 1" rdim)))
-                 (mjr_gnupl_send-command  "e" alternate-gnuplot-stream))))
+                 (mjr_gnupl_send-command  "e"))))
           (2 (dotimes (plt-idx num-plt)
                (let* ((rdim (elt rng-dim plt-idx))
                       (cdat (elt data plt-idx))
@@ -281,17 +288,17 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
                                          (if colp
                                              (let ((pcol  (funcall cuc d)))
                                                (format nil "~F ~F ~F ~F ~F " x y (aref pcol 0) (aref pcol 1) (aref pcol 2)))
-                                             (format nil "~F ~F ~F " x y d)) alternate-gnuplot-stream))
-                            do (mjr_gnupl_send-command "" alternate-gnuplot-stream)))
+                                             (format nil "~F ~F ~F " x y d))))
+                            do (mjr_gnupl_send-command "")))
                    (3 (loop for xi from 0
                             for x across xaxis
                             do (loop for yi from 0
                                      for y across yaxis
                                      for d = (aref cdat xi yi)
-                                     do (mjr_gnupl_send-command (format nil "~F ~F ~F " (aref d 0) (aref d 1) (aref d 2)) alternate-gnuplot-stream))
-                            do (mjr_gnupl_send-command "" alternate-gnuplot-stream)))
+                                     do (mjr_gnupl_send-command (format nil "~F ~F ~F " (aref d 0) (aref d 1) (aref d 2))))
+                            do (mjr_gnupl_send-command "")))
                    (otherwise (error "mjr_gnupl_dquad: Range dimension ~d is not support with domain dimension of 2" rdim)))
-                 (mjr_gnupl_send-command  "e" alternate-gnuplot-stream))))
+                 (mjr_gnupl_send-command  "e"))))
           (otherwise (error "mjr_gnupl_dquad: Domain dimension of ~d is not supported!" ddim))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -300,25 +307,24 @@ If :TITLE is NIL, then the :ANO-NAM values in the DQUAD will be usd.  To suppres
                                 (simplices 1)
                                 (type :l) col
                                 xlab ylab zlab main
-                                xlim ylim zlim
-                                alternate-gnuplot-stream)  
+                                xlim ylim zlim)  
   "Plot the points and/or edges of 0, 1, or 2 simplices of a dsimp object with GNUplot.
 
 No attempt is made to draw a point or segment only one time -- i.e. when drawing 2-simplices forming a surface mesh, most edges will be draw twice and most
 vertexes will be drawn three times.  For best performance, use :simplices 0 when using :type :p.  When available, use 1-simplices for edge drawing instead of
 2-simplices."
   ;; Setup the plot
-  (mjr_gnupl_send-reset)
-  (mjr_gnupl_send-command (format nil "set xlabel \"~a\"" (or xlab "")) alternate-gnuplot-stream)
-  (mjr_gnupl_send-command (format nil "set ylabel \"~a\"" (or ylab "")) alternate-gnuplot-stream)
-  (mjr_gnupl_send-command (format nil "set zlabel \"~a\"" (or zlab "")) alternate-gnuplot-stream)
-  (mjr_gnupl_send-command (format nil "set title \"~a\""  (or main "")) alternate-gnuplot-stream)
-  (mjr_gnupl_send-command "set zeroaxis" alternate-gnuplot-stream)
-  (mjr_gnupl_send-command "set autoscale" alternate-gnuplot-stream)
-  (mjr_gnupl_send-command "set autoscale fix" alternate-gnuplot-stream)
-  (if xlim (mjr_gnupl_send-command (format nil "set xrange [~f:~f]" (first xlim) (second xlim)) alternate-gnuplot-stream))
-  (if ylim (mjr_gnupl_send-command (format nil "set yrange [~f:~f]" (first ylim) (second ylim)) alternate-gnuplot-stream))
-  (if zlim (mjr_gnupl_send-command (format nil "set zrange [~f:~f]" (first zlim) (second zlim)) alternate-gnuplot-stream))
+  (mjr_gnupl_send-reset)                
+  (mjr_gnupl_send-command (format nil "set xlabel \"~a\"" (or xlab "")))
+  (mjr_gnupl_send-command (format nil "set ylabel \"~a\"" (or ylab "")))
+  (mjr_gnupl_send-command (format nil "set zlabel \"~a\"" (or zlab "")))
+  (mjr_gnupl_send-command (format nil "set title \"~a\""  (or main "")))
+  (mjr_gnupl_send-command "set zeroaxis")
+  (mjr_gnupl_send-command "set autoscale")
+  (mjr_gnupl_send-command "set autoscale fix")
+  (if xlim (mjr_gnupl_send-command (format nil "set xrange [~f:~f]" (first xlim) (second xlim))))
+  (if ylim (mjr_gnupl_send-command (format nil "set yrange [~f:~f]" (first ylim) (second ylim))))
+  (if zlim (mjr_gnupl_send-command (format nil "set zrange [~f:~f]" (first zlim) (second zlim))))
   ;; The plot command
   (mjr_gnupl_send-command (format nil "~a '-' using ~a notitle with ~a ~a ~%"
                                   (if dimz "splot " "plot ")
@@ -333,8 +339,7 @@ vertexes will be drawn three times.  For best performance, use :simplices 0 when
                                       "lines")
                                   (if col
                                       (format nil "linecolor rgb \"~a\"" col)
-                                      ""))
-                          alternate-gnuplot-stream)
+                                      "")))
   ;; Send the data
   (flet ((fmt-pnt (p) (with-output-to-string (ss)
                         (format ss "~F ~F" (aref p dimx) (aref p dimy))
@@ -355,4 +360,4 @@ vertexes will be drawn three times.  For best performance, use :simplices 0 when
                                  do (mjr_gnupl_send-command (format nil (if dimz "~a~%~a~%~%" "~a~%~a~%") (fmt-pnt p1) (fmt-pnt p2)))
                                  do (mjr_gnupl_send-command (format nil (if dimz "~a~%~a~%~%" "~a~%~a~%") (fmt-pnt p2) (fmt-pnt p0)))))
           ('t              (error "mjr_gnupl_dsimp: Only 0, 1, and 2 simplexes are supported!")))
-    (mjr_gnupl_send-command  "e" alternate-gnuplot-stream)))
+    (mjr_gnupl_send-command  "e")))

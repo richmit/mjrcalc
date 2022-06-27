@@ -3,7 +3,7 @@
 ;;;
 ;; @file      use-prob.lisp
 ;; @author    Mitch Richling <https://www.mitchr.me>
-;; @brief     Augments and supports :mjr_probau.@EOL
+;; @brief     Probability distributions -- augments and supports :mjr_probau.@EOL
 ;; @std       Common Lisp
 ;; @see       tst-prob.lisp
 ;; @copyright
@@ -30,6 +30,7 @@
 ;; @todo      mjr_prob_bernoulli-pdf: Reconsider "always double-float" rule.  Document why we do it.@EOL@EOL
 ;; @todo      mjr_prob_negative-binomial-pdf: Optimize!@EOL@EOL
 ;; @todo      mjr_prob_negative-binomial-pdf: Add a :poisson option for :algorithm.@EOL@EOL
+;; @todo      Add hypergeometric functions!
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

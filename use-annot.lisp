@@ -62,7 +62,7 @@
 Annotations may be collected up into annotation lists -- alists with annotation key (or tag) and value.  Each element may have one
 of the following possible annotation keys:
 
-    * :ano-typ -- the element type for the array/array.  Values for the :ano-typ key may be any of the following:
+    * :ano-typ -- the element type for the entity.  Values for the :ano-typ key may be any of the following:
 
          |------------------+----------------------+---------+-----------+-----------+---------|
          | :ano-typ Value   | Data Type            | MJR_VTK | MJR_GNUPL | MJR_COLOR | MJR_POV |
